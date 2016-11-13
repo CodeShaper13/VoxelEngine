@@ -6,29 +6,11 @@ using System.Text;
 using UnityEngine;
 
 public class ChunkGenerator {
-    private float stoneBaseHeight = -24;
-    private float stoneBaseNoise = 0.05f;
-    private float stoneBaseNoiseHeight = 4;
 
-    private float stoneMountainHeight = 48;
-    private float stoneMountainFrequency = 0.008f;
-    private float stoneMinHeight = -12;
+    public World world;
 
-    private float dirtBaseHeight = 1;
-    private float dirtNoise = 0.04f;
-    private float dirtNoiseHeight = 3;
-
-    private float caveFrequency = 0.025f;
-    private int caveSize = 7;
-
-    private float treeFrequency = 0.2f;
-    private int treeDensity = 3;
-
-
-    public float caveThreshold = 0.5f;
-
-    public ChunkGenerator() {
-
+    public ChunkGenerator(World world) {
+        this.world = world;
     }
 
     public void generateChunk(Chunk c) {

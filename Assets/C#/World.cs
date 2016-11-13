@@ -12,7 +12,7 @@ public class World : MonoBehaviour {
 
     void Awake() {
         this.worldName = "world";
-        this.generator = new ChunkGenerator();
+        this.generator = new ChunkGenerator(this);
     }
 
     void LateUpdate() {
