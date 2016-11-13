@@ -14,6 +14,10 @@ public class ChunkGenerator {
     }
 
     public void generateChunk(Chunk c) {
+        //TerrainGen t = new TerrainGen();
+        //t.ChunkGen(c);
+        //return;
+
         if(c.chunkX == 0 && c.chunkY == 0 && c.chunkZ == 0) {
             this.generateOrgin(c);
         } else {

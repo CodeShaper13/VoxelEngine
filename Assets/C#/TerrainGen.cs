@@ -76,7 +76,7 @@ public class TerrainGen {
         y -= chunk.pos.y;
         z -= chunk.pos.z;
         if (Chunk.inChunkBounds(x) && Chunk.inChunkBounds(y) && Chunk.inChunkBounds(z)) {
-            if (replaceBlocks || chunk.getBlock(x, y, z) == null) {
+            if (replaceBlocks || chunk.getBlock(x, y, z) == null) { //TODO we changed the chunk.getBlock method, this might make a crash
                 chunk.setBlock(x, y, z, block);
             }
         }

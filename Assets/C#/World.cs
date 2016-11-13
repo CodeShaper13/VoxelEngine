@@ -22,11 +22,8 @@ public class World : MonoBehaviour {
     }
 
     //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
-    public void loadChunk(int x, int y, int z) {
-        BlockPos pos = new BlockPos(x, y, z);
-        BlockPos chunkPos = pos.toChunkPos();
-        //Instantiate the chunk at the coordinates using the chunk prefab as setup the gameObject
-        GameObject newChunkObject = Instantiate(chunkPrefab, new Vector3(x, y, z), Quaternion.Euler(Vector3.zero)) as GameObject;
+    public Chunk loadChunk(BlockPos pos) {
+        GameObject newChunkObject = Instantiate(chunkPrefab, pos.toVector(), Quaternion.Euler(Vector3.zero)) as GameObject;
         Chunk newChunk = newChunkObject.GetComponent<Chunk>();
         newChunk.initChunk(this, pos);
 
@@ -35,19 +32,18 @@ public class World : MonoBehaviour {
 
         if(!Serialization.LoadChunk(newChunk)) {
             this.generator.generateChunk(newChunk);
-
-            //TerrainGen terrainGen = new TerrainGen();
-            //newChunk = terrainGen.ChunkGen(newChunk);
+            //new TerrainGen().ChunkGen(newChunk);
         }
+        return newChunk;
     }
 
     //Unloads a chunk, removing references and saving it
-    public void unloadChunk(int x, int y, int z) {
+    public void unloadChunk(BlockPos pos) {
         Chunk chunk = null;
-        if (loadedChunks.TryGetValue(new BlockPos(x, y, z), out chunk)) {
-            Serialization.SaveChunk(chunk);
+        if (loadedChunks.TryGetValue(pos, out chunk)) {
+            //Serialization.SaveChunk(chunk);
             Object.Destroy(chunk.gameObject);
-            loadedChunks.Remove(new BlockPos(x, y, z));
+            loadedChunks.Remove(pos);
         }
     }
 
@@ -97,12 +93,7 @@ public class World : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="value1"></param>
-    /// <param name="value2"></param>
-    /// <param name="pos"> The coords of an adjacent block</param>
+    //What's this do?
     void UpdateIfEqual(int value1, int value2, BlockPos pos) {
         if (value1 == value2) {
             Chunk chunk = getChunk(pos.x, pos.y, pos.z);

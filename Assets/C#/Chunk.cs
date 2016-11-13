@@ -51,6 +51,8 @@ public class Chunk : MonoBehaviour {
         this.transform.parent = this.world.transform;
     }
 
+    //For the following for methods, make sure the pos is between 0 and 15
+
     public Block getBlock(int x, int y, int z) {
         if (inChunkBounds(x) && inChunkBounds(y) && inChunkBounds(z)) {
             return this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];

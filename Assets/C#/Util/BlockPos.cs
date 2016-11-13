@@ -21,7 +21,7 @@ public struct BlockPos {
     }
 
     public override string ToString() {
-        return "(" + this.x + "," + this.y + "," + this.z + ")";
+        return "(" + this.x + ", " + this.y + ", " + this.z + ")";
     }
 
     public override bool Equals(object obj) {
@@ -44,6 +44,14 @@ public struct BlockPos {
 
     public static BlockPos operator -(BlockPos b, BlockPos b1) {
         return new BlockPos(b.x - b1.x, b.y - b1.y, b.z - b1.z);
+    }
+
+    public static BlockPos operator *(BlockPos b, int i) {
+        return new BlockPos(b.x * i, b.y * i, b.z * i);
+    }
+
+    public static BlockPos operator /(BlockPos b, int i) {
+        return new BlockPos(b.x / i, b.y / i, b.z / i);
     }
 
     public Vector3 toVector() {
