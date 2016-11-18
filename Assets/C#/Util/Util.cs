@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿//Helper methods that don't fit in any other class.
 public class Util {
-
-    public static float MoveWithinBlock(float pos, float norm, bool adjacent = false) {
+    public static float moveWithinBlock(float pos, float norm, bool adjacent = false) {
         if (pos - (int)pos == 0.5f || pos - (int)pos == -0.5f) {
             if (adjacent) {
                 pos += (norm / 2);

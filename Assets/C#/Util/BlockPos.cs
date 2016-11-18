@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
+//Struct for a position in the world, with several helper methods.
 [Serializable]
 public struct BlockPos {
-    public int x, y, z;
+    public int x;
+    public int y;
+    public int z;
 
     public BlockPos(int x, int y, int z) {
         this.x = x;
@@ -69,8 +71,8 @@ public struct BlockPos {
 
     public static BlockPos fromRaycast(RaycastHit hit, bool adjacent = false) {
         return BlockPos.fromVec(new Vector3(
-            Util.MoveWithinBlock(hit.point.x, hit.normal.x, adjacent),
-            Util.MoveWithinBlock(hit.point.y, hit.normal.y, adjacent),
-            Util.MoveWithinBlock(hit.point.z, hit.normal.z, adjacent)));
+            Util.moveWithinBlock(hit.point.x, hit.normal.x, adjacent),
+            Util.moveWithinBlock(hit.point.y, hit.normal.y, adjacent),
+            Util.moveWithinBlock(hit.point.z, hit.normal.z, adjacent)));
     }
 }

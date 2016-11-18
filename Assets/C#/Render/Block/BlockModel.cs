@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class BlockModel {
 
@@ -28,72 +27,72 @@ public class BlockModel {
 
     //Adds all the faces to the mesh on the up side
     protected virtual MeshData renderUp(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }
 
     //Adds all the faces to the mesh on the down side
     protected virtual MeshData renderDown(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }
 
     //Adds all the faces to the mesh on the north side
     protected virtual MeshData renderNorth(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }
 
     //Adds all the faces to the mesh on the east side
     protected virtual MeshData renderEast(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }
 
     //Adds all the faces to the mesh on the south side
     protected virtual MeshData renderSouth(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }
 
     //Adds all the faces to the mesh on the west side
     protected virtual MeshData renderWest(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-        meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
+        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
 
-        meshData.AddQuadTriangles();
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(uv);
         return meshData;
     }

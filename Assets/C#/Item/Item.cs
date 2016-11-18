@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public class Item {
+﻿public class Item {
     private static int NEXT_ID = 4096;
     private static Item[] ITEM_LIST = new Item[8191];
 

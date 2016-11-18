@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-public class ItemStack {
-
+﻿public class ItemStack {
     public const int MAX_SIZE = 16;
 
     public Item item;
@@ -17,12 +11,8 @@ public class ItemStack {
         this.count = count;
     }
 
-    public override bool Equals(object obj) {
-        if(obj is ItemStack) {
-            ItemStack s = (ItemStack)obj;
-            return this.item.id == s.item.id && this.meta == s.meta;
-        }
-        return false;
+    public bool equals(ItemStack stack) {
+        return this.item.id == stack.item.id && this.meta == stack.meta;
     }
 
     public ItemStack merge(ItemStack otherStack) {

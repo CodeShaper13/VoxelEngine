@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.IO;
-using System;
+﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
@@ -21,7 +18,7 @@ public static class Serialization {
         return chunkLocation.x + "," + chunkLocation.y + "," + chunkLocation.z + ".bin";
     }
 
-    public static void SaveChunk(Chunk chunk) {
+    public static void saveChunk(Chunk chunk) {
         //Save save = new Save(chunk);
         //if (save.blocks.Count == 0)
         //    return;
@@ -40,7 +37,7 @@ public static class Serialization {
     }
 
     //returns false if their was no file, meaning no chunk to load
-    public static bool LoadChunk(Chunk chunk) {
+    public static bool loadChunk(Chunk chunk) {
         string saveFile = SaveLocation(chunk.world.worldName) + getChunkFileName(chunk.pos);
 
         if (!File.Exists(saveFile)) {

@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
-
-public class BlockGrass : Block {
+﻿public class BlockGrass : Block {
     public override TexturePos getTexturePos(Direction direction, byte meta) {
         TexturePos tile = new TexturePos();
         if(direction == Direction.UP) {

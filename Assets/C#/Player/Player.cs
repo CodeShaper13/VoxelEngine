@@ -47,7 +47,7 @@ public class Player : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1) && hitFlag) {
-            EditTerrain.SetBlock(hit, Block.dirt, true);
+            this.setBlock(hit, Block.dirt, true);
         }
 
         this.handleInput();

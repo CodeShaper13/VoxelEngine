@@ -6,19 +6,19 @@ public class RenderDataBillboard : RenderData {
         MeshData meshData = new MeshData();
 
         // Faces front, +z
-        meshData.AddVertex(new Vector3(0.5f, -0.5f, 0));  //bottom right
-        meshData.AddVertex(new Vector3(0.5f, 0.5f, 0));   //top right
-        meshData.AddVertex(new Vector3(-0.5f, 0.5f, 0));  //top left
-        meshData.AddVertex(new Vector3(-0.5f, -0.5f, 0)); //bottom left
-        meshData.AddQuadTriangles();
+        meshData.addVertex(new Vector3(0.5f, -0.5f, 0));  //bottom right
+        meshData.addVertex(new Vector3(0.5f, 0.5f, 0));   //top right
+        meshData.addVertex(new Vector3(-0.5f, 0.5f, 0));  //top left
+        meshData.addVertex(new Vector3(-0.5f, -0.5f, 0)); //bottom left
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(this.setUVs(item.item.texturePos));
 
         // Faces back, -z
-        meshData.AddVertex(new Vector3(-0.5f, -0.5f, 0));
-        meshData.AddVertex(new Vector3(-0.5f, 0.5f, 0));
-        meshData.AddVertex(new Vector3(0.5f, 0.5f, 0));
-        meshData.AddVertex(new Vector3(0.5f, -0.5f, 0));
-        meshData.AddQuadTriangles();
+        meshData.addVertex(new Vector3(-0.5f, -0.5f, 0));
+        meshData.addVertex(new Vector3(-0.5f, 0.5f, 0));
+        meshData.addVertex(new Vector3(0.5f, 0.5f, 0));
+        meshData.addVertex(new Vector3(0.5f, -0.5f, 0));
+        meshData.addQuadTriangles();
         meshData.uv.AddRange(this.setUVs(item.item.texturePos));
 
         return meshData;

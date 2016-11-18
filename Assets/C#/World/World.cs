@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class World : MonoBehaviour {
@@ -40,7 +39,7 @@ public class World : MonoBehaviour {
         //Add it to the chunks dictionary with the position as the key
         loadedChunks.Add(pos, newChunk);
 
-        if(!Serialization.LoadChunk(newChunk)) {
+        if(!Serialization.loadChunk(newChunk)) {
             this.generator.generateChunk(newChunk);
             //new TerrainGen().ChunkGen(newChunk);
         }
@@ -145,7 +144,7 @@ public class World : MonoBehaviour {
     }
 
     //What's this do?
-    void UpdateIfEqual(int value1, int value2, BlockPos pos) {
+    void updateIfEqual(int value1, int value2, BlockPos pos) {
         if (value1 == value2) {
             Chunk chunk = getChunk(pos);
             if (chunk != null) {
@@ -161,7 +160,7 @@ public class World : MonoBehaviour {
             tempChunkList.Add(c);
         }
         foreach (Chunk c in tempChunkList) {
-            Serialization.SaveChunk(c);
+            Serialization.saveChunk(c);
             Object.Destroy(c.gameObject);
             loadedChunks.Remove(c.pos);
         }

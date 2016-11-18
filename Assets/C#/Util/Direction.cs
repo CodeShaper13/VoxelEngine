@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿//Represents a direction
 public class Direction {
 
     public static Direction NORTH = new Direction(new BlockPos(0, 0, 1), Direction.SOUTH);
