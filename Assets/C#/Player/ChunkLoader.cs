@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ChunkLoader : MonoBehaviour {
     public World world;
-    public int maxBuiltPerLoop = 4;
+    private int maxBuiltPerLoop = 4;
     private BlockPos previousOccupiedChunkPos = new BlockPos(0, 0, 0);
     private List<BlockPos> buildList = new List<BlockPos>();
     private int loadDistance = 2;
@@ -12,7 +12,7 @@ public class ChunkLoader : MonoBehaviour {
     void Start() {
         this.loadNewChunks(this.getOccupiedChunkPos());
         print("Generation took " + (Time.realtimeSinceStartup));
-        this.buildChunks(1000000); //A million
+        this.buildChunks(1000000);
     }
 
     // Update is called once per frame
@@ -81,24 +81,13 @@ public class ChunkLoader : MonoBehaviour {
                     int y = k * Chunk.SIZE + occupiedChunkPos.y;
                     int z = j * Chunk.SIZE + occupiedChunkPos.z;
 
-                    if (world.getChunk(x, y, z) == null && !this.buildList.Contains(new BlockPos(x, y, z))) {
-                        this.buildList.Add(new BlockPos(x, y, z));
+                    Chunk c = world.getChunk(x, y, z);
+                    BlockPos p = new BlockPos(x, y, z);
+                    if (c == null && !this.buildList.Contains(p)) {
+                        this.buildList.Add(p);
                     }
                 }
             }
         }
-
-        //Delete old chunks that are too far away
-
-
-        //List<WorldPos> chunksToDelete = new List<WorldPos>();
-       // foreach (KeyValuePair<WorldPos, Chunk> c in this.world.loadedChunks) {
-        //    if(c.Value.flag == false) {
-        //        chunksToDelete.Add(c.Key);
-        //    }
-        //}
-        //foreach (WorldPos pos in chunksToDelete) {
-        //    this.world.DestroyChunk(pos.x, pos.y, pos.z);
-        //}
     }
 }

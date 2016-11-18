@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 
 public struct TexturePos {
-    public const float TILE_SIZE = 0.25f; //size of the texture sheet
+    public const float BLOCK_SIZE = 0.25f; //size of the texture sheet
+    public const float ITEM_SIZE = 0.25f;
 
     public int x;
     public int y;

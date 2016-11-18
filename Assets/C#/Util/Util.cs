@@ -16,4 +16,11 @@ public class Util {
         }
         return pos;
     }
+
+    public static bool inChunkBounds(int i) {
+        if (i < 0 || i >= Chunk.SIZE) {
+            return false;
+        }
+        return true;
+    }
 }

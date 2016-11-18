@@ -35,7 +35,7 @@ public class Chunk : MonoBehaviour {
     void Update() {
         if (dirty) {
             dirty = false;
-            renderChunk();
+            this.renderChunk();
         }
     }
 
@@ -54,30 +54,27 @@ public class Chunk : MonoBehaviour {
     //For the following for methods, make sure the pos is between 0 and 15
 
     public Block getBlock(int x, int y, int z) {
-        if (inChunkBounds(x) && inChunkBounds(y) && inChunkBounds(z)) {
+        if (Util.inChunkBounds(x) && Util.inChunkBounds(y) && Util.inChunkBounds(z)) {
             return this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
         }
         return world.getBlock(pos.x + x, pos.y + y, pos.z + z);
     }
 
-    //Sets a block in the chunk, using local chunk coordinates (0-15).  If it's not in the chunk, we set one in the world
+    //This should only be used in world generation, or a case where the neighbor blocks should not be updated
     public void setBlock(int x, int y, int z, Block block) {
-        if (Chunk.inChunkBounds(x) && Chunk.inChunkBounds(y) && Chunk.inChunkBounds(z)) {
-            blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = block;
-        }
-        else {
-            world.setBlock(pos.x + x, pos.y + y, pos.z + z, block);
-        }
+        this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = block;
     }
 
-    public static bool inChunkBounds(int i) {
-        if (i < 0 || i >= Chunk.SIZE) {
-            return false;
-        }
-        return true;
+    public byte getMeta(int x, int y, int z) {
+        return this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
     }
 
-    //Renders the chunk
+    //This should only be used in world generation, or a case where the neighbor blocks should not be updated
+    public void setMeta(int x, int y, int z, byte meta) {
+        this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = meta;
+    } 
+
+    //Renders all the blocks within the chunk
     void renderChunk() {
         this.rendered = true;
         MeshData meshData = new MeshData();
@@ -85,7 +82,8 @@ public class Chunk : MonoBehaviour {
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
-                    meshData = this.getBlock(x, y, z).renderBlockMesh(this, x, y, z, meshData);
+                    meshData = this.getBlock(x, y, z).renderBlock(this, x, y, z, this.getMeta(x, y, z), meshData);
+                    //meshData = this.getBlock(x, y, z).renderBlockMesh(this, x, y, z, this.getMeta(x, y, z), meshData);
                 }
             }
         }

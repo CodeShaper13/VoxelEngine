@@ -20,6 +20,11 @@ public struct BlockPos {
         return new BlockPos(this.x * Chunk.SIZE, this.y * Chunk.SIZE, this.z * Chunk.SIZE);
     }
 
+    public BlockPos move(Direction dir) {
+        //Debug.Log(this + dir.direction);
+        return new BlockPos(this.x + dir.direction.x, this.y + dir.direction.y, this.z + dir.direction.z);
+    }
+
     public override string ToString() {
         return "(" + this.x + ", " + this.y + ", " + this.z + ")";
     }

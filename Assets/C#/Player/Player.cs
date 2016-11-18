@@ -26,7 +26,7 @@ public class Player : MonoBehaviour {
 
     void Update() {
         RaycastHit hit;
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, this.reach);
+        bool hitFlag = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, this.reach);
 
         BlockPos p = BlockPos.fromRaycast(hit, false);
         if(!(p.Equals(this.lastLookAt))) {
@@ -46,7 +46,7 @@ public class Player : MonoBehaviour {
             }
         }
 
-        if (Input.GetMouseButtonDown(1)) {
+        if (Input.GetMouseButtonDown(1) && hitFlag) {
             EditTerrain.SetBlock(hit, Block.dirt, true);
         }
 
@@ -69,6 +69,9 @@ public class Player : MonoBehaviour {
 
     private void handleInput() {
         this.showDebugInfo = Input.GetKeyDown(KeyCode.F3);
+        if(Input.GetKeyDown(KeyCode.Q)) {
+            this.world.spawnItem(new ItemStack(Item.basicItem), this.transform.position + (Vector3.up / 2) + this.transform.forward);
+        }
     }
 
     private void updateDebugInfo() {
