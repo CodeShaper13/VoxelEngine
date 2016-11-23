@@ -27,12 +27,7 @@ public class Chunk : MonoBehaviour {
     public BlockPos pos;
     public int chunkX, chunkY, chunkZ;
 
-    void Awake() {
-        this.filter = this.GetComponent<MeshFilter>();
-        this.coll = this.GetComponent<MeshCollider>();
-    }
-
-    void Update() {
+    public void updateChunk() {
         if (dirty) {
             dirty = false;
             this.renderChunk();
@@ -48,7 +43,8 @@ public class Chunk : MonoBehaviour {
         this.chunkY = p.y;
         this.chunkZ = p.z;
         this.gameObject.name = "Chunk" + p;
-        this.transform.parent = this.world.transform;
+        this.filter = this.GetComponent<MeshFilter>();
+        this.coll = this.GetComponent<MeshCollider>();
     }
 
     //For the following for methods, make sure the pos is between 0 and 15
@@ -83,7 +79,6 @@ public class Chunk : MonoBehaviour {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     meshData = this.getBlock(x, y, z).renderBlock(this, x, y, z, this.getMeta(x, y, z), meshData);
-                    //meshData = this.getBlock(x, y, z).renderBlockMesh(this, x, y, z, this.getMeta(x, y, z), meshData);
                 }
             }
         }

@@ -4,35 +4,51 @@ using System.Collections.Generic;
 public class World : MonoBehaviour {
     //Dictionary of all loaded chunks with a WorldPos as the key
     public Dictionary<BlockPos, Chunk> loadedChunks = new Dictionary<BlockPos, Chunk>();
-    public GameObject chunkPrefab;
-    public GameObject itemPrefab;
 
     public string worldName;
     public ChunkGenerator generator;
 
+    public GameObject chunkPrefab;
+    public GameObject itemPrefab;
+
+    private Transform chunkWrapper;
+    private Transform itemWrapper;
 
     void Awake() {
         this.worldName = "world";
         this.generator = new ChunkGenerator(this);
+
+        this.chunkWrapper = new GameObject().transform;
+        this.chunkWrapper.parent = this.transform;
+        this.chunkWrapper.name = "CHUNKS";
+        this.itemWrapper = new GameObject().transform;
+        this.itemWrapper.parent = this.transform;
+        this.itemWrapper.name = "ITEMS";
     }
 
     void LateUpdate() {
+        foreach(Chunk c in this.loadedChunks.Values) {
+            c.updateChunk();
+        }
+
         if (Input.GetKeyDown(KeyCode.R)) {
             this.saveWorld();
         }
     }
 
-    public void spawnItem(ItemStack item, Vector3 pos) {
+    public void spawnItem(ItemStack stack, Vector3 pos) {
         GameObject g = GameObject.Instantiate(this.itemPrefab);
+        g.transform.parent = this.itemWrapper;
         g.transform.position = pos;
         EntityItem i = g.GetComponent<EntityItem>();
-        i.stack = item;
+        i.stack = stack;
         i.initRendering();
     }
 
     //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
     public Chunk loadChunk(BlockPos pos) {
-        GameObject newChunkObject = Instantiate(chunkPrefab, pos.toVector(), Quaternion.Euler(Vector3.zero)) as GameObject;
+        GameObject newChunkObject = Instantiate(chunkPrefab, pos.toVector(), Quaternion.identity) as GameObject;
+        newChunkObject.transform.parent = this.chunkWrapper;
         Chunk newChunk = newChunkObject.GetComponent<Chunk>();
         newChunk.initChunk(this, pos);
 

@@ -2,10 +2,10 @@
     public const int MAX_SIZE = 16;
 
     public Item item;
-    public int meta;
+    public byte meta;
     public int count;
 
-    public ItemStack(Item i, int meta = 0, int count = 1) {
+    public ItemStack(Item i, byte meta = 0, int count = 1) {
         this.item = i;
         this.meta = meta;
         this.count = count;
@@ -16,7 +16,7 @@
     }
 
     public ItemStack merge(ItemStack otherStack) {
-        if (!this.Equals(otherStack)) {
+        if (!this.equals(otherStack)) {
             return otherStack;
         }
 

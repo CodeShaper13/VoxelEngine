@@ -44,4 +44,13 @@ public class MeshData {
             colTriangles.Add(tri - (vertices.Count - colVertices.Count));
         }
     }
+
+    public Mesh toMesh() {
+        Mesh m = new Mesh();
+        m.vertices = this.vertices.ToArray();
+        m.triangles = this.triangles.ToArray();
+        m.uv = this.uv.ToArray();
+        m.RecalculateNormals();
+        return m;
+    }
 }

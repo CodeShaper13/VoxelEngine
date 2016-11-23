@@ -28,7 +28,7 @@ public class ChunkGenerator {
                         if (f <= 0.15f) {
                             float f1 = this.GetNoise(c.pos.x + x, c.pos.y + y, c.pos.z + z, 0.25f);
                             c.setBlock(x, y, z, f1 > 0 ? Block.stone : Block.dirt);
-                            //c.setBlock(x, y, z, Block.stone);
+                            //c.setBlock(x, y, z, Block.air);
                         } else {
                             c.setBlock(x, y, z, Block.air);
                         }

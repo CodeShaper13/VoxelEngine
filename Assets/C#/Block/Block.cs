@@ -3,14 +3,15 @@
 public class Block {
     private static byte NEXT_ID = 0;
     public static Block[] BLOCK_LIST = new Block[256];
-    public static BlockModel DEFAULT_MODEL = new BlockModel();
+    public static BlockModel MODEL_DEFAULT = new BlockModelCube();
+    public static BlockModel MODEL_CROSS = new BlockModelCross();
 
     //All blocks:
     public static Block air = new BlockAir().setName("air").setSolid(false);
     public static Block stone = new Block().setName("stone").setMineTime(0.25f).setTexture(0, 0);
     public static Block dirt = new Block().setName("dirt").setTexture(1, 0);
     public static Block grass = new BlockGrass().setName("grass");
-    public static Block wood = new BlockWood().setName("wood");
+    public static Block wood = new BlockWood().setName("wood");//.setSolid(false);
     public static Block leaves = new Block().setName("leaves").setTexture(0, 1).setSolid(false);
 
     public static Block coal = new BlockOre().setName("coal").setMineTime(0.1f).setTexture(0, 3);
@@ -47,6 +48,10 @@ public class Block {
         //TODO do we need to return a bool if the block changed, to make more chunks dirty?
     }
 
+    public virtual ItemStack[] getDrops(byte meta) {
+        return new ItemStack[] {new ItemStack(this.getItemForm())};
+    }
+
     public virtual MeshData renderBlock(Chunk chunk, int x, int y, int z, byte meta, MeshData meshData) {
         meshData.useRenderDataForCol = true; //TODO make this better, maybe allow blocks to override a methods that provides this value?
         bool[] renderFace = new bool[6];
@@ -54,47 +59,19 @@ public class Block {
             Direction d = Direction.all[i];
             renderFace[i] = !chunk.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z).isSideSolid(d);
         }
-        return Block.DEFAULT_MODEL.renderBlock(x, y, z, this, meta, meshData, renderFace);
+        BlockModel model = this.getModel(meta);
+        model.preRender(this, meta, meshData);
+        model.renderBlock(x, y, z, renderFace);
+        return model.meshData;
     }
 
-    ////Renders the block's mesh
-    //public virtual MeshData renderBlockMesh (Chunk chunk, int x, int y, int z, byte blockMeta, MeshData meshData) {
-    //    meshData.useRenderDataForCol = true;
-    //    if (!chunk.getBlock(x, y + 1, z).isSideSolid(Direction.DOWN)) {
-    //        meshData = FaceDataUp(chunk, x, y, z, meshData);
-    //    }
-    //    if (!chunk.getBlock(x, y - 1, z).isSideSolid(Direction.UP)) {
-    //        meshData = FaceDataDown(chunk, x, y, z, meshData);
-    //    }
-    //    if (!chunk.getBlock(x, y, z + 1).isSideSolid(Direction.SOUTH)) {
-    //        meshData = FaceDataNorth(chunk, x, y, z, meshData);
-    //    }
-    //    if (!chunk.getBlock(x, y, z - 1).isSideSolid(Direction.NORTH)) {
-    //        meshData = FaceDataSouth(chunk, x, y, z, meshData);
-    //    }
-    //    if (!chunk.getBlock(x + 1, y, z).isSideSolid(Direction.WEST)) {
-    //        meshData = FaceDataEast(chunk, x, y, z, meshData);
-    //    }
-    //    if (!chunk.getBlock(x - 1, y, z).isSideSolid(Direction.EAST)) {
-    //        meshData = FaceDataWest(chunk, x, y, z, meshData);
-    //    }
-    //    return meshData;
-    //}
+    public virtual BlockModel getModel(byte meta) {
+        return Block.MODEL_DEFAULT;
+    }
 
     //Returns the coords for the textures, depending on the pos
     public virtual TexturePos getTexturePos(Direction direction, byte meta) {
         return this.texturePos;
-    }
-
-    public virtual Vector2[] FaceUVs(Direction direction) {
-        Vector2[] UVs = new Vector2[4];
-        TexturePos tilePos = getTexturePos(direction, 0);
-
-        UVs[0] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x + TexturePos.BLOCK_SIZE, TexturePos.BLOCK_SIZE * tilePos.y);
-        UVs[1] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x + TexturePos.BLOCK_SIZE, TexturePos.BLOCK_SIZE * tilePos.y + TexturePos.BLOCK_SIZE);
-        UVs[2] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x, TexturePos.BLOCK_SIZE * tilePos.y + TexturePos.BLOCK_SIZE);
-        UVs[3] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x, TexturePos.BLOCK_SIZE * tilePos.y);
-        return UVs;
     }
 
     ////////////////////////////////
@@ -120,7 +97,10 @@ public class Block {
         return this;
     }
 
-    //Helper methods for translating block to id and back again.  If the id coresponds to a null block, returns air
+    public Item getItemForm() {
+        return Item.ITEM_LIST[this.id];
+    }
+
     public static Block getBlock(byte id) {
         return Block.BLOCK_LIST[id] != null ? Block.BLOCK_LIST[id] : Block.air;
     }

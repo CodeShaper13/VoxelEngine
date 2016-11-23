@@ -1,111 +1,51 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class BlockModel {
+public abstract class BlockModel {
 
-	public virtual MeshData renderBlock(int x, int y, int z, Block block, byte blockMeta, MeshData meshData, bool[] renderFace) {
-        if(renderFace[0]) {
-            this.renderNorth(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[0]));
-        }
-        if (renderFace[1]) {
-            this.renderEast(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[1]));
-        }
-        if (renderFace[2]) {
-            this.renderSouth(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[2]));
-        }
-        if (renderFace[3]) {
-            this.renderWest(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[3]));
-        }
-        if (renderFace[4]) {
-            this.renderUp(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[4]));
-        }
-        if (renderFace[5]) {
-            this.renderDown(x, y, z, meshData, this.getUVs(block, blockMeta, Direction.all[5]));
-        }
+    public Block block;
+    public byte meta;
+    public MeshData meshData;
 
-        return meshData;
+    public abstract MeshData renderBlock(int x, int y, int z, bool[] renderFace);
+
+    //Call before begining the rendering of a block, to set up the model
+    public void preRender(Block block, byte meta, MeshData meshData) {
+        this.block = block;
+        this.meta = meta;
+        this.meshData = meshData;
     }
 
-    //Adds all the faces to the mesh on the up side
-    protected virtual MeshData renderUp(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
+    //Adds a face to the model
+    public void addFace(Vector3 p1, Vector3 p2, Direction dir = null) {
+        this.meshData.addVertex(p1);
+        this.meshData.addVertex(new Vector3(p1.x, p2.y, p1.z));
+        this.meshData.addVertex(p2);
+        this.meshData.addVertex(new Vector3(p2.x, p1.y, p2.z));
+        this.meshData.addQuadTriangles();
+        this.meshData.uv.AddRange(this.getUVs(this.block, this.meta, dir));
     }
 
-    //Adds all the faces to the mesh on the down side
-    protected virtual MeshData renderDown(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
+    //Adds a cube to the model
+    public void addCube(Vector3 p1, Vector3 p2) {
+        this.addFace(new Vector3(p1.x, p1.y, p1.z), new Vector3(p2.x, p1.y, p2.z), Direction.DOWN);
+        this.addFace(new Vector3(p1.x, p2.y, p1.z), new Vector3(p2.x, p2.y, p2.x), Direction.UP);
+        //this.addFace(new Vector3(), new Vector3(), Direction.UP);
+        //this.addFace(new Vector3(), new Vector3(), Direction.UP);
+        //this.addFace(new Vector3(), new Vector3(), Direction.UP);
+        //this.addFace(new Vector3(), new Vector3(), Direction.UP);
     }
 
-    //Adds all the faces to the mesh on the north side
-    protected virtual MeshData renderNorth(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
-    }
-
-    //Adds all the faces to the mesh on the east side
-    protected virtual MeshData renderEast(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
-    }
-
-    //Adds all the faces to the mesh on the south side
-    protected virtual MeshData renderSouth(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
-    }
-
-    //Adds all the faces to the mesh on the west side
-    protected virtual MeshData renderWest(int x, int y, int z, MeshData meshData, Vector2[] uv) {
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-        meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-
-        meshData.addQuadTriangles();
-        meshData.uv.AddRange(uv);
-        return meshData;
-    }
-
-    //Retunrs the UV's to use for the passed direction
+    //Returns the UV's to use for the passed direction
     public virtual Vector2[] getUVs(Block block, byte meta, Direction direction) {
-        Vector2[] UVs = new Vector2[4];
         TexturePos tilePos = block.getTexturePos(direction, meta);
-
-        UVs[0] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x + TexturePos.BLOCK_SIZE, TexturePos.BLOCK_SIZE * tilePos.y);
-        UVs[1] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x + TexturePos.BLOCK_SIZE, TexturePos.BLOCK_SIZE * tilePos.y + TexturePos.BLOCK_SIZE);
-        UVs[2] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x, TexturePos.BLOCK_SIZE * tilePos.y + TexturePos.BLOCK_SIZE);
-        UVs[3] = new Vector2(TexturePos.BLOCK_SIZE * tilePos.x, TexturePos.BLOCK_SIZE * tilePos.y);
+        float x = TexturePos.BLOCK_SIZE * tilePos.x;
+        float y = TexturePos.BLOCK_SIZE * tilePos.y;
+        Vector2[] UVs = new Vector2[4] {
+            new Vector2(x, y),
+            new Vector2(x, y + TexturePos.BLOCK_SIZE),
+            new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE),
+            new Vector2(x + TexturePos.BLOCK_SIZE, y)};
         return UVs;
     }
 }
