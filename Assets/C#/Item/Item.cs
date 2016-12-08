@@ -1,4 +1,6 @@
-﻿public class Item {
+﻿using UnityEngine;
+
+public class Item {
     private static int NEXT_ID = 256;
     public static Item[] ITEM_LIST = new Item[512];
     private static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
@@ -16,6 +18,11 @@
         Item.ITEM_LIST[this.id] = this;
 
         this.itemRenderer = Item.RENDER_BILLBOARD;
+    }
+
+    //Hit.transform will be null if air was clicked
+    public virtual ItemStack onRightClick(World world, ItemStack stack, RaycastHit hit) {
+        return stack;
     }
 
     public Item setName(string name) {

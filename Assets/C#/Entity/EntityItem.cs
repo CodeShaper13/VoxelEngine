@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class EntityItem : MonoBehaviour {
+public class EntityItem : Entity {
     public ItemStack stack;
     private MeshFilter filter;
     private MeshRenderer meshRenderer;

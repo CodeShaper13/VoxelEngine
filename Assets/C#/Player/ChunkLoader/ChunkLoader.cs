@@ -3,41 +3,45 @@ using System.Collections.Generic;
 
 public class ChunkLoader : MonoBehaviour {
     public World world;
-    private int maxBuiltPerLoop = 4;
-    private BlockPos previousOccupiedChunkPos = new BlockPos(0, 0, 0);
-    private List<BlockPos> buildList = new List<BlockPos>();
-    private int loadDistance = 2;
+    protected int maxBuiltPerLoop = 4;
+    protected BlockPos previousOccupiedChunkPos = new BlockPos(0, 0, 0);
+    protected List<BlockPos> buildList = new List<BlockPos>();
+
+    protected int loadDistance = 3;
+
+    private int worldHeight = 8;
 
     void Start() {
-        this.loadNewChunks(this.getOccupiedChunkPos());
+        print("Starting generation");
+        this.loadChunks(this.getOccupiedChunkPos());
         print("Generation took " + (Time.realtimeSinceStartup));
-        this.buildChunks(1000000);
+        this.buildChunks(10000);
     }
 
     // Update is called once per frame
     void Update() {
         BlockPos p = this.getOccupiedChunkPos();
         if(p.x != this.previousOccupiedChunkPos.x || p.y != this.previousOccupiedChunkPos.y || p.z != this.previousOccupiedChunkPos.z) {
-            this.loadNewChunks(p);
+            this.loadChunks(p);
         }
         this.previousOccupiedChunkPos = p;
 
         if(this.buildChunks(this.maxBuiltPerLoop) == 0) {
-            this.unloadDistantChunks(p);
+            this.unloadChunks(p);
         }
     }
 
-    private BlockPos getOccupiedChunkPos() {
+    protected BlockPos getOccupiedChunkPos() {
         return new BlockPos(Mathf.FloorToInt(this.transform.position.x / Chunk.SIZE), Mathf.FloorToInt(this.transform.position.y / Chunk.SIZE), Mathf.FloorToInt(this.transform.position.z / Chunk.SIZE));
     }
 
     //Returns true if the passed world coords are too far away from the player, used to find chunks to unload.
-    private bool toFarOnAxis(float occupiedChunkPos, float pos) {
+    protected bool toFarOnAxis(float occupiedChunkPos, float pos) {
         return (Mathf.Abs(occupiedChunkPos - pos) > (this.loadDistance * 16));
     }
 
     //Builds chunks from the list, building up to the passed value and returning the number built.
-    private int buildChunks(int max) {
+    protected int buildChunks(int max) {
         int builtChunks = 0;
         if(this.buildList.Count > 0) {
             for(int i = this.buildList.Count - 1; i >= 0 && builtChunks < max; i--) {
@@ -45,12 +49,11 @@ public class ChunkLoader : MonoBehaviour {
                 this.buildList.RemoveAt(i);
                 builtChunks++;
             }
-            //print("Built " + builtChunks);
         }
         return builtChunks;
     }
 
-    private void unloadDistantChunks(BlockPos occupiedChunkPos) {
+    protected virtual void unloadChunks(BlockPos occupiedChunkPos) {
         occupiedChunkPos.x *= 16;
         occupiedChunkPos.y *= 16;
         occupiedChunkPos.z *= 16;
@@ -67,21 +70,18 @@ public class ChunkLoader : MonoBehaviour {
         }
     }
 
-    private void loadNewChunks(BlockPos occupiedChunkPos) {
+    protected virtual void loadChunks(BlockPos occupiedChunkPos) {
         occupiedChunkPos.x *= 16;
-        occupiedChunkPos.y *= 16;
         occupiedChunkPos.z *= 16;
         
         //Add all the chunks close to the player to the list of chunks to generate.
-        for (int i = -this.loadDistance; i < this.loadDistance + 1; i++) {
-            for (int j = -this.loadDistance; j < this.loadDistance + 1; j++) {
-                for(int k = -this.loadDistance; k < this.loadDistance + 1; k++) {
-                    int x = i * Chunk.SIZE + occupiedChunkPos.x;
-                    int y = k * Chunk.SIZE + occupiedChunkPos.y;
-                    int z = j * Chunk.SIZE + occupiedChunkPos.z;
+        for (int x = -this.loadDistance; x < this.loadDistance + 1; x++) {
+            for (int z = -this.loadDistance; z < this.loadDistance + 1; z++) {
+                //Move along the y column
+                for(int y = 0; y < this.worldHeight; y++) {
+                    BlockPos p = new BlockPos(x * Chunk.SIZE + occupiedChunkPos.x, y * Chunk.SIZE, z * Chunk.SIZE + occupiedChunkPos.z);
+                    Chunk c = world.getChunk(p);
 
-                    Chunk c = world.getChunk(x, y, z);
-                    BlockPos p = new BlockPos(x, y, z);
                     if (c == null && !this.buildList.Contains(p)) {
                         this.buildList.Add(p);
                     }

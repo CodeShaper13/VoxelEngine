@@ -70,6 +70,7 @@ public struct BlockPos {
     }
 
     public static BlockPos fromRaycast(RaycastHit hit, bool adjacent = false) {
+        //Debug.Log(hit.point.x + ", " +  hit.point.y + ", " + hit.point.z);
         return BlockPos.fromVec(new Vector3(
             Util.moveWithinBlock(hit.point.x, hit.normal.x, adjacent),
             Util.moveWithinBlock(hit.point.y, hit.normal.y, adjacent),

@@ -87,19 +87,13 @@ public class Chunk : MonoBehaviour {
 
     //Applies the new render and collision mesh to the chunks components
     void applyChunkMesh(MeshData meshData) {
-        this.filter.mesh.Clear();
-        this.filter.mesh.vertices = meshData.vertices.ToArray();
-        this.filter.mesh.triangles = meshData.triangles.ToArray();
+        Mesh mesh = meshData.toMesh();
+        Mesh colMesh = new Mesh();
+        colMesh.vertices = meshData.colVertices.ToArray();
+        colMesh.triangles = meshData.colTriangles.ToArray();
+        colMesh.RecalculateNormals();
 
-        this.filter.mesh.uv = meshData.uv.ToArray();
-        this.filter.mesh.RecalculateNormals();
-
-        this.coll.sharedMesh = null;
-        Mesh mesh = new Mesh();
-        mesh.vertices = meshData.colVertices.ToArray();
-        mesh.triangles = meshData.colTriangles.ToArray();
-        mesh.RecalculateNormals();
-
-        this.coll.sharedMesh = mesh;
+        this.filter.mesh = mesh;
+        this.coll.sharedMesh = colMesh;
     }
 }

@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 using SimplexNoise;
 
 public class TerrainGen {
-    float stoneBaseHeight = -24;
+    float stoneBaseHeight = 24; //was -24
     float stoneBaseNoise = 0.05f;
     float stoneBaseNoiseHeight = 4;
 
@@ -22,12 +21,6 @@ public class TerrainGen {
     int treeDensity = 3;
 
     public Chunk ChunkGen(Chunk chunk) {
-        //for (int x = chunk.pos.x - 3; x < chunk.pos.x + Chunk.CHUNK_SIZE + 3; x++) {
-         //   for (int z = chunk.pos.z - 3; z < chunk.pos.z + Chunk.CHUNK_SIZE + 3; z++) {
-         //       chunk = ChunkColumnGen(chunk, x, z);
-        //    }
-        //}
-
         for (int x = chunk.pos.x; x < chunk.pos.x + Chunk.SIZE; x++) {
             for (int z = chunk.pos.z; z < chunk.pos.z + Chunk.SIZE; z++) {
                 chunk = ChunkColumnGen(chunk, x, z);
@@ -56,8 +49,8 @@ public class TerrainGen {
             }
             else if (y <= dirtHeight && caveSize < caveChance) {
                 SetBlock(x, y, z, Block.grass, chunk);
-                if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity) {   //Add this line
-                    CreateTree(x, y + 1, z, chunk);                                              //And this line
+                if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity) {
+                    CreateTree(x, y + 1, z, chunk);
                 }
             }
             else {

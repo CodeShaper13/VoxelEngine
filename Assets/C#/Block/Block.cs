@@ -7,12 +7,12 @@ public class Block {
     public static BlockModel MODEL_CROSS = new BlockModelCross();
 
     //All blocks:
-    public static Block air = new BlockAir().setName("air").setSolid(false);
+    public static Block air = new BlockAir().setName("air").setSolid(false).setReplaceable(true);
     public static Block stone = new Block().setName("stone").setMineTime(0.25f).setTexture(0, 0);
     public static Block dirt = new Block().setName("dirt").setTexture(1, 0);
     public static Block grass = new BlockGrass().setName("grass");
     public static Block wood = new BlockWood().setName("wood");//.setSolid(false);
-    public static Block leaves = new Block().setName("leaves").setTexture(0, 1).setSolid(false);
+    public static Block leaves = new Block().setName("leaves").setTexture(0, 1);//.setSolid(false);
 
     public static Block coal = new BlockOre().setName("coal").setMineTime(0.1f).setTexture(0, 3);
     public static Block bronze = new BlockOre().setName("bronze").setMineTime(0.1f).setTexture(2, 2);
@@ -28,6 +28,7 @@ public class Block {
     public float mineTime = 0.0f;
     public TexturePos texturePos = new TexturePos(0, 0);
     public bool isSolid = true;
+    public bool replaceable = false;
 
     public Block() {
         this.id = Block.NEXT_ID++;
@@ -94,6 +95,11 @@ public class Block {
 
     public Block setSolid(bool flag) {
         this.isSolid = flag;
+        return this;
+    }
+
+    public Block setReplaceable(bool flag) {
+        this.replaceable = flag;
         return this;
     }
 

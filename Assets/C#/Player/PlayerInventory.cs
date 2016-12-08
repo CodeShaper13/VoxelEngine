@@ -46,10 +46,10 @@ public class PlayerInventory {
         return newStack;
     }
 
-    public ItemStack dropItem(int i) {
+    public ItemStack dropItem(int i, bool wholeStack) {
         if(this.hotbar[i] != null) {
-            ItemStack s = new ItemStack(this.hotbar[i].item, this.hotbar[i].meta, 1);
-            this.hotbar[i].count -= 1;
+            ItemStack s = new ItemStack(this.hotbar[i].item, this.hotbar[i].meta, wholeStack ? this.hotbar[i].count : 1);
+            this.hotbar[i].count -= wholeStack ? this.hotbar[i].count : 1;
             if(this.hotbar[i].count <= 0) {
                 this.hotbar[i] = null;
             }
