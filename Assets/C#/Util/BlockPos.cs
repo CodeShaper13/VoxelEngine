@@ -4,6 +4,14 @@ using System;
 //Struct for a position in the world, with several helper methods.
 [Serializable]
 public struct BlockPos {
+    public static BlockPos north = new BlockPos(0, 0, 1);
+    public static BlockPos east = new BlockPos(1, 0, 0);
+    public static BlockPos south = new BlockPos(0, 0, -1);
+    public static BlockPos west = new BlockPos(-1, 0, 0);
+    public static BlockPos up = new BlockPos(0, 1, 0);
+    public static BlockPos down = new BlockPos(0, -1, 0);
+
+
     public int x;
     public int y;
     public int z;

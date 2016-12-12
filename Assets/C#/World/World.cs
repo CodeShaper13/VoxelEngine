@@ -36,9 +36,10 @@ public class World : MonoBehaviour {
         }
     }
 
-    public void spawnItem(ItemStack stack, Vector3 pos) {
+    public void spawnItem(ItemStack stack, Vector3 pos, Quaternion rot) {
         GameObject g = GameObject.Instantiate(this.itemPrefab);
         g.transform.parent = this.itemWrapper;
+        g.transform.rotation = rot;
         g.transform.position = pos;
         EntityItem i = g.GetComponent<EntityItem>();
         i.stack = stack;

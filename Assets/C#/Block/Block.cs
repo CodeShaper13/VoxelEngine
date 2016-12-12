@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class Block {
     private static byte NEXT_ID = 0;
@@ -9,10 +10,10 @@ public class Block {
     //All blocks:
     public static Block air = new BlockAir().setName("air").setSolid(false).setReplaceable(true);
     public static Block stone = new Block().setName("stone").setMineTime(0.25f).setTexture(0, 0);
-    public static Block dirt = new Block().setName("dirt").setTexture(1, 0);
+    public static Block dirt = new Block().setName("dirt").setMineTime(1).setTexture(1, 0);
     public static Block grass = new BlockGrass().setName("grass");
-    public static Block wood = new BlockWood().setName("wood");//.setSolid(false);
-    public static Block leaves = new Block().setName("leaves").setTexture(0, 1);//.setSolid(false);
+    public static Block wood = new BlockWood().setName("log");
+    public static Block leaves = new Block().setName("leaves").setTexture(0, 1).setSolid(false);
 
     public static Block coal = new BlockOre().setName("coal").setMineTime(0.1f).setTexture(0, 3);
     public static Block bronze = new BlockOre().setName("bronze").setMineTime(0.1f).setTexture(2, 2);
@@ -50,7 +51,7 @@ public class Block {
     }
 
     public virtual ItemStack[] getDrops(byte meta) {
-        return new ItemStack[] {new ItemStack(this.getItemForm())};
+        return new ItemStack[] {new ItemStack(this.asItem())};
     }
 
     public virtual MeshData renderBlock(Chunk chunk, int x, int y, int z, byte meta, MeshData meshData) {
@@ -73,6 +74,14 @@ public class Block {
     //Returns the coords for the textures, depending on the pos
     public virtual TexturePos getTexturePos(Direction direction, byte meta) {
         return this.texturePos;
+    }
+
+    public virtual void onRandomTick(World world, BlockPos pos, byte meta) {
+        throw new NotImplementedException();
+    }
+
+    public virtual void onRightClick(World world, BlockPos pos, byte meta) {
+
     }
 
     ////////////////////////////////
@@ -103,7 +112,8 @@ public class Block {
         return this;
     }
 
-    public Item getItemForm() {
+
+    public Item asItem() {
         return Item.ITEM_LIST[this.id];
     }
 

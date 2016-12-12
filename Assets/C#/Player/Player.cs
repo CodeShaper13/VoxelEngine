@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
     private float movementSpeed = 5.0f; //5
     private float mouseSensitivity = 3f; //2.5f
     private float jumpSpeed = 5.0f;
-    private float upDownRange = 60.0f;
+
     //State
     private float verticalRotation = 0.0f;
     private float verticalVelocity = 0.0f;
@@ -17,11 +17,8 @@ public class Player : MonoBehaviour {
     public GameObject blockBreakObj;
     public BreakBlockEffect blockBreakEffect;
 
-    //How long the player has been hitting a block
-    public float mineTimer;
     //The last pos the player has been looking at
     public BlockPos posLookingAt;
-    public bool rayHit;
 
     public PlayerInventory pInventory;
 
@@ -38,56 +35,54 @@ public class Player : MonoBehaviour {
         Item.initBlockItems();
 
         this.blockBreakEffect = GameObject.Instantiate(this.blockBreakObj).GetComponent<BreakBlockEffect>();
-        this.blockBreakEffect.gameObject.SetActive(false);
+        //this.blockBreakEffect.gameObject.SetActive(false);
         this.pInventory = new PlayerInventory(this.hudCamera);
 
         this.cc = this.GetComponent<CharacterController>();
     }
 
     void Update() {
+        //Move the player
         this.handleMovement();
 
         RaycastHit hit;
-        this.rayHit = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, this.reach);
+        bool rayHit = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, this.reach);
 
+        //Find out what we are looking at
         BlockPos p = BlockPos.fromRaycast(hit, false);
-        if (!(p.Equals(this.posLookingAt)) || this.rayHit == false) {
-            this.mineTimer = 0.0f;
+
+        if (rayHit == false || !(p.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
+            //If we are looking at a new thing, reset/remove the block break effect
+            this.blockBreakEffect.terminate();
         }
         this.posLookingAt = p;
 
-        this.blockBreakEffect.gameObject.SetActive(false);
-        if (hit.transform != null && hit.transform.tag != null) {
-            if (hit.transform.tag == "Chunk") {
-                this.blockBreakEffect.gameObject.SetActive(true);
-                this.blockBreakEffect.transform.position = this.posLookingAt.toVector();
 
-                if(Input.GetMouseButton(0)) {
-                    this.mineTimer += Time.deltaTime;
-                    Block block = this.world.getBlock(this.posLookingAt);
-                    if (block != Block.air) { //Hacky safety check
-                        if (this.mineTimer >= block.mineTime) {
-                            ItemStack[] stacks = block.getDrops(this.world.getMeta(this.posLookingAt));
-                            this.world.setBlock(this.posLookingAt, Block.air);
-                            foreach (ItemStack s in stacks) {
-                                this.world.spawnItem(s, this.posLookingAt.toVector());
-                            }
-                            this.mineTimer = 0.0f;
-                        }
-                    }
-                    else { print("ERROR  We are trying to break air?"); }
+        if (hit.transform != null) {
+            if (hit.transform.tag == "Chunk") {
+                Block block = this.world.getBlock(this.posLookingAt);
+                byte meta = this.world.getMeta(this.posLookingAt);
+
+                if (Input.GetMouseButton(0)) {
+                    this.blockBreakEffect.update(this, block, meta);
+                }
+                if (Input.GetMouseButtonDown(1)) {
+                    block.onRightClick(this.world, this.posLookingAt, meta);                  
                 }
             }
             else if (hit.transform.tag == "Entity") {
-                if(Input.GetMouseButtonDown(0)) {
-                    Entity e = hit.transform.GetComponent<Entity>();
-                    e.onPlayerHit(this);
+                Entity e = hit.transform.GetComponent<Entity>();
+                if (Input.GetMouseButtonDown(0)) {
+                    e.onEntityHit(this);
+                }
+                if(Input.GetMouseButtonDown(1)) {
+                    e.onEntityInteract(this);
                 }
             }
         }
 
         //Right click
-        if (this.rayHit && Input.GetMouseButtonDown(1)) {
+        if (rayHit && Input.GetMouseButtonDown(1)) {
             ItemStack s = this.pInventory.hotbar[this.pInventory.index];
             if(s != null) {
                 this.pInventory.hotbar[this.pInventory.index] = s.item.onRightClick(this.world, s, hit);
@@ -100,12 +95,9 @@ public class Player : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision collision) {
-        EntityItem entityItem = collision.gameObject.GetComponent<EntityItem>();
-        if(entityItem != null) {
-            ItemStack s = this.pInventory.addItemStack(entityItem.stack);
-            if(s == null) {
-                GameObject.Destroy(entityItem.gameObject);
-            }
+        Entity entity = collision.gameObject.GetComponent<Entity>();
+        if(entity != null) {
+            entity.onPlayerTouch(this);
         }
     }
 
@@ -114,9 +106,9 @@ public class Player : MonoBehaviour {
             this.showDebugInfo = !this.showDebugInfo;
         }
         if(Input.GetKeyDown(KeyCode.Q)) {
-            ItemStack s = this.pInventory.dropItem(0, false); //Input.GetKey(KeyCode.LeftControl));
+            ItemStack s = this.pInventory.dropItem(0, Input.GetKey(KeyCode.LeftControl));
             if(s != null) {
-                this.world.spawnItem(s, this.transform.position + (Vector3.up / 2) + this.transform.forward);
+                this.world.spawnItem(s, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
             }
         }
         if(Input.GetKeyDown(KeyCode.Escape)) {
@@ -149,7 +141,7 @@ public class Player : MonoBehaviour {
         transform.Rotate(0.0f, rotLeftRight, 0.0f);
 
         verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
-        verticalRotation = Mathf.Clamp(verticalRotation, -upDownRange, upDownRange);
+        verticalRotation = Mathf.Clamp(verticalRotation, -90, 90); //Stop the player from looking to far up or down
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
         //Movement
@@ -163,9 +155,7 @@ public class Player : MonoBehaviour {
             verticalVelocity = jumpSpeed;
         }
 
-        Vector3 speed = new Vector3(sideSpeed, verticalVelocity, forwardSpeed);
-
-        speed = transform.rotation * speed;
+        Vector3 speed = transform.rotation * new Vector3(sideSpeed, verticalVelocity, forwardSpeed);
 
         cc.Move(speed * Time.deltaTime);
     }

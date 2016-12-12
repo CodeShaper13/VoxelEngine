@@ -5,7 +5,14 @@ public class Entity : MonoBehaviour {
 
     public World world;
 
-    public void onPlayerHit(Player player) {
+    public virtual void onPlayerTouch(Player player) {
+    }
+
+    public virtual void onEntityHit(Player player) {
+        throw new NotImplementedException();
+    }
+
+    public virtual void onEntityInteract(Player player) {
         throw new NotImplementedException();
     }
 }

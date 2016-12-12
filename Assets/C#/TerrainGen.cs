@@ -48,7 +48,7 @@ public class TerrainGen {
                 SetBlock(x, y, z, Block.stone, chunk);
             }
             else if (y <= dirtHeight && caveSize < caveChance) {
-                SetBlock(x, y, z, Block.grass, chunk);
+                SetBlock(x, y, z, Block.dirt, chunk);
                 if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity) {
                     CreateTree(x, y + 1, z, chunk);
                 }

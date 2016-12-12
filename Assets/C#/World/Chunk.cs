@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
 //A chunk in the game
-[RequireComponent(typeof(MeshFilter))]
-[RequireComponent(typeof(MeshRenderer))]
-[RequireComponent(typeof(MeshCollider))]
+//[RequireComponent(typeof(MeshFilter))]
+//[RequireComponent(typeof(MeshRenderer))]
+//[RequireComponent(typeof(MeshCollider))]
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;
     public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
@@ -28,6 +28,7 @@ public class Chunk : MonoBehaviour {
     public int chunkX, chunkY, chunkZ;
 
     public void updateChunk() {
+        //this.tickBlocks();
         if (dirty) {
             dirty = false;
             this.renderChunk();
@@ -45,6 +46,16 @@ public class Chunk : MonoBehaviour {
         this.gameObject.name = "Chunk" + p;
         this.filter = this.GetComponent<MeshFilter>();
         this.coll = this.GetComponent<MeshCollider>();
+    }
+
+    public void tickBlocks() {
+        for(int i = 0; i < 3; i++) {
+            int x = Random.Range(0, 16);
+            int y = Random.Range(0, 16);
+            int z = Random.Range(0, 16);
+            BlockPos pos = new BlockPos(x, y, z);
+            this.getBlock(x, y, z).onRandomTick(this.world, pos * 16, this.getMeta(x, y, z));
+        }
     }
 
     //For the following for methods, make sure the pos is between 0 and 15
@@ -71,7 +82,7 @@ public class Chunk : MonoBehaviour {
     } 
 
     //Renders all the blocks within the chunk
-    void renderChunk() {
+    public void renderChunk() {
         this.rendered = true;
         MeshData meshData = new MeshData();
 
@@ -86,7 +97,7 @@ public class Chunk : MonoBehaviour {
     }
 
     //Applies the new render and collision mesh to the chunks components
-    void applyChunkMesh(MeshData meshData) {
+    public void applyChunkMesh(MeshData meshData) {
         Mesh mesh = meshData.toMesh();
         Mesh colMesh = new Mesh();
         colMesh.vertices = meshData.colVertices.ToArray();

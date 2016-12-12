@@ -14,6 +14,13 @@ public class EntityItem : Entity {
         this.transform.Rotate(0, Time.deltaTime * 25, 0);
 	}
 
+    public override void onPlayerTouch(Player player) {
+        ItemStack s = player.pInventory.addItemStack(this.stack);
+        if (s == null) {
+            GameObject.Destroy(this.gameObject);
+        }
+    }
+
     //Sets up the item rendering
     public void initRendering() {
         IRenderItem r = this.stack.item.itemRenderer;
