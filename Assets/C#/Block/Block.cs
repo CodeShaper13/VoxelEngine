@@ -76,8 +76,7 @@ public class Block {
         return this.texturePos;
     }
 
-    public virtual void onRandomTick(World world, BlockPos pos, byte meta) {
-        throw new NotImplementedException();
+    public virtual void onRandomTick(World world, BlockPos pos, byte meta, int tickSeed) {
     }
 
     public virtual void onRightClick(World world, BlockPos pos, byte meta) {

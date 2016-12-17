@@ -7,33 +7,19 @@ public class Chunk : MonoBehaviour {
     public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
     public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
 
-    //When true, the chunk will be redrawn when updated
-    public bool dirty = false;
-    //Has the chunk been rendered after generation?
-    public bool rendered;
-
-    //Has the chunk been populated?
+    public bool isDirty = false;
     public bool isPopulated = false;
 
     private MeshFilter filter;
     private MeshCollider coll;
     public World world;
 
-    //In world coordinates, not chunk
     public BlockPos pos;
     public ChunkPos chunkPos;
 
     public void Awake() {
         this.filter = this.GetComponent<MeshFilter>();
         this.coll = this.GetComponent<MeshCollider>();
-    }
-
-    public void updateChunk() {
-        //this.tickBlocks();
-        if (dirty) {
-            dirty = false;
-            this.renderChunk();
-        }
     }
 
     //Like a constructor, but since this is a GameObject it can't have one.
@@ -44,13 +30,21 @@ public class Chunk : MonoBehaviour {
         this.gameObject.name = "Chunk" + this.chunkPos;
     }
 
+    public void updateChunk() {
+        this.tickBlocks();
+        if (isDirty) {
+            isDirty = false;
+            this.renderChunk();
+        }
+    }
+
     public void tickBlocks() {
-        for(int i = 0; i < 3; i++) {
-            int x = Random.Range(0, 16);
-            int y = Random.Range(0, 16);
-            int z = Random.Range(0, 16);
-            BlockPos pos = new BlockPos(x, y, z);
-            this.getBlock(x, y, z).onRandomTick(this.world, pos * 16, this.getMeta(x, y, z));
+        int i = Random.Range(int.MinValue, int.MaxValue);
+        for (int j = 0; j < 3; j++) {
+            int x = (i >> j * 12) & 0x0F;     // 0  12
+            int y = (i >> j * 12 + 4) & 0x0F; // 4  16
+            int z = (i >> j * 12 + 8) & 0x0F; // 8  20
+            this.getBlock(x, y, z).onRandomTick(this.world, new BlockPos(x + this.pos.x, y + this.pos.y, z + this.pos.z), this.getMeta(x, y, z), i);
         }
     }
 
@@ -79,7 +73,6 @@ public class Chunk : MonoBehaviour {
 
     //Renders all the blocks within the chunk
     public void renderChunk() {
-        this.rendered = true;
         MeshData meshData = new MeshData();
 
         for (int x = 0; x < Chunk.SIZE; x++) {

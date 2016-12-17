@@ -83,7 +83,7 @@ public class ChunkGenerator {
                 }
             }
             //this.populateChunk(c);
-            c.dirty = true;
+            c.isDirty = true;
         }
         //this.checkForPopulation(c);
     }
@@ -223,7 +223,7 @@ public class ChunkGenerator {
                 c.setBlock(i, 0, j, Block.wood);
             }
         }
-        c.dirty = true;
+        c.isDirty = true;
     }
 
     private BlockPos randomChunkPos() {
@@ -232,7 +232,7 @@ public class ChunkGenerator {
 
     public void populateChunk(Chunk c) {
         c.isPopulated = true;
-        c.dirty = true;
+        c.isDirty = true;
     }
 
     public float GetNoise(int x, int y, int z, float scale) {

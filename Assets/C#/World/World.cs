@@ -6,7 +6,7 @@ public class World : MonoBehaviour {
 
     public string worldName;
     public long seed;
-    public WorldGenerator generator;
+    public WorldGeneratorBase generator;
 
     public GameObject chunkPrefab;
     public GameObject itemPrefab;
@@ -16,7 +16,7 @@ public class World : MonoBehaviour {
 
     void Awake() {
         this.worldName = "world";
-        this.generator = new WorldGenerator(this, this.seed);
+        this.generator = new WorldGeneratorFlat(this, this.seed);
 
         this.chunkWrapper = new GameObject().transform;
         this.chunkWrapper.parent = this.transform;
@@ -27,7 +27,7 @@ public class World : MonoBehaviour {
     }
 
     void LateUpdate() {
-        foreach(Chunk c in this.loadedChunks.Values) {
+        foreach (Chunk c in this.loadedChunks.Values) {
             c.updateChunk();
         }
 
@@ -116,7 +116,7 @@ public class World : MonoBehaviour {
                     this.getBlock(p1).onNeighborChange(p, d);
                     chunk = this.getChunk(p1.x, p1.y, p1.z);
                     if(chunk != null) {
-                        chunk.dirty = true;
+                        chunk.isDirty = true;
                     }
                 }
             }
@@ -148,7 +148,7 @@ public class World : MonoBehaviour {
             BlockPos p = new BlockPos(x, y, z);
             chunk.setMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, meta);
             if(chunk.getBlock(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z).dirtyAfterMetaChange(p, meta)) {
-                chunk.dirty = true;
+                chunk.isDirty = true;
             }
 
             foreach (Direction d in Direction.all) {

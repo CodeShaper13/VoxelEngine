@@ -49,7 +49,7 @@ public class ChunkLoader : MonoBehaviour {
                 //for(int i = this.buildList.Count - 1; i >= 0 && builtChunks < max; i--) {
                 //this.world.loadChunk(this.buildList[i]).dirty = true;
                 //this.buildList.RemoveAt(i);
-                this.world.loadChunk(this.buildQueue.Dequeue()).dirty = true;
+                this.world.loadChunk(this.buildQueue.Dequeue()).isDirty = true;
                 builtChunks++;
             }
         }

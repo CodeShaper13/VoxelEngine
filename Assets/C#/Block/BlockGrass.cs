@@ -3,19 +3,11 @@ using UnityEngine;
 
 public class BlockGrass : Block {
 
-    //Never gets called, seems to be realy slow...
-    public override void onRandomTick(World world, BlockPos pos, byte meta) {
-        if(world.getBlock(pos + BlockPos.up).isSolid) {
-            world.setBlock(pos, Block.dirt);
-        } else {
-            Debug.Log("!");
-            foreach (Direction d in Direction.xzPlane) {
-                BlockPos pos1 = pos + d.direction;
-                Debug.Log(world.getBlock(pos1));
-                //if (world.getBlock(pos1) == Block.dirt) {
-                world.setBlock(pos1, Block.wood);
-                //}
-            }
+    public override void onRandomTick(World world, BlockPos pos, byte meta, int tickSeed) {
+        int i = (tickSeed) & 0x03;
+        BlockPos pos1 = pos + Direction.xzPlane[i].direction;
+        if (world.getBlock(pos1) == Block.dirt) {
+            world.setBlock(pos1, Block.grass);
         }
     }
 

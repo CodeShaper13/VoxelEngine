@@ -1,4 +1,6 @@
-﻿public class WorldGeneratorFlat : WorldGeneratorBase {
+﻿using UnityEngine;
+
+public class WorldGeneratorFlat : WorldGeneratorBase {
 
     public WorldGeneratorFlat(World world, long seed) : base(world, seed) {
 
@@ -22,7 +24,7 @@
         } else if(y < 18) {
             return Block.dirt;
         } else if(y < 19) {
-            return Block.grass;
+            return Random.Range(0, 256) == 0 ? Block.grass : Block.dirt;
         } else {
             return Block.air;
         }
