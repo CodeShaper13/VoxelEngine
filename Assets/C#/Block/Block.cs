@@ -10,8 +10,8 @@ public class Block {
     //All blocks:
     public static Block air = new BlockAir().setName("air").setSolid(false).setReplaceable(true);
     public static Block stone = new Block().setName("stone").setMineTime(0.25f).setTexture(0, 0);
-    public static Block dirt = new Block().setName("dirt").setMineTime(1).setTexture(1, 0);
-    public static Block grass = new BlockGrass().setName("grass");
+    public static Block dirt = new Block().setName("dirt").setMineTime(0.15f).setTexture(1, 0);
+    public static Block grass = new BlockGrass().setName("grass").setMineTime(0.15f);
     public static Block wood = new BlockWood().setName("log");
     public static Block leaves = new Block().setName("leaves").setTexture(0, 1).setSolid(false);
 

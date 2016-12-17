@@ -11,7 +11,6 @@ public struct BlockPos {
     public static BlockPos up = new BlockPos(0, 1, 0);
     public static BlockPos down = new BlockPos(0, -1, 0);
 
-
     public int x;
     public int y;
     public int z;
@@ -22,12 +21,8 @@ public struct BlockPos {
         this.z = z;
     }
 
-    public BlockPos toChunkPos() {
-        return new BlockPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);
-    }
-
-    public BlockPos toWorldPos() {
-        return new BlockPos(this.x * Chunk.SIZE, this.y * Chunk.SIZE, this.z * Chunk.SIZE);
+    public ChunkPos toChunkPos() {
+        return new ChunkPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);
     }
 
     public BlockPos move(Direction dir) {

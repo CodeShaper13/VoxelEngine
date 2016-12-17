@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 
 public class World : MonoBehaviour {
-    //Dictionary of all loaded chunks with a WorldPos as the key
-    public Dictionary<BlockPos, Chunk> loadedChunks = new Dictionary<BlockPos, Chunk>();
+    public Dictionary<ChunkPos, Chunk> loadedChunks = new Dictionary<ChunkPos, Chunk>();
 
     public string worldName;
-    public ChunkGenerator generator;
+    public long seed;
+    public WorldGenerator generator;
 
     public GameObject chunkPrefab;
     public GameObject itemPrefab;
@@ -16,7 +16,7 @@ public class World : MonoBehaviour {
 
     void Awake() {
         this.worldName = "world";
-        this.generator = new ChunkGenerator(this);
+        this.generator = new WorldGenerator(this, this.seed);
 
         this.chunkWrapper = new GameObject().transform;
         this.chunkWrapper.parent = this.transform;
@@ -47,24 +47,22 @@ public class World : MonoBehaviour {
     }
 
     //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
-    public Chunk loadChunk(BlockPos pos) {
-        GameObject newChunkObject = Instantiate(chunkPrefab, pos.toVector(), Quaternion.identity) as GameObject;
+    public Chunk loadChunk(ChunkPos pos) {
+        GameObject newChunkObject = Instantiate(chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
         newChunkObject.transform.parent = this.chunkWrapper;
         Chunk newChunk = newChunkObject.GetComponent<Chunk>();
         newChunk.initChunk(this, pos);
 
-        //Add it to the chunks dictionary with the position as the key
         loadedChunks.Add(pos, newChunk);
 
-        if(!Serialization.loadChunk(newChunk)) {
+        //if(!Serialization.loadChunk(newChunk)) {
             this.generator.generateChunk(newChunk);
-            //new TerrainGen().ChunkGen(newChunk);
-        }
+        //}
         return newChunk;
     }
 
     //Unloads a chunk, removing references and saving it
-    public void unloadChunk(BlockPos pos) {
+    public void unloadChunk(ChunkPos pos) {
         Chunk chunk = null;
         if (loadedChunks.TryGetValue(pos, out chunk)) {
             //Serialization.SaveChunk(chunk);
@@ -73,19 +71,19 @@ public class World : MonoBehaviour {
         }
     }
 
-    public Chunk getChunk(BlockPos pos1) {
-        pos1.x = Mathf.FloorToInt(pos1.x / (float)Chunk.SIZE) * Chunk.SIZE;
-        pos1.y = Mathf.FloorToInt(pos1.y / (float)Chunk.SIZE) * Chunk.SIZE;
-        pos1.z = Mathf.FloorToInt(pos1.z / (float)Chunk.SIZE) * Chunk.SIZE;
-
-        Chunk containerChunk = null;
-        loadedChunks.TryGetValue(pos1, out containerChunk);
-        return containerChunk;
+    public Chunk getChunk(ChunkPos pos) {
+        Chunk chunk = null;
+        loadedChunks.TryGetValue(pos, out chunk);
+        return chunk;
     }
 
     //Returns the chunk at x, y, z (World coordinates)
     public Chunk getChunk(int x, int y, int z) {
-        return this.getChunk(new BlockPos(x, y, z));
+        int x1 = Mathf.FloorToInt(x / (float)Chunk.SIZE);
+        int y1 = Mathf.FloorToInt(y / (float)Chunk.SIZE);
+        int z1 = Mathf.FloorToInt(z / (float)Chunk.SIZE);
+        ChunkPos c = new ChunkPos(x1, y1, z1);
+        return this.getChunk(c);
     }
 
     public Block getBlock(BlockPos pos) {
@@ -161,14 +159,14 @@ public class World : MonoBehaviour {
     }
 
     //What's this do?
-    void updateIfEqual(int value1, int value2, BlockPos pos) {
-        if (value1 == value2) {
-            Chunk chunk = getChunk(pos);
-            if (chunk != null) {
-                chunk.dirty = true;
-            }
-        }
-    }
+    //void updateIfEqual(int value1, int value2, BlockPos pos) {
+    //    if (value1 == value2) {
+    //        Chunk chunk = getChunk(pos);
+    //        if (chunk != null) {
+    //            chunk.dirty = true;
+    //        }
+    //    }
+    //}
 
     //Saves the world and all loaded chunks.
     public void saveWorld() {
@@ -179,7 +177,7 @@ public class World : MonoBehaviour {
         foreach (Chunk c in tempChunkList) {
             Serialization.saveChunk(c);
             Object.Destroy(c.gameObject);
-            loadedChunks.Remove(c.pos);
+            loadedChunks.Remove(c.pos.toChunkPos());
         }
     }
 }

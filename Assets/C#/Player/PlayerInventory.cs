@@ -8,11 +8,8 @@ public class PlayerInventory {
     public int index;
 
     private Text[] itemCount;
-    private Camera hudCamera;
 
-	public PlayerInventory(Camera hudCamera) {
-        this.hudCamera = hudCamera;
-
+	public PlayerInventory() {
         this.inventoryObj = new Transform[9];
         this.itemCount = new Text[9];
         for(int i = 0; i < 9; i++) {

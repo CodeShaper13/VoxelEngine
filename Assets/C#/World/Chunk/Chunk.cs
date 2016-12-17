@@ -1,9 +1,5 @@
 ﻿using UnityEngine;
 
-//A chunk in the game
-//[RequireComponent(typeof(MeshFilter))]
-//[RequireComponent(typeof(MeshRenderer))]
-//[RequireComponent(typeof(MeshCollider))]
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;
     public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
@@ -17,7 +13,7 @@ public class Chunk : MonoBehaviour {
     public bool rendered;
 
     //Has the chunk been populated?
-    public bool populated = false;
+    public bool isPopulated = false;
 
     private MeshFilter filter;
     private MeshCollider coll;
@@ -25,7 +21,12 @@ public class Chunk : MonoBehaviour {
 
     //In world coordinates, not chunk
     public BlockPos pos;
-    public int chunkX, chunkY, chunkZ;
+    public ChunkPos chunkPos;
+
+    public void Awake() {
+        this.filter = this.GetComponent<MeshFilter>();
+        this.coll = this.GetComponent<MeshCollider>();
+    }
 
     public void updateChunk() {
         //this.tickBlocks();
@@ -36,16 +37,11 @@ public class Chunk : MonoBehaviour {
     }
 
     //Like a constructor, but since this is a GameObject it can't have one.
-    public void initChunk(World w, BlockPos pos) {
+    public void initChunk(World w, ChunkPos pos) {
         this.world = w;
-        this.pos = pos;
-        BlockPos p = pos.toChunkPos();
-        this.chunkX = p.x;
-        this.chunkY = p.y;
-        this.chunkZ = p.z;
-        this.gameObject.name = "Chunk" + p;
-        this.filter = this.GetComponent<MeshFilter>();
-        this.coll = this.GetComponent<MeshCollider>();
+        this.pos = pos.toBlockPos();
+        this.chunkPos = pos;
+        this.gameObject.name = "Chunk" + this.chunkPos;
     }
 
     public void tickBlocks() {
@@ -106,5 +102,10 @@ public class Chunk : MonoBehaviour {
 
         this.filter.mesh = mesh;
         this.coll.sharedMesh = colMesh;
+    }
+
+    public bool validForPopulation() {
+        bool flag = !this.isPopulated;
+        return flag;
     }
 }

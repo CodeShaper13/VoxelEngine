@@ -14,9 +14,6 @@ public class OrePatch {
         this.oreBlock = coal;
         this.noiseScale = noiseScale;
         this.threshold = threshold;
-        //this.genOdds = genOdds;
-        //this.vainBounds = vainBounds;
-        //this.perChunk = perChunk;
     }
 
     public void generate(Chunk c, int x, int y, int z) {

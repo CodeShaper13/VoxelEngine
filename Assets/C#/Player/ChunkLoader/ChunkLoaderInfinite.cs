@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class ChunkLoaderInfinite : ChunkLoader {
 
-    protected override void unloadChunks(BlockPos occupiedChunkPos) {
+    protected override void unloadChunks(ChunkPos occupiedChunkPos) {
+        //BROKEN!!!  Not update when we replaced blokc pos with chunk pos
         occupiedChunkPos.x *= 16;
         occupiedChunkPos.y *= 16;
         occupiedChunkPos.z *= 16;
@@ -16,11 +17,12 @@ public class ChunkLoaderInfinite : ChunkLoader {
             }
         }
         foreach (BlockPos p in removals) {
-            this.world.unloadChunk(p);
+            this.world.unloadChunk(p.toChunkPos());
         }
     }
 
-    protected override void loadChunks(BlockPos occupiedChunkPos) {
+    protected override void loadChunks(ChunkPos occupiedChunkPos) {
+        //BROKEN!!!  Not update when we replaced blokc pos with chunk pos
         occupiedChunkPos.x *= 16;
         occupiedChunkPos.y *= 16;
         occupiedChunkPos.z *= 16;
@@ -35,9 +37,9 @@ public class ChunkLoaderInfinite : ChunkLoader {
 
                     Chunk c = world.getChunk(x, y, z);
                     BlockPos p = new BlockPos(x, y, z);
-                    if (c == null && !this.buildList.Contains(p)) {
-                        this.buildList.Add(p);
-                    }
+                    //if (c == null && !this.buildList.Contains(p)) {
+                    //    this.buildList.Add(p);
+                    //}
                 }
             }
         }

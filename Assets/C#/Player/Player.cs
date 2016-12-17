@@ -22,8 +22,6 @@ public class Player : MonoBehaviour {
 
     public PlayerInventory pInventory;
 
-    public Camera hudCamera;
-
     private bool showDebugInfo = true;
     private float reach = 3.5f;
 
@@ -35,8 +33,7 @@ public class Player : MonoBehaviour {
         Item.initBlockItems();
 
         this.blockBreakEffect = GameObject.Instantiate(this.blockBreakObj).GetComponent<BreakBlockEffect>();
-        //this.blockBreakEffect.gameObject.SetActive(false);
-        this.pInventory = new PlayerInventory(this.hudCamera);
+        this.pInventory = new PlayerInventory();
 
         this.cc = this.GetComponent<CharacterController>();
     }

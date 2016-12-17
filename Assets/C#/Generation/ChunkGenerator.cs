@@ -14,11 +14,9 @@ public class ChunkGenerator {
     }
 
     public void generateChunk(Chunk c) {
-        TerrainGen t = new TerrainGen();
-        t.ChunkGen(c);
-        return;
+        throw new System.Exception("Dont use this class!");
 
-        if(c.chunkX == 0 && c.chunkY == 0 && c.chunkZ == 0) {
+        if(c.chunkPos.x == 0 && c.chunkPos.y == 0 && c.chunkPos.z == 0) {
             this.generateSpawnChunk(c);
         } else {
             for(int x = 0; x < Chunk.SIZE; x++) {
@@ -188,7 +186,7 @@ public class ChunkGenerator {
             for (j = -2; j < 3; j++) {
                 for (k = -2; k < 3; k++) {
                     BlockPos p = new BlockPos(c.pos.x + (i * 16), c.pos.y + (j * 16), c.pos.z + (k * 16));
-                    isGenerated[i + 2, j + 2, k + 2] = this.world.getChunk(p);
+                    //isGenerated[i + 2, j + 2, k + 2] = this.world.getChunk(p);
                 }
             }
         }
@@ -233,7 +231,7 @@ public class ChunkGenerator {
     }
 
     public void populateChunk(Chunk c) {
-        c.populated = true;
+        c.isPopulated = true;
         c.dirty = true;
     }
 
