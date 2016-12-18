@@ -83,6 +83,15 @@ public class Block {
 
     }
 
+    public virtual void onPlace(World world, BlockPos pos, byte meta) {
+
+    }
+
+    //Called when the block is removed from World.setBlock()
+    public virtual void onDestroy(World world, BlockPos pos, byte meta) {
+
+    }
+
     ////////////////////////////////
     // Constructor helper methods //
     ////////////////////////////////

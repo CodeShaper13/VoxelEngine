@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;
@@ -7,6 +8,7 @@ public class Chunk : MonoBehaviour {
     public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
     public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
 
+    public bool isNeedingSave = false;
     public bool isDirty = false;
     public bool isPopulated = false;
 
@@ -38,7 +40,7 @@ public class Chunk : MonoBehaviour {
         }
     }
 
-    public void tickBlocks() {
+    private void tickBlocks() {
         int i = Random.Range(int.MinValue, int.MaxValue);
         for (int j = 0; j < 3; j++) {
             int x = (i >> j * 12) & 0x0F;     // 0  12
@@ -47,8 +49,6 @@ public class Chunk : MonoBehaviour {
             this.getBlock(x, y, z).onRandomTick(this.world, new BlockPos(x + this.pos.x, y + this.pos.y, z + this.pos.z), this.getMeta(x, y, z), i);
         }
     }
-
-    //For the following for methods, make sure the pos is between 0 and 15
 
     public Block getBlock(int x, int y, int z) {
         if (Util.inChunkBounds(x) && Util.inChunkBounds(y) && Util.inChunkBounds(z)) {
@@ -59,6 +59,7 @@ public class Chunk : MonoBehaviour {
 
     //This should only be used in world generation, or a case where the neighbor blocks should not be updated
     public void setBlock(int x, int y, int z, Block block) {
+        this.isNeedingSave = true;
         this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = block;
     }
 
@@ -68,11 +69,12 @@ public class Chunk : MonoBehaviour {
 
     //This should only be used in world generation, or a case where the neighbor blocks should not be updated
     public void setMeta(int x, int y, int z, byte meta) {
+        this.isNeedingSave = true;
         this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = meta;
     } 
 
     //Renders all the blocks within the chunk
-    public void renderChunk() {
+    private void renderChunk() {
         MeshData meshData = new MeshData();
 
         for (int x = 0; x < Chunk.SIZE; x++) {
@@ -82,11 +84,6 @@ public class Chunk : MonoBehaviour {
                 }
             }
         }
-        this.applyChunkMesh(meshData);
-    }
-
-    //Applies the new render and collision mesh to the chunks components
-    public void applyChunkMesh(MeshData meshData) {
         Mesh mesh = meshData.toMesh();
         Mesh colMesh = new Mesh();
         colMesh.vertices = meshData.colVertices.ToArray();
@@ -95,10 +92,5 @@ public class Chunk : MonoBehaviour {
 
         this.filter.mesh = mesh;
         this.coll.sharedMesh = colMesh;
-    }
-
-    public bool validForPopulation() {
-        bool flag = !this.isPopulated;
-        return flag;
     }
 }

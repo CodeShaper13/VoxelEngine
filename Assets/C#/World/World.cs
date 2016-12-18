@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public class World : MonoBehaviour {
     public Dictionary<ChunkPos, Chunk> loadedChunks = new Dictionary<ChunkPos, Chunk>();
-
-    public string worldName;
-    public long seed;
     public WorldGeneratorBase generator;
+    public WorldData worldData;
+    public SaveHandler saveHandler;
 
     public GameObject chunkPrefab;
     public GameObject itemPrefab;
@@ -15,15 +17,14 @@ public class World : MonoBehaviour {
     private Transform itemWrapper;
 
     void Awake() {
-        this.worldName = "world";
-        this.generator = new WorldGeneratorFlat(this, this.seed);
+        this.saveHandler = new SaveHandler("world1");
 
-        this.chunkWrapper = new GameObject().transform;
-        this.chunkWrapper.parent = this.transform;
-        this.chunkWrapper.name = "CHUNKS";
-        this.itemWrapper = new GameObject().transform;
-        this.itemWrapper.parent = this.transform;
-        this.itemWrapper.name = "ITEMS";
+        this.worldData = this.saveHandler.getWorldData();
+
+        this.generator = this.worldData.worldType == 0 ? (WorldGeneratorBase) new WorldGenerator(this, worldData.seed) : new WorldGeneratorFlat(this, this.worldData.seed);
+
+        this.chunkWrapper = this.createWrapper("CHUNKS");
+        this.itemWrapper = this.createWrapper("ITEMS");
     }
 
     void LateUpdate() {
@@ -32,8 +33,15 @@ public class World : MonoBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.R)) {
-            this.saveWorld();
+            this.saveEntireWorld();
         }
+    }
+
+    public Transform createWrapper(string name) {
+        Transform t = new GameObject().transform;
+        t.parent = this.transform;
+        t.name = name;
+        return t;
     }
 
     public void spawnItem(ItemStack stack, Vector3 pos, Quaternion rot) {
@@ -48,26 +56,30 @@ public class World : MonoBehaviour {
 
     //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
     public Chunk loadChunk(ChunkPos pos) {
-        GameObject newChunkObject = Instantiate(chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
-        newChunkObject.transform.parent = this.chunkWrapper;
-        Chunk newChunk = newChunkObject.GetComponent<Chunk>();
-        newChunk.initChunk(this, pos);
+        GameObject chunkGameObject = GameObject.Instantiate(chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
+        chunkGameObject.transform.parent = this.chunkWrapper;
+        Chunk chunk = chunkGameObject.GetComponent<Chunk>();
+        chunk.initChunk(this, pos);
 
-        loadedChunks.Add(pos, newChunk);
+        chunk.isNeedingSave = true;
+        chunk.isDirty = true;
 
-        //if(!Serialization.loadChunk(newChunk)) {
-            this.generator.generateChunk(newChunk);
-        //}
-        return newChunk;
+        this.loadedChunks.Add(pos, chunk);
+
+        if(!this.saveHandler.deserializeChunk(chunk)) {
+            this.generator.generateChunk(chunk);
+        }
+        return chunk;
     }
 
-    //Unloads a chunk, removing references and saving it
     public void unloadChunk(ChunkPos pos) {
-        Chunk chunk = null;
-        if (loadedChunks.TryGetValue(pos, out chunk)) {
-            //Serialization.SaveChunk(chunk);
+        Chunk chunk = this.getChunk(pos);
+        if(chunk != null) {
+            this.saveChunk(chunk);
             Object.Destroy(chunk.gameObject);
-            loadedChunks.Remove(pos);
+            this.loadedChunks.Remove(pos);
+        } else {
+            Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
         }
     }
 
@@ -77,7 +89,10 @@ public class World : MonoBehaviour {
         return chunk;
     }
 
-    //Returns the chunk at x, y, z (World coordinates)
+    public Chunk getChunk(BlockPos pos) {
+        return this.getChunk(pos.x, pos.y, pos.z);
+    }
+
     public Chunk getChunk(int x, int y, int z) {
         int x1 = Mathf.FloorToInt(x / (float)Chunk.SIZE);
         int y1 = Mathf.FloorToInt(y / (float)Chunk.SIZE);
@@ -100,22 +115,23 @@ public class World : MonoBehaviour {
         }
     }
 
-    public void setBlock(BlockPos pos, Block block, bool runUpdate = true) {
-        this.setBlock(pos.x, pos.y, pos.z, block, runUpdate);
-    }
-
-    public void setBlock(int x, int y, int z, Block block, bool runUpdate = true) {
-        Chunk chunk = this.getChunk(x, y, z);
+    public void setBlock(BlockPos pos, Block block, bool updateNeighbors = true) {
+        Chunk chunk = this.getChunk(pos);
         if (chunk != null) {
-            chunk.setBlock(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, block);
+            int x1 = pos.x - chunk.pos.x;
+            int y1 = pos.y - chunk.pos.y;
+            int z1 = pos.z - chunk.pos.z;
+            byte meta = chunk.getMeta(x1, y1, z1);
+            chunk.getBlock(x1, y1, z1).onDestroy(this, pos, meta);
+            chunk.setBlock(x1, y1, z1, block);
+            block.onPlace(this, pos, meta);
 
-            if(runUpdate) {
-                BlockPos p = new BlockPos(x, y, z);
+            if (updateNeighbors) {
                 foreach (Direction d in Direction.all) {
-                    BlockPos p1 = p.move(d);
-                    this.getBlock(p1).onNeighborChange(p, d);
-                    chunk = this.getChunk(p1.x, p1.y, p1.z);
-                    if(chunk != null) {
+                    BlockPos shiftedPos = pos.move(d);
+                    this.getBlock(shiftedPos).onNeighborChange(pos, d);
+                    chunk = this.getChunk(shiftedPos.x, shiftedPos.y, shiftedPos.z);
+                    if (chunk != null) {
                         chunk.isDirty = true;
                     }
                 }
@@ -127,6 +143,10 @@ public class World : MonoBehaviour {
             //this.UpdateIfEqual(z - chunk.pos.z, 0,              new BlockPos(x, y, z - 1));
             //this.UpdateIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(x, y, z + 1));        
         }
+    }
+
+    public void setBlock(int x, int y, int z, Block block, bool updateNeighbors = true) {
+        this.setBlock(new BlockPos(x, y, z), block, updateNeighbors);
     }
 
     public byte getMeta(BlockPos pos) {
@@ -168,16 +188,19 @@ public class World : MonoBehaviour {
     //    }
     //}
 
-    //Saves the world and all loaded chunks.
-    public void saveWorld() {
-        List<Chunk> tempChunkList = new List<Chunk>();
-        foreach (Chunk c in this.loadedChunks.Values) {
-            tempChunkList.Add(c);
+    private void saveChunk(Chunk chunk) {
+        if (chunk.isNeedingSave) {
+            this.saveHandler.serializeChunk(chunk);
         }
-        foreach (Chunk c in tempChunkList) {
-            Serialization.saveChunk(c);
-            Object.Destroy(c.gameObject);
-            loadedChunks.Remove(c.pos.toChunkPos());
+
+        chunk.isNeedingSave = false;
+    }
+
+    private void saveEntireWorld() {
+        this.saveHandler.serializeWorldData(this.worldData);
+
+        foreach(Chunk chunk in this.loadedChunks.Values) {
+            this.saveChunk(chunk);
         }
     }
 }

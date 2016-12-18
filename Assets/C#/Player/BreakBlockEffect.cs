@@ -24,6 +24,10 @@ public class BreakBlockEffect : MonoBehaviour {
         this.mf.mesh = model.meshData.toMesh();
         this.transform.position = pos;
 
+        //set the right texture
+        int x = block.getTexturePos(Direction.UP, 0).x;
+        int y = Mathf.Abs(block.getTexturePos(Direction.UP, 0).y - 3);
+
         this.ps.Play();
     }
 

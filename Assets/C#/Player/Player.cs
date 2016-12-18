@@ -118,10 +118,12 @@ public class Player : MonoBehaviour {
     private void updateDebugInfo() {
         if(this.showDebugInfo) {
             StringBuilder s = new StringBuilder();
-            s.Append("DEBUG: (Press F3 to toggle)\n\n");
+            s.Append("DEBUG: (Press F3 to toggle)\n");
+            s.Append("WASD for movement, Q to drop item, R to save world\n\n");
             s.Append("Position: " + this.transform.position.ToString() + "\n");
             s.Append("Rotation: " + this.transform.eulerAngles.ToString() + "\n");
-            s.Append("Looking At: " + this.posLookingAt.ToString() + "\n");
+            s.Append("Looking At: " + this.world.getBlock(this.posLookingAt).name + ":" + this.world.getMeta(this.posLookingAt) + " " + this.posLookingAt.ToString() + "\n");
+            s.Append(this.world.worldData.worldName + " " + this.world.worldData.seed);
             this.debugTextGUI.text = s.ToString();
         } else {
             this.debugTextGUI.text = string.Empty;

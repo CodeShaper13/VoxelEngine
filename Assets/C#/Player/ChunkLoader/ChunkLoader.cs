@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class ChunkLoader : MonoBehaviour {
     public World world;
     protected int maxBuiltPerLoop = 1;
-    protected ChunkPos previousOccupiedChunkPos = new ChunkPos(0, 0, 0);
+    protected ChunkPos previousOccupiedChunkPos = null;
     protected Queue<ChunkPos> buildQueue = new Queue<ChunkPos>();
 
     protected int loadDistance = 3;
@@ -12,7 +12,6 @@ public class ChunkLoader : MonoBehaviour {
     private int worldHeight = 8;
 
     void Start() {
-        print("Starting generation");
         this.loadChunks(this.getOccupiedChunkPos());
         print("Generation took " + (Time.realtimeSinceStartup));
         this.buildChunks(10000);
@@ -21,7 +20,7 @@ public class ChunkLoader : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         ChunkPos p = this.getOccupiedChunkPos();
-        if(p.x != this.previousOccupiedChunkPos.x || p.y != this.previousOccupiedChunkPos.y || p.z != this.previousOccupiedChunkPos.z) {
+        if(this.previousOccupiedChunkPos == null || p.x != this.previousOccupiedChunkPos.x || p.z != this.previousOccupiedChunkPos.z) {
             this.loadChunks(p);
         }
         this.previousOccupiedChunkPos = p;
@@ -42,14 +41,10 @@ public class ChunkLoader : MonoBehaviour {
 
     //Builds chunks from the list, building up to the passed value and returning the number built.
     protected int buildChunks(int max) {
-
         int builtChunks = 0;
         if(this.buildQueue.Count > 0) {
             while(this.buildQueue.Count > 0 && builtChunks < max) {
-                //for(int i = this.buildList.Count - 1; i >= 0 && builtChunks < max; i--) {
-                //this.world.loadChunk(this.buildList[i]).dirty = true;
-                //this.buildList.RemoveAt(i);
-                this.world.loadChunk(this.buildQueue.Dequeue()).isDirty = true;
+                this.world.loadChunk(this.buildQueue.Dequeue());
                 builtChunks++;
             }
         }
@@ -59,7 +54,7 @@ public class ChunkLoader : MonoBehaviour {
     protected virtual void unloadChunks(ChunkPos occupiedChunkPos) {
         List<ChunkPos> removals = new List<ChunkPos>();
         foreach (Chunk c in this.world.loadedChunks.Values) {
-            if (this.toFarOnAxis(occupiedChunkPos.x, c.chunkPos.x) || this.toFarOnAxis(occupiedChunkPos.y, c.chunkPos.y) || this.toFarOnAxis(occupiedChunkPos.z, c.chunkPos.z)) {
+            if (this.toFarOnAxis(occupiedChunkPos.x, c.chunkPos.x) || this.toFarOnAxis(occupiedChunkPos.z, c.chunkPos.z)) {
                 removals.Add(c.chunkPos);
             }
         }
