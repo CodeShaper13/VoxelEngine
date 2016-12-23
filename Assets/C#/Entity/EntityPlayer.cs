@@ -39,15 +39,15 @@ public class EntityPlayer : Entity {
 
         this.setHealth(10);
 
-        this.pInventory.addItemStack(new ItemStack(Block.coalOre.asItem(), 0));
-        this.pInventory.addItemStack(new ItemStack(Block.uraniumOre.asItem(), 2));
-        this.pInventory.addItemStack(new ItemStack(Block.rubyOre.asItem(), 4));
-        this.pInventory.addItemStack(new ItemStack(Block.dirt.asItem(), 0, 16));
+        this.pInventory.addItemStack(new ItemStack(Item.goldPickaxe, 0));
+        this.pInventory.addItemStack(new ItemStack(Block.uraniumOre, 2));
+        this.pInventory.addItemStack(new ItemStack(Block.rubyOre, 4));
+        this.pInventory.addItemStack(new ItemStack(Block.dirt, 0, 16));
         this.pInventory.addItemStack(new ItemStack(Item.pebble, 0));
-        this.pInventory.addItemStack(new ItemStack(Block.gravel.asItem(), 2));
-        this.pInventory.addItemStack(new ItemStack(Block.mushroom.asItem(), 0));
-        this.pInventory.addItemStack(new ItemStack(Block.poisonMushroom.asItem(), 3));
-        this.pInventory.addItemStack(new ItemStack(Block.mossyBrick.asItem(), 0));
+        this.pInventory.addItemStack(new ItemStack(Block.gravel, 2));
+        this.pInventory.addItemStack(new ItemStack(Block.mushroom, 0));
+        this.pInventory.addItemStack(new ItemStack(Block.poisonMushroom, 3));
+        this.pInventory.addItemStack(new ItemStack(Block.mossyBrick, 0));
     }
 
     public new void Update() {

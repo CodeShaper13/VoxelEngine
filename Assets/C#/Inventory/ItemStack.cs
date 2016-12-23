@@ -14,6 +14,8 @@ public class ItemStack {
         this.count = count;
     }
 
+    public ItemStack(Block block, byte meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
+
     public bool equals(ItemStack stack) {
         return this.item.id == stack.item.id && this.meta == stack.meta;
     }

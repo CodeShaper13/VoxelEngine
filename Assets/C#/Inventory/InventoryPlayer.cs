@@ -57,7 +57,7 @@ public class InventoryPlayer {
 
     public void scroll(int i) {
         this.inventoryObj[this.index].localScale = Vector3.one;
-        this.index += i;
+        this.index += i * -1;
         if(this.index > 8) {
             this.index = 0;
         }

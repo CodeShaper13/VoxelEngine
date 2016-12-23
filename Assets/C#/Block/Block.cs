@@ -8,7 +8,7 @@ public class Block {
     public static BlockModel MODEL_CROSS = new BlockModelCross();
 
     public static Block air = new BlockAir().setName("Air").setSolid(false).setReplaceable(true);
-    public static Block stone = new BlockStone().setMineTime(0.25f).setTexture(0, 0).setType(Type.STONE);
+    public static Block stone = new BlockStone().setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
     public static Block dirt = new Block().setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
     public static Block gravel = new Block().setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
     public static Block moss;
