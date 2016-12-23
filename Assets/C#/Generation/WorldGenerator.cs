@@ -34,7 +34,7 @@ public class WorldGenerator : WorldGeneratorBase {
     public override void populateChunk(Chunk chunk) {
         base.populateChunk(chunk);
 
-        chunk.setBlock(15, 15, 15, Block.leaves);
+        chunk.setBlock(15, 15, 15, Block.wood);
         return;
 
         for (int x = chunk.pos.x; x < chunk.pos.x + Chunk.SIZE; x++) {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 public class ChunkLoader : MonoBehaviour {
-    public World world;
+    protected World world;
     protected int maxBuiltPerLoop = 1;
     protected ChunkPos previousOccupiedChunkPos = null;
     protected Queue<ChunkPos> buildQueue = new Queue<ChunkPos>();
@@ -12,6 +12,7 @@ public class ChunkLoader : MonoBehaviour {
     private int worldHeight = 8;
 
     void Start() {
+        this.world = this.GetComponent<EntityPlayer>().world;
         this.loadChunks(this.getOccupiedChunkPos());
         print("Generation took " + (Time.realtimeSinceStartup));
         this.buildChunks(10000);

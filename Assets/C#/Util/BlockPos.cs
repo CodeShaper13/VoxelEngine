@@ -4,6 +4,8 @@ using System;
 //Struct for a position in the world, with several helper methods.
 [Serializable]
 public struct BlockPos {
+    public static BlockPos zero = new BlockPos(0, 0, 0);
+    public static BlockPos one = new BlockPos(1, 1, 1);
     public static BlockPos north = new BlockPos(0, 0, 1);
     public static BlockPos east = new BlockPos(1, 0, 0);
     public static BlockPos south = new BlockPos(0, 0, -1);
@@ -26,7 +28,6 @@ public struct BlockPos {
     }
 
     public BlockPos move(Direction dir) {
-        //Debug.Log(this + dir.direction);
         return new BlockPos(this.x + dir.direction.x, this.y + dir.direction.y, this.z + dir.direction.z);
     }
 

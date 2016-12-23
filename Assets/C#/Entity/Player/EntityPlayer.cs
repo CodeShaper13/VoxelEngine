@@ -2,9 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour {
+public class EntityPlayer : Entity {
     //Constants
-    private float movementSpeed = 5.0f; //5
     private float mouseSensitivity = 3f; //2.5f
     private float jumpSpeed = 5.0f;
 
@@ -12,38 +11,53 @@ public class Player : MonoBehaviour {
     private float verticalRotation = 0.0f;
     private float verticalVelocity = 0.0f;
 
-    public World world;
     public Text debugTextGUI;
-    public GameObject blockBreakObj;
-    public BreakBlockEffect blockBreakEffect;
+    public RawImage healthBarImage;
+    public Text magnifyingText;
+    public GameObject blockBreakPrefab;
 
-    //The last pos the player has been looking at
-    public BlockPos posLookingAt;
-
-    public PlayerInventory pInventory;
-
+    private CharacterController cc;
+    private BreakBlockEffect blockBreakEffect;
+    private BlockPos posLookingAt;
+    public InventoryPlayer pInventory;
     private bool showDebugInfo = true;
     private float reach = 3.5f;
+    public Camera mainCamera;
 
-    public CharacterController cc;
+    public new void Awake() {
+        base.Awake();
 
-    void Awake() {
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
-        Item.initBlockItems();
+        this.mainCamera = Camera.main;
 
-        this.blockBreakEffect = GameObject.Instantiate(this.blockBreakObj).GetComponent<BreakBlockEffect>();
-        this.pInventory = new PlayerInventory();
+        this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
+        this.pInventory = new InventoryPlayer();
 
         this.cc = this.GetComponent<CharacterController>();
+
+        this.setHealth(10);
+
+        this.pInventory.addItemStack(new ItemStack(Block.coalOre.asItem(), 0));
+        this.pInventory.addItemStack(new ItemStack(Block.uraniumOre.asItem(), 2));
+        this.pInventory.addItemStack(new ItemStack(Block.rubyOre.asItem(), 4));
+        this.pInventory.addItemStack(new ItemStack(Block.dirt.asItem(), 0, 16));
+        this.pInventory.addItemStack(new ItemStack(Item.pebble, 0));
+        this.pInventory.addItemStack(new ItemStack(Block.gravel.asItem(), 2));
+        this.pInventory.addItemStack(new ItemStack(Block.mushroom.asItem(), 0));
+        this.pInventory.addItemStack(new ItemStack(Block.poisonMushroom.asItem(), 3));
+        this.pInventory.addItemStack(new ItemStack(Block.mossyBrick.asItem(), 0));
     }
 
-    void Update() {
+    public new void Update() {
+        base.Update();
+
         //Move the player
         this.handleMovement();
 
         RaycastHit hit;
-        bool rayHit = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, this.reach);
+        bool rayHit = Physics.Raycast(this.mainCamera.transform.position, this.mainCamera.transform.forward, out hit);
 
         //Find out what we are looking at
         BlockPos p = BlockPos.fromRaycast(hit, false);
@@ -56,18 +70,19 @@ public class Player : MonoBehaviour {
 
 
         if (hit.transform != null) {
-            if (hit.transform.tag == "Chunk") {
+            float f = Vector3.Distance(this.mainCamera.transform.position, hit.point);
+            if (hit.transform.tag == "Chunk" && f <= this.reach) {
                 Block block = this.world.getBlock(this.posLookingAt);
                 byte meta = this.world.getMeta(this.posLookingAt);
 
                 if (Input.GetMouseButton(0)) {
-                    this.blockBreakEffect.update(this, block, meta);
+                    this.blockBreakEffect.update(this, this.posLookingAt, block, meta);
                 }
                 if (Input.GetMouseButtonDown(1)) {
                     block.onRightClick(this.world, this.posLookingAt, meta);                  
                 }
             }
-            else if (hit.transform.tag == "Entity") {
+            else if (hit.transform.tag == "Entity" && f <= this.reach) {
                 Entity e = hit.transform.GetComponent<Entity>();
                 if (Input.GetMouseButtonDown(0)) {
                     e.onEntityHit(this);
@@ -80,9 +95,9 @@ public class Player : MonoBehaviour {
 
         //Right click
         if (rayHit && Input.GetMouseButtonDown(1)) {
-            ItemStack s = this.pInventory.hotbar[this.pInventory.index];
-            if(s != null) {
-                this.pInventory.hotbar[this.pInventory.index] = s.item.onRightClick(this.world, s, hit);
+            ItemStack stack = this.pInventory.hotbar[this.pInventory.index];
+            if(stack != null) {
+                this.pInventory.hotbar[this.pInventory.index] = stack.item.onRightClick(this.world, this, stack, hit);
             }
         }
 
@@ -91,11 +106,21 @@ public class Player : MonoBehaviour {
         this.pInventory.drawHotbar();
     }
 
-    void OnCollisionEnter(Collision collision) {
-        Entity entity = collision.gameObject.GetComponent<Entity>();
-        if(entity != null) {
-            entity.onPlayerTouch(this);
+    public override void onEntityCollision(Entity otherEntity) {
+        if(otherEntity is EntityItem) {
+            ItemStack s = this.pInventory.addItemStack(((EntityItem)otherEntity).stack);
+            if (s == null) {
+                GameObject.Destroy(otherEntity.gameObject);
+            }
         }
+    }
+
+    public override void setHealth(int amount) {
+        if (amount > 10) {
+            amount = 10;
+        }
+        this.health = amount;
+        this.healthBarImage.uvRect = new Rect(0, 0, this.health / 10, 1);
     }
 
     private void handleInput() {
@@ -150,7 +175,7 @@ public class Player : MonoBehaviour {
 
         verticalVelocity += Physics.gravity.y * Time.deltaTime;
 
-        if (Input.GetButtonDown("Jump") && cc.isGrounded) {
+        if (Input.GetButtonDown("Jump") && this.cc.isGrounded) {
             verticalVelocity = jumpSpeed;
         }
 

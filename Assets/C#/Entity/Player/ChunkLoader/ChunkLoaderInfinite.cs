@@ -31,12 +31,12 @@ public class ChunkLoaderInfinite : ChunkLoader {
         for (int i = -this.loadDistance; i < this.loadDistance + 1; i++) {
             for (int j = -this.loadDistance; j < this.loadDistance + 1; j++) {
                 for (int k = -this.loadDistance; k < this.loadDistance + 1; k++) {
-                    int x = i * Chunk.SIZE + occupiedChunkPos.x;
-                    int y = k * Chunk.SIZE + occupiedChunkPos.y;
-                    int z = j * Chunk.SIZE + occupiedChunkPos.z;
+                    //int x = i * Chunk.SIZE + occupiedChunkPos.x;
+                    //int y = k * Chunk.SIZE + occupiedChunkPos.y;
+                    //int z = j * Chunk.SIZE + occupiedChunkPos.z;
 
-                    Chunk c = world.getChunk(x, y, z);
-                    BlockPos p = new BlockPos(x, y, z);
+                    //Chunk c = world.getChunk(x, y, z);
+                    //BlockPos p = new BlockPos(x, y, z);
                     //if (c == null && !this.buildList.Contains(p)) {
                     //    this.buildList.Add(p);
                     //}

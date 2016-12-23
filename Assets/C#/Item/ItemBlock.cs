@@ -12,7 +12,7 @@ public class ItemBlock : Item {
         this.setRenderData(ItemBlock.RENDER_BLOCK);
     }
 
-    public override ItemStack onRightClick(World world, ItemStack stack, RaycastHit hit) {
+    public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, RaycastHit hit) {
         Chunk chunk = hit.collider.GetComponent<Chunk>();
         if (chunk != null) {
             BlockPos pos = BlockPos.fromRaycast(hit, true);

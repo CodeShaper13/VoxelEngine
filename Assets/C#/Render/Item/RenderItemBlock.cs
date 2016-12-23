@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RenderItemBlock : IRenderItem {
 
@@ -14,6 +13,6 @@ public class RenderItemBlock : IRenderItem {
     }
 
     public Matrix4x4 getMatrix(Transform t) {
-        return Matrix4x4.TRS(t.position + -t.forward, Quaternion.Euler(-45, 30, 0), new Vector3(0.1f, 0.1f, 0.1f));
+        return Matrix4x4.TRS(t.position + -t.forward, Quaternion.Euler(-20 + t.eulerAngles.x, 48 + t.eulerAngles.y, -20 + t.eulerAngles.z), new Vector3(0.1f, 0.1f, 0.1f));
     }
 }

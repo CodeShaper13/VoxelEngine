@@ -13,6 +13,10 @@ public class WorldGeneratorBase {
         this.features = new List<GenerationFeature>();
     }
 
+    public virtual Vector3 getSpawnPoint() {
+        return Vector3.zero;
+    }
+
     public virtual void generateChunk(Chunk chunk) {
         
     }

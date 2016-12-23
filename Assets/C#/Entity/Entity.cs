@@ -2,17 +2,42 @@
 using UnityEngine;
 
 public class Entity : MonoBehaviour {
-
     public World world;
+    protected int health;
 
-    public virtual void onPlayerTouch(Player player) {
+    public void Awake() {
+        this.health = 10;
     }
 
-    public virtual void onEntityHit(Player player) {
+    public void Update() {
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        Entity entity = collision.gameObject.GetComponent<Entity>();
+        if (entity != null) {
+            this.onEntityCollision(entity);
+            entity.onEntityCollision(this);
+        }
+    }
+
+
+    public virtual int getHealth() {
+        return this.health;
+    }
+
+    public virtual void setHealth(int health) {
+        this.health = health;
+    }
+
+    public virtual void onEntityCollision(Entity otherEntity) {
+
+    }
+
+    public virtual void onEntityHit(EntityPlayer player) {
         throw new NotImplementedException();
     }
 
-    public virtual void onEntityInteract(Player player) {
+    public virtual void onEntityInteract(EntityPlayer player) {
         throw new NotImplementedException();
     }
 }

@@ -2,6 +2,7 @@
 using UnityEngine;
 
 public class RenderItemBillboard : IRenderItem {
+    public Vector3 scale = new Vector3(0.1f, 0.1f, 0.1f);
 
     public MeshData renderItem(ItemStack stack) {
         MeshData meshData = new MeshData();
@@ -26,7 +27,7 @@ public class RenderItemBillboard : IRenderItem {
     }
 
     public Matrix4x4 getMatrix(Transform t) {
-        return Matrix4x4.TRS(t.position + -t.forward, Quaternion.identity, new Vector3(0.1f, 0.1f, 0.1f));
+        return Matrix4x4.TRS(t.position + -t.forward, t.rotation, this.scale);
     }
 
     private Vector2[] setUVs(TexturePos pos) {

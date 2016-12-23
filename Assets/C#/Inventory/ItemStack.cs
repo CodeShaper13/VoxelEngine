@@ -1,4 +1,7 @@
-﻿public class ItemStack {
+﻿using System;
+using UnityEngine;
+
+public class ItemStack {
     public const int MAX_SIZE = 16;
 
     public Item item;

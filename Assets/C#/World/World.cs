@@ -11,20 +11,30 @@ public class World : MonoBehaviour {
     public SaveHandler saveHandler;
 
     public GameObject chunkPrefab;
-    public GameObject itemPrefab;
 
     private Transform chunkWrapper;
-    private Transform itemWrapper;
+    private Transform entityWrapper;
 
     void Awake() {
+        int i = 19;
+        print((float)i / Chunk.SIZE);
+
+        //Init the game
+        Item.initBlockItems();
+
+        //Init the world
         this.saveHandler = new SaveHandler("world1");
 
         this.worldData = this.saveHandler.getWorldData();
 
-        this.generator = this.worldData.worldType == 0 ? (WorldGeneratorBase) new WorldGenerator(this, worldData.seed) : new WorldGeneratorFlat(this, this.worldData.seed);
+        this.generator = new WorldGeneratorCaves(this, worldData.seed);
 
         this.chunkWrapper = this.createWrapper("CHUNKS");
-        this.itemWrapper = this.createWrapper("ITEMS");
+        this.entityWrapper = this.createWrapper("ENTITIES");
+    }
+
+    void Start() {
+        this.spawnEntity(EntityManager.singleton.playerPrefab, this.generator.getSpawnPoint(), Quaternion.identity);
     }
 
     void LateUpdate() {
@@ -44,14 +54,20 @@ public class World : MonoBehaviour {
         return t;
     }
 
-    public void spawnItem(ItemStack stack, Vector3 pos, Quaternion rot) {
-        GameObject g = GameObject.Instantiate(this.itemPrefab);
-        g.transform.parent = this.itemWrapper;
-        g.transform.rotation = rot;
-        g.transform.position = pos;
-        EntityItem i = g.GetComponent<EntityItem>();
-        i.stack = stack;
-        i.initRendering();
+    public Entity spawnEntity(GameObject prefab, Vector3 position, Quaternion rotation) {
+        GameObject gameObject = GameObject.Instantiate(prefab);
+        gameObject.transform.position = position;
+        gameObject.transform.rotation = rotation;
+        gameObject.transform.parent = this.entityWrapper;
+        Entity entity = gameObject.GetComponent<Entity>();
+        entity.world = this;
+        return entity;
+    }
+
+    public void spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
+        EntityItem entityItem = (EntityItem)this.spawnEntity(EntityManager.singleton.itemPrefab, position, rotation);
+        entityItem.stack = stack;
+        entityItem.initRendering();
     }
 
     //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
@@ -127,21 +143,22 @@ public class World : MonoBehaviour {
             block.onPlace(this, pos, meta);
 
             if (updateNeighbors) {
-                foreach (Direction d in Direction.all) {
-                    BlockPos shiftedPos = pos.move(d);
-                    this.getBlock(shiftedPos).onNeighborChange(pos, d);
-                    chunk = this.getChunk(shiftedPos.x, shiftedPos.y, shiftedPos.z);
-                    if (chunk != null) {
-                        chunk.isDirty = true;
-                    }
+                foreach (Direction dir in Direction.all) {
+                    BlockPos shiftedPos = pos.move(dir);
+                    this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
+                    //chunk = this.getChunk(shiftedPos.x, shiftedPos.y, shiftedPos.z);
+                    //if (chunk != null) {
+                    //    chunk.isDirty = true;
+                    //}
                 }
             }
-            //this.UpdateIfEqual(x - chunk.pos.x, 0,              new BlockPos(x - 1, y, z));
-            //this.UpdateIfEqual(x - chunk.pos.x, Chunk.SIZE - 1, new BlockPos(x + 1, y, z));
-            //this.UpdateIfEqual(y - chunk.pos.y, 0,              new BlockPos(x, y - 1, z));
-            //this.UpdateIfEqual(y - chunk.pos.y, Chunk.SIZE - 1, new BlockPos(x, y + 1, z));
-            //this.UpdateIfEqual(z - chunk.pos.z, 0,              new BlockPos(x, y, z - 1));
-            //this.UpdateIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(x, y, z + 1));        
+            chunk.isDirty = true;
+            this.updateIfEqual(pos.x - chunk.pos.x, 0,              new BlockPos(pos.x - 1, pos.y, pos.z));
+            this.updateIfEqual(pos.x - chunk.pos.x, Chunk.SIZE - 1, new BlockPos(pos.x + 1, pos.y, pos.z));
+            this.updateIfEqual(pos.y - chunk.pos.y, 0,              new BlockPos(pos.x, pos.y - 1, pos.z));
+            this.updateIfEqual(pos.y - chunk.pos.y, Chunk.SIZE - 1, new BlockPos(pos.x, pos.y + 1, pos.z));
+            this.updateIfEqual(pos.z - chunk.pos.z, 0,              new BlockPos(pos.x, pos.y, pos.z - 1));
+            this.updateIfEqual(pos.z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(pos.x, pos.y, pos.z + 1));        
         }
     }
 
@@ -171,22 +188,33 @@ public class World : MonoBehaviour {
                 chunk.isDirty = true;
             }
 
-            foreach (Direction d in Direction.all) {
-                BlockPos p1 = p.move(d);
-                this.getBlock(p1).onNeighborChange(p, d);
+            foreach (Direction dir in Direction.all) {
+                BlockPos shiftedPos = p.move(dir);
+                this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
             }
         }
     }
 
+    //Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
+    public void breakBlock(BlockPos pos, ItemTool brokenWith) {
+        Block block = this.getBlock(pos);
+        foreach (ItemStack stack in block.getDrops(this.getMeta(pos), brokenWith)) {
+            float f = 0.5f;
+            Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));
+            this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, Random.Range(0, 360), 0));
+        }
+        this.setBlock(pos, Block.air);
+    }
+
     //What's this do?
-    //void updateIfEqual(int value1, int value2, BlockPos pos) {
-    //    if (value1 == value2) {
-    //        Chunk chunk = getChunk(pos);
-    //        if (chunk != null) {
-    //            chunk.dirty = true;
-    //        }
-    //    }
-    //}
+    void updateIfEqual(int value1, int value2, BlockPos pos) {
+        if (value1 == value2) {
+            Chunk chunk = getChunk(pos);
+            if (chunk != null) {
+                chunk.isDirty = true;
+            }
+        }
+    }
 
     private void saveChunk(Chunk chunk) {
         if (chunk.isNeedingSave) {

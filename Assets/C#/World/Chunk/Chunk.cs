@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;

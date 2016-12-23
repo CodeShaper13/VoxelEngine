@@ -5,21 +5,16 @@ public class EntityItem : Entity {
     private MeshFilter filter;
     private MeshRenderer meshRenderer;
 
-	void Awake () {
+	public new void Awake () {
+        base.Awake();
         this.filter = this.GetComponent<MeshFilter>();
         this.meshRenderer = this.GetComponent<MeshRenderer>();
 	}
-	
-	void Update () {
+
+    public new void Update () {
+        base.Update();
         this.transform.Rotate(0, Time.deltaTime * 25, 0);
 	}
-
-    public override void onPlayerTouch(Player player) {
-        ItemStack s = player.pInventory.addItemStack(this.stack);
-        if (s == null) {
-            GameObject.Destroy(this.gameObject);
-        }
-    }
 
     //Sets up the item rendering
     public void initRendering() {

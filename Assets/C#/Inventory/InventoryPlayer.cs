@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerInventory {
+public class InventoryPlayer {
 
     public Transform[] inventoryObj;
     public ItemStack[] hotbar;
@@ -9,7 +9,7 @@ public class PlayerInventory {
 
     private Text[] itemCount;
 
-	public PlayerInventory() {
+	public InventoryPlayer() {
         this.inventoryObj = new Transform[9];
         this.itemCount = new Text[9];
         for(int i = 0; i < 9; i++) {
@@ -30,7 +30,7 @@ public class PlayerInventory {
     }
 
     public ItemStack addItemStack(ItemStack newStack) {
-        for(int i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; i++) {
             if(this.hotbar[i] == null) {
                 this.hotbar[i] = newStack;
                 return null;
@@ -65,6 +65,10 @@ public class PlayerInventory {
             this.index = 8;
         }
         this.inventoryObj[this.index].localScale = new Vector3(1.15f, 1.15f, 1.15f);
+    }
+
+    public ItemStack getHeldItem() {
+        return this.hotbar[this.index];
     }
 
     private void renderItem(ItemStack stack, Transform t) {
