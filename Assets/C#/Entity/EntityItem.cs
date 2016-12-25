@@ -27,4 +27,8 @@ public class EntityItem : Entity {
         this.filter.mesh.RecalculateNormals();
         this.meshRenderer.material = this.stack.item.id < 256 ? Constants.instance.blockMaterial : Constants.instance.itemMaterial;
     }
+
+    public override string getMagnifyingText() {
+        return "An item, bumping into it will let you pick it up.";
+    }
 }

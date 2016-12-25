@@ -12,20 +12,15 @@ public class ItemBlock : Item {
         this.setRenderData(ItemBlock.RENDER_BLOCK);
     }
 
-    public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, RaycastHit hit) {
-        Chunk chunk = hit.collider.GetComponent<Chunk>();
-        if (chunk != null) {
-            BlockPos pos = BlockPos.fromRaycast(hit, true);
+    public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
+        if(hit.state != null) {
+            BlockPos pos = BlockPos.fromRaycast(hit.unityRaycastHit, true);
             if (world.getBlock(pos).replaceable) {
                 world.setBlock(pos, this.block);
                 world.setMeta(pos, stack.meta);
-                stack.count -= 1;
-                if(stack.count <= 0) {
-                    stack = null;
-                }
+                stack = stack.safeDeduction();
             }
         }
-
         return stack;
     }
 }

@@ -14,6 +14,7 @@ public class EntityPlayer : Entity {
     public Text debugTextGUI;
     public RawImage healthBarImage;
     public Text magnifyingText;
+    public Text itemNameText;
     public GameObject blockBreakPrefab;
 
     private CharacterController cc;
@@ -21,8 +22,9 @@ public class EntityPlayer : Entity {
     private BlockPos posLookingAt;
     public InventoryPlayer pInventory;
     private bool showDebugInfo = true;
-    private float reach = 3.5f;
+    public float reach = 3.5f;
     public Camera mainCamera;
+    public float magnifyingTimer;
 
     public new void Awake() {
         base.Awake();
@@ -42,9 +44,9 @@ public class EntityPlayer : Entity {
         this.pInventory.addItemStack(new ItemStack(Item.goldPickaxe, 0));
         this.pInventory.addItemStack(new ItemStack(Block.uraniumOre, 2));
         this.pInventory.addItemStack(new ItemStack(Block.rubyOre, 4));
-        this.pInventory.addItemStack(new ItemStack(Block.dirt, 0, 16));
+        this.pInventory.addItemStack(new ItemStack(Block.dirt));
         this.pInventory.addItemStack(new ItemStack(Item.pebble, 0));
-        this.pInventory.addItemStack(new ItemStack(Block.gravel, 2));
+        this.pInventory.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
         this.pInventory.addItemStack(new ItemStack(Block.mushroom, 0));
         this.pInventory.addItemStack(new ItemStack(Block.poisonMushroom, 3));
         this.pInventory.addItemStack(new ItemStack(Block.mossyBrick, 0));
@@ -68,27 +70,31 @@ public class EntityPlayer : Entity {
         }
         this.posLookingAt = p;
 
+        PlayerRayHit playerHit = null;
+        if(hit.transform != null) {
+            if (hit.transform.tag == "Chunk") {
+                playerHit = new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
+            }
+            else if (hit.transform.tag == "Entity") {
+                playerHit = new PlayerRayHit(hit.transform.GetComponent<Entity>(), hit);
+            }
+        }
 
-        if (hit.transform != null) {
-            float f = Vector3.Distance(this.mainCamera.transform.position, hit.point);
-            if (hit.transform.tag == "Chunk" && f <= this.reach) {
-                Block block = this.world.getBlock(this.posLookingAt);
-                byte meta = this.world.getMeta(this.posLookingAt);
-
+        if (playerHit != null) {
+            if (playerHit.state != null && playerHit.unityRaycastHit.distance <= this.reach) {
                 if (Input.GetMouseButton(0)) {
-                    this.blockBreakEffect.update(this, this.posLookingAt, block, meta);
+                    this.blockBreakEffect.update(this, this.posLookingAt, playerHit.state.block, playerHit.state.meta);
                 }
                 if (Input.GetMouseButtonDown(1)) {
-                    block.onRightClick(this.world, this.posLookingAt, meta);                  
+                    playerHit.state.block.onRightClick(this.world, this.posLookingAt, playerHit.state.meta);                    
                 }
             }
-            else if (hit.transform.tag == "Entity" && f <= this.reach) {
-                Entity e = hit.transform.GetComponent<Entity>();
+            else if (playerHit.entity != null && playerHit.unityRaycastHit.distance <= this.reach) {
                 if (Input.GetMouseButtonDown(0)) {
-                    e.onEntityHit(this);
+                    playerHit.entity.onEntityHit(this);
                 }
                 if(Input.GetMouseButtonDown(1)) {
-                    e.onEntityInteract(this);
+                    playerHit.entity.onEntityInteract(this);
                 }
             }
         }
@@ -97,13 +103,21 @@ public class EntityPlayer : Entity {
         if (rayHit && Input.GetMouseButtonDown(1)) {
             ItemStack stack = this.pInventory.hotbar[this.pInventory.index];
             if(stack != null) {
-                this.pInventory.hotbar[this.pInventory.index] = stack.item.onRightClick(this.world, this, stack, hit);
+                this.pInventory.hotbar[this.pInventory.index] = stack.item.onRightClick(this.world, this, stack, playerHit);
             }
         }
 
         this.handleInput();
         this.updateDebugInfo();
         this.pInventory.drawHotbar();
+
+        //Magnifying text
+        if(this.magnifyingTimer > 0) {
+            this.magnifyingTimer -= Time.deltaTime;
+        }
+        if(this.magnifyingTimer <= 0) {
+            this.magnifyingText.color = Color.Lerp(this.magnifyingText.color, Color.clear, 3 * Time.deltaTime);
+        }
     }
 
     public override void onEntityCollision(Entity otherEntity) {
@@ -137,7 +151,11 @@ public class EntityPlayer : Entity {
             Cursor.visible = true;
         }
         float f = Input.GetAxis("Mouse ScrollWheel");
-        this.pInventory.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
+        if(f != 0) {
+            this.pInventory.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
+            ItemStack stack = this.pInventory.getHeldItem();
+            this.itemNameText.text = stack == null ? string.Empty : stack.item.name;
+        }
     }
 
     private void updateDebugInfo() {

@@ -16,9 +16,6 @@ public class World : MonoBehaviour {
     private Transform entityWrapper;
 
     void Awake() {
-        int i = 19;
-        print((float)i / Chunk.SIZE);
-
         //Init the game
         Item.initBlockItems();
 

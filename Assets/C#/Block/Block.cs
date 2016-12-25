@@ -85,6 +85,10 @@ public class Block {
         return new ItemStack[] { new ItemStack(this.asItem(), meta) };
     }
 
+    public virtual string getMagnifyingText(byte meta) {
+        return this.getName(meta);
+    }
+
     public virtual TexturePos getTexturePos(Direction direction, byte meta) {
         return this.texturePos;
     }

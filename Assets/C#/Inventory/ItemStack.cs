@@ -39,4 +39,12 @@ public class ItemStack {
             return otherStack;
         }
     }
+
+    public ItemStack safeDeduction() {
+        this.count -= 1;
+        if(count <= 0) {
+            return null;
+        }
+        return this;
+    }
 }

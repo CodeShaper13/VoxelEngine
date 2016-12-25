@@ -18,19 +18,19 @@ public class Item {
     public static Item ironChestplate;
     public static Item goldHelmet;
     public static Item goldChestplate;
-    public static Item bronzePickaxe = new ItemTool(1.25f, ItemTool.ToolType.PICKAXE, Block.Type.STONE);
-    public static Item bronzeShovel = new ItemTool(1.25f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT);
+    public static Item bronzePickaxe = new ItemTool(1.25f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Bronze Pickaxe").setTexture(2, 0);
+    public static Item bronzeShovel = new ItemTool(1.25f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Bronze Shovel").setTexture(3, 0);
     public static Item bronzeSword;
-    public static Item ironPickaxe = new ItemTool(1.5f, ItemTool.ToolType.PICKAXE, Block.Type.STONE);
-    public static Item ironShovel = new ItemTool(1.5f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT);
+    public static Item ironPickaxe = new ItemTool(1.5f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Iron Pickaxe").setTexture(2, 1);
+    public static Item ironShovel = new ItemTool(1.5f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Iron Shovel").setTexture(3, 1);
     public static Item ironSword;
-    public static Item goldPickaxe = new ItemTool(2f, ItemTool.ToolType.PICKAXE, Block.Type.STONE);
-    public static Item goldShovel = new ItemTool(2f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT);
+    public static Item goldPickaxe = new ItemTool(2f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Gold Pickaxe").setTexture(2, 2);
+    public static Item goldShovel = new ItemTool(2f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Gold Shovel").setTexture(3, 2);
     public static Item goldSword;
     public static Item glassShard = new Item().setName("Glass Shard").setTexture(1, 1);
     public static Item glorbDust = new Item().setName("Glorb Dust").setTexture(1, 2);
     public static Item flowerItem = new Item().setName("Flower").setTexture(1, 3);
-    public static Item magnifyingGlass;
+    public static Item magnifyingGlass = new ItemMagnifyingGlass().setName("Magnifying Glass").setTexture(1, 4);
     public static Item minecart;
 
     public int id = 256;
@@ -46,8 +46,7 @@ public class Item {
         this.itemRenderer = Item.RENDER_BILLBOARD;
     }
 
-    //Hit.transform will be null if air was clicked
-    public virtual ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, RaycastHit hit) {
+    public virtual ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
         return stack;
     }
 

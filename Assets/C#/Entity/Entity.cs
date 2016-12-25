@@ -6,6 +6,7 @@ public class Entity : MonoBehaviour {
     protected int health;
 
     public void Awake() {
+        this.tag = "Entity";
         this.health = 10;
     }
 
