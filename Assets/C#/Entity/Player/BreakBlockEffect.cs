@@ -44,7 +44,7 @@ public class BreakBlockEffect : MonoBehaviour {
             this.isTerminated = false;
         }
 
-        ItemStack stack = player.pInventory.getHeldItem();
+        ItemStack stack = player.inventoryData.getHeldItem();
         ItemTool tool = null;
         float f = 1;
         if(stack != null && stack.item is ItemTool) {

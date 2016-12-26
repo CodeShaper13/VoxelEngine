@@ -14,7 +14,7 @@ public class Block {
     public static Block moss;
     public static Block root;
     public static Block flower;
-    public static Block lava;
+    public static Block lava = new BlockLava().setName("Lava").setTexture(0, 12).setReplaceable(true).setSolid(false);
     public static Block coalOre = new BlockOre(Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
     public static Block bronzeOre = new BlockOre(Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
     public static Block ironOre = new BlockOre(Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
@@ -59,7 +59,7 @@ public class Block {
     public virtual void onRandomTick(World world, BlockPos pos, byte meta, int tickSeed) {
     }
 
-    public virtual void onRightClick(World world, BlockPos pos, byte meta) {
+    public virtual void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
 
     }
 
@@ -103,7 +103,7 @@ public class Block {
     }
 
     public virtual MeshData renderBlock(Chunk chunk, int x, int y, int z, byte meta, MeshData meshData) {
-        meshData.useRenderDataForCol = true; //TODO make this better, maybe allow blocks to override a methods that provides this value?
+        meshData.useRenderDataForCol = this != Block.lava; //TODO make this better, maybe allow blocks to override a methods that provides this value?
         bool[] renderFace = new bool[6];
         for (int i = 0; i < 6; i++) {
             Direction d = Direction.all[i];

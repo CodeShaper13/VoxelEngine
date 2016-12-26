@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour {
     public World world;
-    protected int health;
+    public int health;
 
     public void Awake() {
         this.tag = "Entity";
@@ -14,31 +14,31 @@ public class Entity : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision collision) {
-        Entity entity = collision.gameObject.GetComponent<Entity>();
-        if (entity != null) {
-            this.onEntityCollision(entity);
-            entity.onEntityCollision(this);
-        }
-    }
-
-
-    public virtual int getHealth() {
-        return this.health;
+        Entity otherEntity = collision.gameObject.GetComponent<Entity>();
+        this.onEntityCollision(otherEntity);
     }
 
     public virtual void setHealth(int health) {
         this.health = health;
     }
 
-    public virtual void onEntityCollision(Entity otherEntity) {
+    public virtual void onEntityCollision(Entity otherEntity) { }
 
+    public virtual void onEntityHit(EntityPlayer player, float damage) { }
+
+    public virtual void onEntityInteract(EntityPlayer player) { }
+
+    //Retunrs true if the entity was kiled by this damage
+    public bool damage(int amount) {
+        this.setHealth(this.health - amount);
+        if(this.health <= 0) {
+            GameObject.Destroy(this);
+            return true;
+        }
+        return false;
     }
 
-    public virtual void onEntityHit(EntityPlayer player) {
-        throw new NotImplementedException();
-    }
-
-    public virtual void onEntityInteract(EntityPlayer player) {
-        throw new NotImplementedException();
+    public virtual string getMagnifyingText() {
+        return "Entity";
     }
 }

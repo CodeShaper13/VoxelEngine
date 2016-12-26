@@ -7,12 +7,14 @@ public class Chunk : MonoBehaviour {
     public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
     public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
 
-    public bool isNeedingSave = false;
+    public bool isNeedingSave = false; //Not fully implemented
     public bool isDirty = false;
     public bool isPopulated = false;
 
+    private MeshCollider blockCollider;
+    private MeshCollider triggerCollider;
+
     private MeshFilter filter;
-    private MeshCollider coll;
     public World world;
 
     public BlockPos pos;
@@ -20,7 +22,9 @@ public class Chunk : MonoBehaviour {
 
     public void Awake() {
         this.filter = this.GetComponent<MeshFilter>();
-        this.coll = this.GetComponent<MeshCollider>();
+        MeshCollider[] colliders = this.GetComponents<MeshCollider>();
+        this.blockCollider = colliders[0];
+        this.triggerCollider = colliders[1];
     }
 
     //Like a constructor, but since this is a GameObject it can't have one.
@@ -90,6 +94,7 @@ public class Chunk : MonoBehaviour {
         colMesh.RecalculateNormals();
 
         this.filter.mesh = mesh;
-        this.coll.sharedMesh = colMesh;
+
+        this.blockCollider.sharedMesh = colMesh;
     }
 }

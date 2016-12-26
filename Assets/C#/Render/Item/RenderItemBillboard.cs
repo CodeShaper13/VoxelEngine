@@ -2,7 +2,7 @@
 using UnityEngine;
 
 public class RenderItemBillboard : IRenderItem {
-    public Vector3 scale = new Vector3(0.1f, 0.1f, 0.1f);
+    public Vector3 scale = new Vector3(0.15f, 0.15f, 0.15f);
 
     public MeshData renderItem(ItemStack stack) {
         MeshData meshData = new MeshData();
