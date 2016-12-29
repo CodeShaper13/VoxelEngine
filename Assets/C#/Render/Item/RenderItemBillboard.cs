@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RenderItemBillboard : IRenderItem {
     public Vector3 scale = new Vector3(0.15f, 0.15f, 0.15f);
@@ -26,8 +25,9 @@ public class RenderItemBillboard : IRenderItem {
         return meshData;
     }
 
-    public Matrix4x4 getMatrix(Transform t) {
-        return Matrix4x4.TRS(t.position + -t.forward, t.rotation, this.scale);
+    public Matrix4x4 getMatrix(Vector3 pos) {
+        return Matrix4x4.TRS(pos, Quaternion.identity, this.scale);
+        //return Matrix4x4.TRS(t.position + -t.forward, t.rotation, this.scale);
     }
 
     private Vector2[] setUVs(TexturePos pos) {

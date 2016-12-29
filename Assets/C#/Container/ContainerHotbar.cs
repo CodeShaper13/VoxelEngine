@@ -5,9 +5,13 @@ public class ContainerHotbar : Container {
 
     public Text itemName;
 
-    public override void initContainer(ContainerData data) {
-        base.initContainer(data);
+    public override void initContainer(ContainerData data, EntityPlayer player) {
+        base.initContainer(data, player);
         this.scroll(0);
+    }
+
+    public override void renderHeldItem() {
+        
     }
 
     public void scroll(int i) {

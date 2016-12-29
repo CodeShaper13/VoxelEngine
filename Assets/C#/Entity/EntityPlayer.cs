@@ -15,49 +15,53 @@ public class EntityPlayer : Entity {
     public Text magnifyingText;
     public RawImage healthBarImage;
     public GameObject blockBreakPrefab;
+    public GameObject containerHotbarPrefab;
+    public GameObject containerInventoryPrefab;
 
     private CharacterController cc;
     private BreakBlockEffect blockBreakEffect;
     public Transform mainCamera;
-    public Container containerElement;
-
-    public GameObject temp_prefab;
-    public GameObject hotbar_prefab;
+    private Container containerElement;
 
     public float reach = 3.5f;
     public float magnifyingTimer;
     private BlockPos posLookingAt;
     private bool showDebugInfo = true;
+    public ItemStack heldStack;
 
     private ContainerHotbar containerHotbar;
-    public ContainerDataHotbar inventoryData;    
+    public ContainerDataHotbar hotbarData;
+    public ContainerData inventoryData;
 
     public new void Awake() {
         base.Awake();
 
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        this.setMouseLock(true);
 
         this.mainCamera = Camera.main.transform;
 
-        this.inventoryData = new ContainerDataHotbar();
-        this.inventoryData.addItemStack(new ItemStack(Item.goldPickaxe, 0));
-        this.inventoryData.addItemStack(new ItemStack(Block.uraniumOre, 2));
-        this.inventoryData.addItemStack(new ItemStack(Block.lava, 4));
-        this.inventoryData.addItemStack(new ItemStack(Item.goldSword));
-        this.inventoryData.addItemStack(new ItemStack(Item.pebble, 0));
-        this.inventoryData.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
-        this.inventoryData.addItemStack(new ItemStack(Block.mushroom, 0));
-        this.inventoryData.addItemStack(new ItemStack(Block.poisonMushroom, 3));
-        this.inventoryData.addItemStack(new ItemStack(Block.mossyBrick, 0));
+        this.hotbarData = new ContainerDataHotbar();
+        this.hotbarData.addItemStack(new ItemStack(Item.goldPickaxe, 0));
+        this.hotbarData.addItemStack(new ItemStack(Block.uraniumOre, 2));
+        this.hotbarData.addItemStack(new ItemStack(Block.lava, 4));
+        this.hotbarData.addItemStack(new ItemStack(Item.goldSword));
+        this.hotbarData.addItemStack(new ItemStack(Item.pebble, 0));
+        this.hotbarData.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
+        this.hotbarData.addItemStack(new ItemStack(Block.mushroom, 0));
+        this.hotbarData.addItemStack(new ItemStack(Block.poisonMushroom, 3));
+        this.hotbarData.addItemStack(new ItemStack(Block.mossyBrick, 0));
+        this.inventoryData = new ContainerData(2, 2);
 
         this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
-        this.containerHotbar = GameObject.Instantiate(this.hotbar_prefab).GetComponent<ContainerHotbar>();
-        this.containerHotbar.initContainer(this.inventoryData);
 
         this.cc = this.GetComponent<CharacterController>();
 
         this.setHealth(10);
+    }
+
+    public void Start() {
+        this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
+        this.containerHotbar.initContainer(this.hotbarData, this);
     }
 
     public new void Update() {
@@ -70,7 +74,7 @@ public class EntityPlayer : Entity {
             this.containerElement.drawnContents();
 
             if (Input.GetKeyDown(KeyCode.Escape)) {
-                GameObject.Destroy(this.containerElement.gameObject);
+                this.closeContainer();
             }
         } else {
             playerMovement = this.movePlayer();
@@ -88,7 +92,7 @@ public class EntityPlayer : Entity {
                 }
                 else if (playerHit.entity != null && playerHit.unityRaycastHit.distance <= this.reach) {
                     if (Input.GetMouseButtonDown(0)) {
-                        ItemStack stack = this.inventoryData.getHeldItem();
+                        ItemStack stack = this.hotbarData.getHeldItem();
                         float damage = 1;
                         if (stack != null && stack.item is ItemSword) {
                             damage = ((ItemSword)stack.item).damageAmount;
@@ -103,9 +107,9 @@ public class EntityPlayer : Entity {
 
             //Right click
             if (Input.GetMouseButtonDown(1)) {
-                ItemStack stack = this.inventoryData.getHeldItem();
+                ItemStack stack = this.hotbarData.getHeldItem();
                 if (stack != null) {
-                    this.inventoryData.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
+                    this.hotbarData.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
                 }
             }
 
@@ -128,7 +132,7 @@ public class EntityPlayer : Entity {
 
     public override void onEntityCollision(Entity otherEntity) {
         if(otherEntity is EntityItem) {
-            ItemStack s = this.inventoryData.addItemStack(((EntityItem)otherEntity).stack);
+            ItemStack s = this.hotbarData.addItemStack(((EntityItem)otherEntity).stack);
             if (s == null) {
                 GameObject.Destroy(otherEntity.gameObject);
             }
@@ -141,6 +145,11 @@ public class EntityPlayer : Entity {
         }
         this.health = amount;
         this.healthBarImage.uvRect = new Rect(0, 0, this.health / 10, 1);
+    }
+
+    private void setMouseLock(bool flag) {
+        Cursor.visible = !flag;
+        Cursor.lockState = flag ? CursorLockMode.Locked : CursorLockMode.None;
     }
 
     private PlayerRayHit updatePlayerRayHit() {
@@ -169,29 +178,38 @@ public class EntityPlayer : Entity {
 
     private void handleInput() {
         if(Input.GetKeyDown(KeyCode.Q)) {
-            ItemStack s = this.inventoryData.dropItem(0, false /* Input.GetKey(KeyCode.LeftControl) */);
-            if(s != null) {
-                this.world.spawnItem(s, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
+            ItemStack stack = this.hotbarData.dropItem(this.hotbarData.index, false /* Input.GetKey(KeyCode.LeftControl) */);
+            if(stack != null) {
+                this.dropItem(stack);
             }
-        }
-        if(Input.GetKeyDown(KeyCode.Escape)) {
-            Cursor.visible = true;
         }
         float f = Input.GetAxis("Mouse ScrollWheel");
         if(f != 0) {
             this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
         }
         if(Input.GetKeyDown(KeyCode.E)) {
-            this.openContainer();
+            this.openContainer(this.containerInventoryPrefab, this.inventoryData);
         }
     }
 
-    public void openContainer() {
-        this.containerElement = GameObject.Instantiate(this.temp_prefab).GetComponent<Container>();
+    public void openContainer(GameObject containerObj, ContainerData containerData) {
+        this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
         this.containerElement.transform.SetParent(this.transform);
-        ContainerData cd = new ContainerData(2, 2);
-        cd.setStack(0, 0, new ItemStack(Item.pebble));
-        this.containerElement.initContainer(cd);
+        this.containerElement.initContainer(containerData, this);
+        this.setMouseLock(false);
+    }
+
+    public void closeContainer() {
+        if(this.heldStack != null) {
+            this.dropItem(this.heldStack);
+            this.heldStack = null;
+        }
+        GameObject.Destroy(this.containerElement.gameObject);
+        this.setMouseLock(true);
+    }
+
+    private void dropItem(ItemStack stack) {
+        this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
     }
 
     private void updateDebugInfo() {

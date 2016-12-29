@@ -5,7 +5,7 @@ public class Constants : MonoBehaviour {
 
     public Material blockMaterial;
     public Material itemMaterial;
-    
+
     public void Awake() {
         if(Constants.instance == null) {
             Constants.instance = this;

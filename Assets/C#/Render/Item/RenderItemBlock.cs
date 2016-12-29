@@ -14,7 +14,8 @@ public class RenderItemBlock : IRenderItem {
         return model.meshData;
     }
 
-    public Matrix4x4 getMatrix(Transform t) {
-        return Matrix4x4.TRS(t.position + -t.forward, Quaternion.Euler(-20 + t.eulerAngles.x, 48 + t.eulerAngles.y, -20 + t.eulerAngles.z), this.scale);
+    public Matrix4x4 getMatrix(Vector3 pos) {
+        return Matrix4x4.TRS(pos, Quaternion.Euler(-20, 48, -20), this.scale);
+        //return Matrix4x4.TRS(t.position + -t.forward, Quaternion.Euler(-20 + t.eulerAngles.x, 48 + t.eulerAngles.y, -20 + t.eulerAngles.z), this.scale);
     }
 }
