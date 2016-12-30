@@ -23,22 +23,17 @@ public class SaveHandler {
     }
 
     public WorldData getWorldData() {
-        if (!File.Exists(this.worldDataFileName)) {
+        object obj = SerializationHelper.deserialize(this.worldDataFileName);
+
+        if (obj == null) {
             return new WorldData(this.worldName);
         } else {
-            IFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(this.worldDataFileName, FileMode.Open);
-            WorldData w = (WorldData)formatter.Deserialize(stream);
-            stream.Close();
-            return w;
+            return (WorldData)obj;
         }
     }
 
     public void serializeWorldData(WorldData worldData) {
-        IFormatter formatter = new BinaryFormatter();
-        Stream stream = new FileStream(this.worldDataFileName, FileMode.Create, FileAccess.Write, FileShare.None);
-        formatter.Serialize(stream, worldData);
-        stream.Close();
+        SerializationHelper.serialize(worldData, this.worldDataFileName);
     }
 
     public bool deserializeChunk(Chunk chunk) {
