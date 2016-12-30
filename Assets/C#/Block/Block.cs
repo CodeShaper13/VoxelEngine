@@ -89,6 +89,10 @@ public class Block {
         return this.getName(meta);
     }
 
+    public virtual GameObject getAssociateGameObject() {
+        return null;
+    }
+
     public virtual TexturePos getTexturePos(Direction direction, byte meta) {
         return this.texturePos;
     }

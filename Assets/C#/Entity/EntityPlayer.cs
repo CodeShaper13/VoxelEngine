@@ -42,7 +42,7 @@ public class EntityPlayer : Entity {
 
         this.hotbarData = new ContainerDataHotbar();
         this.hotbarData.addItemStack(new ItemStack(Item.goldPickaxe, 0));
-        this.hotbarData.addItemStack(new ItemStack(Block.uraniumOre, 2));
+        this.hotbarData.addItemStack(new ItemStack(Block.glorb, 0, 16));
         this.hotbarData.addItemStack(new ItemStack(Block.lava, 4));
         this.hotbarData.addItemStack(new ItemStack(Item.goldSword));
         this.hotbarData.addItemStack(new ItemStack(Item.pebble, 0));
@@ -190,6 +190,13 @@ public class EntityPlayer : Entity {
         if(Input.GetKeyDown(KeyCode.E)) {
             this.openContainer(this.containerInventoryPrefab, this.inventoryData);
         }
+
+        //if(true) {
+        //    if(Input.GetKeyDown(KeyCode.P)) {
+        //        Schematic s = new Schematic(this.world.getChunk(BlockPos.fromVec(this.transform.position)));
+        //        SerializationHelper.serialize(s, s.name);
+        //    }
+        //}
     }
 
     public void openContainer(GameObject containerObj, ContainerData containerData) {

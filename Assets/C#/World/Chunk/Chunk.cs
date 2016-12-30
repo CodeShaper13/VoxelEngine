@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;
@@ -6,6 +7,7 @@ public class Chunk : MonoBehaviour {
 
     public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
     public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
+    public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>;
 
     public bool isNeedingSave = false; //Not fully implemented
     public bool isDirty = false;
