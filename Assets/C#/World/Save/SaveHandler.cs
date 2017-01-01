@@ -10,7 +10,7 @@ public class SaveHandler {
 
     public SaveHandler(string worldName) {
         this.worldName = worldName;
-        this.saveFolderName = "voxelGameSaves/" + this.worldName + "/";
+        this.saveFolderName = "saves/" + this.worldName + "/";
         this.chunkFolderName = this.saveFolderName + "chunks/";
         this.worldDataFileName = this.saveFolderName + this.worldName + ".bin";
 

@@ -17,11 +17,11 @@ public class EntityItem : Entity {
         this.filter.mesh.triangles = meshData.triangles.ToArray();
         this.filter.mesh.uv = meshData.uv.ToArray();
         this.filter.mesh.RecalculateNormals();
-        this.GetComponent<MeshRenderer>().material = this.stack.item.id < 256 ? Constants.instance.blockMaterial : Constants.instance.itemMaterial;
+        this.GetComponent<MeshRenderer>().material = VoxelEngine.getMaterial(this.stack.item.id);
     }
 
-    public new void Update () {
-        base.Update();
+    public override void onEntityUpdate() {
+        base.onEntityUpdate();
         this.transform.Rotate(0, Time.deltaTime * 25, 0);
 	}
 

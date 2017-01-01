@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Chunk : MonoBehaviour {
     public const int SIZE = 16;
@@ -7,7 +6,7 @@ public class Chunk : MonoBehaviour {
 
     public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
     public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
-    public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>;
+    //public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>();
 
     public bool isNeedingSave = false; //Not fully implemented
     public bool isDirty = false;
@@ -37,12 +36,15 @@ public class Chunk : MonoBehaviour {
         this.gameObject.name = "Chunk" + this.chunkPos;
     }
 
-    public void updateChunk() {
-        this.tickBlocks();
+    public void Update() {
         if (isDirty) {
             isDirty = false;
             this.renderChunk();
         }
+    }
+
+    public void updateChunk() {
+        this.tickBlocks();
     }
 
     private void tickBlocks() {
@@ -56,6 +58,7 @@ public class Chunk : MonoBehaviour {
     }
 
     public Block getBlock(int x, int y, int z) {
+        //TODO refactor code to remove this if block
         if (Util.inChunkBounds(x) && Util.inChunkBounds(y) && Util.inChunkBounds(z)) {
             return this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
         }

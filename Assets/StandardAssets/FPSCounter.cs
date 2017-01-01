@@ -1,37 +1,28 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UnityStandardAssets.Utility
-{
-    [RequireComponent(typeof (Text))]
-    public class FPSCounter : MonoBehaviour
-    {
+namespace UnityStandardAssets.Utility {
+    public class FPSCounter : MonoBehaviour {
         const float fpsMeasurePeriod = 0.5f;
-        private int m_FpsAccumulator = 0;
-        private float m_FpsNextPeriod = 0;
-        private int m_CurrentFps;
-        const string display = "{0} FPS";
-        private Text m_Text;
+        private int fpsAccumulator = 0;
+        private float fpsNextPeriod = 0;
+        private int currentFps;
+        const string formatString = "{0} FPS";
+        private Text uiText;
 
-
-        private void Start()
-        {
-            m_FpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
-            m_Text = GetComponent<Text>();
+        private void Start() {
+            fpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
+            uiText = GetComponent<Text>();
         }
 
-
-        private void Update()
-        {
+        private void Update() {
             // measure average frames per second
-            m_FpsAccumulator++;
-            if (Time.realtimeSinceStartup > m_FpsNextPeriod)
-            {
-                m_CurrentFps = (int) (m_FpsAccumulator/fpsMeasurePeriod);
-                m_FpsAccumulator = 0;
-                m_FpsNextPeriod += fpsMeasurePeriod;
-                m_Text.text = string.Format(display, m_CurrentFps);
+            fpsAccumulator++;
+            if (Time.realtimeSinceStartup > fpsNextPeriod) {
+                currentFps = (int) (fpsAccumulator/fpsMeasurePeriod);
+                fpsAccumulator = 0;
+                fpsNextPeriod += fpsMeasurePeriod;
+                uiText.text = string.Format(formatString, currentFps);
             }
         }
     }

@@ -10,12 +10,13 @@ public class Entity : MonoBehaviour {
         this.health = 10;
     }
 
-    public void Update() {
-    }
-
     void OnCollisionEnter(Collision collision) {
         Entity otherEntity = collision.gameObject.GetComponent<Entity>();
         this.onEntityCollision(otherEntity);
+    }
+
+    public virtual void onEntityUpdate() {
+
     }
 
     public virtual void setHealth(int health) {
@@ -32,7 +33,7 @@ public class Entity : MonoBehaviour {
     public bool damage(int amount) {
         this.setHealth(this.health - amount);
         if(this.health <= 0) {
-            GameObject.Destroy(this);
+            this.world.killEntity(this);
             return true;
         }
         return false;

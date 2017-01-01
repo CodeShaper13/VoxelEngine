@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 
 public class World : MonoBehaviour {
-    public Dictionary<ChunkPos, Chunk> loadedChunks = new Dictionary<ChunkPos, Chunk>();
+    public Dictionary<ChunkPos, Chunk> loadedChunks;
     public WorldGeneratorBase generator;
     public WorldData worldData;
     public SaveHandler saveHandler;
+    public List<Entity> entityList;
 
     public GameObject chunkPrefab;
 
@@ -13,35 +14,28 @@ public class World : MonoBehaviour {
     private Transform entityWrapper;
 
     void Awake() {
-        //Init the game
-        Item.initBlockItems();
+        this.loadedChunks = new Dictionary<ChunkPos, Chunk>();
+        this.entityList = new List<Entity>();
 
-        //Init the world
         this.saveHandler = new SaveHandler("world1");
-
         this.worldData = this.saveHandler.getWorldData();
-
         this.generator = new WorldGeneratorCaves(this, worldData.seed);
 
         this.chunkWrapper = this.createWrapper("CHUNKS");
         this.entityWrapper = this.createWrapper("ENTITIES");
     }
 
-    void Start() {
-        this.spawnEntity(EntityManager.singleton.playerPrefab, this.generator.getSpawnPoint(), Quaternion.identity);
-    }
-
-    void LateUpdate() {
+    public void runWorldUpdate() {
         foreach (Chunk c in this.loadedChunks.Values) {
             c.updateChunk();
         }
-
-        if (Input.GetKeyDown(KeyCode.R)) {
-            this.saveEntireWorld();
+        //TODO if an entity is spawned by another, it is not updated this update
+        for(int i = 0; i < this.entityList.Count; i++) {
+            this.entityList[i].onEntityUpdate();
         }
     }
 
-    public Transform createWrapper(string name) {
+    private Transform createWrapper(string name) {
         Transform t = new GameObject().transform;
         t.parent = this.transform;
         t.name = name;
@@ -55,7 +49,13 @@ public class World : MonoBehaviour {
         gameObject.transform.parent = this.entityWrapper;
         Entity entity = gameObject.GetComponent<Entity>();
         entity.world = this;
+        this.entityList.Add(entity);
         return entity;
+    }
+
+    public void killEntity(Entity entity) {
+        this.entityList.Remove(entity);
+        GameObject.Destroy(entity.gameObject);
     }
 
     public void spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
@@ -89,7 +89,7 @@ public class World : MonoBehaviour {
             Object.Destroy(chunk.gameObject);
             this.loadedChunks.Remove(pos);
         } else {
-            Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
+            UnityEngine.Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
         }
     }
 
@@ -218,7 +218,7 @@ public class World : MonoBehaviour {
         chunk.isNeedingSave = false;
     }
 
-    private void saveEntireWorld() {
+    public void saveEntireWorld() {
         this.saveHandler.serializeWorldData(this.worldData);
 
         foreach(Chunk chunk in this.loadedChunks.Values) {

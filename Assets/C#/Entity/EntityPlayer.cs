@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class EntityPlayer : Entity {
@@ -11,7 +9,6 @@ public class EntityPlayer : Entity {
     private float verticalRotation = 0.0f;
     private float verticalVelocity;
 
-    public Text debugTextGUI;
     public Text magnifyingText;
     public RawImage healthBarImage;
     public GameObject blockBreakPrefab;
@@ -21,22 +18,19 @@ public class EntityPlayer : Entity {
     private CharacterController cc;
     private BreakBlockEffect blockBreakEffect;
     public Transform mainCamera;
-    private Container containerElement;
+    public Container containerElement;
 
     public float reach = 3.5f;
     public float magnifyingTimer;
-    private BlockPos posLookingAt;
-    private bool showDebugInfo = true;
+    public BlockPos posLookingAt;
     public ItemStack heldStack;
 
-    private ContainerHotbar containerHotbar;
+    public ContainerHotbar containerHotbar;
     public ContainerDataHotbar hotbarData;
     public ContainerData inventoryData;
 
     public new void Awake() {
         base.Awake();
-
-        this.setMouseLock(true);
 
         this.mainCamera = Camera.main.transform;
 
@@ -50,6 +44,8 @@ public class EntityPlayer : Entity {
         this.hotbarData.addItemStack(new ItemStack(Block.mushroom, 0));
         this.hotbarData.addItemStack(new ItemStack(Block.poisonMushroom, 3));
         this.hotbarData.addItemStack(new ItemStack(Block.mossyBrick, 0));
+        this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
+        this.containerHotbar.initContainer(this.hotbarData, this);
         this.inventoryData = new ContainerData(2, 2);
 
         this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
@@ -59,27 +55,16 @@ public class EntityPlayer : Entity {
         this.setHealth(10);
     }
 
-    public void Start() {
-        this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
-        this.containerHotbar.initContainer(this.hotbarData, this);
-    }
-
-    public new void Update() {
-        base.Update();
+    public override void onEntityUpdate() {
+        base.onEntityUpdate();
 
         this.verticalVelocity += Physics.gravity.y * Time.deltaTime;
         Vector3 playerMovement = new Vector3(0, this.verticalVelocity, 0);
 
-        if(this.containerElement != null) {
-            this.containerElement.drawnContents();
+        if (this.containerElement == null) {
+            playerMovement = this.getPlayerMovement();
 
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                this.closeContainer();
-            }
-        } else {
-            playerMovement = this.movePlayer();
-
-            PlayerRayHit playerHit = this.updatePlayerRayHit();         
+            PlayerRayHit playerHit = this.getPlayerRayHit();
 
             if (playerHit != null) {
                 if (playerHit.state != null && playerHit.unityRaycastHit.distance <= this.reach) {
@@ -112,8 +97,6 @@ public class EntityPlayer : Entity {
                     this.hotbarData.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
                 }
             }
-
-            this.handleInput();
         }
 
         this.cc.Move(playerMovement * Time.deltaTime);
@@ -125,16 +108,13 @@ public class EntityPlayer : Entity {
         if (this.magnifyingTimer <= 0) {
             this.magnifyingText.color = Color.Lerp(this.magnifyingText.color, Color.clear, 3 * Time.deltaTime);
         }
-
-        this.updateDebugInfo();
-        this.containerHotbar.drawnContents();
     }
 
     public override void onEntityCollision(Entity otherEntity) {
         if(otherEntity is EntityItem) {
             ItemStack s = this.hotbarData.addItemStack(((EntityItem)otherEntity).stack);
             if (s == null) {
-                GameObject.Destroy(otherEntity.gameObject);
+                this.world.killEntity(otherEntity);
             }
         }
     }
@@ -147,12 +127,7 @@ public class EntityPlayer : Entity {
         this.healthBarImage.uvRect = new Rect(0, 0, this.health / 10, 1);
     }
 
-    private void setMouseLock(bool flag) {
-        Cursor.visible = !flag;
-        Cursor.lockState = flag ? CursorLockMode.Locked : CursorLockMode.None;
-    }
-
-    private PlayerRayHit updatePlayerRayHit() {
+    private PlayerRayHit getPlayerRayHit() {
         RaycastHit hit;
         bool rayHit = Physics.Raycast(this.mainCamera.position, this.mainCamera.forward, out hit);
 
@@ -176,7 +151,7 @@ public class EntityPlayer : Entity {
         return null;
     }
 
-    private void handleInput() {
+    public void handleInput() {
         if(Input.GetKeyDown(KeyCode.Q)) {
             ItemStack stack = this.hotbarData.dropItem(this.hotbarData.index, false /* Input.GetKey(KeyCode.LeftControl) */);
             if(stack != null) {
@@ -190,54 +165,31 @@ public class EntityPlayer : Entity {
         if(Input.GetKeyDown(KeyCode.E)) {
             this.openContainer(this.containerInventoryPrefab, this.inventoryData);
         }
-
-        //if(true) {
-        //    if(Input.GetKeyDown(KeyCode.P)) {
-        //        Schematic s = new Schematic(this.world.getChunk(BlockPos.fromVec(this.transform.position)));
-        //        SerializationHelper.serialize(s, s.name);
-        //    }
-        //}
     }
 
+    //Opens and initiates a container
     public void openContainer(GameObject containerObj, ContainerData containerData) {
         this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
         this.containerElement.transform.SetParent(this.transform);
         this.containerElement.initContainer(containerData, this);
-        this.setMouseLock(false);
+        VoxelEngine.setMouseLock(false);
     }
 
+    //Closes the open container, doing any required cleanup
     public void closeContainer() {
         if(this.heldStack != null) {
             this.dropItem(this.heldStack);
             this.heldStack = null;
         }
         GameObject.Destroy(this.containerElement.gameObject);
-        this.setMouseLock(true);
+        VoxelEngine.setMouseLock(true);
     }
 
     private void dropItem(ItemStack stack) {
         this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
     }
 
-    private void updateDebugInfo() {
-        if (Input.GetKeyDown(KeyCode.F3)) {
-            this.showDebugInfo = !this.showDebugInfo;
-        }
-        if (this.showDebugInfo) {
-            StringBuilder s = new StringBuilder();
-            s.Append("DEBUG: (Press F3 to toggle)\n");
-            s.Append("WASD for movement, Q to drop item, R to save world\n\n");
-            s.Append("Position: " + this.transform.position.ToString() + "\n");
-            s.Append("Rotation: " + this.transform.eulerAngles.ToString() + "\n");
-            s.Append("Looking At: " + this.world.getBlock(this.posLookingAt).name + ":" + this.world.getMeta(this.posLookingAt) + " " + this.posLookingAt.ToString() + "\n");
-            s.Append(this.world.worldData.worldName + " " + this.world.worldData.seed);
-            this.debugTextGUI.text = s.ToString();
-        } else {
-            this.debugTextGUI.text = string.Empty;
-        }
-    }
-
-    private Vector3 movePlayer() {
+    private Vector3 getPlayerMovement() {
         //Rotation
         float rotLeftRight = Input.GetAxis("Mouse X") * mouseSensitivity;
         transform.Rotate(0.0f, rotLeftRight, 0.0f);
@@ -257,5 +209,10 @@ public class EntityPlayer : Entity {
         }
 
         return transform.rotation * new Vector3(sideSpeed, this.verticalVelocity, forwardSpeed);
+    }
+
+    public void cleanupObject() {
+        GameObject.Destroy(this.containerHotbar.gameObject);
+        GameObject.Destroy(this.blockBreakEffect.gameObject);
     }
 }

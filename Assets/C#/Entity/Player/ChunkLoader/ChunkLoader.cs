@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class ChunkLoader : MonoBehaviour {
     protected World world;
@@ -13,8 +14,10 @@ public class ChunkLoader : MonoBehaviour {
 
     void Start() {
         this.world = this.GetComponent<EntityPlayer>().world;
+        Stopwatch s = new Stopwatch();
+        s.Start();
         this.loadChunks(this.getOccupiedChunkPos());
-        print("Generation took " + (Time.realtimeSinceStartup));
+        print("Generation took " + s.Elapsed);
         this.buildChunks(10000);
     }
 

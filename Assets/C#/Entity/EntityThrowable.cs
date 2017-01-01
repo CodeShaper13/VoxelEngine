@@ -13,7 +13,7 @@ public class EntityThrowable : Entity {
         filter.mesh.triangles = meshData.triangles.ToArray();
         filter.mesh.uv = meshData.uv.ToArray();
         filter.mesh.RecalculateNormals();
-        this.GetComponent<MeshRenderer>().material = Constants.instance.itemMaterial;
+        this.GetComponent<MeshRenderer>().material = VoxelEngine.singleton.itemMaterial;
     }
 
     public override void onEntityCollision(Entity otherEntity) {
@@ -21,6 +21,6 @@ public class EntityThrowable : Entity {
         if(otherEntity != null) {
             otherEntity.damage(1);
         }
-        GameObject.Destroy(this.gameObject);
+        this.world.killEntity(this);
     }
 }

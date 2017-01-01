@@ -46,7 +46,7 @@ public class Container : MonoBehaviour {
 
     private void renderStack(ItemStack stack, Vector3 pos) {
         IRenderItem render = stack.item.itemRenderer;
-        Material m = stack.item.id < 256 ? Constants.instance.blockMaterial : Constants.instance.itemMaterial;
+        Material m = VoxelEngine.getMaterial(stack.item.id);
         Graphics.DrawMesh(render.renderItem(stack).toMesh(), render.getMatrix(pos), m, 8, null, 0, null, false, false);
     }
 
