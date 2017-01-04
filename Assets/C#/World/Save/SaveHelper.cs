@@ -2,33 +2,23 @@
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
-public class SaveHandler {
+public class SaveHelper {
     public string worldName;
     public string saveFolderName;
     public string chunkFolderName;
     public string worldDataFileName;
 
-    public SaveHandler(string worldName) {
+    public SaveHelper(string worldName) {
         this.worldName = worldName;
         this.saveFolderName = "saves/" + this.worldName + "/";
         this.chunkFolderName = this.saveFolderName + "chunks/";
-        this.worldDataFileName = this.saveFolderName + this.worldName + ".bin";
+        this.worldDataFileName = this.saveFolderName + "world.bin";
 
         if (!Directory.Exists(this.saveFolderName)) {
             Directory.CreateDirectory(this.saveFolderName);
         }
         if (!Directory.Exists(this.chunkFolderName)) {
             Directory.CreateDirectory(this.chunkFolderName);
-        }
-    }
-
-    public WorldData getWorldData() {
-        object obj = SerializationHelper.deserialize(this.worldDataFileName);
-
-        if (obj == null) {
-            return new WorldData(this.worldName);
-        } else {
-            return (WorldData)obj;
         }
     }
 

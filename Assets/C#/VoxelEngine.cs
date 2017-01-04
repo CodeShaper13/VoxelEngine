@@ -25,6 +25,8 @@ public class VoxelEngine : MonoBehaviour {
         VoxelEngine.singleton = this;
 
         Item.initBlockItems();
+
+        //this.generateWorld();
     }
 
     public void Update() {
@@ -42,7 +44,6 @@ public class VoxelEngine : MonoBehaviour {
                 if(this.player.containerElement != null) {
                     this.player.closeContainer();
                 } else {
-                    VoxelEngine.setMouseLock(this.isPaused);
                     if (!this.isPaused) {
                         this.isPaused = true;
                         this.openGuiScreen(this.pauseScreen);
@@ -50,6 +51,7 @@ public class VoxelEngine : MonoBehaviour {
                     else {
                         this.currentGui = this.currentGui.onEscape(this);
                     }
+                    VoxelEngine.setMouseLock(!this.isPaused);
                 }
             }
 
@@ -100,6 +102,17 @@ public class VoxelEngine : MonoBehaviour {
         s.Append("Looking At: " + this.worldObj.getBlock(p).name + ":" + this.worldObj.getMeta(p) + " " + p.ToString() + "\n");
         s.Append(this.worldObj.worldData.worldName + " " + this.worldObj.worldData.seed);
         return s.ToString();
+    }
+
+    public void generateWorld(WorldData data) {
+        this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
+        this.worldObj.initWorld(data);
+        this.player = (EntityPlayer)this.worldObj.spawnEntity(EntityManager.singleton.playerPrefab, this.worldObj.generator.getSpawnPoint(), Quaternion.identity);
+
+        this.currentGui.setActive(false);
+        this.currentGui = null;
+
+        VoxelEngine.setMouseLock(true);
     }
 
     public static Material getMaterial(int id) {

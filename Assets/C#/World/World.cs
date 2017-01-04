@@ -5,7 +5,7 @@ public class World : MonoBehaviour {
     public Dictionary<ChunkPos, Chunk> loadedChunks;
     public WorldGeneratorBase generator;
     public WorldData worldData;
-    public SaveHandler saveHandler;
+    public SaveHelper saveHelper;
     public List<Entity> entityList;
 
     public GameObject chunkPrefab;
@@ -13,12 +13,14 @@ public class World : MonoBehaviour {
     private Transform chunkWrapper;
     private Transform entityWrapper;
 
-    void Awake() {
+    //Acts like a constructor.
+    public void initWorld(WorldData data) {
         this.loadedChunks = new Dictionary<ChunkPos, Chunk>();
         this.entityList = new List<Entity>();
 
-        this.saveHandler = new SaveHandler("world1");
-        this.worldData = this.saveHandler.getWorldData();
+        this.worldData = data;
+
+        this.saveHelper = new SaveHelper(this.worldData.worldName);
         this.generator = new WorldGeneratorCaves(this, worldData.seed);
 
         this.chunkWrapper = this.createWrapper("CHUNKS");
@@ -76,7 +78,7 @@ public class World : MonoBehaviour {
 
         this.loadedChunks.Add(pos, chunk);
 
-        if(!this.saveHandler.deserializeChunk(chunk)) {
+        if(!this.saveHelper.deserializeChunk(chunk)) {
             this.generator.generateChunk(chunk);
         }
         return chunk;
@@ -212,14 +214,16 @@ public class World : MonoBehaviour {
 
     private void saveChunk(Chunk chunk) {
         if (chunk.isNeedingSave) {
-            this.saveHandler.serializeChunk(chunk);
+            this.saveHelper.serializeChunk(chunk);
         }
 
         chunk.isNeedingSave = false;
     }
 
     public void saveEntireWorld() {
-        this.saveHandler.serializeWorldData(this.worldData);
+        //http://answers.unity3d.com/questions/850451/capturescreenshot-without-ui.html To hide UI
+        ScreenshotHelper.captureScreenshot(this.saveHelper.saveFolderName + "/worldImage.png");
+        this.saveHelper.serializeWorldData(this.worldData);
 
         foreach(Chunk chunk in this.loadedChunks.Values) {
             this.saveChunk(chunk);

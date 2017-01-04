@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class ScreenshotHelper {
 
-    private static string dirName = "screenshots/";
+    private static string screenshotDirectoryName = "screenshots/";
 
-    public static void captureScreenshot() {
-        string s = DateTime.Now.ToString();
-        s = s.Replace('/', '-').Replace(' ', '_').Replace(':', '.').Substring(0, s.Length - 3);
+    public static void captureScreenshot(string screenshotPath = null) {
+        if(screenshotPath == null) {
+            string time = DateTime.Now.ToString();
+            time = time.Replace('/', '-').Replace(' ', '_').Replace(':', '.').Substring(0, time.Length - 3);
 
-        if (!Directory.Exists(ScreenshotHelper.dirName)) {
-            Directory.CreateDirectory(ScreenshotHelper.dirName);
+            if (!Directory.Exists(ScreenshotHelper.screenshotDirectoryName)) {
+                Directory.CreateDirectory(ScreenshotHelper.screenshotDirectoryName);
+            }
+            screenshotPath = ScreenshotHelper.screenshotDirectoryName + time + ".png";
         }
-        Application.CaptureScreenshot(ScreenshotHelper.dirName + s + ".png");
+        Application.CaptureScreenshot(screenshotPath);
     }
 }

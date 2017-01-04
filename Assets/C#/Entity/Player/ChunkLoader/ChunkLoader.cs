@@ -8,9 +8,9 @@ public class ChunkLoader : MonoBehaviour {
     protected ChunkPos previousOccupiedChunkPos = null;
     protected Queue<ChunkPos> buildQueue = new Queue<ChunkPos>();
 
-    protected int loadDistance = 3;
+    protected int loadDistance = 1;
 
-    private int worldHeight = 8;
+    private int worldHeight = 1;
 
     void Start() {
         this.world = this.GetComponent<EntityPlayer>().world;
