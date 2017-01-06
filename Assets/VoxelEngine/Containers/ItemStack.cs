@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Blocks;
+﻿using fNbt;
+using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 
 namespace VoxelEngine.Containers {
@@ -19,6 +20,12 @@ namespace VoxelEngine.Containers {
         public ItemStack(Block block, byte meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
 
         public ItemStack(ItemStack stack) : this(stack.item, stack.meta, stack.count) { }
+
+        public ItemStack(NbtCompound tag) {
+            this.item = Item.ITEM_LIST[tag.Get<NbtInt>("id").IntValue];
+            this.meta = tag.Get<NbtByte>("meta").ByteValue;
+            this.count = tag.Get<NbtInt>("count").IntValue;
+        }
 
         public bool equals(ItemStack stack) {
             return this.item.id == stack.item.id && this.meta == stack.meta;
@@ -50,6 +57,14 @@ namespace VoxelEngine.Containers {
                 return null;
             }
             return this;
+        }
+
+        public NbtCompound writeToNbt() {
+            NbtCompound tag = new NbtCompound("stack");
+            tag.Add(new NbtInt("id", this.item.id));         
+            tag.Add(new NbtByte("meta", this.meta));
+            tag.Add(new NbtInt("count", this.count));
+            return tag;
         }
     }
 }

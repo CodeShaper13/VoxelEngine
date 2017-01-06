@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using fNbt;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Render;
 using VoxelEngine.Render.Items;
@@ -12,6 +14,10 @@ namespace VoxelEngine.Entities {
         public new void Awake() {
             base.Awake();
             this.filter = this.GetComponent<MeshFilter>();
+        }
+
+        public void Start() {
+            this.initRendering();
         }
 
         public void initRendering() {
@@ -32,6 +38,21 @@ namespace VoxelEngine.Entities {
 
         public override string getMagnifyingText() {
             return "An item, bumping into it will let you pick it up.";
+        }
+
+        public override byte getEntityId() {
+            return 2;
+        }
+
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(this.stack.writeToNbt());
+            return tag;
+        }
+
+        public override void readFromNbt(NbtCompound tag) {
+            base.readFromNbt(tag);
+            this.stack = new ItemStack(tag.Get<NbtCompound>("stack"));
         }
     }
 }

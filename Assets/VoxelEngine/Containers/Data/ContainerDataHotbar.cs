@@ -1,4 +1,6 @@
-﻿namespace VoxelEngine.Containers.Data {
+﻿using fNbt;
+
+namespace VoxelEngine.Containers.Data {
 
     public class ContainerDataHotbar : ContainerData {
 
@@ -39,6 +41,17 @@
 
         public void setHeldItem(ItemStack itemStack) {
             this.items[this.index] = itemStack;
+        }
+
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(new NbtInt("selectedIndex", this.index));
+            return tag;
+        }
+
+        public override void readFromNbt(NbtCompound tag) {
+            base.readFromNbt(tag);
+            this.index = tag.Get<NbtInt>("selectedIndex").IntValue;
         }
     }
 }

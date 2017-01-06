@@ -13,7 +13,7 @@ namespace VoxelEngine.GUI {
 
         public void saveCallback(bool exitWorld) {
             World world = Main.singleton.worldObj;
-            world.saveEntireWorld();
+            world.saveEntireWorld(exitWorld);
             if (exitWorld) {
                 Main ve = Main.singleton;
                 ve.player.cleanupObject();

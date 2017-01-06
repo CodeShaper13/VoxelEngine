@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.Entities;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
 
@@ -13,11 +14,11 @@ namespace VoxelEngine.Level {
 
         public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
         public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
-        //public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>();
+        //public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>(); //TODO replace with a faster collection type
 
-        public bool isNeedingSave = false; //Not fully implemented
-        public bool isDirty = false;
-        public bool isPopulated = false;
+        public bool isModified;
+        public bool isDirty;
+        public bool isPopulated;
 
         private MeshCollider blockCollider;
         private MeshCollider triggerCollider;
@@ -46,10 +47,10 @@ namespace VoxelEngine.Level {
         public void Update() {
             if (isDirty) {
                 isDirty = false;
-                Stopwatch s = new Stopwatch();
-                s.Start();
+                //Stopwatch s = new Stopwatch();
+                //s.Start();
                 this.renderChunk();
-                print("Chunk bake time" + s.Elapsed);
+                //print("Chunk bake time" + s.Elapsed);
             }
         }
 
@@ -77,7 +78,7 @@ namespace VoxelEngine.Level {
 
         //This should only be used in world generation, or a case where the neighbor blocks should not be updated
         public void setBlock(int x, int y, int z, Block block) {
-            this.isNeedingSave = true;
+            this.isModified = true;
             this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = block;
         }
 
@@ -87,7 +88,7 @@ namespace VoxelEngine.Level {
 
         //This should only be used in world generation, or a case where the neighbor blocks should not be updated
         public void setMeta(int x, int y, int z, byte meta) {
-            this.isNeedingSave = true;
+            this.isModified = true;
             this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)] = meta;
         }
 
@@ -111,6 +112,38 @@ namespace VoxelEngine.Level {
             this.filter.mesh = mesh;
 
             this.blockCollider.sharedMesh = colMesh;
+        }
+
+        public NbtCompound writeToNbt(NbtCompound tag) {
+            tag.Add(new NbtByte("isPopulated", this.isPopulated ? (byte)1 : (byte)0));
+            byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
+            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+                blockBytes[i] = this.blocks[i].id;
+            }
+            tag.Add(new NbtByteArray("blocks", blockBytes));
+            tag.Add(new NbtByteArray("meta", this.metaData));
+
+            return tag;
+        }
+
+        public void readFromNbt(NbtCompound tag) {
+            this.isPopulated = tag.Get<NbtByte>("isPopulated").ByteValue == 1 ? true : false;
+            byte[] blockBytes = tag.Get<NbtByteArray>("blocks").ByteArrayValue;
+            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+                this.blocks[i] = Block.getBlock(blockBytes[i]);
+            }
+            this.metaData = tag.Get<NbtByteArray>("meta").ByteArrayValue;
+
+            //spawn the entities that were saved in the chunk back into the world
+            foreach(NbtCompound compound in tag.Get<NbtList>("entities")) {
+                byte id = compound.Get<NbtByte>("id").ByteValue;
+                GameObject prefab = EntityList.getPrefabFromId(id);
+                if(prefab != null) {
+                    this.world.spawnEntity(prefab, compound);
+                } else {
+                    print("Error!  Entity with an unknown ID of " + id + " was found!  Ignoring!");
+                }
+            }
         }
 
         private bool inChunkBounds(int i) {

@@ -7,6 +7,7 @@ using VoxelEngine.Entities;
 using VoxelEngine.Containers;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
+using fNbt;
 
 namespace VoxelEngine.Level {
 
@@ -53,15 +54,42 @@ namespace VoxelEngine.Level {
             return t;
         }
 
+        public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
+            Entity entity = this.func_01(prefab);
+            entity.readFromNbt(tag);
+            return entity;
+        }
+
         public Entity spawnEntity(GameObject prefab, Vector3 position, Quaternion rotation) {
+            Entity entity = this.func_01(prefab);
+            entity.transform.position = position;
+            entity.transform.rotation = rotation;
+            return entity;
+        }
+
+        private Entity func_01(GameObject prefab) {
             GameObject gameObject = GameObject.Instantiate(prefab);
-            gameObject.transform.position = position;
-            gameObject.transform.rotation = rotation;
             gameObject.transform.parent = this.entityWrapper;
             Entity entity = gameObject.GetComponent<Entity>();
             entity.world = this;
             this.entityList.Add(entity);
             return entity;
+        }
+
+        public EntityPlayer spawnPlayer(GameObject prefab) {
+            GameObject gameObject = GameObject.Instantiate(prefab);
+            EntityPlayer player = gameObject.GetComponent<EntityPlayer>();
+            player.world = this;
+            if(!this.saveHelper.readPlayer(player)) {
+                //no player file was found
+                gameObject.transform.position = this.generator.getSpawnPoint();
+                gameObject.transform.rotation = Quaternion.identity;
+
+                player.loadStartingInventory();
+            }
+            gameObject.transform.parent = this.entityWrapper;
+
+            return player;
         }
 
         public void killEntity(Entity entity) {
@@ -70,25 +98,24 @@ namespace VoxelEngine.Level {
         }
 
         public void spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
-            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityManager.singleton.itemPrefab, position, rotation);
+            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityList.singleton.itemPrefab, position, rotation);
             entityItem.stack = stack;
-            entityItem.initRendering();
         }
 
         //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
         public Chunk loadChunk(ChunkPos pos) {
-            GameObject chunkGameObject = GameObject.Instantiate(chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
+            GameObject chunkGameObject = GameObject.Instantiate(this.chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
             chunkGameObject.transform.parent = this.chunkWrapper;
             Chunk chunk = chunkGameObject.GetComponent<Chunk>();
             chunk.initChunk(this, pos);
 
-            chunk.isNeedingSave = true;
             chunk.isDirty = true;
 
             this.loadedChunks.Add(pos, chunk);
 
-            if (!this.saveHelper.deserializeChunk(chunk)) {
+            if (!this.saveHelper.readChunk(chunk)) {
                 this.generator.generateChunk(chunk);
+                chunk.isModified = true;
             }
             return chunk;
         }
@@ -96,12 +123,12 @@ namespace VoxelEngine.Level {
         public void unloadChunk(ChunkPos pos) {
             Chunk chunk = this.getChunk(pos);
             if (chunk != null) {
-                this.saveChunk(chunk);
-                Object.Destroy(chunk.gameObject);
+                this.saveChunk(chunk, true);
+                GameObject.Destroy(chunk.gameObject);
                 this.loadedChunks.Remove(pos);
             }
             else {
-                UnityEngine.Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
+                Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
             }
         }
 
@@ -212,8 +239,7 @@ namespace VoxelEngine.Level {
             this.setBlock(pos, Block.air);
         }
 
-        //What's this do?
-        void updateIfEqual(int value1, int value2, BlockPos pos) {
+        private void updateIfEqual(int value1, int value2, BlockPos pos) {
             if (value1 == value2) {
                 Chunk chunk = getChunk(pos);
                 if (chunk != null) {
@@ -222,21 +248,48 @@ namespace VoxelEngine.Level {
             }
         }
 
-        private void saveChunk(Chunk chunk) {
-            if (chunk.isNeedingSave) {
-                this.saveHelper.serializeChunk(chunk);
-            }
+        private void saveChunk(Chunk chunk, bool despawnEntites) {
+            NbtCompound tag = new NbtCompound("chunk");
+            chunk.writeToNbt(tag);
 
-            chunk.isNeedingSave = false;
+            Entity entity;
+            List<Entity> entitiesInChunk = new List<Entity>();
+            for (int i = this.entityList.Count - 1; i >= 0; i--) {
+                entity = this.entityList[i];
+                int x = Mathf.FloorToInt((int)this.transform.position.x / (float)Chunk.SIZE);
+                int y = Mathf.FloorToInt((int)this.transform.position.y / (float)Chunk.SIZE);
+                int z = Mathf.FloorToInt((int)this.transform.position.z / (float)Chunk.SIZE);
+
+                if (x == chunk.chunkPos.x && y ==chunk.chunkPos.y && z == chunk.chunkPos.z) {
+                    this.entityList.Remove(entity);
+                    entitiesInChunk.Add(entity);
+                }
+            }
+            NbtList list = new NbtList("entities", NbtTagType.Compound);
+            for (int i = 0; i < entitiesInChunk.Count; i++) {
+                entity = entitiesInChunk[i];
+                list.Add(entity.writeToNbt(new NbtCompound()));
+                if(despawnEntites) {
+                    GameObject.Destroy(entity.gameObject);
+                }
+            }
+            tag.Add(list);
+
+            //if (chunk.isModified) {
+            this.saveHelper.writeChunkToDisk(chunk, tag);
+            //}
+            //chunk.isModified = false;
         }
 
-        public void saveEntireWorld() {
+        public void saveEntireWorld(bool despawnEntities) {
             //http://answers.unity3d.com/questions/850451/capturescreenshot-without-ui.html To hide UI
             ScreenshotHelper.captureScreenshot(this.saveHelper.saveFolderName + "/worldImage.png");
-            this.saveHelper.serializeWorldData(this.worldData);
+
+            this.saveHelper.writeWorldData(this.worldData);
+            this.saveHelper.writePlayer(Main.singleton.player);
 
             foreach (Chunk chunk in this.loadedChunks.Values) {
-                this.saveChunk(chunk);
+                this.saveChunk(chunk, despawnEntities);
             }
         }
     }

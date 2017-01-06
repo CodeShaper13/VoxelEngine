@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using fNbt;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Level;
-using VoxelEngine.Util;
 
 namespace VoxelEngine.GUI {
 
@@ -26,10 +26,12 @@ namespace VoxelEngine.GUI {
         public new void OnEnable() {
             string[] folders = Directory.GetDirectories("saves/");
             foreach (string f in folders) {
-                string name = f + "/world.bin";
+                string name = f + "/world.nbt";
                 if (File.Exists(name)) {
-                    WorldData data = (WorldData)SerializationHelper.deserialize(name);
-                    data.loadWorldImage();
+                    NbtFile file = new NbtFile();
+                    file.LoadFromFile(name);
+                    WorldData data = new WorldData();
+                    data.readFromNbt(file.RootTag);
                     this.cachedWorlds.Add(data);
                 }
             }
@@ -72,7 +74,7 @@ namespace VoxelEngine.GUI {
         }
 
         public void newWorldCallback() {
-            Main.singleton.generateWorld(new WorldData("world" + Random.Range(0, 1000000)));
+            Main.singleton.generateWorld(new WorldData("world" + Random.Range(0, 1000000), System.DateTime.Today.ToBinary()));
         }
 
         //Used by PlayWorldButton

@@ -1,4 +1,6 @@
-﻿namespace VoxelEngine.Containers.Data {
+﻿using fNbt;
+
+namespace VoxelEngine.Containers.Data {
 
     public class ContainerData {
 
@@ -18,6 +20,26 @@
 
         public void setStack(int x, int y, ItemStack stack) {
             this.items[x * this.width + y] = stack;
+        }
+
+        public virtual NbtCompound writeToNbt(NbtCompound tag) {
+            NbtList list = new NbtList("items", NbtTagType.Compound);
+            
+            for(int i = 0; i < this.items.Length; i++) {
+                if(this.items[i] != null) {
+                    NbtCompound tagStack = this.items[i].writeToNbt();
+                    tagStack.Add(new NbtInt("slotIndex", i));
+                    list.Add(tagStack);
+                }
+            }
+            tag.Add(list);
+            return tag;
+        }
+
+        public virtual void readFromNbt(NbtCompound tag) {
+            foreach(NbtCompound compound in tag.Get<NbtList>("items")) {
+                this.items[compound.Get<NbtInt>("slotIndex").IntValue] = new ItemStack(compound);
+            }
         }
     }
 }

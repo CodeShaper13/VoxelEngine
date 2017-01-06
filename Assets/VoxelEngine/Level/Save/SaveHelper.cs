@@ -3,6 +3,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using VoxelEngine.Util;
 using VoxelEngine.Blocks;
+using fNbt;
+using System;
+using VoxelEngine.Entities;
 
 namespace VoxelEngine.Level.Save {
 
@@ -11,12 +14,14 @@ namespace VoxelEngine.Level.Save {
         public string saveFolderName;
         public string chunkFolderName;
         public string worldDataFileName;
+        public string playerFileName;
 
         public SaveHelper(string worldName) {
             this.worldName = worldName;
             this.saveFolderName = "saves/" + this.worldName + "/";
             this.chunkFolderName = this.saveFolderName + "chunks/";
-            this.worldDataFileName = this.saveFolderName + "world.bin";
+            this.worldDataFileName = this.saveFolderName + "world.nbt";
+            this.playerFileName = this.saveFolderName + "player.nbt";
 
             if (!Directory.Exists(this.saveFolderName)) {
                 Directory.CreateDirectory(this.saveFolderName);
@@ -26,23 +31,18 @@ namespace VoxelEngine.Level.Save {
             }
         }
 
-        public void serializeWorldData(WorldData worldData) {
-            SerializationHelper.serialize(worldData, this.worldDataFileName);
+        public void writeWorldData(WorldData worldData) {
+            NbtFile file = new NbtFile(worldData.writeToNbt());
+            file.SaveToFile(this.worldDataFileName, NbtCompression.None);
         }
 
-        public bool deserializeChunk(Chunk chunk) {
-            string saveFile = this.getChunkFileName(chunk.chunkPos);
+        public bool readChunk(Chunk chunk) {
+            string saveFile = this.getChunkFileName2(chunk.chunkPos);
 
             if (File.Exists(saveFile)) {
-                IFormatter formatter = new BinaryFormatter();
-                FileStream stream = new FileStream(saveFile, FileMode.Open);
-
-                byte[] blockIds = (byte[])formatter.Deserialize(stream);
-                for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                    chunk.blocks[i] = Block.getBlock(blockIds[i]);
-                }
-
-                stream.Close();
+                NbtFile file = new NbtFile();
+                file.LoadFromFile(saveFile);
+                chunk.readFromNbt(file.RootTag);
                 return true;
             }
             else {
@@ -50,20 +50,36 @@ namespace VoxelEngine.Level.Save {
             }
         }
 
-        public void serializeChunk(Chunk chunk) {
-            byte[] blockIds = new byte[Chunk.BLOCK_COUNT];
-            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                blockIds[i] = chunk.blocks[i].id;
-            }
+        public void writeChunkToDisk(Chunk chunk, NbtCompound tag) {
+            NbtFile file = new NbtFile(tag);
+            file.SaveToFile(this.getChunkFileName2(chunk.chunkPos), NbtCompression.None);
+        }
 
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream(this.getChunkFileName(chunk.chunkPos), FileMode.Create, FileAccess.Write, FileShare.None);
-            formatter.Serialize(stream, blockIds);
-            stream.Close();
+        public void writePlayer(EntityPlayer player) {
+            NbtCompound tag = new NbtCompound("player");
+            NbtFile file = new NbtFile(player.writeToNbt(tag));
+            file.SaveToFile(this.playerFileName, NbtCompression.None);
+        }
+
+        //Returns true if we found a player file
+        public bool readPlayer(EntityPlayer player) {
+            if (File.Exists(this.playerFileName)) {
+                NbtFile file = new NbtFile();
+                file.LoadFromFile(this.playerFileName);
+                player.readFromNbt(file.RootTag);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         private string getChunkFileName(ChunkPos pos) {
             return this.saveFolderName + "chunks/" + pos.x + "," + pos.y + "," + pos.z + ".bin";
+        }
+
+        private string getChunkFileName2(ChunkPos pos) {
+            return this.saveFolderName + "chunks/" + pos.x + "," + pos.y + "," + pos.z + ".nbt";
         }
     }
 }

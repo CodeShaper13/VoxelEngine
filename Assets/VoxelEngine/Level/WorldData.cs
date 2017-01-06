@@ -1,31 +1,42 @@
-﻿using System;
-using System.IO;
-using UnityEngine;
+﻿using fNbt;
+using System;
 
 namespace VoxelEngine.Level {
 
-    [Serializable]
     public class WorldData {
         public string worldName;
         public long seed;
-        public int worldType = 0;
-        [NonSerialized]
-        public Texture2D worldImage;
+        public float spawnX;
+        public float spawnY;
+        public float spawnZ;
+        public int worldType;
 
-        public WorldData(string worldName) {
+        public WorldData() {
+        }
+
+        public WorldData(string worldName, long seed) {
             this.worldName = worldName;
             this.seed = DateTime.Today.ToBinary();
         }
 
-        public bool loadWorldImage() {
-            string name = "saves/" + this.worldName + "/worldImage.png";
-            if (File.Exists(name)) {
-                byte[] fileData = File.ReadAllBytes(name);
-                this.worldImage = new Texture2D(2, 2);
-                this.worldImage.LoadImage(fileData);
-                return true;
-            }
-            return false;
+        public NbtCompound writeToNbt() {
+            NbtCompound tag = new NbtCompound("world");
+            tag.Add(new NbtString("worldName", this.worldName));
+            tag.Add(new NbtLong("seed", this.seed));
+            tag.Add(new NbtFloat("spawnX", this.spawnX));
+            tag.Add(new NbtFloat("spawnY", this.spawnY));
+            tag.Add(new NbtFloat("spawnZ", this.spawnZ));
+            tag.Add(new NbtInt("worldType", this.worldType));
+            return tag;
+        }
+
+        public void readFromNbt(NbtCompound tag) {
+            this.worldName = tag.Get<NbtString>("worldName").StringValue;
+            this.seed = tag.Get<NbtLong>("seed").LongValue;
+            this.spawnX = tag.Get<NbtFloat>("spawnX").FloatValue;
+            this.spawnY = tag.Get<NbtFloat>("spawnY").FloatValue;
+            this.spawnZ = tag.Get<NbtFloat>("spawnZ").FloatValue;
+            this.worldType = tag.Get<NbtInt>("worldType").IntValue;
         }
     }
 }

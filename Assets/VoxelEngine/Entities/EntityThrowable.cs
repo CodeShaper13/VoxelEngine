@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Render;
@@ -20,6 +21,10 @@ namespace VoxelEngine.Entities {
             filter.mesh.uv = meshData.uv.ToArray();
             filter.mesh.RecalculateNormals();
             this.GetComponent<MeshRenderer>().material = Main.singleton.itemMaterial;
+        }
+
+        public override byte getEntityId() {
+            return 3;
         }
 
         public override void onEntityCollision(Entity otherEntity) {

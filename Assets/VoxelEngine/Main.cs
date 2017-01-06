@@ -66,6 +66,7 @@ namespace VoxelEngine {
 
                 if (!this.isPaused) {
                     this.worldObj.runWorldUpdate();
+                    this.player.onEntityUpdate();
                     this.player.handleInput();
                 }
 
@@ -113,7 +114,8 @@ namespace VoxelEngine {
         public void generateWorld(WorldData data) {
             this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
             this.worldObj.initWorld(data);
-            this.player = (EntityPlayer)this.worldObj.spawnEntity(EntityManager.singleton.playerPrefab, this.worldObj.generator.getSpawnPoint(), Quaternion.identity);
+
+            this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
 
             this.currentGui.setActive(false);
             this.currentGui = null;

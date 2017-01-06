@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using fNbt;
+using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
@@ -34,33 +36,24 @@ namespace VoxelEngine.Entities {
         public ItemStack heldStack;
 
         public ContainerHotbar containerHotbar;
-        public ContainerDataHotbar hotbarData;
-        public ContainerData inventoryData;
+
+        public ContainerDataHotbar dataHotbar;
+        public ContainerData dataInventory;
 
         public new void Awake() {
             base.Awake();
 
             this.mainCamera = Camera.main.transform;
-
-            this.hotbarData = new ContainerDataHotbar();
-            this.hotbarData.addItemStack(new ItemStack(Item.goldPickaxe, 0));
-            this.hotbarData.addItemStack(new ItemStack(Block.glorb, 0, 16));
-            this.hotbarData.addItemStack(new ItemStack(Block.lava, 4));
-            this.hotbarData.addItemStack(new ItemStack(Item.goldSword));
-            this.hotbarData.addItemStack(new ItemStack(Item.pebble, 0));
-            this.hotbarData.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
-            this.hotbarData.addItemStack(new ItemStack(Block.mushroom, 0));
-            this.hotbarData.addItemStack(new ItemStack(Block.poisonMushroom, 3));
-            this.hotbarData.addItemStack(new ItemStack(Block.mossyBrick, 0));
-            this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
-            this.containerHotbar.initContainer(this.hotbarData, this);
-            this.inventoryData = new ContainerData(2, 2);
-
-            this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
-
             this.cc = this.GetComponent<CharacterController>();
 
-            this.setHealth(10);
+            this.dataHotbar = new ContainerDataHotbar();
+            this.dataInventory = new ContainerData(2, 2);
+
+            //Setup the hotbar
+            this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
+            this.containerHotbar.initContainer(this.dataHotbar, this);
+
+            this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
         }
 
         public override void onEntityUpdate() {
@@ -85,7 +78,7 @@ namespace VoxelEngine.Entities {
                     }
                     else if (playerHit.entity != null && playerHit.unityRaycastHit.distance <= this.reach) {
                         if (Input.GetMouseButtonDown(0)) {
-                            ItemStack stack = this.hotbarData.getHeldItem();
+                            ItemStack stack = this.dataHotbar.getHeldItem();
                             float damage = 1;
                             if (stack != null && stack.item is ItemSword) {
                                 damage = ((ItemSword)stack.item).damageAmount;
@@ -100,9 +93,9 @@ namespace VoxelEngine.Entities {
 
                 //Right click
                 if (Input.GetMouseButtonDown(1)) {
-                    ItemStack stack = this.hotbarData.getHeldItem();
+                    ItemStack stack = this.dataHotbar.getHeldItem();
                     if (stack != null) {
-                        this.hotbarData.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
+                        this.dataHotbar.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
                     }
                 }
             }
@@ -120,7 +113,7 @@ namespace VoxelEngine.Entities {
 
         public override void onEntityCollision(Entity otherEntity) {
             if (otherEntity is EntityItem) {
-                ItemStack s = this.hotbarData.addItemStack(((EntityItem)otherEntity).stack);
+                ItemStack s = this.dataHotbar.addItemStack(((EntityItem)otherEntity).stack);
                 if (s == null) {
                     this.world.killEntity(otherEntity);
                 }
@@ -133,6 +126,20 @@ namespace VoxelEngine.Entities {
             }
             this.health = amount;
             this.healthBarImage.uvRect = new Rect(0, 0, this.health / 10, 1);
+        }
+
+        public void loadStartingInventory() {
+            this.dataHotbar.addItemStack(new ItemStack(Item.goldPickaxe, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Block.glorb, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.lava, 4));
+            this.dataHotbar.addItemStack(new ItemStack(Item.goldSword));
+            this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
+            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 3));
+            this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0));
+
+            this.setHealth(10);
         }
 
         private PlayerRayHit getPlayerRayHit() {
@@ -161,7 +168,7 @@ namespace VoxelEngine.Entities {
 
         public void handleInput() {
             if (Input.GetKeyDown(KeyCode.Q)) {
-                ItemStack stack = this.hotbarData.dropItem(this.hotbarData.index, false /* Input.GetKey(KeyCode.LeftControl) */);
+                ItemStack stack = this.dataHotbar.dropItem(this.dataHotbar.index, false /* Input.GetKey(KeyCode.LeftControl) */);
                 if (stack != null) {
                     this.dropItem(stack);
                 }
@@ -171,7 +178,7 @@ namespace VoxelEngine.Entities {
                 this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
             }
             if (Input.GetKeyDown(KeyCode.E)) {
-                this.openContainer(this.containerInventoryPrefab, this.inventoryData);
+                this.openContainer(this.containerInventoryPrefab, this.dataInventory);
             }
         }
 
@@ -222,6 +229,27 @@ namespace VoxelEngine.Entities {
         public void cleanupObject() {
             GameObject.Destroy(this.containerHotbar.gameObject);
             GameObject.Destroy(this.blockBreakEffect.gameObject);
+        }
+
+        public override byte getEntityId() {
+            return 1;
+        }
+
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(new NbtFloat("cameraVertical", this.verticalRotation));
+            tag.Add(this.dataHotbar.writeToNbt(new NbtCompound("hotbar")));
+            tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
+            //TODO jump, maybe general up/down for entities
+            return tag;
+        }
+
+        public override void readFromNbt(NbtCompound tag) {
+            base.readFromNbt(tag);
+            this.verticalRotation = tag.Get<NbtFloat>("cameraVertical").FloatValue;
+            this.mainCamera.localRotation = Quaternion.Euler(this.verticalRotation, 0, 0);
+            this.dataHotbar.readFromNbt(tag.Get<NbtCompound>("hotbar"));
+            this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
         }
     }
 }

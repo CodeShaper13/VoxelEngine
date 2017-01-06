@@ -52,7 +52,7 @@ namespace VoxelEngine.Entities.Player {
                 this.isTerminated = false;
             }
 
-            ItemStack stack = player.hotbarData.getHeldItem();
+            ItemStack stack = player.dataHotbar.getHeldItem();
             ItemTool tool = null;
             float f = 1;
             if (stack != null && stack.item is ItemTool) {

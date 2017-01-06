@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using fNbt;
+using UnityEngine;
 using VoxelEngine.Level;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities {
 
-    public class Entity : MonoBehaviour {
+    public abstract class Entity : MonoBehaviour {
         public World world;
         public int health;
 
@@ -12,7 +14,7 @@ namespace VoxelEngine.Entities {
             this.health = 10;
         }
 
-        void OnCollisionEnter(Collision collision) {
+        public void OnCollisionEnter(Collision collision) {
             Entity otherEntity = collision.gameObject.GetComponent<Entity>();
             this.onEntityCollision(otherEntity);
         }
@@ -44,5 +46,24 @@ namespace VoxelEngine.Entities {
         public virtual string getMagnifyingText() {
             return "Entity";
         }
+
+        public virtual NbtCompound writeToNbt(NbtCompound tag) {
+            tag.Add(new NbtByte("id", this.getEntityId()));
+            tag.Add(new NbtInt("health", this.health));
+
+            tag.Add(NbtHelper.writeVector3("position", this.transform.position));
+            tag.Add(NbtHelper.writeVector3("rotation", this.transform.eulerAngles));
+
+            return tag;
+        }
+
+        public virtual void readFromNbt(NbtCompound tag) {
+            this.health = tag.Get<NbtInt>("health").IntValue;
+
+            this.transform.position = NbtHelper.readVector3(tag.Get<NbtCompound>("position"));
+            this.transform.eulerAngles = NbtHelper.readVector3(tag.Get<NbtCompound>("rotation"));
+        }
+
+        public abstract byte getEntityId();
     }
 }
