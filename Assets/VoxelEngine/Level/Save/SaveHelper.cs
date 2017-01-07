@@ -1,10 +1,6 @@
 ﻿using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
 using VoxelEngine.Util;
-using VoxelEngine.Blocks;
 using fNbt;
-using System;
 using VoxelEngine.Entities;
 
 namespace VoxelEngine.Level.Save {

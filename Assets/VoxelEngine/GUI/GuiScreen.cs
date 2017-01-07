@@ -6,8 +6,13 @@ namespace VoxelEngine.GUI {
 
         public GuiScreen escapeFallback;
 
-        public void OnEnable() {
-
+        public void openGuiScreen(GuiScreen screen) {
+            if (Main.singleton.currentGui != null) {
+                //Only the pause screen will not trigger this, as there is no screen before it
+                Main.singleton.currentGui.setActive(false);
+            }
+            Main.singleton.currentGui = screen;
+            Main.singleton.currentGui.setActive(true);
         }
 
         //Called when the escape key is pressed and this is the active gui

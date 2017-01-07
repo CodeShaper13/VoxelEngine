@@ -1,4 +1,5 @@
 ﻿using fNbt;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -17,20 +18,25 @@ namespace VoxelEngine.GUI {
         public Button deleteButton;
 
         private List<WorldData> cachedWorlds;
-        private PlayWorldButton selectedWorld;
+        private string[] worldFolderNames;
+        public PlayWorldButton selectedWorld;
 
         public void Awake() {
             this.cachedWorlds = new List<WorldData>();
         }
 
-        public new void OnEnable() {
-            string[] folders = Directory.GetDirectories("saves/");
-            foreach (string f in folders) {
+        public void OnEnable() {
+            this.selectedWorld = null;
+            this.cachedWorlds.Clear();
+
+            this.worldFolderNames = Directory.GetDirectories("saves/");
+            foreach (string f in this.worldFolderNames) {
                 string name = f + "/world.nbt";
                 if (File.Exists(name)) {
+                    int index = f.LastIndexOf('/');
                     NbtFile file = new NbtFile();
                     file.LoadFromFile(name);
-                    WorldData data = new WorldData();
+                    WorldData data = new WorldData(f.Substring(f.LastIndexOf('/') + 1, f.Length - 1 - index));
                     data.readFromNbt(file.RootTag);
                     this.cachedWorlds.Add(data);
                 }
@@ -52,29 +58,30 @@ namespace VoxelEngine.GUI {
         }
 
         public void OnDisable() {
-            this.selectedWorld = null;
-            this.cachedWorlds.Clear();
             foreach (Transform t in this.worldTileWrapperObj) {
                 GameObject.Destroy(t.gameObject);
             }
+            this.toggleButtons(false);
+        }
+
+        public void newWorldCallback(GuiScreenCreateWorld screen) {
+            this.openGuiScreen(screen);
+            screen.cachedWorlds = this.cachedWorlds;
         }
 
         public void loadCallback() {
-            if (this.selectedWorld != null) {
-                Main.singleton.generateWorld(this.cachedWorlds[this.selectedWorld.index]);
-            }
+            Main.singleton.generateWorld(this.cachedWorlds[this.selectedWorld.index]);
         }
 
-        public void renameCallback() {
-
+        public void deleteWorldCallback(GuiScreenDeleteWorld screen) {
+            this.openGuiScreen(screen);
+            screen.worldData = this.cachedWorlds[this.selectedWorld.index];
         }
 
-        public void deleteCallback() {
-
-        }
-
-        public void newWorldCallback() {
-            Main.singleton.generateWorld(new WorldData("world" + Random.Range(0, 1000000), System.DateTime.Today.ToBinary()));
+        public void renameWorldCallback(GuiScreenRenameWorld screen) {
+            this.openGuiScreen(screen);
+            screen.cachedWorlds = this.cachedWorlds;
+            screen.worldData = this.cachedWorlds[this.selectedWorld.index];
         }
 
         //Used by PlayWorldButton
@@ -86,9 +93,13 @@ namespace VoxelEngine.GUI {
 
             this.selectedWorld = obj;
             this.selectedWorld.background.color = new Color(0, 0, 0, 0.5f);
-            this.loadButton.interactable = true;
-            this.renameButton.interactable = true;
-            this.deleteButton.interactable = true;
+            this.toggleButtons(true);
+        }
+
+        private void toggleButtons(bool flag) {
+            this.loadButton.interactable = flag;
+            this.renameButton.interactable = flag;
+            this.deleteButton.interactable = flag;
         }
     }
 }

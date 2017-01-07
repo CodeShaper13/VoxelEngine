@@ -91,6 +91,7 @@ namespace VoxelEngine {
             }
         }
 
+        [Obsolete("Use GuiScreen.openGuiScreen instead")]
         public void openGuiScreen(GuiScreen screen) {
             if (this.currentGui != null) {
                 //Only the pause screen will not trigger this, as there is no screen before it
