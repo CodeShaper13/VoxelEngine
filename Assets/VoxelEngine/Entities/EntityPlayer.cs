@@ -8,6 +8,7 @@ using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities.Player;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
+using UnityStandardAssets.Characters.FirstPerson;
 
 namespace VoxelEngine.Entities {
 
@@ -26,6 +27,7 @@ namespace VoxelEngine.Entities {
         public GameObject containerInventoryPrefab;
 
         private CharacterController cc;
+        public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
         public Transform mainCamera;
         public Container containerElement;
@@ -45,6 +47,7 @@ namespace VoxelEngine.Entities {
 
             this.mainCamera = Camera.main.transform;
             this.cc = this.GetComponent<CharacterController>();
+            this.fpc = this.GetComponent<FirstPersonController>();
 
             this.dataHotbar = new ContainerDataHotbar();
             this.dataInventory = new ContainerData(2, 2);
@@ -59,12 +62,7 @@ namespace VoxelEngine.Entities {
         public override void onEntityUpdate() {
             base.onEntityUpdate();
 
-            this.verticalVelocity += Physics.gravity.y * Time.deltaTime;
-            Vector3 playerMovement = new Vector3(0, this.verticalVelocity, 0);
-
             if (this.containerElement == null) {
-                playerMovement = this.getPlayerMovement();
-
                 PlayerRayHit playerHit = this.getPlayerRayHit();
 
                 if (playerHit != null) {
@@ -99,8 +97,6 @@ namespace VoxelEngine.Entities {
                     }
                 }
             }
-
-            this.cc.Move(playerMovement * Time.deltaTime);
 
             //Magnifying text
             if (this.magnifyingTimer > 0) {
@@ -184,6 +180,7 @@ namespace VoxelEngine.Entities {
 
         //Opens and initiates a container
         public void openContainer(GameObject containerObj, ContainerData containerData) {
+            this.fpc.allowInput = false;
             this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
             this.containerElement.transform.SetParent(this.transform);
             this.containerElement.initContainer(containerData, this);
@@ -192,6 +189,7 @@ namespace VoxelEngine.Entities {
 
         //Closes the open container, doing any required cleanup
         public void closeContainer() {
+            this.fpc.allowInput = true;
             if (this.heldStack != null) {
                 this.dropItem(this.heldStack);
                 this.heldStack = null;
@@ -202,28 +200,6 @@ namespace VoxelEngine.Entities {
 
         private void dropItem(ItemStack stack) {
             this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
-        }
-
-        private Vector3 getPlayerMovement() {
-            //Rotation
-            float rotLeftRight = Input.GetAxis("Mouse X") * mouseSensitivity;
-            transform.Rotate(0.0f, rotLeftRight, 0.0f);
-
-            verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
-            verticalRotation = Mathf.Clamp(verticalRotation, -90, 90); //Stop the player from looking to far up or down
-
-            this.mainCamera.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
-
-            //Movement
-            float f = Input.GetKey(KeyCode.LeftShift) ? 9.0f : 5.0f;
-            float forwardSpeed = Input.GetAxis("Vertical") * f;
-            float sideSpeed = Input.GetAxis("Horizontal") * f;
-
-            if (Input.GetButtonDown("Jump") && this.cc.isGrounded) {
-                this.verticalVelocity = jumpSpeed;
-            }
-
-            return transform.rotation * new Vector3(sideSpeed, this.verticalVelocity, forwardSpeed);
         }
 
         public void cleanupObject() {

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Level;
@@ -19,7 +20,7 @@ namespace VoxelEngine.GUI {
                 Sprite sprite = Sprite.Create(t, new Rect((t.width - t.height) / 2, 0, smallDim, smallDim), Vector2.one);
                 this.worldImage.sprite = sprite;
             }
-            this.worldInfo.text = "Name: " + data.worldName + "\nLast Loaded: " + "null/null/null";
+            this.worldInfo.text = "Name: " + data.worldName + "\nLast Loaded: " + data.lastLoaded.ToString();
             this.playButton.onClick.AddListener(() => { gsws.selectWorldCallback(this); });
             this.index = buttonCallbackID;
         }

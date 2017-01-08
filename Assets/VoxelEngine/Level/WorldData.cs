@@ -10,6 +10,7 @@ namespace VoxelEngine.Level {
         public float spawnY;
         public float spawnZ;
         public int worldType;
+        public DateTime lastLoaded;
 
         public WorldData(string worldName) {
             this.worldName = worldName;
@@ -17,6 +18,7 @@ namespace VoxelEngine.Level {
 
         public WorldData(string worldName, long seed) : this(worldName) {
             this.seed = DateTime.Today.ToBinary();
+            this.lastLoaded = DateTime.Now;
         }
 
         public NbtCompound writeToNbt() {
@@ -26,6 +28,7 @@ namespace VoxelEngine.Level {
             tag.Add(new NbtFloat("spawnY", this.spawnY));
             tag.Add(new NbtFloat("spawnZ", this.spawnZ));
             tag.Add(new NbtInt("worldType", this.worldType));
+            tag.Add(new NbtLong("lastLoaded", this.lastLoaded.ToBinary()));
             return tag;
         }
 
@@ -35,6 +38,7 @@ namespace VoxelEngine.Level {
             this.spawnY = tag.Get<NbtFloat>("spawnY").FloatValue;
             this.spawnZ = tag.Get<NbtFloat>("spawnZ").FloatValue;
             this.worldType = tag.Get<NbtInt>("worldType").IntValue;
+            this.lastLoaded = DateTime.FromBinary(tag.Get<NbtLong>("lastLoaded").LongValue);
         }
     }
 }

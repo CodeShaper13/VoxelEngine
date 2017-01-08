@@ -56,9 +56,11 @@ namespace VoxelEngine {
                         if (!this.isPaused) {
                             this.isPaused = true;
                             this.openGuiScreen(this.pauseScreen);
+                            this.player.fpc.enabled = false;
                         }
                         else {
                             this.currentGui = this.currentGui.onEscape(this);
+                            this.player.fpc.enabled = true;
                         }
                         Main.setMouseLock(!this.isPaused);
                     }

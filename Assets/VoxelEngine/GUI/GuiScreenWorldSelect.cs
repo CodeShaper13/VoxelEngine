@@ -42,6 +42,8 @@ namespace VoxelEngine.GUI {
                 }
             }
 
+            this.cachedWorlds.Sort((i2, i1) => DateTime.Compare(i1.lastLoaded, i2.lastLoaded));
+
             int y = -70;
             int i;
             for (i = 0; i < this.cachedWorlds.Count; i++) {
