@@ -80,8 +80,7 @@ namespace VoxelEngine.GUI {
 
         public void renameWorldCallback(GuiScreenRenameWorld screen) {
             this.openGuiScreen(screen);
-            screen.cachedWorlds = this.cachedWorlds;
-            screen.worldData = this.cachedWorlds[this.selectedWorld.index];
+            screen.init(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
         }
 
         //Used by PlayWorldButton

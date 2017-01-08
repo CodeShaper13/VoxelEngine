@@ -11,11 +11,17 @@ namespace VoxelEngine.GUI {
         public InputField field;
         public Button button;
         public Text textErrorMsg;
-        public WorldData worldData;
-        public List<WorldData> cachedWorlds;
+        private WorldData worldData;
+        private List<WorldData> cachedWorlds;
 
         public void OnDisable() {
             this.field.text = string.Empty;
+        }
+
+        public void init(WorldData data, List<WorldData> cached) {
+            this.worldData = data;
+            this.cachedWorlds = cached;
+            this.field.text = this.worldData.worldName;
         }
 
         public void renameWorldCallback() {
@@ -34,8 +40,9 @@ namespace VoxelEngine.GUI {
                     break;
                 }
             }
-            this.button.interactable = validName;
-            this.textErrorMsg.text = validName ? string.Empty : "You may not have duplicate world names, pick a different one";
+            bool flag = validName || this.field.text == this.worldData.worldName;
+            this.button.interactable = flag;
+            this.textErrorMsg.text = flag ? string.Empty : "You may not have duplicate world names, pick a different one";
         }
     }
 }

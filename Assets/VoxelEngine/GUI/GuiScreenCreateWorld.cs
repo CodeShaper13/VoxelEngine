@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine.UI;
 using VoxelEngine.Level;
@@ -24,7 +25,8 @@ namespace VoxelEngine.GUI {
         }
 
         public void createWorldCallback() {
-            Main.singleton.generateWorld(new WorldData(fieldName.text, long.Parse(fieldSeed.text)));
+            string s = this.fieldSeed.text;
+            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? long.Parse(s) : DateTime.Now.ToBinary()));
         }
 
         public void characterChangeCallback() {
@@ -36,7 +38,7 @@ namespace VoxelEngine.GUI {
                     break;
                 }
             }
-            this.buttonCreate.interactable = validName && this.fieldSeed.text.Length > 0;
+            this.buttonCreate.interactable = validName;
             this.text.text = validName ? string.Empty : "Pick a unique world name";
         }
     }
