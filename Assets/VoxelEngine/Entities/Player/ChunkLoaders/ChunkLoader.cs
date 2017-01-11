@@ -7,7 +7,7 @@ using VoxelEngine.Level;
 namespace VoxelEngine.Entities.Player.ChunkLoaders {
 
     public class ChunkLoader : MonoBehaviour {
-        private bool infiniteY = false;
+        public bool infiniteY;
 
         protected World world;
         protected int maxBuildPerLoop = 1;
@@ -15,7 +15,6 @@ namespace VoxelEngine.Entities.Player.ChunkLoaders {
         protected Queue<ChunkPos> buildQueue = new Queue<ChunkPos>();
 
         protected int loadRadius = 3;
-
         private int worldHeight = 3;
 
         public void Start() {
@@ -106,7 +105,7 @@ namespace VoxelEngine.Entities.Player.ChunkLoaders {
                             }
                         }
                     } else {
-                        for (int y = -this.loadRadius; y < this.loadRadius + 1; y++) {
+                        for (int y = -this.worldHeight; y < this.worldHeight + 1; y++) {
                             pos = new ChunkPos(x + occupiedChunkPos.x, y + occupiedChunkPos.y, z + occupiedChunkPos.z);
                             chunk = world.getChunk(pos);
                             if (chunk == null && !this.buildQueue.Contains(pos)) {

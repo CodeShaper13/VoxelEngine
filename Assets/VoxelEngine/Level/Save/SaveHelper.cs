@@ -6,20 +6,20 @@ using VoxelEngine.Entities;
 namespace VoxelEngine.Level.Save {
 
     public class SaveHelper {
-        public string worldName;
+        public WorldData data;
         public string saveFolderName;
         public string chunkFolderName;
         public string worldDataFileName;
         public string playerFileName;
 
         public SaveHelper(WorldData data) {
-            this.worldName = data.worldName;
-            this.saveFolderName = "saves/" + this.worldName + "/";
+            this.data = data;
+            this.saveFolderName = "saves/" + this.data.worldName + "/";
             this.chunkFolderName = this.saveFolderName + "chunks/";
             this.worldDataFileName = this.saveFolderName + "world.nbt";
             this.playerFileName = this.saveFolderName + "player.nbt";
 
-            if(data.dontWriteToDisk) {
+            if(this.data.dontWriteToDisk) {
                 return; //dont make folders if this world is a debug generated one
             }
 
@@ -51,6 +51,9 @@ namespace VoxelEngine.Level.Save {
         }
 
         public void writeChunkToDisk(Chunk chunk, NbtCompound tag) {
+            if (this.data.dontWriteToDisk) {
+                return;
+            }
             NbtFile file = new NbtFile(tag);
             file.SaveToFile(this.getChunkFileName2(chunk.chunkPos), NbtCompression.None);
         }
@@ -72,10 +75,6 @@ namespace VoxelEngine.Level.Save {
             else {
                 return false;
             }
-        }
-
-        private string getChunkFileName(ChunkPos pos) {
-            return this.saveFolderName + "chunks/" + pos.x + "," + pos.y + "," + pos.z + ".bin";
         }
 
         private string getChunkFileName2(ChunkPos pos) {

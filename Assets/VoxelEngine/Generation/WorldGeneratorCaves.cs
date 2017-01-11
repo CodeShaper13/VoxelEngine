@@ -23,19 +23,19 @@ namespace VoxelEngine.Generation {
             }
 
             bool inCrackChunk = c.chunkPos.y % 2 != 0;
-            byte crackByte = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2));
-            byte crackByte1 = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2 + 1));
-            
+            byte closerToOrgin = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2));
+            byte fartherFromOrgin = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2 + (c.chunkPos.y < 0 ? -1 : 1)));
+
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
                         Block block = Block.stone;
-                        byte meta = crackByte;
+                        byte meta = (c.chunkPos.y < 0 && inCrackChunk) ? fartherFromOrgin : closerToOrgin;
 
                         if (inCrackChunk) {
                             float crackNoise = getNoise(c.pos.x + x, c.pos.y, c.pos.z + z, 0.05f);
                             if (y > (Chunk.SIZE / 2) + (crackNoise * 2)) {
-                                meta = crackByte1;
+                                meta = c.chunkPos.y > 0 ? fartherFromOrgin : closerToOrgin;
                             }
                         }
 
@@ -58,7 +58,6 @@ namespace VoxelEngine.Generation {
             c.setBlock(Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE), Block.uraniumOre);
 
             this.generateRubyPatch(c, Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2));
-            //this.generateIronPatch(c, Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2));
         }
 
         private void generateRubyPatch(Chunk c, int x, int y, int z) {

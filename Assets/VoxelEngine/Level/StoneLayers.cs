@@ -11,19 +11,20 @@ namespace VoxelEngine.Level {
         public List<byte> negativeMeta;
 
         public StoneLayers() {
-            this.zeroMeta = this.getStoneLayer(255);
-            this.positiveMeta = new List<byte>();
-            this.negativeMeta = new List<byte>();
+            this.zeroMeta = 0; // this.getStoneLayer(255);
+            this.positiveMeta = new List<byte>() { 1, 2, 3, 4 };
+            this.negativeMeta = new List<byte>() { 1, 2, 3, 4 };
         }
 
         public byte getStone(int y) {
+            //is y always 0 or greater?
             if(y == 0) {
                 return this.zeroMeta;
             } else if(y > 0) {
                 int i = y - 1;
                 return this.getLayer(this.positiveMeta, i);
             } else {
-                int i = (y * -1) - y;
+                int i = (y*-1) - 1;
                 return this.getLayer(this.negativeMeta, i);
             }
         }
