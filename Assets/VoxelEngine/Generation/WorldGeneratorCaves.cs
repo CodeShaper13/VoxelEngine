@@ -17,91 +17,60 @@ namespace VoxelEngine.Generation {
         public override void generateChunk(Chunk c) {
             base.generateChunk(c);
 
+            if(c.chunkPos.x == 0 && c.chunkPos.y == 0 && c.chunkPos.z == 0) {
+                this.generateStartRoom(c);
+                return;
+            }
+
+            bool inCrackChunk = c.chunkPos.y % 2 != 0;
+            byte crackByte = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2));
+            byte crackByte1 = c.world.worldData.stoneLayers.getStone(Mathf.FloorToInt(c.chunkPos.y / 2 + 1));
+            
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
+                        Block block = Block.stone;
+                        byte meta = crackByte;
 
-                        //float f = this.getNoise(c.pos.x + x, c.pos.y + y, c.pos.z + z, 0.05f); //lower the scale, the more stretched out everhting is
-                        //Block b = Block.stone;
-                        //if(f < -0.5f) {
-                        //    b = Block.coalOre;
-                        //} else if(f < 0) {
-                        //    b = Block.glorb;
-                        //} else if(f < 0.5f) {
-                        //    b = Block.goldOre;
-                        //} else {
-                        //    b = Block.ironGrate;
-                        //}
-
-                        //c.setBlock(x, y, z, b);
-                        float f1 = this.getNoise((c.pos.x + x), (c.pos.y + y), (c.pos.z + z) * 10, 0.075f);
-                        float f2 = this.getNoise((c.pos.x + x) * 2, (c.pos.y + y) * 2, (c.pos.z + z) * 2, 0.1f);
-                        byte meta = 0;
-                        if (f1 < -0.5f) {
-                            meta = 0; //red
-                        }
-                        else if (f1 < 0) {
-                            meta = 1; //blue
-                        }
-                        else if (f1 < 0.5f) {
-                            meta = 2; //yellow
-                        }
-                        else {
-                            meta = 3; //green
+                        if (inCrackChunk) {
+                            float crackNoise = getNoise(c.pos.x + x, c.pos.y, c.pos.z + z, 0.05f);
+                            if (y > (Chunk.SIZE / 2) + (crackNoise * 2)) {
+                                meta = crackByte1;
+                            }
                         }
 
-                        Block b = Block.stone;
-                        if (f2 < -0.5f) {
-                            b = Block.stone; //red
-                        }
-                        else if (f2 < 0) {
-                            b = Block.air; // bronzeOre; //blue
-                        }
-                        else if (f2 < 0.5f) {
-                            b = Block.ironOre; //yellow
-                        }
-                        else {
-                            b = Block.goldOre; //green
+                        if (this.getNoise(c.pos.x + x, c.pos.y + y, c.pos.z + z, 0.05f) >= 0.85f) {
+                            if(Random.value < 0.75f) {
+                                block = Block.coalOre;
+                            }
                         }
 
-                        c.setBlock(x, y, z, b);
+                        if (this.getNoise(c.pos.x + x, (c.pos.y + y) * 2, c.pos.z + z, 0.01f) >= 0.85f) {
+                            block = Block.lava;
+                        }
+
+                        c.setBlock(x, y, z, block);
                         c.setMeta(x, y, z, meta);
-                        //Crack
-                        //float f3 = this.getNoise((c.pos.x + x) * 10, (c.pos.y + y), (c.pos.z + z), 0.007f);
-                        //float f4 = this.getNoise((c.pos.x + x) * 10, (c.pos.y + y), (c.pos.z + z), 0.00025f);
-                        //bool flag = this.getCrack(f3, f4);
-                        //if(flag) {
-                        //       c.setBlock(x, y, z, Block.air);
-                        //}
-
-                        //float rn = this.GetNoise(c.pos.x + x, c.pos.y + y, c.pos.z + z, 0.025f);
-                        //if(rn > 0.25f) {
-                        //    c.setBlock(x, y, z, Block.air);
-                        //}
                     }
                 }
             }
 
-            //if (chunk.chunkPos.x == 0 && chunk.chunkPos.z == 0) {
-            //    if(chunk.chunkPos.y == 0) {
-            //        this.generateStartRoom(chunk);
-            //    } else if(chunk.chunkPos.y > 0) {
-            //        this.generateShaft(chunk);
-            //    }
-            //} else if(chunk.chunkPos.x == 0 && chunk.chunkPos.z == -1) {
-            //    //TODO
-            //}
+            c.setBlock(Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE), Block.uraniumOre);
+
+            this.generateRubyPatch(c, Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2));
+            //this.generateIronPatch(c, Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2), Random.Range(0, Chunk.SIZE - 2));
         }
 
-        private bool getCrack(float f1, float f2) {
-            if (f1 < 0.75f) {
-                return false;
+        private void generateRubyPatch(Chunk c, int x, int y, int z) {
+            for(int i = 0; i < 3; i++) {
+                for(int j = 0; j < 3; j++) {
+                    for(int k = 0; k < 3; k++) {
+                        if(Random.value < 0.35f) {
+                            c.setBlock(x + i, y + j, z + k, Block.rubyOre);
+                        }
+                    }
+                }
             }
-            if (f2 < 1f) {
-                //return false;
-            }
-
-            return true;
         }
 
         private void generateShaft(Chunk chunk) {
@@ -138,16 +107,6 @@ namespace VoxelEngine.Generation {
                     chunk.setBlock(x, 0, z, Block.mossyBrick);
                 }
             }
-
-            //for (int x = 0; x < Chunk.SIZE; x++) {
-            //    for (int z = 0; z < Chunk.SIZE; z++) {
-            //        for (int y = 0; y < Chunk.SIZE; y++) {
-            //            chunk.setBlock(x, y, z, y == 0 ? Block.glorb : Block.air);
-            //        }
-            //    }
-            //}
-
-            //this.setColumn(chunk, 8, 8, Block.cable);
         }
 
         public float getNoise(int x, int y, int z, float scale) {

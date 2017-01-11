@@ -6,18 +6,22 @@ namespace VoxelEngine.Render.Blocks {
 
     public class BlockModelCube : BlockModel {
 
-        public override MeshData renderBlock(int x, int y, int z, bool[] renderFace) {
+        public override MeshData renderBlock(Block block, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace) {
+            this.block = block;
+            this.meta = meta;
+            this.meshData = meshData;
+
             if (renderFace[0]) {
-                this.renderNorth(x, y, z, meshData, this.getUVs(block, this.meta, Direction.all[0]));
+                this.renderNorth(x, y, z, meshData, this.getUVs(block, this.meta, Direction.NORTH));
             }
             if (renderFace[1]) {
-                this.renderEast(x, y, z, meshData, this.getUVs(block, this.meta, Direction.all[1]));
+                this.renderEast(x, y, z, meshData, this.getUVs(block, this.meta, Direction.EAST));
             }
             if (renderFace[2]) {
-                this.renderSouth(x, y, z, meshData, this.getUVs(block, this.meta, Direction.all[2]));
+                this.renderSouth(x, y, z, meshData, this.getUVs(block, this.meta, Direction.SOUTH));
             }
             if (renderFace[3]) {
-                this.renderWest(x, y, z, meshData, this.getUVs(block, this.meta, Direction.all[3]));
+                this.renderWest(x, y, z, meshData, this.getUVs(block, this.meta, Direction.WEST));
             }
             if (renderFace[4]) {
                 this.renderUp(x, y, z, meshData, this.getUVs(block, this.meta, Direction.UP));

@@ -26,9 +26,8 @@ namespace VoxelEngine.Entities.Player {
         public void beginBreak(Vector3 pos, Block block, byte meta) {
             this.meshRenderer.enabled = true;
             MeshData meshData = new MeshData();
-            BlockModel model = block.getModel(meta);
-            model.preRender(block, meta, meshData);
-            model.renderBlock(0, 0, 0, new bool[6] { true, true, true, true, true, true });
+            BlockModel model = block.model;
+            model.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true });
             this.meshFilter.mesh = model.meshData.toMesh();
             this.transform.position = pos;
 

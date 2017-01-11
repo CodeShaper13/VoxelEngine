@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using VoxelEngine.Level;
-using VoxelEngine.Render.Blocks;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -14,7 +13,7 @@ namespace VoxelEngine.Blocks {
 
         public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {
             Debug.Log(world.getBlock(pos.move(neighborDir)).name);
-            if (!world.getBlock(pos.move(neighborDir)).isSideSolid(neighborDir)) {
+            if (!world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }
@@ -26,10 +25,6 @@ namespace VoxelEngine.Blocks {
 
         public override TexturePos getTexturePos(Direction direction, byte meta) {
             return new TexturePos(5 + meta, textureY);
-        }
-
-        public override BlockModel getModel(byte meta) {
-            return Block.MODEL_CROSS;
         }
     }
 }

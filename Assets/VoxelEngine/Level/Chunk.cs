@@ -9,6 +9,9 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Level {
 
     public class Chunk : MonoBehaviour {
+        public static float TOTAL_BAKED = 0;
+        public static long MIL = 0;
+
         public const int SIZE = 16;
         public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
 
@@ -47,10 +50,13 @@ namespace VoxelEngine.Level {
         public void Update() {
             if (isDirty) {
                 isDirty = false;
-                //Stopwatch s = new Stopwatch();
-                //s.Start();
+                Stopwatch s = new Stopwatch();
+                s.Start();
                 this.renderChunk();
-                //print("Chunk bake time" + s.Elapsed);
+                s.Stop();
+
+                Chunk.TOTAL_BAKED += 1;
+                Chunk.MIL += s.ElapsedMilliseconds;
             }
         }
 
@@ -70,7 +76,7 @@ namespace VoxelEngine.Level {
 
         public Block getBlock(int x, int y, int z) {
             //TODO refactor code to remove this if block
-            if (this.inChunkBounds(x) && this.inChunkBounds(y) && this.inChunkBounds(z)) {
+            if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
                 return this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
             }
             return world.getBlock(pos.x + x, pos.y + y, pos.z + z);
@@ -94,12 +100,31 @@ namespace VoxelEngine.Level {
 
         //Renders all the blocks within the chunk
         private void renderChunk() {
+            Profiler.BeginSample("renderChunk");
             MeshData meshData = new MeshData();
+
+            Block b;
+            byte meta;
+            bool[] renderFace = new bool[6];
+            Direction d;
 
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int y = 0; y < Chunk.SIZE; y++) {
                     for (int z = 0; z < Chunk.SIZE; z++) {
-                        meshData = this.getBlock(x, y, z).renderBlock(this, x, y, z, this.getMeta(x, y, z), meshData);
+                        Profiler.BeginSample("renderBlock");
+
+                        b = this.getBlock(x, y, z);
+                        if(b != Block.air) {
+                            meta = this.getMeta(x, y, z);
+                            meshData.useRenderDataForCol = b != Block.lava;
+                            for (int i = 0; i < 6; i++) {
+                                d = Direction.all[i];
+                                renderFace[i] = !this.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z).isSolid;
+                            }
+                            b.model.renderBlock(b, meta, meshData, x, y, z, renderFace);
+                        }
+
+                        Profiler.EndSample();
                     }
                 }
             }
@@ -112,6 +137,7 @@ namespace VoxelEngine.Level {
             this.filter.mesh = mesh;
 
             this.blockCollider.sharedMesh = colMesh;
+            Profiler.EndSample();
         }
 
         public NbtCompound writeToNbt(NbtCompound tag) {
@@ -144,13 +170,6 @@ namespace VoxelEngine.Level {
                     print("Error!  Entity with an unknown ID of " + id + " was found!  Ignoring!");
                 }
             }
-        }
-
-        private bool inChunkBounds(int i) {
-            if (i < 0 || i >= Chunk.SIZE) {
-                return false;
-            }
-            return true;
         }
     }
 }

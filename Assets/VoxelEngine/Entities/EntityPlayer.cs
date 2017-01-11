@@ -13,20 +13,12 @@ using UnityStandardAssets.Characters.FirstPerson;
 namespace VoxelEngine.Entities {
 
     public class EntityPlayer : Entity {
-        //Constants
-        private float mouseSensitivity = 3f; //2.5f
-        private float jumpSpeed = 5.0f;
-
-        private float verticalRotation = 0.0f;
-        private float verticalVelocity;
-
         public Text magnifyingText;
         public RawImage healthBarImage;
         public GameObject blockBreakPrefab;
         public GameObject containerHotbarPrefab;
         public GameObject containerInventoryPrefab;
 
-        private CharacterController cc;
         public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
         public Transform mainCamera;
@@ -46,7 +38,6 @@ namespace VoxelEngine.Entities {
             base.Awake();
 
             this.mainCamera = Camera.main.transform;
-            this.cc = this.GetComponent<CharacterController>();
             this.fpc = this.GetComponent<FirstPersonController>();
 
             this.dataHotbar = new ContainerDataHotbar();
@@ -213,7 +204,7 @@ namespace VoxelEngine.Entities {
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-            tag.Add(new NbtFloat("cameraVertical", this.verticalRotation));
+//            tag.Add(new NbtFloat("cameraVertical", this.verticalRotation));
             tag.Add(this.dataHotbar.writeToNbt(new NbtCompound("hotbar")));
             tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
             //TODO jump, maybe general up/down for entities
@@ -222,8 +213,8 @@ namespace VoxelEngine.Entities {
 
         public override void readFromNbt(NbtCompound tag) {
             base.readFromNbt(tag);
-            this.verticalRotation = tag.Get<NbtFloat>("cameraVertical").FloatValue;
-            this.mainCamera.localRotation = Quaternion.Euler(this.verticalRotation, 0, 0);
+//            this.verticalRotation = tag.Get<NbtFloat>("cameraVertical").FloatValue;
+//            this.mainCamera.localRotation = Quaternion.Euler(this.verticalRotation, 0, 0);
             this.dataHotbar.readFromNbt(tag.Get<NbtCompound>("hotbar"));
             this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
         }

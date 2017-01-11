@@ -21,7 +21,7 @@ namespace VoxelEngine.Blocks {
         public static Block moss;
         public static Block root;
         public static Block flower;
-        public static Block lava = new BlockLava().setName("Lava").setTexture(0, 12).setReplaceable(true).setSolid(false);
+        public static Block lava = new BlockLava().setName("Lava").setTexture(0, 12).setReplaceable(true);//.setSolid(false);
         public static Block coalOre = new BlockOre(Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
         public static Block bronzeOre = new BlockOre(Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
         public static Block ironOre = new BlockOre(Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
@@ -30,10 +30,10 @@ namespace VoxelEngine.Blocks {
         public static Block uraniumOre = new BlockOre(Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
         public static Block glorb = new BlockGlorb().setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
         public static Block lanturn;
-        public static Block mushroom = new BlockMushroom(4).setName("Mushroom").setSolid(false).setMineTime(0.1f);
-        public static Block mushroom2 = new BlockMushroom(5).setName("Mushroom").setSolid(false).setMineTime(0.1f);
-        public static Block healingMushroom = new BlockMushroom(6).setName("Healshroom").setSolid(false).setMineTime(0.1f);
-        public static Block poisonMushroom = new BlockMushroom(7).setName("Deathshroom").setSolid(false).setMineTime(0.1f);
+        public static Block mushroom = new BlockMushroom(4).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block mushroom2 = new BlockMushroom(5).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block healingMushroom = new BlockMushroom(6).setName("Healshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block poisonMushroom = new BlockMushroom(7).setName("Deathshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
         public static Block torch; //Burned out varient too with meta difference
         public static Block rail;
         public static Block door;
@@ -52,10 +52,12 @@ namespace VoxelEngine.Blocks {
         public bool isSolid = true;
         public bool replaceable;
         public Type blockType;
+        public BlockModel model;
 
         public Block() {
             this.id = Block.NEXT_ID++;
             Block.BLOCK_LIST[this.id] = this;
+            this.model = Block.MODEL_DEFAULT;
         }
 
         //neighborDir points to the block that made this update happen
@@ -79,11 +81,6 @@ namespace VoxelEngine.Blocks {
 
         }
 
-        //Checks if the passed direction is solid (solid faces are not rendered)
-        public virtual bool isSideSolid(Direction direction) {
-            return this.isSolid;
-        }
-
         public virtual string getName(byte meta) {
             return this.name;
         }
@@ -104,26 +101,9 @@ namespace VoxelEngine.Blocks {
             return this.texturePos;
         }
 
-        public virtual BlockModel getModel(byte meta) {
-            return Block.MODEL_DEFAULT;
-        }
-
         //Used to check if the chunk needs to be redrawn after meta changes.  True if the chunk should be redrawn
         public virtual bool dirtyAfterMetaChange(BlockPos pos, byte newMeta) {
             return true;
-        }
-
-        public virtual MeshData renderBlock(Chunk chunk, int x, int y, int z, byte meta, MeshData meshData) {
-            meshData.useRenderDataForCol = this != Block.lava; //TODO make this better, maybe allow blocks to override a methods that provides this value?
-            bool[] renderFace = new bool[6];
-            for (int i = 0; i < 6; i++) {
-                Direction d = Direction.all[i];
-                renderFace[i] = !chunk.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z).isSideSolid(d);
-            }
-            BlockModel model = this.getModel(meta);
-            model.preRender(this, meta, meshData);
-            model.renderBlock(x, y, z, renderFace);
-            return model.meshData;
         }
 
         ////////////////////////////////
@@ -156,6 +136,11 @@ namespace VoxelEngine.Blocks {
 
         public Block setType(Type blockType) {
             this.blockType = blockType;
+            return this;
+        }
+
+        public Block setModel(BlockModel model) {
+            this.model = model;
             return this;
         }
 

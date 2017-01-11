@@ -30,7 +30,7 @@ namespace VoxelEngine.Level {
 
             this.worldData = data;
 
-            this.saveHelper = new SaveHelper(this.worldData.worldName);
+            this.saveHelper = new SaveHelper(this.worldData);
             this.generator = new WorldGeneratorCaves(this, worldData.seed);
 
             this.chunkWrapper = this.createWrapper("CHUNKS");
@@ -120,16 +120,10 @@ namespace VoxelEngine.Level {
             return chunk;
         }
 
-        public void unloadChunk(ChunkPos pos) {
-            Chunk chunk = this.getChunk(pos);
-            if (chunk != null) {
-                this.saveChunk(chunk, true);
-                GameObject.Destroy(chunk.gameObject);
-                this.loadedChunks.Remove(pos);
-            }
-            else {
-                Debug.LogWarning("Trying to save an unloaded chunk, something is wrong!");
-            }
+        public void unloadChunk(Chunk chunk) {
+            this.saveChunk(chunk, true);
+            GameObject.Destroy(chunk.gameObject);
+            this.loadedChunks.Remove(chunk.chunkPos);
         }
 
         public Chunk getChunk(ChunkPos pos) {

@@ -12,12 +12,16 @@ namespace VoxelEngine.Level.Save {
         public string worldDataFileName;
         public string playerFileName;
 
-        public SaveHelper(string worldName) {
-            this.worldName = worldName;
+        public SaveHelper(WorldData data) {
+            this.worldName = data.worldName;
             this.saveFolderName = "saves/" + this.worldName + "/";
             this.chunkFolderName = this.saveFolderName + "chunks/";
             this.worldDataFileName = this.saveFolderName + "world.nbt";
             this.playerFileName = this.saveFolderName + "player.nbt";
+
+            if(data.dontWriteToDisk) {
+                return; //dont make folders if this world is a debug generated one
+            }
 
             if (!Directory.Exists(this.saveFolderName)) {
                 Directory.CreateDirectory(this.saveFolderName);

@@ -26,7 +26,7 @@ namespace VoxelEngine.GUI {
 
         public void createWorldCallback() {
             string s = this.fieldSeed.text;
-            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? long.Parse(s) : DateTime.Now.ToBinary()));
+            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), false));
         }
 
         public void characterChangeCallback() {
