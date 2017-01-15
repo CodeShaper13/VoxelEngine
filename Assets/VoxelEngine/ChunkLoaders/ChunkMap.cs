@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
-namespace VoxelEngine.Entities.Player.ChunkLoaders {
+namespace VoxelEngine.ChunkLoaders {
 
     public class ChunkMap {
         public int radius;

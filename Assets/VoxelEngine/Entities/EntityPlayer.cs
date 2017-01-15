@@ -9,6 +9,7 @@ using VoxelEngine.Entities.Player;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
 using UnityStandardAssets.Characters.FirstPerson;
+using VoxelEngine.ChunkLoaders;
 
 namespace VoxelEngine.Entities {
 
@@ -34,6 +35,8 @@ namespace VoxelEngine.Entities {
         public ContainerDataHotbar dataHotbar;
         public ContainerData dataInventory;
 
+        public ChunkLoaderBase chunkLoader;
+
         public new void Awake() {
             base.Awake();
 
@@ -50,8 +53,14 @@ namespace VoxelEngine.Entities {
             this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
         }
 
+        public void Start() {
+            this.chunkLoader = new ChunkLoaderInfinite(this.world, this);
+        }
+
         public override void onEntityUpdate() {
             base.onEntityUpdate();
+
+            this.chunkLoader.updateChunkLoader();
 
             if (this.containerElement == null) {
                 PlayerRayHit playerHit = this.getPlayerRayHit();
