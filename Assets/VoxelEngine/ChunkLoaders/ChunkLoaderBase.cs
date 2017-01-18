@@ -41,7 +41,7 @@ namespace VoxelEngine.ChunkLoaders {
 #endif
         }
 
-        public void updateChunkLoader() {
+        public virtual void updateChunkLoader() {
             ChunkPos pos = this.getOccupiedChunkPos(this.player.transform.position);
             if (this.previousOccupiedChunkPos == null ||
                 pos.x != this.previousOccupiedChunkPos.x ||

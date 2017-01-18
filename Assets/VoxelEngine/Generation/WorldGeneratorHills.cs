@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using SimplexNoise;
+using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Generation {
 
-    public class WorldGenerator : WorldGeneratorBase {
+    public class WorldGeneratorHills : WorldGeneratorBase {
         float stoneBaseHeight = 24; //was -24
         float stoneBaseNoise = 0.05f;
         float stoneBaseNoiseHeight = 4;
@@ -20,13 +21,15 @@ namespace VoxelEngine.Generation {
         float treeFrequency = 0.2f;
         int treeDensity = 3;
 
-        public WorldGenerator(World world, long seed) : base(world, seed) {
+        public WorldGeneratorHills(World world, long seed) : base(world, seed) {
 
         }
 
-        public override void generateChunk(Chunk chunk) {
-            base.generateChunk(chunk);
+        public override Vector3 getSpawnPoint() {
+            return new Vector3(0, 70, 0);
+        }
 
+        public override void generateChunk(Chunk chunk) {
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     chunk = generateColumn(chunk, x + chunk.pos.x, z + chunk.pos.z);
@@ -106,6 +109,10 @@ namespace VoxelEngine.Generation {
             y -= chunk.pos.y;
             z -= chunk.pos.z;
             chunk.setBlock(x, y, z, block);
+        }
+
+        public int getNoise(int x, int y, int z, float scale, int max) {
+            return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
         }
     }
 }

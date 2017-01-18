@@ -15,8 +15,6 @@ namespace VoxelEngine.Generation {
         }
 
         public override void generateChunk(Chunk c) {
-            base.generateChunk(c);
-
             if(c.chunkPos.x == 0 && c.chunkPos.y == 0 && c.chunkPos.z == 0) {
                 this.generateStartRoom(c);
                 return;

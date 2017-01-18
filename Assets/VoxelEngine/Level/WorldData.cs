@@ -19,8 +19,9 @@ namespace VoxelEngine.Level {
             this.stoneLayers = new StoneLayers();
         }
 
-        public WorldData(string worldName, int seed, bool dontWriteToDisk) : this(worldName) {
+        public WorldData(string worldName, int seed, int worldType, bool dontWriteToDisk) : this(worldName) {
             this.seed = (int)DateTime.Today.ToBinary();
+            this.worldType = worldType;
             this.lastLoaded = DateTime.Now;
             this.dontWriteToDisk = dontWriteToDisk;
         }

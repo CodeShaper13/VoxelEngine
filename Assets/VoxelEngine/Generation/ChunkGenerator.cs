@@ -1,8 +1,6 @@
 ﻿using SimplexNoise;
-using System.Collections.Generic;
 using UnityEngine;
 using VoxelEngine.Blocks;
-using VoxelEngine.Generation.Feature;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
@@ -11,12 +9,9 @@ namespace VoxelEngine.Generation {
     public class ChunkGenerator {
 
         public World world;
-        public List<OrePatch> orePatches = new List<OrePatch>();
 
         public ChunkGenerator(World world) {
             this.world = world;
-
-            this.orePatches.Add(new OrePatch(Block.coalOre, 0.07f, 0.2f));
         }
 
         //public void generateChunk(Chunk c) {
@@ -111,17 +106,6 @@ namespace VoxelEngine.Generation {
             return true;
         }
 
-        private Block func0(float i, float j) {
-            int[,] map = new int[4, 4] {
-            { 1, 1, 1, 1 },
-            { 1, 1, 1, 1 },
-            { 1, 1, 1, 1 },
-            { 1, 1, 1, 1 }
-        };
-            int k = 0;
-            return Block.BLOCK_LIST[k];
-        }
-
         //private Block func1(float i, float j) {
         //    if(i < 0 && j < 0) {
         //        return Block.stone;
@@ -191,7 +175,7 @@ namespace VoxelEngine.Generation {
             for (i = -2; i < 3; i++) {
                 for (j = -2; j < 3; j++) {
                     for (k = -2; k < 3; k++) {
-                        BlockPos p = new BlockPos(c.pos.x + (i * 16), c.pos.y + (j * 16), c.pos.z + (k * 16));
+                        //BlockPos p = new BlockPos(c.pos.x + (i * 16), c.pos.y + (j * 16), c.pos.z + (k * 16));
                         //isGenerated[i + 2, j + 2, k + 2] = this.world.getChunk(p);
                     }
                 }

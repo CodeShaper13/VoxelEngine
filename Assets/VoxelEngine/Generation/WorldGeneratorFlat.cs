@@ -6,13 +6,13 @@ namespace VoxelEngine.Generation {
 
     public class WorldGeneratorFlat : WorldGeneratorBase {
 
-        public WorldGeneratorFlat(World world, long seed) : base(world, seed) {
+        public WorldGeneratorFlat(World world, long seed) : base(world, seed) {}
 
+        public override Vector3 getSpawnPoint() {
+            return new Vector3(0, 21, 0);
         }
 
         public override void generateChunk(Chunk chunk) {
-            base.generateChunk(chunk);
-
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
@@ -30,7 +30,7 @@ namespace VoxelEngine.Generation {
                 return Block.dirt;
             }
             else if (y < 19) {
-                return Random.Range(0, 256) == 0 ? Block.grass : Block.dirt;
+                return Block.grass;
             }
             else {
                 return Block.air;

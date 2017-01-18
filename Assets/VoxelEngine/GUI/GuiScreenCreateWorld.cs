@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine.UI;
+using VoxelEngine.Generation;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.GUI {
@@ -13,10 +14,13 @@ namespace VoxelEngine.GUI {
         public InputField fieldSeed;
         public Text text;
         public Button buttonCreate;
+        public Text buttonToggleTypeText;
+        private int typeIndex;
         public List<WorldData> cachedWorlds;
 
         public void OnEnable() {
             this.buttonCreate.interactable = false;
+            this.func_01();
         }
 
         public void OnDisable() {
@@ -26,7 +30,15 @@ namespace VoxelEngine.GUI {
 
         public void createWorldCallback() {
             string s = this.fieldSeed.text;
-            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), false));
+            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), this.typeIndex, false));
+        }
+
+        public void toggleWorldTypeCallback() {
+            this.typeIndex += 1;
+            if(this.typeIndex >= WorldType.typeList.Count) {
+                this.typeIndex = 0;
+            }
+            this.func_01();
         }
 
         public void characterChangeCallback() {
@@ -40,6 +52,10 @@ namespace VoxelEngine.GUI {
             }
             this.buttonCreate.interactable = validName;
             this.text.text = validName ? string.Empty : "Pick a unique world name";
+        }
+
+        private void func_01() {
+            this.buttonToggleTypeText.text = "Type: " + WorldType.typeList[this.typeIndex].name;
         }
     }
 }

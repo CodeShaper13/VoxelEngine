@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using VoxelEngine.Generation;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.GUI {
@@ -72,7 +73,8 @@ namespace VoxelEngine.GUI {
         }
 
         public void loadCallback() {
-            Main.singleton.generateWorld(this.cachedWorlds[this.selectedWorld.index]);
+            WorldData data = this.cachedWorlds[this.selectedWorld.index];
+            Main.singleton.generateWorld(data);
         }
 
         public void deleteWorldCallback(GuiScreenDeleteWorld screen) {

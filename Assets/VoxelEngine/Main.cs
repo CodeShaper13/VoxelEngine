@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Entities;
+using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
@@ -24,6 +25,7 @@ namespace VoxelEngine {
         public Text textDebug;
 
         public GuiScreen pauseScreen;
+        public GuiScreen waitingScreen;
         public GuiScreen currentGui;
 
         public Material blockMaterial;
@@ -56,11 +58,17 @@ namespace VoxelEngine {
             //print("Random U" + s.Elapsed);
 
             //Debug instant world generation
-            this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), true));
+            //this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
         }
 
         public void Update() {
-            if (this.worldObj != null) {
+            //if(this.data != null) {
+            //    this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
+            //    this.worldObj.initWorld(data);
+            //    this.data = null;
+            //}
+
+            if (this.worldObj != null && this.player != null) {
                 if (Input.GetKeyDown(KeyCode.F1)) {
                     this.showDebugText = !this.showDebugText;
                 }
@@ -73,8 +81,7 @@ namespace VoxelEngine {
                 if (Input.GetKeyDown(KeyCode.Escape)) {
                     if (this.player.containerElement != null) {
                         this.player.closeContainer();
-                    }
-                    else {
+                    } else {
                         if (!this.isPaused) {
                             this.isPaused = true;
                             this.openGuiScreen(this.pauseScreen);
@@ -82,9 +89,9 @@ namespace VoxelEngine {
                         }
                         else {
                             this.currentGui = this.currentGui.onEscape(this);
-                            this.player.fpc.enabled = true;
                         }
                         Main.setMouseLock(!this.isPaused);
+                        this.player.fpc.enabled = !this.isPaused;
                     }
                 }
 
@@ -139,16 +146,23 @@ namespace VoxelEngine {
         }
 
         public void generateWorld(WorldData data) {
+            //this.openGuiScreen(this.waitingScreen);
+            //this.data = data;
             this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
             this.worldObj.initWorld(data);
 
-            this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
-
             this.currentGui.setActive(false);
             this.currentGui = null;
-
+            this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
             Main.setMouseLock(true);
         }
+
+        //public void onWorldLoadFinish() {
+        //    this.currentGui.setActive(false);
+        //    this.currentGui = null;
+        //    this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
+        //    Main.setMouseLock(true);
+        //}
 
         public static Material getMaterial(int id) {
             return id < 256 ? Main.singleton.blockMaterial : Main.singleton.itemMaterial;

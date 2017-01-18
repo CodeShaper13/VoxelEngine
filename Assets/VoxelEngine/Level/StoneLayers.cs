@@ -30,7 +30,7 @@ namespace VoxelEngine.Level {
         }
 
         public NbtCompound writeToNbt(NbtCompound tag) {
-            tag.Add(new NbtInt("zeroMeta", this.zeroMeta));
+            tag.Add(new NbtByte("zeroMeta", this.zeroMeta));
             tag.Add(new NbtByteArray("positiveLayers", this.positiveMeta.ToArray()));
             tag.Add(new NbtByteArray("negativeLayers", this.negativeMeta.ToArray()));
             return tag;

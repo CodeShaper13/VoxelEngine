@@ -10,6 +10,7 @@ using VoxelEngine.Items;
 using VoxelEngine.Util;
 using UnityStandardAssets.Characters.FirstPerson;
 using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Generation;
 
 namespace VoxelEngine.Entities {
 
@@ -54,13 +55,25 @@ namespace VoxelEngine.Entities {
         }
 
         public void Start() {
-            this.chunkLoader = new ChunkLoaderInfinite(this.world, this);
+            switch(WorldType.getFromId(this.world.worldData.worldType).chunkLoaderType) {
+                case 0:
+                    this.chunkLoader = new ChunkLoaderLockedY(this.world, this);
+                    break;
+                case 1:
+                    this.chunkLoader = new ChunkLoaderInfinite(this.world, this);
+                    break;
+                case 2:
+                    this.chunkLoader = new ChunkLoaderRegionDebug(this.world, this);
+                    break;
+            }
         }
 
         public override void onEntityUpdate() {
             base.onEntityUpdate();
 
-            this.chunkLoader.updateChunkLoader();
+            if(this.chunkLoader != null) {
+                this.chunkLoader.updateChunkLoader();
+            }
 
             if (this.containerElement == null) {
                 PlayerRayHit playerHit = this.getPlayerRayHit();
