@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Containers;
+﻿using VoxelEngine.Containers;
 using VoxelEngine.Items;
 
 namespace VoxelEngine.Blocks {
@@ -11,12 +10,6 @@ namespace VoxelEngine.Blocks {
                 return new ItemStack[] { new ItemStack(Item.glorbDust) };
             }
             return new ItemStack[0];
-        }
-
-        public override GameObject getAssociateGameObject() {
-            GameObject g = new GameObject();
-            g.AddComponent<Light>();
-            return g;
         }
     }
 }

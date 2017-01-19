@@ -1,9 +1,7 @@
-﻿using UnityEngine;
-using VoxelEngine.Containers;
+﻿using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render;
 using VoxelEngine.Render.Blocks;
 using VoxelEngine.Util;
 
@@ -40,6 +38,7 @@ namespace VoxelEngine.Blocks {
         public static Block mossyBrick = new Block().setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
         public static Block cable = new Block().setName("Cable");
         public static Block ironGrate = new Block().setName("Iron Grate").setType(Type.STONE);
+        public static Block chest = new BlockChest().setName("Chest");
 
         public static Block grass = new BlockGrass().setName("grass").setMineTime(0.15f);
         public static Block wood = new BlockWood().setName("log");
@@ -65,7 +64,7 @@ namespace VoxelEngine.Blocks {
             //TODO do we need to return a bool if the block changed, to make more chunks dirty?
         }
 
-        public virtual void onRandomTick(World world, BlockPos pos, byte meta, int tickSeed) {
+        public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) {
         }
 
         public virtual void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
@@ -91,10 +90,6 @@ namespace VoxelEngine.Blocks {
 
         public virtual string getMagnifyingText(byte meta) {
             return this.getName(meta);
-        }
-
-        public virtual GameObject getAssociateGameObject() {
-            return null;
         }
 
         public virtual TexturePos getTexturePos(Direction direction, byte meta) {

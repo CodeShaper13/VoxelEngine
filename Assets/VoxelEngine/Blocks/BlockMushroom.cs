@@ -18,8 +18,8 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override void onRandomTick(World world, BlockPos pos, byte meta, int tickSeed) {
-            base.onRandomTick(world, pos, meta, tickSeed);
+        public override void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) {
+            base.onRandomTick(world, x, y, z, meta, tickSeed);
             //TODO
         }
 

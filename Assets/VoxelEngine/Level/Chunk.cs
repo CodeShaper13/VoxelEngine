@@ -1,9 +1,11 @@
 ﻿using fNbt;
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Entities;
 using VoxelEngine.Render;
+using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Level {
@@ -17,7 +19,7 @@ namespace VoxelEngine.Level {
 
         public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
         public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
-        //public Dictionary<BlockPos, GameObject> gameObjectDict = new Dictionary<BlockPos, GameObject>(); //TODO replace with a faster collection type
+        public Dictionary<BlockPos, TileEntityBase> tileEntityDict; //TODO replace with a faster collection type
 
         public bool isModified;
         public bool isDirty;
@@ -37,6 +39,7 @@ namespace VoxelEngine.Level {
             MeshCollider[] colliders = this.GetComponents<MeshCollider>();
             this.blockCollider = colliders[0];
             this.triggerCollider = colliders[1];
+            this.tileEntityDict = new Dictionary<BlockPos, TileEntityBase>();
         }
 
         //Like a constructor, but since this is a GameObject it can't have one.
@@ -70,7 +73,7 @@ namespace VoxelEngine.Level {
                 int x = (i >> j * 12) & 0x0F;     // 0  12
                 int y = (i >> j * 12 + 4) & 0x0F; // 4  16
                 int z = (i >> j * 12 + 8) & 0x0F; // 8  20
-                this.getBlock(x, y, z).onRandomTick(this.world, new BlockPos(x + this.pos.x, y + this.pos.y, z + this.pos.z), this.getMeta(x, y, z), i);
+                this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
             }
         }
 
@@ -149,6 +152,12 @@ namespace VoxelEngine.Level {
             tag.Add(new NbtByteArray("blocks", blockBytes));
             tag.Add(new NbtByteArray("meta", this.metaData));
 
+            NbtList list = new NbtList("tileEntities", NbtTagType.Compound);
+            foreach(TileEntityBase te in this.tileEntityDict.Values) {
+                list.Add(te.writeToNbt(new NbtCompound()));
+            }
+            tag.Add(list);
+
             return tag;
         }
 
@@ -160,6 +169,14 @@ namespace VoxelEngine.Level {
             }
             this.metaData = tag.Get<NbtByteArray>("meta").ByteArrayValue;
 
+            //Populate the tile entity dictionary
+            foreach(NbtCompound compound in tag.Get<NbtList>("tileEntities")) {
+                BlockPos pos = new BlockPos(compound.Get<NbtInt>("x").IntValue, compound.Get<NbtInt>("y").IntValue, compound.Get<NbtInt>("z").IntValue);
+                TileEntityBase te = TileEntityBase.getTileEntityFromId(this.world, pos, compound);
+                te.readFromNbt(compound);
+                this.world.addTileEntity(pos, te);
+            }
+            
             //spawn the entities that were saved in the chunk back into the world
             foreach(NbtCompound compound in tag.Get<NbtList>("entities")) {
                 byte id = compound.Get<NbtByte>("id").ByteValue;

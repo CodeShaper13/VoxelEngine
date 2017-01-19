@@ -17,9 +17,6 @@ namespace VoxelEngine.Entities {
     public class EntityPlayer : Entity {
         public Text magnifyingText;
         public RawImage healthBarImage;
-        public GameObject blockBreakPrefab;
-        public GameObject containerHotbarPrefab;
-        public GameObject containerInventoryPrefab;
 
         public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
@@ -48,10 +45,10 @@ namespace VoxelEngine.Entities {
             this.dataInventory = new ContainerData(2, 2);
 
             //Setup the hotbar
-            this.containerHotbar = GameObject.Instantiate(this.containerHotbarPrefab).GetComponent<ContainerHotbar>();
+            this.containerHotbar = GameObject.Instantiate(References.list.containerHotbar).GetComponent<ContainerHotbar>();
             this.containerHotbar.initContainer(this.dataHotbar, this);
 
-            this.blockBreakEffect = GameObject.Instantiate(this.blockBreakPrefab).GetComponent<BreakBlockEffect>();
+            this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
         }
 
         public void Start() {
@@ -138,7 +135,7 @@ namespace VoxelEngine.Entities {
         }
 
         public void loadStartingInventory() {
-            this.dataHotbar.addItemStack(new ItemStack(Item.goldPickaxe, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Block.chest));
             this.dataHotbar.addItemStack(new ItemStack(Block.glorb, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.lava, 4));
             this.dataHotbar.addItemStack(new ItemStack(Item.goldSword));
@@ -187,7 +184,7 @@ namespace VoxelEngine.Entities {
                 this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
             }
             if (Input.GetKeyDown(KeyCode.E)) {
-                this.openContainer(this.containerInventoryPrefab, this.dataInventory);
+                this.openContainer(References.list.containerInventory, this.dataInventory);
             }
         }
 
@@ -226,7 +223,7 @@ namespace VoxelEngine.Entities {
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-//            tag.Add(new NbtFloat("cameraVertical", this.verticalRotation));
+            tag.Add(new NbtFloat("cameraX", this.mainCamera.eulerAngles.x));
             tag.Add(this.dataHotbar.writeToNbt(new NbtCompound("hotbar")));
             tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
             //TODO jump, maybe general up/down for entities
@@ -235,8 +232,7 @@ namespace VoxelEngine.Entities {
 
         public override void readFromNbt(NbtCompound tag) {
             base.readFromNbt(tag);
-//            this.verticalRotation = tag.Get<NbtFloat>("cameraVertical").FloatValue;
-//            this.mainCamera.localRotation = Quaternion.Euler(this.verticalRotation, 0, 0);
+            this.mainCamera.localRotation = Quaternion.Euler(tag.Get<NbtFloat>("cameraX").FloatValue, 0, 0);
             this.dataHotbar.readFromNbt(tag.Get<NbtCompound>("hotbar"));
             this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
         }

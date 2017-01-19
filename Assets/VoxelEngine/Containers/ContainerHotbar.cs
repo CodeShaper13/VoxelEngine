@@ -15,7 +15,7 @@ namespace VoxelEngine.Containers {
         }
 
         public override void renderHeldItem() {
-
+            //Override method but dont do anything so we dont draw a second held item, as this is always active
         }
 
         public void scroll(int i) {

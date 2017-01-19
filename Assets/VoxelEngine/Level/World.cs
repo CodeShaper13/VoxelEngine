@@ -8,6 +8,7 @@ using VoxelEngine.Containers;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using fNbt;
+using VoxelEngine.TileEntity;
 
 namespace VoxelEngine.Level {
 
@@ -143,8 +144,7 @@ namespace VoxelEngine.Level {
             int x1 = Mathf.FloorToInt(x / (float)Chunk.SIZE);
             int y1 = Mathf.FloorToInt(y / (float)Chunk.SIZE);
             int z1 = Mathf.FloorToInt(z / (float)Chunk.SIZE);
-            ChunkPos c = new ChunkPos(x1, y1, z1);
-            return this.getChunk(c);
+            return this.getChunk(new ChunkPos(x1, y1, z1));
         }
 
         public Block getBlock(BlockPos pos) {
@@ -162,11 +162,16 @@ namespace VoxelEngine.Level {
         }
 
         public void setBlock(BlockPos pos, Block block, bool updateNeighbors = true) {
-            Chunk chunk = this.getChunk(pos);
+            this.setBlock(pos.x, pos.y, pos.z, block, updateNeighbors);
+        }
+
+        public void setBlock(int x, int y, int z, Block block, bool updateNeighbors = true) {
+            Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
-                int x1 = pos.x - chunk.pos.x;
-                int y1 = pos.y - chunk.pos.y;
-                int z1 = pos.z - chunk.pos.z;
+                int x1 = x - chunk.pos.x;
+                int y1 = y - chunk.pos.y;
+                int z1 = z - chunk.pos.z;
+                BlockPos pos = new BlockPos(x, y, z);
                 byte meta = chunk.getMeta(x1, y1, z1);
                 chunk.getBlock(x1, y1, z1).onDestroy(this, pos, meta);
                 chunk.setBlock(x1, y1, z1, block);
@@ -176,24 +181,16 @@ namespace VoxelEngine.Level {
                     foreach (Direction dir in Direction.all) {
                         BlockPos shiftedPos = pos.move(dir);
                         this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
-                        //chunk = this.getChunk(shiftedPos.x, shiftedPos.y, shiftedPos.z);
-                        //if (chunk != null) {
-                        //    chunk.isDirty = true;
-                        //}
                     }
+                    chunk.isDirty = true;
+                    this.updateIfEqual(x - chunk.pos.x, 0, new BlockPos(x - 1, y, z));
+                    this.updateIfEqual(x - chunk.pos.x, Chunk.SIZE - 1, new BlockPos(x + 1, y, z));
+                    this.updateIfEqual(y - chunk.pos.y, 0, new BlockPos(x, y - 1, z));
+                    this.updateIfEqual(y - chunk.pos.y, Chunk.SIZE - 1, new BlockPos(x, y + 1, z));
+                    this.updateIfEqual(z - chunk.pos.z, 0, new BlockPos(x, y, z - 1));
+                    this.updateIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(x, y, z + 1));
                 }
-                chunk.isDirty = true;
-                this.updateIfEqual(pos.x - chunk.pos.x, 0, new BlockPos(pos.x - 1, pos.y, pos.z));
-                this.updateIfEqual(pos.x - chunk.pos.x, Chunk.SIZE - 1, new BlockPos(pos.x + 1, pos.y, pos.z));
-                this.updateIfEqual(pos.y - chunk.pos.y, 0, new BlockPos(pos.x, pos.y - 1, pos.z));
-                this.updateIfEqual(pos.y - chunk.pos.y, Chunk.SIZE - 1, new BlockPos(pos.x, pos.y + 1, pos.z));
-                this.updateIfEqual(pos.z - chunk.pos.z, 0, new BlockPos(pos.x, pos.y, pos.z - 1));
-                this.updateIfEqual(pos.z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(pos.x, pos.y, pos.z + 1));
             }
-        }
-
-        public void setBlock(int x, int y, int z, Block block, bool updateNeighbors = true) {
-            this.setBlock(new BlockPos(x, y, z), block, updateNeighbors);
         }
 
         public byte getMeta(BlockPos pos) {
@@ -225,6 +222,18 @@ namespace VoxelEngine.Level {
             }
         }
 
+        public TileEntityBase getTileEntity(BlockPos pos) {
+            return this.getChunk(pos).tileEntityDict[pos];
+        }
+
+        public void addTileEntity(BlockPos pos, TileEntityBase tileEntity) {
+            this.getChunk(pos).tileEntityDict.Add(pos, tileEntity);
+        }
+
+        public void removeTileEntity(BlockPos pos) {
+            this.getChunk(pos).tileEntityDict.Remove(pos);
+        }
+
         //Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
         public void breakBlock(BlockPos pos, ItemTool brokenWith) {
             Block block = this.getBlock(pos);
@@ -253,11 +262,11 @@ namespace VoxelEngine.Level {
             List<Entity> entitiesInChunk = new List<Entity>();
             for (int i = this.entityList.Count - 1; i >= 0; i--) {
                 entity = this.entityList[i];
-                int x = Mathf.FloorToInt((int)this.transform.position.x / (float)Chunk.SIZE);
-                int y = Mathf.FloorToInt((int)this.transform.position.y / (float)Chunk.SIZE);
-                int z = Mathf.FloorToInt((int)this.transform.position.z / (float)Chunk.SIZE);
+                int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
+                int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
+                int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
 
-                if (x == chunk.chunkPos.x && y ==chunk.chunkPos.y && z == chunk.chunkPos.z) {
+                if (x == chunk.chunkPos.x && y == chunk.chunkPos.y && z == chunk.chunkPos.z) {
                     this.entityList.Remove(entity);
                     entitiesInChunk.Add(entity);
                 }
