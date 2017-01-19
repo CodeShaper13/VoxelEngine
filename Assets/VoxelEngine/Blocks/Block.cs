@@ -84,7 +84,7 @@ namespace VoxelEngine.Blocks {
             return this.name;
         }
 
-        public virtual ItemStack[] getDrops(byte meta, ItemTool brokenWith) {
+        public virtual ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
             return new ItemStack[] { new ItemStack(this.asItem(), meta) };
         }
 

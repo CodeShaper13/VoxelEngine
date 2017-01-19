@@ -237,7 +237,7 @@ namespace VoxelEngine.Level {
         //Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
         public void breakBlock(BlockPos pos, ItemTool brokenWith) {
             Block block = this.getBlock(pos);
-            foreach (ItemStack stack in block.getDrops(this.getMeta(pos), brokenWith)) {
+            foreach (ItemStack stack in block.getDrops(this, pos, this.getMeta(pos), brokenWith)) {
                 float f = 0.5f;
                 Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));
                 this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, Random.Range(0, 360), 0));

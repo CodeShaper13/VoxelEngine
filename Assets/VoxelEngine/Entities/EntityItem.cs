@@ -1,5 +1,4 @@
-﻿using System;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Render;
@@ -21,14 +20,19 @@ namespace VoxelEngine.Entities {
         }
 
         public void initRendering() {
-            IRenderItem r = this.stack.item.itemRenderer;
-            MeshData meshData = r.renderItem(this.stack);
-            this.filter.mesh.Clear();
-            this.filter.mesh.vertices = meshData.vertices.ToArray();
-            this.filter.mesh.triangles = meshData.triangles.ToArray();
-            this.filter.mesh.uv = meshData.uv.ToArray();
-            this.filter.mesh.RecalculateNormals();
-            this.GetComponent<MeshRenderer>().material = Main.getMaterial(this.stack.item.id);
+            if(this.stack != null) {
+                IRenderItem r = this.stack.item.itemRenderer;
+                MeshData meshData = r.renderItem(this.stack);
+                this.filter.mesh.Clear();
+                this.filter.mesh.vertices = meshData.vertices.ToArray();
+                this.filter.mesh.triangles = meshData.triangles.ToArray();
+                this.filter.mesh.uv = meshData.uv.ToArray();
+                this.filter.mesh.RecalculateNormals();
+                this.GetComponent<MeshRenderer>().material = Main.getMaterial(this.stack.item.id);
+            } else {
+                Debug.LogWarning("Items may not have a stack of null!  Killing Entity");
+                this.world.killEntity(this);
+            }
         }
 
         public override void onEntityUpdate() {
