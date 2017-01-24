@@ -9,7 +9,7 @@ namespace VoxelEngine.Blocks {
         private Item droppedItem;
         private int textureY;
 
-        public BlockOre(Item drop, int textureY) : base() {
+        public BlockOre(int id, Item drop, int textureY) : base(id) {
             this.droppedItem = drop;
             this.textureY = textureY;
         }

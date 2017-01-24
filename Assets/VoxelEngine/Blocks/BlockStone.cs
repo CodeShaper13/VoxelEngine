@@ -7,9 +7,7 @@ namespace VoxelEngine.Blocks {
 
     public class BlockStone : Block {
 
-        public BlockStone() : base() {
-
-        }
+        public BlockStone(int id) : base(id) { }
 
         public override TexturePos getTexturePos(Direction direction, byte meta) {
             return new TexturePos(meta, 4);

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Entities;
-using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
@@ -27,10 +25,6 @@ namespace VoxelEngine {
         public GuiScreen pauseScreen;
         public GuiScreen waitingScreen;
         public GuiScreen currentGui;
-
-        public Material blockMaterial;
-        public Material itemMaterial;
-        public GameObject worldPrefab;
 
         public float averageChunkBakeTime;
 
@@ -56,9 +50,12 @@ namespace VoxelEngine {
             //    UnityEngine.Random.Range(0, 100);
             //}
             //print("Random U" + s.Elapsed);
+        }
 
+        public void Start() {
             //Debug instant world generation
-            //this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
+            this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
+
         }
 
         public void Update() {
@@ -148,7 +145,7 @@ namespace VoxelEngine {
         public void generateWorld(WorldData data) {
             //this.openGuiScreen(this.waitingScreen);
             //this.data = data;
-            this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
+            this.worldObj = GameObject.Instantiate(References.list.worldPrefab).GetComponent<World>();
             this.worldObj.initWorld(data);
 
             this.currentGui.setActive(false);
@@ -163,10 +160,6 @@ namespace VoxelEngine {
         //    this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
         //    Main.setMouseLock(true);
         //}
-
-        public static Material getMaterial(int id) {
-            return id < 256 ? Main.singleton.blockMaterial : Main.singleton.itemMaterial;
-        }
 
         public static void setMouseLock(bool flag) {
             Cursor.visible = !flag;

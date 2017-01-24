@@ -7,7 +7,7 @@ namespace VoxelEngine.Blocks {
     public class BlockMushroom : Block {
         private int textureY;
 
-        public BlockMushroom(int textureY) : base() {
+        public BlockMushroom(int id, int textureY) : base(id) {
             this.textureY = textureY;
         }
 

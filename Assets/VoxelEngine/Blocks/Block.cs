@@ -12,36 +12,36 @@ namespace VoxelEngine.Blocks {
         public static BlockModel MODEL_DEFAULT = new BlockModelCube();
         public static BlockModel MODEL_CROSS = new BlockModelCross();
 
-        public static Block air = new BlockAir().setName("Air").setSolid(false).setReplaceable(true);
-        public static Block stone = new BlockStone().setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
-        public static Block dirt = new Block().setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
-        public static Block gravel = new Block().setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
+        public static Block air = new Block(0).setName("Air").setSolid(false).setReplaceable(true);
+        public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
+        public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
+        public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
+        public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable(true);//.setSolid(false);
+        public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
+        public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
+        public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
+        public static Block goldOre = new BlockOre(8, Item.goldBar, 8).setName("Gold Ore").setMineTime(0).setType(Type.STONE);
+        public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
+        public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
+        public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
+        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block mossyBrick = new Block(16).setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
+        public static Block cable = new Block(17).setName("Cable");
+        public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
+        public static Block chest = new BlockChest(19).setName("Chest");
         public static Block moss;
         public static Block root;
         public static Block flower;
-        public static Block lava = new BlockLava().setName("Lava").setTexture(0, 12).setReplaceable(true);//.setSolid(false);
-        public static Block coalOre = new BlockOre(Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
-        public static Block bronzeOre = new BlockOre(Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
-        public static Block ironOre = new BlockOre(Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
-        public static Block goldOre = new BlockOre(Item.goldBar, 8).setName("Gold Ore").setMineTime(0).setType(Type.STONE);
-        public static Block rubyOre = new BlockOre(Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
-        public static Block uraniumOre = new BlockOre(Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
-        public static Block glorb = new BlockGlorb().setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
         public static Block lanturn;
-        public static Block mushroom = new BlockMushroom(4).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block mushroom2 = new BlockMushroom(5).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block healingMushroom = new BlockMushroom(6).setName("Healshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block poisonMushroom = new BlockMushroom(7).setName("Deathshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
         public static Block torch; //Burned out varient too with meta difference
         public static Block rail;
         public static Block door;
-        public static Block mossyBrick = new Block().setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
-        public static Block cable = new Block().setName("Cable");
-        public static Block ironGrate = new Block().setName("Iron Grate").setType(Type.STONE);
-        public static Block chest = new BlockChest().setName("Chest");
 
-        public static Block grass = new BlockGrass().setName("grass").setMineTime(0.15f);
-        public static Block wood = new BlockWood().setName("log");
+        public static Block grass = new BlockGrass(100).setName("grass").setMineTime(0.15f);
+        public static Block wood = new BlockWood(101).setName("log");
 
         //Fields:
         public byte id = 0;
@@ -53,7 +53,8 @@ namespace VoxelEngine.Blocks {
         public Type blockType;
         public BlockModel model;
 
-        public Block() {
+        public Block(int id) {
+            //TODO
             this.id = Block.NEXT_ID++;
             Block.BLOCK_LIST[this.id] = this;
             this.model = Block.MODEL_DEFAULT;
@@ -64,21 +65,17 @@ namespace VoxelEngine.Blocks {
             //TODO do we need to return a bool if the block changed, to make more chunks dirty?
         }
 
-        public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) {
-        }
+        //Used by lova to update after x seconds
+        public virtual void onTick(World world, BlockPos pos) {}
 
-        public virtual void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
+        public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) { }
 
-        }
+        public virtual void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) { }
 
-        public virtual void onPlace(World world, BlockPos pos, byte meta) {
-
-        }
+        public virtual void onPlace(World world, BlockPos pos, byte meta) { }
 
         //Called when the block is removed from World.setBlock()
-        public virtual void onDestroy(World world, BlockPos pos, byte meta) {
-
-        }
+        public virtual void onDestroy(World world, BlockPos pos, byte meta) {}
 
         public virtual string getName(byte meta) {
             return this.name;

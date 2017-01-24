@@ -20,7 +20,7 @@ namespace VoxelEngine.Entities {
             filter.mesh.triangles = meshData.triangles.ToArray();
             filter.mesh.uv = meshData.uv.ToArray();
             filter.mesh.RecalculateNormals();
-            this.GetComponent<MeshRenderer>().material = Main.singleton.itemMaterial;
+            this.GetComponent<MeshRenderer>().material = References.list.itemMaterial;
         }
 
         public override byte getEntityId() {

@@ -28,7 +28,7 @@ namespace VoxelEngine.Entities {
                 this.filter.mesh.triangles = meshData.triangles.ToArray();
                 this.filter.mesh.uv = meshData.uv.ToArray();
                 this.filter.mesh.RecalculateNormals();
-                this.GetComponent<MeshRenderer>().material = Main.getMaterial(this.stack.item.id);
+                this.GetComponent<MeshRenderer>().material = References.getMaterial(this.stack.item.id, false);
             } else {
                 Debug.LogWarning("Items may not have a stack of null!  Killing Entity");
                 this.world.killEntity(this);

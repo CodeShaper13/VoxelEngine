@@ -1,10 +1,11 @@
-﻿
-using VoxelEngine.Level;
+﻿using VoxelEngine.Level;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
     public class BlockGrass : Block {
+
+        public BlockGrass(int id) : base(id) {}
 
         public override void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) {
             //int i = (tickSeed) & 0x03;

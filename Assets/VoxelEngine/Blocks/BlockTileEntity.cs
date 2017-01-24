@@ -1,11 +1,12 @@
-﻿using UnityEngine;
-using VoxelEngine.Level;
+﻿using VoxelEngine.Level;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
     public abstract class BlockTileEntity : Block {
+
+        public BlockTileEntity(int id) : base(id) { }
 
         public override void onPlace(World world, BlockPos pos, byte meta) {
             world.addTileEntity(pos, this.getAssociatedTileEntity(world, pos.x, pos.y, pos.z, meta));

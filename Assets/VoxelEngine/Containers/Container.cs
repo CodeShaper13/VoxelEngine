@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using VoxelEngine.Blocks;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
 using VoxelEngine.Render.Items;
@@ -52,7 +53,7 @@ namespace VoxelEngine.Containers {
 
         private void renderStack(ItemStack stack, Vector3 pos) {
             IRenderItem render = stack.item.itemRenderer;
-            Material m = Main.getMaterial(stack.item.id);
+            Material m = References.getMaterial(stack.item.id, true);
             Graphics.DrawMesh(render.renderItem(stack).toMesh(), render.getMatrix(pos), m, 8, null, 0, null, false, false);
         }
 

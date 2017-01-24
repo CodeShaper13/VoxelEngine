@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
@@ -10,6 +9,8 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Blocks {
 
     public class BlockChest : BlockTileEntity {
+
+        public BlockChest(int id) : base(id) { }
 
         public override void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
             player.openContainer(References.list.containerChest, ((TileEntityChest)world.getTileEntity(pos)).chestData);

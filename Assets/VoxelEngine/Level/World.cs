@@ -32,7 +32,10 @@ namespace VoxelEngine.Level {
             this.worldData = data;
 
             this.saveHelper = new SaveHelper(this.worldData);
-            this.saveHelper.writeWorldData(this.worldData); //Save it right away, so we dont have a folder with chunks that are unrecognized
+            if(!this.worldData.dontWriteToDisk) {
+                this.saveHelper.writeWorldData(this.worldData); //Save it right away, so we dont have a folder with chunks that are unrecognized
+            }
+
             this.generator = WorldType.getFromId(this.worldData.worldType).getGenerator(this, this.worldData.seed);
 
             this.chunkWrapper = this.createWrapper("CHUNKS");

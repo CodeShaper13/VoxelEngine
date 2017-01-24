@@ -6,13 +6,21 @@ namespace VoxelEngine.Util {
 
     [Serializable]
     public struct BlockPos {
+        /// <summary> Short for 0, 0, 0 </summary>
         public static BlockPos zero = new BlockPos(0, 0, 0);
+        /// <summary> Short for 1, 1, 1 </summary>
         public static BlockPos one = new BlockPos(1, 1, 1);
+        /// <summary> Short for 0, 0, 1 </summary>
         public static BlockPos north = new BlockPos(0, 0, 1);
+        /// <summary> Short for 1, 0, 0 </summary>
         public static BlockPos east = new BlockPos(1, 0, 0);
+        /// <summary> Short for 0, 0, -1 </summary>
         public static BlockPos south = new BlockPos(0, 0, -1);
+        /// <summary> Short for -1, 0, 0 </summary>
         public static BlockPos west = new BlockPos(-1, 0, 0);
+        /// <summary> Short for 0, 1, 0 </summary>
         public static BlockPos up = new BlockPos(0, 1, 0);
+        /// <summary> Short for 0, -1, 0 </summary>
         public static BlockPos down = new BlockPos(0, -1, 0);
 
         public int x;
