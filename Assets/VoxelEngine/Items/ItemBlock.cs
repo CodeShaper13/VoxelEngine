@@ -12,7 +12,7 @@ namespace VoxelEngine.Items {
 
         public Block block;
 
-        public ItemBlock(Block block) {
+        public ItemBlock(Block block) : base(block.id) {
             this.block = block;
             this.id = block.id;
             this.setName(block.name);

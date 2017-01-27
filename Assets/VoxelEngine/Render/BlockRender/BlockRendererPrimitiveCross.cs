@@ -2,9 +2,9 @@
 using VoxelEngine.Blocks;
 using VoxelEngine.Util;
 
-namespace VoxelEngine.Render.Blocks {
+namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockModelCross : BlockModel {
+    public class BlockRendererPrimitiveCross : BlockRendererPrimitive {
 
         public override MeshData renderBlock(Block block, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace) {
             this.block = block;

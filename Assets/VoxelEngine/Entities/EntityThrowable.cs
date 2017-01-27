@@ -1,8 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
-using VoxelEngine.Render;
 using VoxelEngine.Render.Items;
 
 namespace VoxelEngine.Entities {
@@ -13,13 +11,8 @@ namespace VoxelEngine.Entities {
             base.Awake();
 
             IRenderItem r = Item.pebble.itemRenderer;
-            MeshData meshData = r.renderItem(new ItemStack(Item.pebble));
-            MeshFilter filter = this.GetComponent<MeshFilter>();
-            filter.mesh.Clear();
-            filter.mesh.vertices = meshData.vertices.ToArray();
-            filter.mesh.triangles = meshData.triangles.ToArray();
-            filter.mesh.uv = meshData.uv.ToArray();
-            filter.mesh.RecalculateNormals();
+            Mesh mesh = r.renderItem(new ItemStack(Item.pebble));
+            this.GetComponent<MeshFilter>().mesh = mesh;
             this.GetComponent<MeshRenderer>().material = References.list.itemMaterial;
         }
 

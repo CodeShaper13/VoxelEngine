@@ -5,7 +5,7 @@ namespace VoxelEngine.Render.Items {
 
     public interface IRenderItem {
 
-        MeshData renderItem(ItemStack stack);
+        Mesh renderItem(ItemStack stack);
 
         Matrix4x4 getMatrix(Vector3 pos);
     }

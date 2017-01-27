@@ -54,7 +54,7 @@ namespace VoxelEngine.Containers {
         private void renderStack(ItemStack stack, Vector3 pos) {
             IRenderItem render = stack.item.itemRenderer;
             Material m = References.getMaterial(stack.item.id, true);
-            Graphics.DrawMesh(render.renderItem(stack).toMesh(), render.getMatrix(pos), m, 8, null, 0, null, false, false);
+            Graphics.DrawMesh(render.renderItem(stack), render.getMatrix(pos), m, 8, null, 0, null, false, false);
         }
 
         public void onSlotClicked(int slotIndex) {

@@ -1,18 +1,19 @@
-﻿using VoxelEngine.Containers;
+﻿using UnityEngine;
+using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render.Blocks;
+using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
     public class Block {
-        private static byte NEXT_ID = 0;
         public static Block[] BLOCK_LIST = new Block[256];
-        public static BlockModel MODEL_DEFAULT = new BlockModelCube();
-        public static BlockModel MODEL_CROSS = new BlockModelCross();
 
-        public static Block air = new Block(0).setName("Air").setSolid(false).setReplaceable(true);
+        private static BlockRenderer RENDERER_CUBE = new BlockRendererPrimitiveCube();
+        private static BlockRenderer RENDERER_CROSS = new BlockRendererPrimitiveCross();
+
+        public static Block air = new Block(0).setName("Air").setSolid(false).setReplaceable(true).setRenderer(null);
         public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
         public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
@@ -24,10 +25,10 @@ namespace VoxelEngine.Blocks {
         public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
         public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
         public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
-        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
-        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom").setSolid(false).setMineTime(0.1f).setModel(Block.MODEL_CROSS);
+        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setSolid(false).setMineTime(0.1f);
+        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom").setSolid(false).setMineTime(0.1f);
+        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom").setSolid(false).setMineTime(0.1f);
+        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom").setSolid(false).setMineTime(0.1f);
         public static Block mossyBrick = new Block(16).setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
         public static Block cable = new Block(17).setName("Cable");
         public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
@@ -35,8 +36,8 @@ namespace VoxelEngine.Blocks {
         public static Block moss;
         public static Block root;
         public static Block flower;
-        public static Block lanturn;
-        public static Block torch; //Burned out varient too with meta difference
+        public static Block lantern = new BlockLantern(20).setName("Lanturn");//.setRenderer(new BlockRendererMesh(References.list.lanternPrefab));
+        public static Block torch = new BlockTorch(21).setName("Torch").setRenderer(null);
         public static Block rail;
         public static Block door;
 
@@ -51,13 +52,16 @@ namespace VoxelEngine.Blocks {
         public bool isSolid = true;
         public bool replaceable;
         public Type blockType;
-        public BlockModel model;
+        public BlockRenderer renderer;
 
-        public Block(int id) {
-            //TODO
-            this.id = Block.NEXT_ID++;
-            Block.BLOCK_LIST[this.id] = this;
-            this.model = Block.MODEL_DEFAULT;
+        public Block(byte id) {
+            this.id = id;
+            if (Block.BLOCK_LIST[this.id] != null) {
+                Debug.Log("ERROR!  Two blocks may not have the same id " + this.id);
+            } else {
+                Block.BLOCK_LIST[this.id] = this;
+            }
+            this.renderer = Block.RENDERER_CUBE;
         }
 
         //neighborDir points to the block that made this update happen
@@ -131,8 +135,8 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
-        public Block setModel(BlockModel model) {
-            this.model = model;
+        public Block setRenderer(BlockRenderer renderer) {
+            this.renderer = renderer;
             return this;
         }
 

@@ -8,6 +8,8 @@ namespace VoxelEngine.Items {
 
     public class ItemMagnifyingGlass : Item {
 
+        public ItemMagnifyingGlass(int id) : base(id) { }
+
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             string s = null;
             if (hit.unityRaycastHit.distance <= player.reach) {

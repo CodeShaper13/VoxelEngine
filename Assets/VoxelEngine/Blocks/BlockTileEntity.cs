@@ -6,7 +6,7 @@ namespace VoxelEngine.Blocks {
 
     public abstract class BlockTileEntity : Block {
 
-        public BlockTileEntity(int id) : base(id) { }
+        public BlockTileEntity(byte id) : base(id) { }
 
         public override void onPlace(World world, BlockPos pos, byte meta) {
             world.addTileEntity(pos, this.getAssociatedTileEntity(world, pos.x, pos.y, pos.z, meta));

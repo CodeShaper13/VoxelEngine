@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
-using VoxelEngine.Render.Blocks;
 
 namespace VoxelEngine.Render.Items {
 
@@ -9,13 +8,9 @@ namespace VoxelEngine.Render.Items {
 
         public Vector3 scale = new Vector3(0.125f, 0.125f, 0.125f);
 
-        public MeshData renderItem(ItemStack stack) {
-            MeshData meshData = new MeshData();
-
+        public Mesh renderItem(ItemStack stack) {
             Block b = Block.BLOCK_LIST[stack.item.id];
-            BlockModel model = b.model;
-            model.renderBlock(b, stack.meta, meshData, 0, 0, 0, new bool[] { true, true, true, true, true, true });
-            return model.meshData;
+            return b.renderer.renderBlock(b, stack.meta, new MeshData(), 0, 0, 0, new bool[6] { true, true, true, true, true, true }).toMesh();
         }
 
         public Matrix4x4 getMatrix(Vector3 pos) {

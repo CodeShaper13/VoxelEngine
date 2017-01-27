@@ -8,7 +8,7 @@ namespace VoxelEngine.Blocks {
 
     public class BlockGlorb : BlockTileEntity {
 
-        public BlockGlorb(int id) : base(id) { }
+        public BlockGlorb(byte id) : base(id) { }
 
         public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, byte meta) {
             return new TileEntityGlorb(world, x, y, z);

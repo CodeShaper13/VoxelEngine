@@ -4,7 +4,7 @@
 
         public float damageAmount;
 
-        public ItemSword(float damage) : base() {
+        public ItemSword(int id, float damage) : base(id) {
             this.damageAmount = damage;
         }
     }

@@ -1,8 +1,6 @@
 ﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Containers;
-using VoxelEngine.Render;
-using VoxelEngine.Render.Items;
 
 namespace VoxelEngine.Entities {
 
@@ -21,12 +19,7 @@ namespace VoxelEngine.Entities {
 
         public void initRendering() {
             if(this.stack != null) {
-                IRenderItem r = this.stack.item.itemRenderer;
-                MeshData meshData = r.renderItem(this.stack);
-                this.filter.mesh.Clear();
-                this.filter.mesh.vertices = meshData.vertices.ToArray();
-                this.filter.mesh.triangles = meshData.triangles.ToArray();
-                this.filter.mesh.uv = meshData.uv.ToArray();
+                this.filter.mesh = this.stack.item.itemRenderer.renderItem(this.stack);
                 this.filter.mesh.RecalculateNormals();
                 this.GetComponent<MeshRenderer>().material = References.getMaterial(this.stack.item.id, false);
             } else {

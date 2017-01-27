@@ -8,6 +8,8 @@ namespace VoxelEngine.Items {
 
     public class ItemThrowable : Item {
 
+        public ItemThrowable(int id) : base(id) { }
+
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             stack.count -= 1;
             if (stack.count <= 0) {

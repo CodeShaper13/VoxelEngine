@@ -19,9 +19,14 @@ namespace VoxelEngine {
         public GameObject containerCrafting;
         public GameObject containerFurnace;
 
-        public GameObject glorbLight;
+        public GameObject chestPrefab;
+        public GameObject glorbPrefab;
+        public GameObject lanternPrefab;
+        public GameObject torchPrefab;
 
-        public void Awake() {
+        public Mesh mushroomMesh;
+
+        public void initReferences() {
             References.list = this;
         }
 

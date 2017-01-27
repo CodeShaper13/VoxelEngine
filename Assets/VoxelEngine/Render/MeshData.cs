@@ -4,46 +4,53 @@ using System.Collections.Generic;
 namespace VoxelEngine.Render {
 
     public class MeshData {
-        public List<Vector3> vertices = new List<Vector3>();
-        public List<int> triangles = new List<int>();
-        public List<Vector2> uv = new List<Vector2>();
+        public List<Vector3> vertices;
+        public List<int> triangles;
+        public List<Vector2> uv;
 
-        public List<Vector3> colVertices = new List<Vector3>();
-        public List<int> colTriangles = new List<int>();
+        public List<Vector3> colVertices;
+        public List<int> colTriangles;
 
         public bool useRenderDataForCol;
 
+        public MeshData() {
+            this.vertices = new List<Vector3>();
+            this.triangles = new List<int>();
+            this.uv = new List<Vector2>();
+            this.colVertices = new List<Vector3>();
+            this.colTriangles = new List<int>();
+        }
+
         public void addQuadTriangles() {
-            triangles.Add(vertices.Count - 4);
-            triangles.Add(vertices.Count - 3);
-            triangles.Add(vertices.Count - 2);
+            this.triangles.Add(vertices.Count - 4);
+            this.triangles.Add(vertices.Count - 3);
+            this.triangles.Add(vertices.Count - 2);
 
-            triangles.Add(vertices.Count - 4);
-            triangles.Add(vertices.Count - 2);
-            triangles.Add(vertices.Count - 1);
+            this.triangles.Add(vertices.Count - 4);
+            this.triangles.Add(vertices.Count - 2);
+            this.triangles.Add(vertices.Count - 1);
 
-            if (useRenderDataForCol) {
-                colTriangles.Add(colVertices.Count - 4);
-                colTriangles.Add(colVertices.Count - 3);
-                colTriangles.Add(colVertices.Count - 2);
-                colTriangles.Add(colVertices.Count - 4);
-                colTriangles.Add(colVertices.Count - 2);
-                colTriangles.Add(colVertices.Count - 1);
+            if (this.useRenderDataForCol) {
+                this.colTriangles.Add(colVertices.Count - 4);
+                this.colTriangles.Add(colVertices.Count - 3);
+                this.colTriangles.Add(colVertices.Count - 2);
+                this.colTriangles.Add(colVertices.Count - 4);
+                this.colTriangles.Add(colVertices.Count - 2);
+                this.colTriangles.Add(colVertices.Count - 1);
             }
         }
 
         public void addVertex(Vector3 vertex) {
-            vertices.Add(vertex);
-            if (useRenderDataForCol) {
-                colVertices.Add(vertex);
+            this.vertices.Add(vertex);
+            if (this.useRenderDataForCol) {
+                this.colVertices.Add(vertex);
             }
-
         }
 
         public void addTriangle(int tri) {
-            triangles.Add(tri);
+            this.triangles.Add(tri);
             if (useRenderDataForCol) {
-                colTriangles.Add(tri - (vertices.Count - colVertices.Count));
+                this.colTriangles.Add(tri - (vertices.Count - colVertices.Count));
             }
         }
 

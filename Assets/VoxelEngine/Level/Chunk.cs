@@ -117,27 +117,25 @@ namespace VoxelEngine.Level {
                         Profiler.BeginSample("renderBlock");
 
                         b = this.getBlock(x, y, z);
-                        if(b != Block.air) {
+                        if(b.renderer != null && b.renderer.renderInWorld) {
                             meta = this.getMeta(x, y, z);
-                            meshData.useRenderDataForCol = b != Block.lava;
+                            meshData.useRenderDataForCol = (b != Block.lava);
                             for (int i = 0; i < 6; i++) {
                                 d = Direction.all[i];
                                 renderFace[i] = !this.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z).isSolid;
                             }
-                            b.model.renderBlock(b, meta, meshData, x, y, z, renderFace);
+                            b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace);
                         }
 
                         Profiler.EndSample();
                     }
                 }
             }
-            Mesh mesh = meshData.toMesh();
+            this.filter.mesh = meshData.toMesh();
             Mesh colMesh = new Mesh();
             colMesh.vertices = meshData.colVertices.ToArray();
             colMesh.triangles = meshData.colTriangles.ToArray();
             colMesh.RecalculateNormals();
-
-            this.filter.mesh = mesh;
 
             this.blockCollider.sharedMesh = colMesh;
             Profiler.EndSample();

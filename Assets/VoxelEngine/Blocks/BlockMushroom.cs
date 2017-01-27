@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VoxelEngine.Level;
+using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -7,13 +8,13 @@ namespace VoxelEngine.Blocks {
     public class BlockMushroom : Block {
         private int textureY;
 
-        public BlockMushroom(int id, int textureY) : base(id) {
+        public BlockMushroom(byte id, int textureY) : base(id) {
             this.textureY = textureY;
+            this.setRenderer(new BlockRendererMesh(References.list.mushroomMesh, new Vector3(0, -0.5f, 0), true).useRandomRot());
         }
 
         public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {
-            Debug.Log(world.getBlock(pos.move(neighborDir)).name);
-            if (!world.getBlock(pos.move(neighborDir)).isSolid) {
+            if (neighborDir == Direction.DOWN && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }

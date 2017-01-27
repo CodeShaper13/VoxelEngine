@@ -7,7 +7,7 @@ namespace VoxelEngine.Render.Items {
     public class RenderItemBillboard : IRenderItem {
         public Vector3 scale = new Vector3(0.15f, 0.15f, 0.15f);
 
-        public MeshData renderItem(ItemStack stack) {
+        public Mesh renderItem(ItemStack stack) {
             MeshData meshData = new MeshData();
 
             // Faces front, +z
@@ -26,7 +26,7 @@ namespace VoxelEngine.Render.Items {
             meshData.addQuadTriangles();
             meshData.uv.AddRange(this.setUVs(stack.item.texturePos));
 
-            return meshData;
+            return meshData.toMesh();
         }
 
         public Matrix4x4 getMatrix(Vector3 pos) {

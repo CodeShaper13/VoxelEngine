@@ -2,6 +2,6 @@
 
     public class BlockLava : Block {
 
-        public BlockLava(int id) : base(id) {}
+        public BlockLava(byte id) : base(id) {}
     }
 }

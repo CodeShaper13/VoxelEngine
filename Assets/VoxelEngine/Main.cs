@@ -29,6 +29,9 @@ namespace VoxelEngine {
         public float averageChunkBakeTime;
 
         public void Awake() {
+            //Make sure the singleton reference is set
+            this.GetComponent<References>().initReferences();
+
             Main.singleton = this;
 
             Item.initBlockItems();

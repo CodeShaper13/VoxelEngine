@@ -3,7 +3,7 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Render;
-using VoxelEngine.Render.Blocks;
+using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities.Player {
@@ -26,9 +26,12 @@ namespace VoxelEngine.Entities.Player {
         public void beginBreak(Vector3 pos, Block block, byte meta) {
             this.meshRenderer.enabled = true;
             MeshData meshData = new MeshData();
-            BlockModel model = block.model;
-            model.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true });
-            this.meshFilter.mesh = model.meshData.toMesh();
+
+            BlockRenderer renderer = block.renderer;
+            if(renderer != null && renderer.renderInWorld) {
+                this.meshFilter.mesh = renderer.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true }).toMesh();
+            }
+
             this.transform.position = pos;
 
             //set the right texture
