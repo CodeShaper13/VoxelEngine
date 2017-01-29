@@ -11,6 +11,7 @@ using VoxelEngine.Util;
 using UnityStandardAssets.Characters.FirstPerson;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Generation;
+using VoxelEngine.TileEntity;
 
 namespace VoxelEngine.Entities {
 
@@ -22,6 +23,8 @@ namespace VoxelEngine.Entities {
         private BreakBlockEffect blockBreakEffect;
         public Transform mainCamera;
         public Container containerElement;
+        private LightFlicker lightObj;
+        private ItemStack lastHeldItem;
 
         public float reach = 3.5f;
         public float magnifyingTimer;
@@ -40,6 +43,7 @@ namespace VoxelEngine.Entities {
 
             this.mainCamera = Camera.main.transform;
             this.fpc = this.GetComponent<FirstPersonController>();
+            this.lightObj = this.GetComponent<LightFlicker>();
 
             this.dataHotbar = new ContainerDataHotbar();
             this.dataInventory = new ContainerData(2, 2);
@@ -68,9 +72,11 @@ namespace VoxelEngine.Entities {
         public override void onEntityUpdate() {
             base.onEntityUpdate();
 
-            if(this.chunkLoader != null) {
+            if(this.chunkLoader != null) { //Why is there a safety check?
                 this.chunkLoader.updateChunkLoader();
             }
+
+            ItemStack heldStack = this.dataHotbar.getHeldItem();
 
             if (this.containerElement == null) {
                 PlayerRayHit playerHit = this.getPlayerRayHit();
@@ -86,10 +92,9 @@ namespace VoxelEngine.Entities {
                     }
                     else if (playerHit.entity != null && playerHit.unityRaycastHit.distance <= this.reach) {
                         if (Input.GetMouseButtonDown(0)) {
-                            ItemStack stack = this.dataHotbar.getHeldItem();
                             float damage = 1;
-                            if (stack != null && stack.item is ItemSword) {
-                                damage = ((ItemSword)stack.item).damageAmount;
+                            if (heldStack != null && heldStack.item is ItemSword) {
+                                damage = ((ItemSword)heldStack.item).damageAmount;
                             }
                             playerHit.entity.onEntityHit(this, damage);
                         }
@@ -101,9 +106,8 @@ namespace VoxelEngine.Entities {
 
                 //Right click
                 if (Input.GetMouseButtonDown(1)) {
-                    ItemStack stack = this.dataHotbar.getHeldItem();
-                    if (stack != null) {
-                        this.dataHotbar.setHeldItem(stack.item.onRightClick(this.world, this, stack, playerHit));
+                    if (playerHit != null && heldStack != null) {
+                        this.dataHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
                     }
                 }
             }
@@ -115,13 +119,36 @@ namespace VoxelEngine.Entities {
             if (this.magnifyingTimer <= 0) {
                 this.magnifyingText.color = Color.Lerp(this.magnifyingText.color, Color.clear, 3 * Time.deltaTime);
             }
+
+            //TODO this can be optimised, when held is null it is called every frame
+            if (this.lastHeldItem == null || (this.lastHeldItem != null && heldStack != null && !this.lastHeldItem.equals(heldStack))) {
+                bool isHoldingLight = false;
+                if (heldStack != null && heldStack.item is ItemBlock) {
+                    Block b = ((ItemBlock)heldStack.item).block;
+                    if (b == Block.lantern) {
+                        this.copyLightData(References.list.lanternPrefab);
+                        isHoldingLight = true;
+                    }
+                    else if (b == Block.torch) {
+                        this.copyLightData(References.list.lanternPrefab);
+                        isHoldingLight = true;
+                    }
+                }
+                this.lightObj.enabled = isHoldingLight;
+                this.lightObj.lightObj.enabled = isHoldingLight;
+            }
+            this.lastHeldItem = heldStack;
         }
 
         public override void onEntityCollision(Entity otherEntity) {
             if (otherEntity is EntityItem) {
-                ItemStack s = this.dataHotbar.addItemStack(((EntityItem)otherEntity).stack);
-                if (s == null) {
-                    this.world.killEntity(otherEntity);
+                EntityItem entityItem = (EntityItem)otherEntity;
+                if(entityItem.pickupDelay <= 0) {
+                    ItemStack stack = this.dataHotbar.addItemStack(entityItem.stack);
+                    //If we were able to pick up the entire contents of the stack, kill the entity
+                    if (stack == null) {
+                        this.world.killEntity(otherEntity);
+                    }
                 }
             }
         }
@@ -136,13 +163,13 @@ namespace VoxelEngine.Entities {
 
         public void loadStartingInventory() {
             this.dataHotbar.addItemStack(new ItemStack(Block.chest));
-            this.dataHotbar.addItemStack(new ItemStack(Block.glorb, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.lava, 4));
+            this.dataHotbar.addItemStack(new ItemStack(Block.lantern, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.torch, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.goldSword));
-            this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
-            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0));
-            this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 3));
+            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0));
 
             this.setHealth(10);
@@ -162,7 +189,7 @@ namespace VoxelEngine.Entities {
             this.posLookingAt = p;
 
             if (hit.transform != null) {
-                if (hit.transform.tag == "Chunk") {
+                if (hit.transform.tag == "Chunk" || hit.transform.tag == "Block") {
                     return new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
                 }
                 else if (hit.transform.tag == "Entity") {
@@ -188,6 +215,16 @@ namespace VoxelEngine.Entities {
             }
         }
 
+        private void copyLightData(GameObject obj) {
+            LightFlicker l = obj.GetComponent<LightFlicker>();
+            this.lightObj.minIntensity = l.minIntensity;
+            this.lightObj.maxIntensity = l.maxIntensity;
+            this.lightObj.flickerSpeed = l.flickerSpeed;
+            this.lightObj.lightObj.range = l.lightObj.range;
+            this.lightObj.lightObj.color = l.lightObj.color;
+            this.lightObj.lightObj.intensity = l.lightObj.intensity;
+        }
+
         //Opens and initiates a container
         public void openContainer(GameObject containerObj, ContainerData containerData) {
             this.fpc.allowInput = false;
@@ -209,7 +246,8 @@ namespace VoxelEngine.Entities {
         }
 
         private void dropItem(ItemStack stack) {
-            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
+            //TODO make items not collide with the player
+            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward / 5, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
         }
 
         public void cleanupObject() {

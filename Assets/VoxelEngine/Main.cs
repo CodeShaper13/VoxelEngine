@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,30 +36,11 @@ namespace VoxelEngine {
             Main.singleton = this;
 
             Item.initBlockItems();
-
-
-            //System.Random r = new System.Random();
-            //Stopwatch s1 = new Stopwatch();
-            //s1.Start();
-            //for (int i = 0; i < 100; i++) {
-            //    int j = i;
-            //    r.Next(0, 100);
-            //}
-            //print("Random S" + s1.Elapsed);
-
-            //Stopwatch s = new Stopwatch();
-            //s.Start();
-            //for(int i = 0; i < 100; i++) {
-            //    int j = i;
-            //    UnityEngine.Random.Range(0, 100);
-            //}
-            //print("Random U" + s.Elapsed);
         }
 
         public void Start() {
             //Debug instant world generation
-            this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
-
+            //this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
         }
 
         public void Update() {

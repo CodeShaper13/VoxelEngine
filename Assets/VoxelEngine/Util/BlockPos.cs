@@ -84,14 +84,18 @@ namespace VoxelEngine.Util {
         }
 
         public static BlockPos fromRaycast(RaycastHit hit, bool adjacent = false) {
-            //Debug.Log(hit.point.x + ", " +  hit.point.y + ", " + hit.point.z);
-            return BlockPos.fromVec(new Vector3(
-                BlockPos.moveWithinBlock(hit.point.x, hit.normal.x, adjacent),
-                BlockPos.moveWithinBlock(hit.point.y, hit.normal.y, adjacent),
-                BlockPos.moveWithinBlock(hit.point.z, hit.normal.z, adjacent)));
+            //Debug.Log(hit.point.x + ", " + hit.point.y + ", " + hit.point.z);
+            float f = adjacent ? 1f : -1f;
+            BlockPos pos = BlockPos.fromVec(new Vector3(
+                BlockPos.moveWithinBlock(hit.point.x + (hit.normal.x / 4) * f, hit.normal.x, adjacent),
+                BlockPos.moveWithinBlock(hit.point.y + (hit.normal.y / 4) * f, hit.normal.y, adjacent),
+                BlockPos.moveWithinBlock(hit.point.z + (hit.normal.z / 4) * f, hit.normal.z, adjacent)));
+            //Debug.Log(pos.ToString());
+            return pos;
         }
 
         private static float moveWithinBlock(float point, float normal, bool adjacent = false) {
+            //Debug.Log(point + ", " + normal + " VALUE: " + (point - (int)point));
             if ((point - (int)point) == 0.5f || (point - (int)point) == -0.5f) {
                 if (adjacent) {
                     point += (normal / 2);

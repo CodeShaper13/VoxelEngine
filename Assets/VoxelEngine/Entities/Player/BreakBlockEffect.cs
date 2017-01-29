@@ -64,14 +64,9 @@ namespace VoxelEngine.Entities.Player {
                 }
             }
             this.mineTimer += Time.deltaTime * f;
-            if (block != Block.air) { //Hacky safety check
-                if (this.mineTimer >= block.mineTime) {
-                    player.world.breakBlock(lookingAt, tool);
-                    this.mineTimer = 0.0f;
-                }
-            }
-            else {
-                //print("ERROR  We are trying to break air?");
+            if (this.mineTimer >= block.mineTime) {
+                player.world.breakBlock(lookingAt, tool);
+                this.mineTimer = 0.0f;
             }
         }
     }

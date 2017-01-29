@@ -13,7 +13,7 @@ namespace VoxelEngine.Blocks {
         private static BlockRenderer RENDERER_CUBE = new BlockRendererPrimitiveCube();
         private static BlockRenderer RENDERER_CROSS = new BlockRendererPrimitiveCross();
 
-        public static Block air = new Block(0).setName("Air").setSolid(false).setReplaceable(true).setRenderer(null);
+        public static Block air = new BlockAir(0).setName("Air").setSolid(false).setReplaceable(true).setRenderer(null);
         public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
         public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
@@ -25,10 +25,10 @@ namespace VoxelEngine.Blocks {
         public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
         public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
         public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
-        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setSolid(false).setMineTime(0.1f);
-        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom").setSolid(false).setMineTime(0.1f);
-        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom").setSolid(false).setMineTime(0.1f);
-        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom").setSolid(false).setMineTime(0.1f);
+        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom");
+        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom");
+        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom");
+        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom");
         public static Block mossyBrick = new Block(16).setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
         public static Block cable = new Block(17).setName("Cable");
         public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
@@ -36,8 +36,8 @@ namespace VoxelEngine.Blocks {
         public static Block moss;
         public static Block root;
         public static Block flower;
-        public static Block lantern = new BlockLantern(20).setName("Lanturn");//.setRenderer(new BlockRendererMesh(References.list.lanternPrefab));
-        public static Block torch = new BlockTorch(21).setName("Torch").setRenderer(null);
+        public static Block lantern = new BlockLantern(20).setName("Lanturn").setSolid(false);
+        public static Block torch = new BlockTorch(21).setName("Torch").setSolid(false);
         public static Block rail;
         public static Block door;
 

@@ -8,11 +8,15 @@ namespace VoxelEngine.Render.BlockRender {
 
         private Mesh mesh;
         private Vector3 shiftVec;
-        private bool flag;
+        private bool flag = true;
 
-        public BlockRendererMesh(Mesh mesh, Vector3 shiftVec, bool renderInWorld) : base(renderInWorld) {
-            this.mesh = mesh;
-            this.shiftVec = shiftVec;
+        public BlockRendererMesh(Mesh mesh) {
+            if(mesh == null) {
+                Debug.Log("ERROR!  Model not set in References!");
+                this.mesh = new Mesh();
+            } else {
+                this.mesh = mesh;
+            }
         }
 
         public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace) {
@@ -60,8 +64,13 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public BlockRendererMesh useRandomRot() {
-            this.flag = true;
+        public BlockRendererMesh setUseRandomRot(bool flag) {
+            this.flag = flag;
+            return this;
+        }
+
+        public BlockRendererMesh setShiftVec(Vector3 vec) {
+            this.shiftVec = vec;
             return this;
         }
     }

@@ -5,6 +5,8 @@ using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Entities;
 using VoxelEngine.Render;
+using VoxelEngine.Render.BlockRender;
+using VoxelEngine.Src.Util;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -20,6 +22,7 @@ namespace VoxelEngine.Level {
         public Block[] blocks = new Block[Chunk.BLOCK_COUNT];
         public byte[] metaData = new byte[Chunk.BLOCK_COUNT];
         public Dictionary<BlockPos, TileEntityBase> tileEntityDict; //TODO replace with a faster collection type
+        public List<ScheduledTick> scheduledTicks;
 
         public bool isModified;
         public bool isDirty;
@@ -40,6 +43,7 @@ namespace VoxelEngine.Level {
             this.blockCollider = colliders[0];
             this.triggerCollider = colliders[1];
             this.tileEntityDict = new Dictionary<BlockPos, TileEntityBase>();
+            this.scheduledTicks = new List<ScheduledTick>();
         }
 
         //Like a constructor, but since this is a GameObject it can't have one.
@@ -53,28 +57,34 @@ namespace VoxelEngine.Level {
         public void Update() {
             if (isDirty) {
                 isDirty = false;
-                Stopwatch s = new Stopwatch();
-                s.Start();
+                //Stopwatch s = new Stopwatch();
+                //s.Start();
                 this.renderChunk();
-                s.Stop();
+                //s.Stop();
 
-                Chunk.TOTAL_BAKED += 1;
-                Chunk.MIL += s.ElapsedMilliseconds;
+                //Chunk.TOTAL_BAKED += 1;
+                //Chunk.MIL += s.ElapsedMilliseconds;
             }
         }
 
         public void updateChunk() {
-            this.tickBlocks();
-        }
-
-        private void tickBlocks() {
+            int x, y, z;
             int i = Random.Range(int.MinValue, int.MaxValue);
             for (int j = 0; j < 3; j++) {
-                int x = (i >> j * 12) & 0x0F;     // 0  12
-                int y = (i >> j * 12 + 4) & 0x0F; // 4  16
-                int z = (i >> j * 12 + 8) & 0x0F; // 8  20
+                x = (i >> j * 12) & 0x0F;     // 0  12
+                y = (i >> j * 12 + 4) & 0x0F; // 4  16
+                z = (i >> j * 12 + 8) & 0x0F; // 8  20
                 this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
             }
+
+            //for(int k = this.scheduledTicks.Count - 1; k >= 0; k--) {
+            //    ScheduledTick tick = this.scheduledTicks[k];
+            //    tick.remainingTicks -= 1;
+            //    if(tick.remainingTicks <= 0) {
+            //        this.getBlock()
+            //        this.scheduledTicks.RemoveAt(k);
+            //    }
+            //}
         }
 
         public Block getBlock(int x, int y, int z) {
@@ -103,31 +113,34 @@ namespace VoxelEngine.Level {
 
         //Renders all the blocks within the chunk
         private void renderChunk() {
-            Profiler.BeginSample("renderChunk");
+            //Profiler.BeginSample("renderChunk");
             MeshData meshData = new MeshData();
 
             Block b;
             byte meta;
             bool[] renderFace = new bool[6];
             Direction d;
+            int x, y, z, i;
 
-            for (int x = 0; x < Chunk.SIZE; x++) {
-                for (int y = 0; y < Chunk.SIZE; y++) {
-                    for (int z = 0; z < Chunk.SIZE; z++) {
-                        Profiler.BeginSample("renderBlock");
+            for (x = 0; x < Chunk.SIZE; x++) {
+                for (y = 0; y < Chunk.SIZE; y++) {
+                    for (z = 0; z < Chunk.SIZE; z++) {
+                        //Profiler.BeginSample("renderBlock");
 
                         b = this.getBlock(x, y, z);
                         if(b.renderer != null && b.renderer.renderInWorld) {
                             meta = this.getMeta(x, y, z);
                             meshData.useRenderDataForCol = (b != Block.lava);
-                            for (int i = 0; i < 6; i++) {
+                            for (i = 0; i < 6; i++) {
                                 d = Direction.all[i];
                                 renderFace[i] = !this.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z).isSolid;
                             }
+                            //Profiler.BeginSample("calculatingMesh");
                             b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace);
+                            //Profiler.EndSample();
                         }
 
-                        Profiler.EndSample();
+                        //Profiler.EndSample();
                     }
                 }
             }
@@ -138,10 +151,10 @@ namespace VoxelEngine.Level {
             colMesh.RecalculateNormals();
 
             this.blockCollider.sharedMesh = colMesh;
-            Profiler.EndSample();
+            //Profiler.EndSample();
         }
 
-        public NbtCompound writeToNbt(NbtCompound tag) {
+        public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {
             tag.Add(new NbtByte("isPopulated", this.isPopulated ? (byte)1 : (byte)0));
             byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
@@ -155,6 +168,29 @@ namespace VoxelEngine.Level {
                 list.Add(te.writeToNbt(new NbtCompound()));
             }
             tag.Add(list);
+
+            Entity entity;
+            List<Entity> entitiesInChunk = new List<Entity>();
+            for (int i = this.world.entityList.Count - 1; i >= 0; i--) {
+                entity = this.world.entityList[i];
+                int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
+                int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
+                int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
+
+                if (x == this.chunkPos.x && y == this.chunkPos.y && z == this.chunkPos.z) {
+                    world.entityList.Remove(entity);
+                    entitiesInChunk.Add(entity);
+                }
+            }
+            NbtList list1 = new NbtList("entities", NbtTagType.Compound);
+            for (int i = 0; i < entitiesInChunk.Count; i++) {
+                entity = entitiesInChunk[i];
+                list1.Add(entity.writeToNbt(new NbtCompound()));
+                if (deleteEntities) {
+                    GameObject.Destroy(entity.gameObject);
+                }
+            }
+            tag.Add(list1);
 
             return tag;
         }

@@ -7,10 +7,14 @@ namespace VoxelEngine.Blocks {
 
     public class BlockStone : Block {
 
-        public BlockStone(byte id) : base(id) { }
+        public TexturePos[] texturePosArray;
+
+        public BlockStone(byte id) : base(id) {
+            this.texturePosArray = new TexturePos[] {new TexturePos(0, 4), new TexturePos(1, 4), new TexturePos(2, 4), new TexturePos(3, 4), new TexturePos(4, 4) };
+        }
 
         public override TexturePos getTexturePos(Direction direction, byte meta) {
-            return new TexturePos(meta, 4);
+            return this.texturePosArray[meta];
         }
 
         public override string getName(byte meta) {

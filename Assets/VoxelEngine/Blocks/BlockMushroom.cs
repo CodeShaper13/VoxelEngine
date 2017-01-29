@@ -10,7 +10,9 @@ namespace VoxelEngine.Blocks {
 
         public BlockMushroom(byte id, int textureY) : base(id) {
             this.textureY = textureY;
-            this.setRenderer(new BlockRendererMesh(References.list.mushroomMesh, new Vector3(0, -0.5f, 0), true).useRandomRot());
+            this.setSolid(false);
+            this.setMineTime(0.1f);
+            this.setRenderer(new BlockRendererMesh(References.list.mushroomMesh).setUseRandomRot(true).setShiftVec(new Vector3(0, -0.5f, 0)));
         }
 
         public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {

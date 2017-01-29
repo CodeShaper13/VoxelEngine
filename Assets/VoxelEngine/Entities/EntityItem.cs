@@ -6,11 +6,14 @@ namespace VoxelEngine.Entities {
 
     public class EntityItem : Entity {
         public ItemStack stack;
+        public float pickupDelay;
+
         private MeshFilter filter;
 
         public new void Awake() {
             base.Awake();
             this.filter = this.GetComponent<MeshFilter>();
+            this.pickupDelay = 1f;
         }
 
         public void Start() {
@@ -31,6 +34,7 @@ namespace VoxelEngine.Entities {
         public override void onEntityUpdate() {
             base.onEntityUpdate();
             this.transform.Rotate(0, Time.deltaTime * 25, 0);
+            this.pickupDelay -= Time.deltaTime;
         }
 
         public override string getMagnifyingText() {
@@ -44,12 +48,14 @@ namespace VoxelEngine.Entities {
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
             tag.Add(this.stack.writeToNbt());
+            tag.Add(new NbtFloat("pickupDelay", this.pickupDelay));
             return tag;
         }
 
         public override void readFromNbt(NbtCompound tag) {
             base.readFromNbt(tag);
             this.stack = new ItemStack(tag.Get<NbtCompound>("stack"));
+            this.pickupDelay = tag.Get<NbtFloat>("pickupDelay").FloatValue;
         }
     }
 }

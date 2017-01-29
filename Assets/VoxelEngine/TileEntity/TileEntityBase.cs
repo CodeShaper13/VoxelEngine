@@ -17,9 +17,10 @@ namespace VoxelEngine.TileEntity {
             this.posZ = z;
         }
 
-        public virtual void onDestruction(World world, BlockPos pos, byte meta) {
-
-        }
+        /// <summary>
+        /// Only called when the block is broken, not when it is unloaded.  Use if the TileEntity should drop it's contents, ect
+        /// </summary>
+        public virtual void onDestruction(World world, BlockPos pos, byte meta) { }
 
         public abstract int getId();
 
@@ -34,9 +35,6 @@ namespace VoxelEngine.TileEntity {
         public virtual void readFromNbt(NbtCompound tag) {
             // It's not needed to read the position, as the constructor will always set them.
             // This methods is still called and is marked as virtual in case another TileEntity needs to read data
-            //this.posX = tag.Get<NbtInt>("x").IntValue;
-            //this.posY = tag.Get<NbtInt>("y").IntValue;
-            //this.posZ = tag.Get<NbtInt>("z").IntValue;
         }
 
         public static TileEntityBase getTileEntityFromId(World world, BlockPos pos, NbtCompound tag) {

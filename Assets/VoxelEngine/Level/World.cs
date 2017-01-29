@@ -91,11 +91,8 @@ namespace VoxelEngine.Level {
                 //no player file was found
                 gameObject.transform.position = this.generator.getSpawnPoint();
                 gameObject.transform.rotation = Quaternion.identity;
-
                 player.loadStartingInventory();
             }
-            gameObject.transform.parent = this.entityWrapper;
-
             return player;
         }
 
@@ -129,6 +126,14 @@ namespace VoxelEngine.Level {
 
         public void unloadChunk(Chunk chunk) {
             this.saveChunk(chunk, true);
+
+            //Destroy the TileEntity gameObjects within the chunk.
+            foreach(TileEntityBase te in chunk.tileEntityDict.Values) {
+                if(te is TileEntityGameObject) {
+                    GameObject.Destroy(((TileEntityGameObject)te).gameObject);
+                }
+            }
+
             GameObject.Destroy(chunk.gameObject);
             this.loadedChunks.Remove(chunk.chunkPos);
         }
@@ -237,6 +242,10 @@ namespace VoxelEngine.Level {
             this.getChunk(pos).tileEntityDict.Remove(pos);
         }
 
+        public void tickBlock(BlockPos pos, int time) {
+
+        }
+
         //Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
         public void breakBlock(BlockPos pos, ItemTool brokenWith) {
             Block block = this.getBlock(pos);
@@ -257,32 +266,9 @@ namespace VoxelEngine.Level {
             }
         }
 
-        private void saveChunk(Chunk chunk, bool despawnEntites) {
+        private void saveChunk(Chunk chunk, bool deleteEntities) {
             NbtCompound tag = new NbtCompound("chunk");
-            chunk.writeToNbt(tag);
-
-            Entity entity;
-            List<Entity> entitiesInChunk = new List<Entity>();
-            for (int i = this.entityList.Count - 1; i >= 0; i--) {
-                entity = this.entityList[i];
-                int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
-                int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
-                int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
-
-                if (x == chunk.chunkPos.x && y == chunk.chunkPos.y && z == chunk.chunkPos.z) {
-                    this.entityList.Remove(entity);
-                    entitiesInChunk.Add(entity);
-                }
-            }
-            NbtList list = new NbtList("entities", NbtTagType.Compound);
-            for (int i = 0; i < entitiesInChunk.Count; i++) {
-                entity = entitiesInChunk[i];
-                list.Add(entity.writeToNbt(new NbtCompound()));
-                if(despawnEntites) {
-                    GameObject.Destroy(entity.gameObject);
-                }
-            }
-            tag.Add(list);
+            chunk.writeToNbt(tag, deleteEntities);
 
             //if (chunk.isModified) {
             this.saveHelper.writeChunkToDisk(chunk, tag);
