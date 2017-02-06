@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
@@ -33,16 +34,20 @@ namespace VoxelEngine.Blocks {
         public static Block cable = new Block(17).setName("Cable");
         public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
         public static Block chest = new BlockChest(19).setName("Chest");
+        public static Block lantern = new BlockLantern(20).setName("Lanturn").setSolid(false);
+        public static Block torch = new BlockTorch(21).setName("Torch").setSolid(false);
+        public static Block ladder = new Block(22).setName("Ladder");
+        public static Block rail = new Block(32).setName("rail").setSolid(false);
         public static Block moss;
         public static Block root;
         public static Block flower;
-        public static Block lantern = new BlockLantern(20).setName("Lanturn").setSolid(false);
-        public static Block torch = new BlockTorch(21).setName("Torch").setSolid(false);
-        public static Block rail;
         public static Block door;
 
         public static Block grass = new BlockGrass(100).setName("grass").setMineTime(0.15f);
         public static Block wood = new BlockWood(101).setName("log");
+
+        [Obsolete("Remember to update the placeholder with the correct block")]
+        public static Block placeholder = new Block(255).setName("PLACEHOLDER");
 
         //Fields:
         public byte id = 0;

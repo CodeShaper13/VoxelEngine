@@ -36,6 +36,7 @@ namespace VoxelEngine.Level {
 
         public BlockPos pos;
         public ChunkPos chunkPos;
+        public Bounds chunkBounds;
 
         public void Awake() {
             this.filter = this.GetComponent<MeshFilter>();
@@ -52,9 +53,12 @@ namespace VoxelEngine.Level {
             this.pos = pos.toBlockPos();
             this.chunkPos = pos;
             this.gameObject.name = "Chunk" + this.chunkPos;
+            this.chunkBounds = new Bounds(new Vector3(this.pos.x + 8, this.pos.y + 8, this.pos.z + 8), new Vector3(16, 16, 16));
         }
 
         public void Update() {
+            //DebugDrawer.bounds(this.chunkBounds, Color.white);
+
             if (isDirty) {
                 isDirty = false;
                 //Stopwatch s = new Stopwatch();

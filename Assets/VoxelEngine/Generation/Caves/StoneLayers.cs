@@ -1,17 +1,19 @@
 ﻿using fNbt;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace VoxelEngine.Level {
+namespace VoxelEngine.Generation.Caves {
 
     public class StoneLayers {
 
-        public byte zeroMeta;
-        public List<byte> positiveMeta;
-        public List<byte> negativeMeta;
+        private Random rnd;
+        private byte zeroMeta;
+        private List<byte> positiveMeta;
+        private List<byte> negativeMeta;
 
-        public StoneLayers() {
-            this.zeroMeta = 0; // this.getStoneLayer(255);
+        public StoneLayers(int seed) {
+            this.rnd = new Random(seed);
+            this.zeroMeta = this.getNewLayer(255);
             this.positiveMeta = new List<byte>() { 1, 2, 3, 4 };
             this.negativeMeta = new List<byte>() { 1, 2, 3, 4 };
         }
@@ -51,19 +53,19 @@ namespace VoxelEngine.Level {
 
         private List<byte> expandTo(List<byte> list, int targetSize) {
             while(list.Count < targetSize + 1) {
-                list.Add(this.getStoneLayer(list.Count == 0 ? this.zeroMeta : list[list.Count - 1]));
+                list.Add(this.getNewLayer(list.Count == 0 ? this.zeroMeta : list[list.Count - 1]));
             }
             return list;
         }
 
-        private byte getStoneLayer(byte previousByte) {
+        private byte getNewLayer(byte previousByte) {
             for(int i = 0; i < 100; i++) { //Try to get a different value than the previous up to 100 times
-                byte b = (byte)Random.Range(0, 5);
+                byte b = (byte)this.rnd.Next(0, 5);
                 if(b != previousByte) {
                     return b;
                 }
             }
-            return (byte)Random.Range(0, 5);
+            return (byte)this.rnd.Next(0, 5);
         }
     }
 }

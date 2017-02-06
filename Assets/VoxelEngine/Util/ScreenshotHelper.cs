@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VoxelEngine.Util {
 
-    public class ScreenshotHelper {
+    public static class ScreenshotHelper {
 
         private static string screenshotDirectoryName = "screenshots/";
 

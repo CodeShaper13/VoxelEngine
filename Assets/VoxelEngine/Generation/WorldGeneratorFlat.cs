@@ -6,7 +6,7 @@ namespace VoxelEngine.Generation {
 
     public class WorldGeneratorFlat : WorldGeneratorBase {
 
-        public WorldGeneratorFlat(World world, long seed) : base(world, seed) {}
+        public WorldGeneratorFlat(World world, int seed) : base(world, seed) {}
 
         public override Vector3 getSpawnPoint() {
             return new Vector3(0, 21, 0);

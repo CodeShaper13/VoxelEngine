@@ -75,6 +75,26 @@ namespace VoxelEngine.Util {
             return new BlockPos(b.x / i, b.y / i, b.z / i);
         }
 
+        /// <summary>
+        /// Adds 1 to all of the axes that are not 0
+        /// </summary>
+        public static BlockPos operator ++(BlockPos p) {
+            return new BlockPos(
+                p.x + (p.x != 0 ? 1 : 0),
+                p.y + (p.y != 0 ? 1 : 0),
+                p.z + (p.z != 0 ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Subtracts 1 from all of the axes that are not 0
+        /// </summary>
+        public static BlockPos operator --(BlockPos p) {
+            return new BlockPos(
+                p.x - (p.x != 0 ? 1 : 0),
+                p.y - (p.y != 0 ? 1 : 0),
+                p.z - (p.z != 0 ? 1 : 0));
+        }
+
         public Vector3 toVector() {
             return new Vector3(this.x, this.y, this.z);
         }

@@ -21,7 +21,7 @@ namespace VoxelEngine.Generation {
         float treeFrequency = 0.2f;
         int treeDensity = 3;
 
-        public WorldGeneratorHills(World world, long seed) : base(world, seed) {
+        public WorldGeneratorHills(World world, int seed) : base(world, seed) {
 
         }
 

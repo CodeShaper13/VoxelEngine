@@ -9,7 +9,7 @@ namespace VoxelEngine.Generation.CellularAutomaton {
         public GeneratorOptions options;
         private CaveGenerator caveGenerator;
 
-        public WorldGeneratorCellularAutomaton(World world, long seed) : base(world, seed) {
+        public WorldGeneratorCellularAutomaton(World world, int seed) : base(world, seed) {
             this.options = GeneratorOptions.DEFAULT_OPTIONS;
 
             this.caveGenerator = new CaveGenerator();

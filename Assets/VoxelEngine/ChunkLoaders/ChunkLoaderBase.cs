@@ -10,6 +10,10 @@ using VoxelEngine.Entities;
 namespace VoxelEngine.ChunkLoaders {
 
     public class ChunkLoaderBase {
+        public const int LOCKED_Y = 0;
+        public const int INFINITE = 1;
+        public const int REGION_DEBUG = 2;
+
         protected World world;
         protected EntityPlayer player;
         protected int maxBuildPerLoop = 1;

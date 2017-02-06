@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using VoxelEngine.Util;
-using VoxelEngine.Level.Save;
 using VoxelEngine.Generation;
 using VoxelEngine.Entities;
 using VoxelEngine.Containers;
@@ -9,20 +8,23 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using fNbt;
 using VoxelEngine.TileEntity;
+using VoxelEngine.Generation.Caves;
 
 namespace VoxelEngine.Level {
 
     public class World : MonoBehaviour {
+
         public Dictionary<ChunkPos, Chunk> loadedChunks;
         public WorldGeneratorBase generator;
         public WorldData worldData;
-        public SaveHelper saveHelper;
+        public NbtIOHelper nbtIOHelper;
         public List<Entity> entityList;
 
         public GameObject chunkPrefab;
 
         private Transform chunkWrapper;
         private Transform entityWrapper;
+        public Transform tileEntityWrapper;
 
         //Acts like a constructor.
         public void initWorld(WorldData data) {
@@ -31,17 +33,29 @@ namespace VoxelEngine.Level {
 
             this.worldData = data;
 
-            this.saveHelper = new SaveHelper(this.worldData);
+            this.nbtIOHelper = new NbtIOHelper(this.worldData);
             if(!this.worldData.dontWriteToDisk) {
-                this.saveHelper.writeWorldData(this.worldData); //Save it right away, so we dont have a folder with chunks that are unrecognized
+                this.nbtIOHelper.writeWorldDataToDisk(this.worldData); //Save it right away, so we dont have a folder with chunks that are unrecognized
             }
 
             this.generator = WorldType.getFromId(this.worldData.worldType).getGenerator(this, this.worldData.seed);
+            if(!this.nbtIOHelper.readGenerationData(this.generator)) {
+                if(this.generator.generateLevelData()) {
+                    this.nbtIOHelper.writeGenerationData(this.generator);
+                }
+            }
 
             this.chunkWrapper = this.createWrapper("CHUNKS");
             this.entityWrapper = this.createWrapper("ENTITIES");
+            this.tileEntityWrapper = this.createWrapper("TILE_ENTITIES");
 
             //Main.singleton.onWorldLoadFinish();
+        }
+
+        public void Update() {
+            if(this.generator is WorldGeneratorCaves) {
+                ((WorldGeneratorCaves)this.generator).debugDisplay();
+            }
         }
 
         public void runWorldUpdate() {
@@ -85,9 +99,10 @@ namespace VoxelEngine.Level {
 
         public EntityPlayer spawnPlayer(GameObject prefab) {
             GameObject gameObject = GameObject.Instantiate(prefab);
+            gameObject.name = "Player";
             EntityPlayer player = gameObject.GetComponent<EntityPlayer>();
             player.world = this;
-            if(!this.saveHelper.readPlayer(player)) {
+            if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
                 //no player file was found
                 gameObject.transform.position = this.generator.getSpawnPoint();
                 gameObject.transform.rotation = Quaternion.identity;
@@ -117,7 +132,7 @@ namespace VoxelEngine.Level {
 
             this.loadedChunks.Add(pos, chunk);
 
-            if (!this.saveHelper.readChunk(chunk)) {
+            if (!this.nbtIOHelper.readChunk(chunk)) {
                 this.generator.generateChunk(chunk);
                 chunk.isModified = true;
             }
@@ -271,17 +286,17 @@ namespace VoxelEngine.Level {
             chunk.writeToNbt(tag, deleteEntities);
 
             //if (chunk.isModified) {
-            this.saveHelper.writeChunkToDisk(chunk, tag);
+            this.nbtIOHelper.writeChunkToDisk(chunk, tag);
             //}
             //chunk.isModified = false;
         }
 
         public void saveEntireWorld(bool despawnEntities) {
             //http://answers.unity3d.com/questions/850451/capturescreenshot-without-ui.html To hide UI
-            ScreenshotHelper.captureScreenshot(this.saveHelper.saveFolderName + "/worldImage.png");
+            this.nbtIOHelper.writeWorldImageToDisk();
 
-            this.saveHelper.writeWorldData(this.worldData);
-            this.saveHelper.writePlayer(Main.singleton.player);
+            this.nbtIOHelper.writeWorldDataToDisk(this.worldData);
+            this.nbtIOHelper.writePlayerToDisk(Main.singleton.player);
 
             foreach (Chunk chunk in this.loadedChunks.Values) {
                 this.saveChunk(chunk, despawnEntities);

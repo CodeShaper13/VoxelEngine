@@ -11,12 +11,10 @@ namespace VoxelEngine.Level {
         public float spawnZ;
         public int worldType;
         public DateTime lastLoaded;
-        public StoneLayers stoneLayers;
         public bool dontWriteToDisk;
 
         public WorldData(string worldName) {
             this.worldName = worldName;
-            this.stoneLayers = new StoneLayers();
         }
 
         public WorldData(string worldName, int seed, int worldType, bool dontWriteToDisk) : this(worldName) {
@@ -34,7 +32,6 @@ namespace VoxelEngine.Level {
             tag.Add(new NbtFloat("spawnZ", this.spawnZ));
             tag.Add(new NbtInt("worldType", this.worldType));
             tag.Add(new NbtLong("lastLoaded", this.lastLoaded.ToBinary()));
-            tag.Add(this.stoneLayers.writeToNbt(new NbtCompound("stoneLayers")));
             return tag;
         }
 
@@ -45,7 +42,6 @@ namespace VoxelEngine.Level {
             this.spawnZ = tag.Get<NbtFloat>("spawnZ").FloatValue;
             this.worldType = tag.Get<NbtInt>("worldType").IntValue;
             this.lastLoaded = DateTime.FromBinary(tag.Get<NbtLong>("lastLoaded").LongValue);
-            this.stoneLayers.readFromNbt(tag.Get<NbtCompound>("stoneLayers"));
         }
     }
 }

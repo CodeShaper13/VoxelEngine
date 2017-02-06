@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Entities;
+using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
@@ -40,7 +41,8 @@ namespace VoxelEngine {
 
         public void Start() {
             //Debug instant world generation
-            //this.generateWorld(new WorldData("world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue), (int)DateTime.Now.ToBinary(), 0, true));
+            string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.CAVE_1.id, true));
         }
 
         public void Update() {

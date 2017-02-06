@@ -57,13 +57,13 @@ namespace VoxelEngine.Entities {
 
         public void Start() {
             switch(WorldType.getFromId(this.world.worldData.worldType).chunkLoaderType) {
-                case 0:
+                case ChunkLoaderBase.LOCKED_Y:
                     this.chunkLoader = new ChunkLoaderLockedY(this.world, this);
                     break;
-                case 1:
+                case ChunkLoaderBase.INFINITE:
                     this.chunkLoader = new ChunkLoaderInfinite(this.world, this);
                     break;
-                case 2:
+                case ChunkLoaderBase.REGION_DEBUG:
                     this.chunkLoader = new ChunkLoaderRegionDebug(this.world, this);
                     break;
             }

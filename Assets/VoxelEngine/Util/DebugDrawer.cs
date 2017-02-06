@@ -2,7 +2,7 @@
 
 namespace VoxelEngine.Util {
 
-    public class DebugDrawer {
+    public static class DebugDrawer {
 
         public static void box(Vector3 center, Vector3 size, Color color) {
             DebugDrawer.plane(new Vector3(center.x, center.y + size.y, center.z), size, color);
@@ -26,6 +26,13 @@ namespace VoxelEngine.Util {
 
         public static void line(Vector3 start, Vector3 end, Color color) {
             Debug.DrawLine(start, end, color);
+        }
+
+        public static void bounds(Bounds bounds, Color color, Color? crossLineColor = null) {
+            if(crossLineColor != null) {
+                Debug.DrawLine(bounds.min, bounds.max, Color.green);
+            }
+            DebugDrawer.box(bounds.center, bounds.extents, color);
         }
     }
 }

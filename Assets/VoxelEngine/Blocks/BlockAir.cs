@@ -8,9 +8,9 @@ namespace VoxelEngine.Blocks {
 
         public BlockAir(byte id) : base(id) { }
 
-        public override void onDestroy(World world, BlockPos pos, byte meta) {
-            base.onDestroy(world, pos, meta);
-            Debug.Log("Error!  Air is being broken, this shouldn't happen!");
-        }
+        //public override void onDestroy(World world, BlockPos pos, byte meta) {
+        //    base.onDestroy(world, pos, meta);
+        //    Debug.Log("Error!  Air is being broken, this shouldn't happen!");
+        //}
     }
 }
