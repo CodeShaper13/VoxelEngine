@@ -71,7 +71,7 @@ namespace VoxelEngine.Level {
             }
         }
 
-        public void updateChunk() {
+        public void FixedUpdate() {
             int x, y, z;
             int i = Random.Range(int.MinValue, int.MaxValue);
             for (int j = 0; j < 3; j++) {

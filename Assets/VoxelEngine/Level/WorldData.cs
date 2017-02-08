@@ -1,14 +1,14 @@
 ﻿using fNbt;
 using System;
+using UnityEngine;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Level {
 
     public class WorldData {
         public string worldName;
         public int seed;
-        public float spawnX;
-        public float spawnY;
-        public float spawnZ;
+        public Vector3 spawnPos;
         public int worldType;
         public DateTime lastLoaded;
         public bool dontWriteToDisk;
@@ -27,9 +27,7 @@ namespace VoxelEngine.Level {
         public NbtCompound writeToNbt() {
             NbtCompound tag = new NbtCompound("world");
             tag.Add(new NbtInt("seed", this.seed));
-            tag.Add(new NbtFloat("spawnX", this.spawnX));
-            tag.Add(new NbtFloat("spawnY", this.spawnY));
-            tag.Add(new NbtFloat("spawnZ", this.spawnZ));
+            NbtHelper.writeDirectVector3(tag, this.spawnPos, "spawn");
             tag.Add(new NbtInt("worldType", this.worldType));
             tag.Add(new NbtLong("lastLoaded", this.lastLoaded.ToBinary()));
             return tag;
@@ -37,9 +35,7 @@ namespace VoxelEngine.Level {
 
         public void readFromNbt(NbtCompound tag) {
             this.seed = tag.Get<NbtInt>("seed").IntValue;
-            this.spawnX = tag.Get<NbtFloat>("spawnX").FloatValue;
-            this.spawnY = tag.Get<NbtFloat>("spawnY").FloatValue;
-            this.spawnZ = tag.Get<NbtFloat>("spawnZ").FloatValue;
+            this.spawnPos = NbtHelper.readDirectVector3(tag, "spawn");
             this.worldType = tag.Get<NbtInt>("worldType").IntValue;
             this.lastLoaded = DateTime.FromBinary(tag.Get<NbtLong>("lastLoaded").LongValue);
         }

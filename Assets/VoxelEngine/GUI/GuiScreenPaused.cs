@@ -7,7 +7,7 @@ namespace VoxelEngine.GUI {
 
         public override GuiScreen onEscape(Main voxelEngine) {
             this.setActive(false);
-            voxelEngine.isPaused = false;
+            voxelEngine.resumeGame();
             return null;
         }
 
@@ -23,6 +23,7 @@ namespace VoxelEngine.GUI {
                 ve.worldObj = null;
                 ve.player = null;
                 ve.isPaused = false;
+                Time.timeScale = 1;
                 ve.showDebugText = false;
                 ve.isDeveloperMode = false;
             }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Render.Items;
@@ -16,16 +17,16 @@ namespace VoxelEngine.Entities {
             this.GetComponent<MeshRenderer>().material = References.list.itemMaterial;
         }
 
-        public override byte getEntityId() {
-            return 3;
-        }
-
         public override void onEntityCollision(Entity otherEntity) {
             base.onEntityCollision(otherEntity);
             if (otherEntity != null) {
-                otherEntity.damage(1);
+                otherEntity.damage(1, "Smacked by a Flying Pebble!");
             }
             this.world.killEntity(this);
+        }
+
+        public override byte getEntityId() {
+            return 3;
         }
     }
 }

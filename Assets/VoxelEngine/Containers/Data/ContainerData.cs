@@ -15,11 +15,11 @@ namespace VoxelEngine.Containers.Data {
         }
 
         public ItemStack getStack(int x, int y) {
-            return this.items[x * this.width + y];
+            return this.items[x + this.width * y];
         }
 
         public void setStack(int x, int y, ItemStack stack) {
-            this.items[x * this.width + y] = stack;
+            this.items[x + this.width * y] = stack;
         }
 
         public virtual NbtCompound writeToNbt(NbtCompound tag) {

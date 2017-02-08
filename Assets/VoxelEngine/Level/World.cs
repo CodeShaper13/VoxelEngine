@@ -28,20 +28,23 @@ namespace VoxelEngine.Level {
 
         //Acts like a constructor.
         public void initWorld(WorldData data) {
+            this.worldData = data;
             this.loadedChunks = new Dictionary<ChunkPos, Chunk>();
             this.entityList = new List<Entity>();
-
-            this.worldData = data;
-
             this.nbtIOHelper = new NbtIOHelper(this.worldData);
-            if(!this.worldData.dontWriteToDisk) {
-                this.nbtIOHelper.writeWorldDataToDisk(this.worldData); //Save it right away, so we dont have a folder with chunks that are unrecognized
-            }
-
             this.generator = WorldType.getFromId(this.worldData.worldType).getGenerator(this, this.worldData.seed);
-            if(!this.nbtIOHelper.readGenerationData(this.generator)) {
+
+            if (!this.nbtIOHelper.readGenerationData(this.generator)) {
+                // There is no generation data, generate it
                 if(this.generator.generateLevelData()) {
                     this.nbtIOHelper.writeGenerationData(this.generator);
+                }
+                this.worldData.spawnPos = this.generator.getSpawnPoint();
+
+                if (!this.worldData.dontWriteToDisk) {
+                    // Save the world data right away so we don't have a folder with chunks that is
+                    // recognized as a save.
+                    this.nbtIOHelper.writeWorldDataToDisk(this.worldData);
                 }
             }
 
@@ -55,16 +58,6 @@ namespace VoxelEngine.Level {
         public void Update() {
             if(this.generator is WorldGeneratorCaves) {
                 ((WorldGeneratorCaves)this.generator).debugDisplay();
-            }
-        }
-
-        public void runWorldUpdate() {
-            foreach (Chunk c in this.loadedChunks.Values) {
-                c.updateChunk();
-            }
-            //TODO if an entity is spawned by another, it is not updated this update
-            for (int i = 0; i < this.entityList.Count; i++) {
-                this.entityList[i].onEntityUpdate();
             }
         }
 
@@ -104,9 +97,9 @@ namespace VoxelEngine.Level {
             player.world = this;
             if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
                 //no player file was found
-                gameObject.transform.position = this.generator.getSpawnPoint();
+                gameObject.transform.position = this.worldData.spawnPos;
                 gameObject.transform.rotation = Quaternion.identity;
-                player.loadStartingInventory();
+                player.setupFirstTimePlayer();
             }
             return player;
         }

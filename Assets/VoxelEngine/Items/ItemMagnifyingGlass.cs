@@ -20,9 +20,7 @@ namespace VoxelEngine.Items {
                     s = hit.entity.getMagnifyingText();
                 }
                 if (s != null) {
-                    player.magnifyingText.color = Color.red;
-                    player.magnifyingTimer = 3f;
-                    player.magnifyingText.text = s;
+                    player.setMagnifyingText(s);
                 }
             }
             return stack;

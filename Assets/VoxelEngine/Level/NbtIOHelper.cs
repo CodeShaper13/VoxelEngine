@@ -104,6 +104,10 @@ namespace VoxelEngine.Level {
         }
 
         public void writeWorldImageToDisk() {
+            if(this.dontWriteToDisk) {
+                return;
+            }
+
             ScreenshotHelper.captureScreenshot(this.saveImageFileName);
         }
 

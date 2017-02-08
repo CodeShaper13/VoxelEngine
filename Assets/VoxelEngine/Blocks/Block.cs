@@ -79,7 +79,10 @@ namespace VoxelEngine.Blocks {
 
         public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) { }
 
-        public virtual void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) { }
+        // Returns true if something happened
+        public virtual bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
+            return false;
+        }
 
         public virtual void onPlace(World world, BlockPos pos, byte meta) { }
 

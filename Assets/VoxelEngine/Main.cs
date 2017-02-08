@@ -25,7 +25,8 @@ namespace VoxelEngine {
         public Text textDebug;
 
         public GuiScreen pauseScreen;
-        public GuiScreen waitingScreen;
+        public GuiScreen respawnScreen;
+        //public GuiScreen waitingScreen;
         public GuiScreen currentGui;
 
         public float averageChunkBakeTime;
@@ -54,7 +55,7 @@ namespace VoxelEngine {
 
             if (this.worldObj != null && this.player != null) {
                 if (Input.GetKeyDown(KeyCode.F1)) {
-                    this.showDebugText = !this.showDebugText;
+                    this.isDeveloperMode = !this.isDeveloperMode;
                 }
                 if (Input.GetKeyDown(KeyCode.F2)) {
                     ScreenshotHelper.captureScreenshot();
@@ -66,22 +67,17 @@ namespace VoxelEngine {
                     if (this.player.containerElement != null) {
                         this.player.closeContainer();
                     } else {
-                        if (!this.isPaused) {
-                            this.isPaused = true;
-                            this.openGuiScreen(this.pauseScreen);
-                            this.player.fpc.enabled = false;
-                        }
-                        else {
+                        if(this.currentGui != null) {
                             this.currentGui = this.currentGui.onEscape(this);
+                        } else {
+                            if(!this.isPaused) {
+                                this.pauseGame();
+                            }
                         }
-                        Main.setMouseLock(!this.isPaused);
-                        this.player.fpc.enabled = !this.isPaused;
                     }
                 }
 
-                if (!this.isPaused) {
-                    this.worldObj.runWorldUpdate();
-                    this.player.onEntityUpdate();
+                if (!this.isPaused && player.health > 0) {
                     this.player.handleInput();
                 }
 
@@ -106,6 +102,21 @@ namespace VoxelEngine {
             }
 
             this.averageChunkBakeTime = Chunk.TOTAL_BAKED / Chunk.MIL;
+        }
+
+        private void pauseGame() {
+            this.isPaused = true;
+            this.player.fpc.enabled = false;
+            Main.hideMouse(false);
+            Time.timeScale = 0;
+            this.openGuiScreen(this.pauseScreen);
+        }
+
+        public void resumeGame() {
+            this.isPaused = false;
+            this.player.fpc.enabled = true;
+            Main.hideMouse(true);
+            Time.timeScale = 1;
         }
 
         [Obsolete("Use GuiScreen.openGuiScreen instead")]
@@ -138,7 +149,7 @@ namespace VoxelEngine {
             this.currentGui.setActive(false);
             this.currentGui = null;
             this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
-            Main.setMouseLock(true);
+            Main.hideMouse(true);
         }
 
         //public void onWorldLoadFinish() {
@@ -148,7 +159,7 @@ namespace VoxelEngine {
         //    Main.setMouseLock(true);
         //}
 
-        public static void setMouseLock(bool flag) {
+        public static void hideMouse(bool flag) {
             Cursor.visible = !flag;
             Cursor.lockState = flag ? CursorLockMode.Locked : CursorLockMode.None;
         }

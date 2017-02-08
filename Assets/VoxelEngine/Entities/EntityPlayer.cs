@@ -1,5 +1,4 @@
-﻿using System;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Blocks;
@@ -12,12 +11,21 @@ using UnityStandardAssets.Characters.FirstPerson;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Generation;
 using VoxelEngine.TileEntity;
+using VoxelEngine.GUI;
+using VoxelEngine.Level;
+using VoxelEngine.GUI.Effect;
 
 namespace VoxelEngine.Entities {
 
     public class EntityPlayer : Entity {
-        public Text magnifyingText;
-        public RawImage healthBarImage;
+
+        public float reach = 3.5f;
+
+        // References
+        public FadeText magnifyingText;
+        public HeartTremble heartEffect;
+        public DamageFlash damageEffect;
+        public Slider hungerSlider;
 
         public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
@@ -25,18 +33,17 @@ namespace VoxelEngine.Entities {
         public Container containerElement;
         private LightFlicker lightObj;
         private ItemStack lastHeldItem;
-
-        public float reach = 3.5f;
-        public float magnifyingTimer;
+        private ChunkLoaderBase chunkLoader;
         public BlockPos posLookingAt;
-        public ItemStack heldStack;
-
         public ContainerHotbar containerHotbar;
 
+        // State
+        public float hunger;
+        private float hungerDamageTimer;
+        // The stack the mouse is holding when a container is open
+        public ItemStack heldStack;
         public ContainerDataHotbar dataHotbar;
         public ContainerData dataInventory;
-
-        public ChunkLoaderBase chunkLoader;
 
         public new void Awake() {
             base.Awake();
@@ -66,15 +73,20 @@ namespace VoxelEngine.Entities {
                 case ChunkLoaderBase.REGION_DEBUG:
                     this.chunkLoader = new ChunkLoaderRegionDebug(this.world, this);
                     break;
+                default:
+                    print("ERROR! No chunk loader could be set!");
+                    break;
             }
         }
 
         public override void onEntityUpdate() {
+            if(this.health <= 0) {
+                return;
+            }
+
             base.onEntityUpdate();
 
-            if(this.chunkLoader != null) { //Why is there a safety check?
-                this.chunkLoader.updateChunkLoader();
-            }
+            this.chunkLoader.updateChunkLoader();
 
             ItemStack heldStack = this.dataHotbar.getHeldItem();
 
@@ -82,24 +94,29 @@ namespace VoxelEngine.Entities {
                 PlayerRayHit playerHit = this.getPlayerRayHit();
 
                 if (playerHit != null) {
-                    if (playerHit.state != null && playerHit.unityRaycastHit.distance <= this.reach) {
-                        if (Input.GetMouseButton(0)) {
-                            this.blockBreakEffect.update(this, this.posLookingAt, playerHit.state.block, playerHit.state.meta);
-                        }
-                        if (Input.GetMouseButtonDown(1)) {
-                            playerHit.state.block.onRightClick(this.world, this, this.posLookingAt, playerHit.state.meta);
-                        }
-                    }
-                    else if (playerHit.entity != null && playerHit.unityRaycastHit.distance <= this.reach) {
-                        if (Input.GetMouseButtonDown(0)) {
-                            float damage = 1;
-                            if (heldStack != null && heldStack.item is ItemSword) {
-                                damage = ((ItemSword)heldStack.item).damageAmount;
+                    if(playerHit.unityRaycastHit.distance <= this.reach) {
+                        if (playerHit.state != null) {
+                            if (Input.GetMouseButton(0)) {
+                                this.blockBreakEffect.update(this, this.posLookingAt, playerHit.state.block, playerHit.state.meta);
                             }
-                            playerHit.entity.onEntityHit(this, damage);
-                        }
-                        if (Input.GetMouseButtonDown(1)) {
-                            playerHit.entity.onEntityInteract(this);
+                            if (Input.GetMouseButtonDown(1)) {
+                                if(!playerHit.state.block.onRightClick(this.world, this, this.posLookingAt, playerHit.state.meta)) {
+                                    if(this.heldStack != null) {
+                                        this.heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
+                                    }
+                                }
+                            }
+                        } else if (playerHit.entity != null) {
+                            if (Input.GetMouseButtonDown(0)) {
+                                float damage = 1;
+                                if (heldStack != null && heldStack.item is ItemSword) {
+                                    damage = ((ItemSword)heldStack.item).damageAmount;
+                                }
+                                playerHit.entity.onEntityHit(this, damage);
+                            }
+                            if (Input.GetMouseButtonDown(1)) {
+                                playerHit.entity.onEntityInteract(this);
+                            }
                         }
                     }
                 }
@@ -110,14 +127,6 @@ namespace VoxelEngine.Entities {
                         this.dataHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
                     }
                 }
-            }
-
-            //Magnifying text
-            if (this.magnifyingTimer > 0) {
-                this.magnifyingTimer -= Time.deltaTime;
-            }
-            if (this.magnifyingTimer <= 0) {
-                this.magnifyingText.color = Color.Lerp(this.magnifyingText.color, Color.clear, 3 * Time.deltaTime);
             }
 
             //TODO this can be optimised, when held is null it is called every frame
@@ -137,6 +146,20 @@ namespace VoxelEngine.Entities {
                 this.lightObj.enabled = isHoldingLight;
                 this.lightObj.lightObj.enabled = isHoldingLight;
             }
+
+            // Hunger
+            this.hunger -= Time.deltaTime * 0.25f;
+            this.hungerSlider.value = this.hunger;
+            if(this.hunger <= 0f) {
+                this.hunger = 0f;
+
+                this.hungerDamageTimer -= Time.deltaTime;
+                if(this.hungerDamageTimer <= -2f) {
+                    this.damage(1, "You forget to eat!");
+                    this.hungerDamageTimer = 0f;
+                }
+            }
+
             this.lastHeldItem = heldStack;
         }
 
@@ -154,25 +177,154 @@ namespace VoxelEngine.Entities {
         }
 
         public override void setHealth(int amount) {
-            if (amount > 10) {
-                amount = 10;
+            if (amount > 100) {
+                amount = 100;
             }
+            if (amount < 0) {
+                amount = 0;
+            }
+            this.heartEffect.startAnimation(this.health, amount);
             this.health = amount;
-            this.healthBarImage.uvRect = new Rect(0, 0, this.health / 10, 1);
         }
 
-        public void loadStartingInventory() {
+        public override bool damage(int amount, string message) {
+            this.damageEffect.startEffect();
+            this.setHealth(this.health - amount);
+            if (this.health <= 0) {
+                // Player has died
+                if(this.containerElement != null) {
+                    this.closeContainer();
+                }
+                this.func_001(this.world, this.dataHotbar);
+                this.func_001(this.world, this.dataInventory);
+
+                Main.hideMouse(false);
+                this.fpc.enabled = false;
+                Main m = Main.singleton;
+                m.openGuiScreen(m.respawnScreen);
+                ((GuiScreenRespawn)m.currentGui).deathMessageText.text = message;
+                return true;
+            }
+            return false;
+        }
+
+        public override byte getEntityId() {
+            return 1;
+        }
+
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(new NbtFloat("cameraX", this.mainCamera.eulerAngles.x));
+            tag.Add(this.dataHotbar.writeToNbt(new NbtCompound("hotbar")));
+            tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
+            tag.Add(new NbtFloat("hunger", this.hunger));
+            tag.Add(new NbtFloat("hungerTimer", this.hunger));
+            //TODO jump
+            return tag;
+        }
+
+        public override void readFromNbt(NbtCompound tag) {
+            base.readFromNbt(tag);
+            this.mainCamera.localRotation = Quaternion.Euler(tag.Get<NbtFloat>("cameraX").FloatValue, 0, 0);
+            this.dataHotbar.readFromNbt(tag.Get<NbtCompound>("hotbar"));
+            this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
+            this.hunger = tag.Get<NbtFloat>("hunger").FloatValue;
+            this.hungerDamageTimer = tag.Get<NbtFloat>("hungerTimer").FloatValue;
+        }
+
+        public void handleInput() {
+            bool isShiftDown = Input.GetKey(KeyCode.LeftShift);
+
+            // Keycodes for each of the number keys across the keyboard
+            for (int i = 0; i < 9; i++) {
+                if(Input.GetKeyDown((KeyCode)(i + 49))) {
+                    if(isShiftDown) {
+                        if (this.dataHotbar.index != i) {
+                            ItemStack held = this.dataHotbar.getHeldItem();
+                            this.dataHotbar.setHeldItem(this.dataHotbar.getStack(i, 0));
+                            this.dataHotbar.setStack(i, 0, held);
+                            this.containerHotbar.showItemName();
+                        }
+                    } else {
+                        this.containerHotbar.setSelected(i);
+                    }
+                }
+            }
+
+            if(Input.GetKeyDown(KeyCode.Y)) {
+                this.damage(30, "Test");
+            }
+
+            if (Input.GetKeyDown(KeyCode.Q)) {
+                ItemStack stack = this.dataHotbar.dropItem(this.dataHotbar.index, isShiftDown);
+                if (stack != null) {
+                    this.dropItem(stack);
+                }
+            }
+
+            float f = Input.GetAxis("Mouse ScrollWheel");
+            if (f != 0) {
+                this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
+            }
+
+            if (Input.GetKeyDown(KeyCode.E)) {
+                this.openContainer(References.list.containerInventory, this.dataInventory);
+            }
+        }
+
+        // Opens and initializes a container
+        public void openContainer(GameObject containerObj, ContainerData containerData) {
+            this.fpc.allowInput = false;
+            this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
+            this.containerElement.transform.SetParent(this.transform);
+            this.containerElement.initContainer(containerData, this);
+            Main.hideMouse(false);
+        }
+
+        // Closes the open container, doing any required cleanup
+        public void closeContainer() {
+            this.fpc.allowInput = true;
+            if (this.heldStack != null) {
+                this.dropItem(this.heldStack);
+                this.heldStack = null;
+            }
+            GameObject.Destroy(this.containerElement.gameObject);
+            Main.hideMouse(true);
+        }
+
+        public void setMagnifyingText(string text) {
+            this.magnifyingText.showAndStartFade(text, 3);
+        }
+
+        public void setHunger(float amount) {
+            if (amount > 100f) {
+                amount = 100f;
+            }
+            if (amount < 0f) {
+                amount = 0f;
+            }
+            this.hunger = amount;
+        }
+
+        public void cleanupObject() {
+            GameObject.Destroy(this.containerHotbar.gameObject);
+            GameObject.Destroy(this.blockBreakEffect.gameObject);
+            this.heartEffect.enabled = false;
+        }
+
+        public void setupFirstTimePlayer() {
             this.dataHotbar.addItemStack(new ItemStack(Block.chest));
             this.dataHotbar.addItemStack(new ItemStack(Block.lantern, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.torch, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.goldSword));
+            this.dataHotbar.addItemStack(new ItemStack(Item.food, 0, 10));
             this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
             this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0));
-
-            this.setHealth(10);
+            this.health = 100;
+            this.heartEffect.healthText.text = this.health + "%";
+            this.hunger = 75;
         }
 
         private PlayerRayHit getPlayerRayHit() {
@@ -199,20 +351,9 @@ namespace VoxelEngine.Entities {
             return null;
         }
 
-        public void handleInput() {
-            if (Input.GetKeyDown(KeyCode.Q)) {
-                ItemStack stack = this.dataHotbar.dropItem(this.dataHotbar.index, false /* Input.GetKey(KeyCode.LeftControl) */);
-                if (stack != null) {
-                    this.dropItem(stack);
-                }
-            }
-            float f = Input.GetAxis("Mouse ScrollWheel");
-            if (f != 0) {
-                this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
-            }
-            if (Input.GetKeyDown(KeyCode.E)) {
-                this.openContainer(References.list.containerInventory, this.dataInventory);
-            }
+        private void dropItem(ItemStack stack) {
+            //TODO make items not collide with the player
+            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward / 5, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
         }
 
         private void copyLightData(GameObject obj) {
@@ -225,54 +366,16 @@ namespace VoxelEngine.Entities {
             this.lightObj.lightObj.intensity = l.lightObj.intensity;
         }
 
-        //Opens and initiates a container
-        public void openContainer(GameObject containerObj, ContainerData containerData) {
-            this.fpc.allowInput = false;
-            this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
-            this.containerElement.transform.SetParent(this.transform);
-            this.containerElement.initContainer(containerData, this);
-            Main.setMouseLock(false);
-        }
-
-        //Closes the open container, doing any required cleanup
-        public void closeContainer() {
-            this.fpc.allowInput = true;
-            if (this.heldStack != null) {
-                this.dropItem(this.heldStack);
-                this.heldStack = null;
+        private void func_001(World world, ContainerData d) {
+            float f = 0.5f;
+            for (int i = 0; i < d.items.Length; i++) {
+                Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));
+                ItemStack stack = d.items[i];
+                if (stack != null) {
+                    this.world.spawnItem(d.items[i], this.transform.position + offset, Quaternion.Euler(0, Random.Range(0, 360), 0));
+                    d.items[i] = null;
+                }
             }
-            GameObject.Destroy(this.containerElement.gameObject);
-            Main.setMouseLock(true);
-        }
-
-        private void dropItem(ItemStack stack) {
-            //TODO make items not collide with the player
-            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward / 5, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
-        }
-
-        public void cleanupObject() {
-            GameObject.Destroy(this.containerHotbar.gameObject);
-            GameObject.Destroy(this.blockBreakEffect.gameObject);
-        }
-
-        public override byte getEntityId() {
-            return 1;
-        }
-
-        public override NbtCompound writeToNbt(NbtCompound tag) {
-            base.writeToNbt(tag);
-            tag.Add(new NbtFloat("cameraX", this.mainCamera.eulerAngles.x));
-            tag.Add(this.dataHotbar.writeToNbt(new NbtCompound("hotbar")));
-            tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
-            //TODO jump, maybe general up/down for entities
-            return tag;
-        }
-
-        public override void readFromNbt(NbtCompound tag) {
-            base.readFromNbt(tag);
-            this.mainCamera.localRotation = Quaternion.Euler(tag.Get<NbtFloat>("cameraX").FloatValue, 0, 0);
-            this.dataHotbar.readFromNbt(tag.Get<NbtCompound>("hotbar"));
-            this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
         }
     }
 }

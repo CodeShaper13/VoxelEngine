@@ -33,6 +33,7 @@ namespace VoxelEngine.Items {
         public static Item glorbDust = new Item(273).setName("Glorb Dust").setTexture(1, 2);
         public static Item flowerItem = new Item(274).setName("Flower").setTexture(1, 3);
         public static Item magnifyingGlass = new ItemMagnifyingGlass(275).setName("Magnifying Glass").setTexture(1, 4);
+        public static Item food = new ItemFood(276, 25, 5).setName("Food").setTexture(0, 0);
         public static Item bronzeHelmet;
         public static Item bronzeChestplate;
         public static Item ironHelmet;

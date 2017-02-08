@@ -75,7 +75,7 @@ namespace VoxelEngine.ChunkLoaders {
                 for (int z = 0; z < this.size; z++) {
                     for (int y = 0; y < this.height; y++) {
                         if (this.chunkArray[x, y, z] != null) {
-                            this.chunkArray[x, y, z].updateChunk();
+                            this.chunkArray[x, y, z].FixedUpdate(); //Update all chunk?  Why are we doing this here?  .updateChunk();
                         }
                     }
                 }

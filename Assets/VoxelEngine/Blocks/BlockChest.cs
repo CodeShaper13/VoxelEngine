@@ -12,8 +12,9 @@ namespace VoxelEngine.Blocks {
 
         public BlockChest(byte id) : base(id) { }
 
-        public override void onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
+        public override bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
             player.openContainer(References.list.containerChest, ((TileEntityChest)world.getTileEntity(pos)).chestData);
+            return true;
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
