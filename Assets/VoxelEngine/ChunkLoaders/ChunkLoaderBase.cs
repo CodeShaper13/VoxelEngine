@@ -1,11 +1,9 @@
-﻿#define DEBUG_LOAD
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Diagnostics;
 using VoxelEngine.Util;
 using VoxelEngine.Level;
 using VoxelEngine.Entities;
+using System;
 
 namespace VoxelEngine.ChunkLoaders {
 
@@ -17,40 +15,34 @@ namespace VoxelEngine.ChunkLoaders {
         protected World world;
         protected EntityPlayer player;
         protected int maxBuildPerLoop = 1;
-        protected ChunkPos previousOccupiedChunkPos = null;
-        protected Queue<ChunkPos> buildQueue = new Queue<ChunkPos>();
+        protected ChunkPos previousOccupiedChunkPos;
+        protected Queue<ChunkPos> buildQueue;
         protected int loadRadius;
+        protected Queue<Chunk> cachedUnusedChunks;
 
         public ChunkLoaderBase(World world, EntityPlayer player, int loadRadius) {
             this.world = world;
             this.player = player;
             this.loadRadius = loadRadius;
+            this.buildQueue = new Queue<ChunkPos>();
+            this.cachedUnusedChunks = new Queue<Chunk>();
 
-#if DEBUG_LOAD
-            Stopwatch s = new Stopwatch();
-            s.Start();
-#endif
+            //Stopwatch s = new Stopwatch();
+            //s.Start();
             this.loadChunks(this.getOccupiedChunkPos(this.player.transform.position));
-#if DEBUG_LOAD
-            s.Stop();
-            UnityEngine.Debug.Log("Generation took " + s.Elapsed);
-#endif
-            this.generateChunks(10000);
+            //s.Stop();
+            //UnityEngine.Debug.Log("Generation took " + s.Elapsed);
 
-#if DEBUG_LOAD
-            //Force chunks to bake their meshes
+            this.generateChunks(10000);
             foreach (Chunk c in this.world.loadedChunks.Values) {
-                c.Update();
+                c.renderChunk();
+                c.isDirty = false;
             }
-#endif
         }
 
         public virtual void updateChunkLoader() {
             ChunkPos pos = this.getOccupiedChunkPos(this.player.transform.position);
-            if (this.previousOccupiedChunkPos == null ||
-                pos.x != this.previousOccupiedChunkPos.x ||
-                pos.y != this.previousOccupiedChunkPos.y ||
-                pos.z != this.previousOccupiedChunkPos.z) {
+            if (pos.x != this.previousOccupiedChunkPos.x || pos.y != this.previousOccupiedChunkPos.y || pos.z != this.previousOccupiedChunkPos.z) {
                 this.loadChunks(pos);
             }
             this.previousOccupiedChunkPos = pos;
@@ -68,12 +60,31 @@ namespace VoxelEngine.ChunkLoaders {
                 Mathf.FloorToInt(playerPos.z / Chunk.SIZE));
         }
 
-        //Returns the number of chunks generated
+        // Generates up to the passed number of chunks, returning the total generated
         protected int generateChunks(int max) {
             int builtChunks = 0;
             if (this.buildQueue.Count > 0) {
                 while (this.buildQueue.Count > 0 && builtChunks < max) {
-                    this.world.loadChunk(this.buildQueue.Dequeue());
+                    ChunkPos chunkPos = this.buildQueue.Dequeue();
+                    Chunk chunk;
+                    if(this.cachedUnusedChunks.Count > 0) {
+                        chunk = this.cachedUnusedChunks.Dequeue();
+                        chunk.transform.position = new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16);
+                        chunk.gameObject.SetActive(true);
+                        chunk.isDirty = true;
+                    } else {
+                        //We need a new Chunk
+                        GameObject chunkGameObject = GameObject.Instantiate(
+                            References.list.chunkPrefab,
+                            new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16),
+                            Quaternion.identity) as GameObject;
+                        chunkGameObject.transform.parent = this.world.chunkWrapper;
+                        chunk = chunkGameObject.GetComponent<Chunk>();
+                        chunk.isDirty = true;
+                    }
+
+                    this.world.loadChunk(chunk, chunkPos);
+
                     builtChunks++;
                 }
             }
@@ -89,6 +100,10 @@ namespace VoxelEngine.ChunkLoaders {
             }
             foreach (Chunk c in removals) {
                 this.world.unloadChunk(c);
+                c.gameObject.SetActive(false);
+                c.gameObject.name = "WAITING...";
+                c.resetChunk();
+                this.cachedUnusedChunks.Enqueue(c);
             }
         }
 
@@ -102,7 +117,7 @@ namespace VoxelEngine.ChunkLoaders {
         }
 
         protected bool toFar(float occupiedChunkPos, float questionableChunkPos) {
-            return (Mathf.Abs(occupiedChunkPos - questionableChunkPos) > this.loadRadius);
+            return (Math.Abs(occupiedChunkPos - questionableChunkPos) > this.loadRadius);
         }
 
         /// <summary>

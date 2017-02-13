@@ -13,6 +13,7 @@ namespace VoxelEngine.Blocks {
             this.setSolid(false);
             this.setMineTime(0.1f);
             this.setRenderer(new BlockRendererMesh(References.list.mushroomMesh).setUseRandomRot(true).setShiftVec(new Vector3(0, -0.5f, 0)));
+            this.setStatesUsed(4);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {

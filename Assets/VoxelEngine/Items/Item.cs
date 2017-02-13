@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
@@ -46,6 +47,7 @@ namespace VoxelEngine.Items {
         public string name = "null";
         public TexturePos texturePos;
         public IRenderItem itemRenderer;
+        public Mesh[] preRenderedMeshes;
 
         public Item(int id) {
             this.id = id;
@@ -62,6 +64,14 @@ namespace VoxelEngine.Items {
 
         public virtual ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             return stack;
+        }
+
+        public virtual byte getStatesUsed() {
+            return 1;
+        }
+
+        public Mesh getPreRenderedMesh(byte meta) {
+            return this.preRenderedMeshes[meta];
         }
 
         public Item setName(string name) {
@@ -84,6 +94,20 @@ namespace VoxelEngine.Items {
             foreach (Block b in Block.BLOCK_LIST) {
                 if (b != null) {
                     Item.ITEM_LIST[b.id] = new ItemBlock(b);
+                }
+            }
+        }
+
+
+        public static void preRenderItems() {
+            // Prerender Items
+            for (int i = 0; i < Item.ITEM_LIST.Length; i++) {
+                Item item = Item.ITEM_LIST[i];
+                if (item != null) {
+                    item.preRenderedMeshes = new Mesh[item.getStatesUsed()];
+                    for (byte j = 0; j < item.preRenderedMeshes.Length; j++) {
+                        item.preRenderedMeshes[j] = item.itemRenderer.renderItem(item, j);
+                    }
                 }
             }
         }

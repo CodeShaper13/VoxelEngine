@@ -3,7 +3,7 @@ using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
 
-    public class ChunkPos {
+    public struct ChunkPos {
         public int x;
         public int y;
         public int z;

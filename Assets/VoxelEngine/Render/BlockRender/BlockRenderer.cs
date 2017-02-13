@@ -11,6 +11,6 @@ namespace VoxelEngine.Render.BlockRender {
             return this;
         }
 
-        public abstract MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace);
+        public abstract MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
     }
 }

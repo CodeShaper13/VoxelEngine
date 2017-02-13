@@ -38,6 +38,7 @@ namespace VoxelEngine {
             Main.singleton = this;
 
             Item.initBlockItems();
+            Item.preRenderItems();
         }
 
         public void Start() {
@@ -62,6 +63,9 @@ namespace VoxelEngine {
                 }
                 if (Input.GetKeyDown(KeyCode.F3)) {
                     this.showDebugText = !this.showDebugText;
+                    if(!this.showDebugText) {
+                        this.textDebug.text = string.Empty;
+                    }
                 }
                 if (Input.GetKeyDown(KeyCode.Escape)) {
                     if (this.player.containerElement != null) {
@@ -91,17 +95,11 @@ namespace VoxelEngine {
                 if (this.showDebugText) {
                     this.textDebug.text = this.getDebugText();
                 }
-                else {
-                    this.textDebug.text = string.Empty;
-                }
-            }
-            else {
+            } else {
                 if (Input.GetKeyDown(KeyCode.Escape)) {
                     this.currentGui = this.currentGui.onEscape(this);
                 }
             }
-
-            this.averageChunkBakeTime = Chunk.TOTAL_BAKED / Chunk.MIL;
         }
 
         private void pauseGame() {

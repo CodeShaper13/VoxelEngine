@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using VoxelEngine.Blocks;
-using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererMesh : BlockRenderer {
+
+        public Vector3[] cachedMeshVerts;
+        public int[] cachedMeshTris;
+        public Vector2[] cachedMeshUVs;
 
         private Mesh mesh;
         private Vector3 shiftVec;
@@ -16,36 +19,32 @@ namespace VoxelEngine.Render.BlockRender {
                 this.mesh = new Mesh();
             } else {
                 this.mesh = mesh;
+                this.cachedMeshVerts = this.mesh.vertices;
+                this.cachedMeshTris = this.mesh.triangles;
+                this.cachedMeshUVs = this.mesh.uv;
             }
         }
 
-        public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace) {
+        public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             int i;
-
-            // Broken, triangles nramls are messed up when we scale model by -1
+            Vector3 v;
+            // Broken, triangles normals are messed up when we scale model by -1
             //Vector3 sv = (this.flag ? this.pseudoRandomScale(new BlockPos(x, y, z).GetHashCode()) : Vector3.one);
-            Vector3 sv = Vector3.one;
+            //Vector3 sv = Vector3.one;
 
-            int vertStart = meshData.vertices.Count;
-            for(i = 0; i < this.mesh.vertices.Length; i++) {
-                Vector3 v = this.mesh.vertices[i];
-                meshData.addVertex(new Vector3((v.x * sv.x) + x + this.shiftVec.x, (v.y * sv.y) + y + this.shiftVec.y, (v.z * sv.z) + z + this.shiftVec.z));
+            int vertStart = meshData.getVerticeCount();
+            for(i = 0; i < this.cachedMeshVerts.Length; i++) {
+                v = this.cachedMeshVerts[i];
+                //meshData.addVertex(new Vector3((v.x * sv.x) + x + this.shiftVec.x, (v.y * sv.y) + y + this.shiftVec.y, (v.z * sv.z) + z + this.shiftVec.z));
+                meshData.addVertex(new Vector3(v.x + x + this.shiftVec.x, v.y + y + this.shiftVec.y, v.z + z + this.shiftVec.z));
             }
 
-            for (i = 0; i < this.mesh.triangles.Length; i++) {
-                meshData.addTriangle(vertStart + this.mesh.triangles[i]);
+            for (i = 0; i < this.cachedMeshTris.Length; i++) {
+                meshData.addTriangle(vertStart + this.cachedMeshTris[i]);
             }
 
-            // Uses error texture
-            //for (i = 0; i < this.mesh.uv.Length / 4; i++) {
-            //    meshData.uv.Add(new Vector2(0, 0));
-            //    meshData.uv.Add(new Vector2(0, TexturePos.BLOCK_SIZE));
-            //    meshData.uv.Add(new Vector2(TexturePos.BLOCK_SIZE, 0));
-            //    meshData.uv.Add(new Vector2(TexturePos.BLOCK_SIZE, TexturePos.BLOCK_SIZE));
-            //}
-
-            for(i = 0; i < this.mesh.uv.Length; i++) {
-                meshData.uv.Add(this.mesh.uv[i]);
+            for(i = 0; i < this.cachedMeshUVs.Length; i++) {
+                meshData.uv.Add(this.cachedMeshUVs[i]);
             }
         
             return meshData;

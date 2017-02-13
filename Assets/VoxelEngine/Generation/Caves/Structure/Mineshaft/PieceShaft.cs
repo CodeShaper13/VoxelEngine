@@ -80,7 +80,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 i1 = Mathf.Abs(this.orgin.x - i);
                                 k1 = Mathf.Abs(this.orgin.z - k);
                                 if ((i1 == 3 && k1 < 3) || (k1 == 3 && i1 < 3)) {
-                                    b = Block.placeholder;
+                                    b = Block.fence;
                                 }
                             } else if(y == 7 || (y == 15 && this.specialFlag != 1)) {
                                 if(Mathf.Abs(this.orgin.x - i) > 2 || Mathf.Abs(this.orgin.z - k) > 2) {

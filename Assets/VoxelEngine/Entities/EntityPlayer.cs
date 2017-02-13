@@ -313,12 +313,12 @@ namespace VoxelEngine.Entities {
         }
 
         public void setupFirstTimePlayer() {
-            this.dataHotbar.addItemStack(new ItemStack(Block.chest));
+            this.dataHotbar.addItemStack(new ItemStack(Block.fence, 0, 10));
             this.dataHotbar.addItemStack(new ItemStack(Block.lantern, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.torch, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.food, 0, 10));
             this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 2));
+            this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 0));
             this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0));

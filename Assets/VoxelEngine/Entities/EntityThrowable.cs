@@ -1,8 +1,5 @@
-﻿using System;
-using UnityEngine;
-using VoxelEngine.Containers;
+﻿using UnityEngine;
 using VoxelEngine.Items;
-using VoxelEngine.Render.Items;
 
 namespace VoxelEngine.Entities {
 
@@ -11,9 +8,7 @@ namespace VoxelEngine.Entities {
         public new void Awake() {
             base.Awake();
 
-            IRenderItem r = Item.pebble.itemRenderer;
-            Mesh mesh = r.renderItem(new ItemStack(Item.pebble));
-            this.GetComponent<MeshFilter>().mesh = mesh;
+            this.GetComponent<MeshFilter>().mesh = Item.pebble.getPreRenderedMesh(0);
             this.GetComponent<MeshRenderer>().material = References.list.itemMaterial;
         }
 

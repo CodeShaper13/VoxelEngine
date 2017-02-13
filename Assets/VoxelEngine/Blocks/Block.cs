@@ -12,10 +12,9 @@ namespace VoxelEngine.Blocks {
         public static Block[] BLOCK_LIST = new Block[256];
 
         private static BlockRenderer RENDERER_CUBE = new BlockRendererPrimitiveCube();
-        private static BlockRenderer RENDERER_CROSS = new BlockRendererPrimitiveCross();
 
         public static Block air = new BlockAir(0).setName("Air").setSolid(false).setReplaceable(true).setRenderer(null);
-        public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE);
+        public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(5);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
         public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
         public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable(true);//.setSolid(false);
@@ -37,7 +36,8 @@ namespace VoxelEngine.Blocks {
         public static Block lantern = new BlockLantern(20).setName("Lanturn").setSolid(false);
         public static Block torch = new BlockTorch(21).setName("Torch").setSolid(false);
         public static Block ladder = new Block(22).setName("Ladder");
-        public static Block rail = new Block(32).setName("rail").setSolid(false);
+        public static Block rail = new Block(32).setName("Rail").setSolid(false);
+        public static Block fence = new Block(33).setName("Fence").setSolid(false).setRenderer(new BlockRendererPrimitiveFence());
         public static Block moss;
         public static Block root;
         public static Block flower;
@@ -53,11 +53,12 @@ namespace VoxelEngine.Blocks {
         public byte id = 0;
         public string name = "null";
         public float mineTime;
-        public TexturePos texturePos = new TexturePos(0, 0);
+        public TexturePos texturePos;
         public bool isSolid = true;
         public bool replaceable;
         public Type blockType;
         public BlockRenderer renderer;
+        public byte statesUsed;
 
         public Block(byte id) {
             this.id = id;
@@ -67,6 +68,10 @@ namespace VoxelEngine.Blocks {
                 Block.BLOCK_LIST[this.id] = this;
             }
             this.renderer = Block.RENDERER_CUBE;
+
+            this.setTexture(0, 0);
+
+            this.statesUsed = 1;
         }
 
         //neighborDir points to the block that made this update happen
@@ -105,9 +110,15 @@ namespace VoxelEngine.Blocks {
             return this.texturePos;
         }
 
-        //Used to check if the chunk needs to be redrawn after meta changes.  True if the chunk should be redrawn
-        public virtual bool dirtyAfterMetaChange(BlockPos pos, byte newMeta) {
-            return true;
+        public virtual Vector2[] getUVs(byte meta, Direction direction, Vector2[] uvArray) {
+            TexturePos tilePos = this.getTexturePos(direction, meta);
+            float x = TexturePos.BLOCK_SIZE * tilePos.x;
+            float y = TexturePos.BLOCK_SIZE * tilePos.y;
+            uvArray[0] = new Vector2(x, y);
+            uvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
+            uvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
+            uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
+            return uvArray;
         }
 
         ////////////////////////////////
@@ -147,6 +158,12 @@ namespace VoxelEngine.Blocks {
             this.renderer = renderer;
             return this;
         }
+
+        public Block setStatesUsed(byte statesUsed) {
+            this.statesUsed = statesUsed;
+            return this;
+        }
+
 
         public Item asItem() {
             return Item.ITEM_LIST[this.id];

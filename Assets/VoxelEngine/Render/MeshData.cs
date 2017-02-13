@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace VoxelEngine.Render {
 
-    public class MeshData {
+    public class MeshData : MeshDataBase {
+
         public List<Vector3> vertices;
         public List<int> triangles;
         public List<Vector2> uv;
@@ -20,47 +22,65 @@ namespace VoxelEngine.Render {
             this.colVertices = new List<Vector3>();
             this.colTriangles = new List<int>();
         }
+        
+        public override void addQuadTriangles() {
+            this.triangles.Add(this.vertices.Count - 4);
+            this.triangles.Add(this.vertices.Count - 3);
+            this.triangles.Add(this.vertices.Count - 2);
 
-        public void addQuadTriangles() {
-            this.triangles.Add(vertices.Count - 4);
-            this.triangles.Add(vertices.Count - 3);
-            this.triangles.Add(vertices.Count - 2);
-
-            this.triangles.Add(vertices.Count - 4);
-            this.triangles.Add(vertices.Count - 2);
-            this.triangles.Add(vertices.Count - 1);
+            this.triangles.Add(this.vertices.Count - 4);
+            this.triangles.Add(this.vertices.Count - 2);
+            this.triangles.Add(this.vertices.Count - 1);
 
             if (this.useRenderDataForCol) {
-                this.colTriangles.Add(colVertices.Count - 4);
-                this.colTriangles.Add(colVertices.Count - 3);
-                this.colTriangles.Add(colVertices.Count - 2);
-                this.colTriangles.Add(colVertices.Count - 4);
-                this.colTriangles.Add(colVertices.Count - 2);
-                this.colTriangles.Add(colVertices.Count - 1);
+                this.colTriangles.Add(this.colVertices.Count - 4);
+                this.colTriangles.Add(this.colVertices.Count - 3);
+                this.colTriangles.Add(this.colVertices.Count - 2);
+
+                this.colTriangles.Add(this.colVertices.Count - 4);
+                this.colTriangles.Add(this.colVertices.Count - 2);
+                this.colTriangles.Add(this.colVertices.Count - 1);
             }
         }
 
-        public void addVertex(Vector3 vertex) {
+        public void addQuadWithUVs(Vector2[] uvs) {
+            this.addQuadTriangles();
+            this.uv.AddRange(uvs);
+        }
+
+        public override void addVertex(Vector3 vertex) {
             this.vertices.Add(vertex);
             if (this.useRenderDataForCol) {
                 this.colVertices.Add(vertex);
             }
         }
 
-        public void addTriangle(int tri) {
+        public override void addTriangle(int tri) {
             this.triangles.Add(tri);
             if (useRenderDataForCol) {
                 this.colTriangles.Add(tri - (vertices.Count - colVertices.Count));
             }
         }
 
-        public Mesh toMesh() {
+        public override Mesh toMesh() {
             Mesh m = new Mesh();
-            m.vertices = this.vertices.ToArray();
-            m.triangles = this.triangles.ToArray();
-            m.uv = this.uv.ToArray();
+            m.SetVertices(this.vertices);
+            m.SetTriangles(this.triangles, 0);
+            m.SetUVs(0, this.uv);
             m.RecalculateNormals();
             return m;
+        }
+
+        public override int getVerticeCount() {
+            return this.vertices.Count;
+        }
+
+        public override void addUv(Vector2 uv) {
+            this.uv.Add(uv);
+        }
+
+        public override void addUvRange(IEnumerable<Vector2> uv) {
+            this.uv.AddRange(uv);
         }
     }
 }

@@ -6,7 +6,9 @@ namespace VoxelEngine.Blocks {
 
     public class BlockAir : Block {
 
-        public BlockAir(byte id) : base(id) { }
+        public BlockAir(byte id) : base(id) {
+            this.setStatesUsed(0);
+        }
 
         //public override void onDestroy(World world, BlockPos pos, byte meta) {
         //    base.onDestroy(world, pos, meta);

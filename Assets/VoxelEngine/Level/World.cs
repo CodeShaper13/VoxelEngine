@@ -20,9 +20,7 @@ namespace VoxelEngine.Level {
         public NbtIOHelper nbtIOHelper;
         public List<Entity> entityList;
 
-        public GameObject chunkPrefab;
-
-        private Transform chunkWrapper;
+        public Transform chunkWrapper;
         private Transform entityWrapper;
         public Transform tileEntityWrapper;
 
@@ -55,11 +53,11 @@ namespace VoxelEngine.Level {
             //Main.singleton.onWorldLoadFinish();
         }
 
-        public void Update() {
-            if(this.generator is WorldGeneratorCaves) {
-                ((WorldGeneratorCaves)this.generator).debugDisplay();
-            }
-        }
+        //public void Update() {
+        //    if(this.generator is WorldGeneratorCaves) {
+        //        ((WorldGeneratorCaves)this.generator).debugDisplay();
+        //    }
+        //}
 
         private Transform createWrapper(string name) {
             Transform t = new GameObject().transform;
@@ -115,13 +113,8 @@ namespace VoxelEngine.Level {
         }
 
         //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
-        public Chunk loadChunk(ChunkPos pos) {
-            GameObject chunkGameObject = GameObject.Instantiate(this.chunkPrefab, new Vector3(pos.x * 16, pos.y * 16, pos.z * 16), Quaternion.identity) as GameObject;
-            chunkGameObject.transform.parent = this.chunkWrapper;
-            Chunk chunk = chunkGameObject.GetComponent<Chunk>();
+        public Chunk loadChunk(Chunk chunk, ChunkPos pos) {
             chunk.initChunk(this, pos);
-
-            chunk.isDirty = true;
 
             this.loadedChunks.Add(pos, chunk);
 
@@ -142,7 +135,6 @@ namespace VoxelEngine.Level {
                 }
             }
 
-            GameObject.Destroy(chunk.gameObject);
             this.loadedChunks.Remove(chunk.chunkPos);
         }
 
@@ -227,9 +219,7 @@ namespace VoxelEngine.Level {
             if (chunk != null) {
                 BlockPos p = new BlockPos(x, y, z);
                 chunk.setMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, meta);
-                if (chunk.getBlock(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z).dirtyAfterMetaChange(p, meta)) {
-                    chunk.isDirty = true;
-                }
+                chunk.isDirty = true;
 
                 foreach (Direction dir in Direction.all) {
                     BlockPos shiftedPos = p.move(dir);

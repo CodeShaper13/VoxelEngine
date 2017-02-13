@@ -60,8 +60,8 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public void debugDisplay() {
-            foreach (StructureMineshaft m in this.mineshaftList) {
-                m.debugDisplay();
+            for(int i = 0; i < this.mineshaftList.Count; i++) {
+                this.mineshaftList[i].debugDisplay();
             }
         }
 

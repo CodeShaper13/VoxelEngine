@@ -12,6 +12,7 @@ namespace VoxelEngine.Blocks {
         public BlockOre(byte id, Item drop, int textureY) : base(id) {
             this.droppedItem = drop;
             this.textureY = textureY;
+            this.setStatesUsed(5);
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {

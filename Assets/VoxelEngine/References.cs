@@ -14,6 +14,7 @@ namespace VoxelEngine {
         // Other prefabs
         public GameObject blockBreakEffect;
         public GameObject worldPrefab;
+        public GameObject chunkPrefab;
 
         // Containers gui prefabs
         public GameObject containerHotbar;
@@ -37,13 +38,12 @@ namespace VoxelEngine {
             References.list = this;
         }
 
-        public static Material getMaterial(int id, bool unlitVarient) {
-            if(unlitVarient) {
-                return id < 256 ? References.list.unlitBlockMaterial : References.list.unlitItemMaterial;
-            }
-            else {
-                return id < 256 ? References.list.blockMaterial : References.list.itemMaterial;
-            }
+        public static Material getUnlitMaterial(int id) {
+            return id < 256 ? References.list.unlitBlockMaterial : References.list.unlitItemMaterial;
+        }
+
+        public static Material getMaterial(int id) {
+            return id < 256 ? References.list.blockMaterial : References.list.itemMaterial;
         }
     }
 }

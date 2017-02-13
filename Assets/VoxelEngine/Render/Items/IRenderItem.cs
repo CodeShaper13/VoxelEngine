@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using VoxelEngine.Containers;
+using VoxelEngine.Items;
 
 namespace VoxelEngine.Render.Items {
 
     public interface IRenderItem {
 
-        Mesh renderItem(ItemStack stack);
+        Mesh renderItem(Item item, byte meta);
 
         Matrix4x4 getMatrix(Vector3 pos);
     }

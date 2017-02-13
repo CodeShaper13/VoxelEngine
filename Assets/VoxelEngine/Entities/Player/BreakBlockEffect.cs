@@ -2,6 +2,7 @@
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
+using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
@@ -23,16 +24,21 @@ namespace VoxelEngine.Entities.Player {
         }
 
         //Beging the breaking of a block
-        public void beginBreak(Vector3 pos, Block block, byte meta) {
+        public void beginBreak(World world, int x, int y, int z, Block block, byte meta) {
             this.meshRenderer.enabled = true;
             MeshData meshData = new MeshData();
 
             BlockRenderer renderer = block.renderer;
             if(renderer != null && renderer.renderInWorld) {
-                this.meshFilter.mesh = renderer.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true }).toMesh();
+                Block[] surroundingBlocks = new Block[6];
+                for (int i = 0; i < 6; i++) {
+                    Direction d = Direction.all[i];
+                    surroundingBlocks[i] = world.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z);
+                }
+                this.meshFilter.mesh = renderer.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true }, surroundingBlocks).toMesh();
             }
 
-            this.transform.position = pos;
+            this.transform.position = new Vector3(x, y, z);
 
             //set the right texture
             //int x = block.getTexturePos(Direction.UP, 0).x;
@@ -50,7 +56,7 @@ namespace VoxelEngine.Entities.Player {
 
         public void update(EntityPlayer player, BlockPos lookingAt, Block block, byte meta) {
             if (this.isTerminated) {
-                this.beginBreak(lookingAt.toVector(), block, meta);
+                this.beginBreak(player.world, lookingAt.x, lookingAt.y, lookingAt.z, block, meta);
                 this.isTerminated = false;
             }
 

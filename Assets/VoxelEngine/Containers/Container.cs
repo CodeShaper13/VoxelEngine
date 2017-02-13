@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using VoxelEngine.Blocks;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
-using VoxelEngine.Render.Items;
+using VoxelEngine.Items;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
 
     public class Container : MonoBehaviour {
+
         public ContainerData data;
         public EntityPlayer player;
         public Button[] slots;
@@ -31,8 +31,9 @@ namespace VoxelEngine.Containers {
         }
 
         public virtual void drawnContents() {
+            ItemStack stack;
             for (int i = 0; i < this.slots.Length; i++) {
-                ItemStack stack = this.data.items[i];
+                stack = this.data.items[i];
                 if (stack != null) {
                     Transform t = this.slots[i].transform;
                     this.renderStack(stack, t.position + -t.forward);
@@ -52,9 +53,8 @@ namespace VoxelEngine.Containers {
         }
 
         private void renderStack(ItemStack stack, Vector3 pos) {
-            IRenderItem render = stack.item.itemRenderer;
-            Material m = References.getMaterial(stack.item.id, true);
-            Graphics.DrawMesh(render.renderItem(stack), render.getMatrix(pos), m, 8, null, 0, null, false, false);
+            Item i = stack.item;
+            Graphics.DrawMesh(i.getPreRenderedMesh(stack.meta), i.itemRenderer.getMatrix(pos), References.getUnlitMaterial(i.id), 8, null, 0, null, false, false);
         }
 
         public void onSlotClicked(int slotIndex) {

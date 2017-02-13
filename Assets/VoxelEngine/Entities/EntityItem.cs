@@ -1,5 +1,4 @@
-﻿using System;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Containers;
 
@@ -22,13 +21,16 @@ namespace VoxelEngine.Entities {
         }
 
         public void initRendering() {
-            if(this.stack != null) {
-                this.filter.mesh = this.stack.item.itemRenderer.renderItem(this.stack);
-                this.filter.mesh.RecalculateNormals();
-                this.GetComponent<MeshRenderer>().material = References.getMaterial(this.stack.item.id, false);
-            } else {
+            if(this.stack == null) {
                 Debug.LogWarning("Items may not have a stack of null!  Killing Entity");
                 this.world.killEntity(this);
+            } else if(stack.item.id == 0) { // Air
+                Debug.LogWarning("Items may not be air!  Killing Entity");
+                this.world.killEntity(this);
+            } else {
+                this.filter.mesh = this.stack.item.getPreRenderedMesh(this.stack.meta);
+                this.filter.mesh.RecalculateNormals();
+                this.GetComponent<MeshRenderer>().material = References.getMaterial(this.stack.item.id);
             }
         }
 

@@ -8,6 +8,7 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Items {
 
     public class ItemBlock : Item {
+
         private static IRenderItem RENDER_BLOCK = new RenderItemBlock();
 
         public Block block;
@@ -29,6 +30,10 @@ namespace VoxelEngine.Items {
                 }
             }
             return stack;
+        }
+
+        public override byte getStatesUsed() {
+            return this.block.statesUsed;
         }
     }
 }
