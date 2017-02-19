@@ -72,5 +72,9 @@ namespace VoxelEngine.Containers {
                 this.player.heldStack = slotStack;
             }
         }
+
+        public virtual void onClose() {
+
+        }
     }
 }

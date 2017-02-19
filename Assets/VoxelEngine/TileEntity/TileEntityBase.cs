@@ -38,15 +38,16 @@ namespace VoxelEngine.TileEntity {
         }
 
         public static TileEntityBase getTileEntityFromId(World world, BlockPos pos, NbtCompound tag) {
-            switch(tag.Get<NbtInt>("id").IntValue) {
+            byte meta = world.getMeta(pos);
+            switch (tag.Get<NbtInt>("id").IntValue) {
                 case 1:
-                    return new TileEntityChest(world, pos.x, pos.y, pos.z);
+                    return new TileEntityChest(world, pos.x, pos.y, pos.z, meta);
                 case 2:
                     return new TileEntityGlorb(world, pos.x, pos.y, pos.z);
                 case 3:
                     return new TileEntityLantern(world, pos.x, pos.y, pos.z);
                 case 4:
-                    return new TileEntityTorch(world, pos.x, pos.y, pos.z);
+                    return new TileEntityTorch(world, pos.x, pos.y, pos.z, meta);
             }
             return null;
         }

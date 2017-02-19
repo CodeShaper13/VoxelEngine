@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System;
 
 namespace VoxelEngine.Render {
 
@@ -23,7 +22,7 @@ namespace VoxelEngine.Render {
             this.colTriangles = new List<int>();
         }
         
-        public override void addQuadTriangles() {
+        public override void generateQuad() {
             this.triangles.Add(this.vertices.Count - 4);
             this.triangles.Add(this.vertices.Count - 3);
             this.triangles.Add(this.vertices.Count - 2);
@@ -43,9 +42,17 @@ namespace VoxelEngine.Render {
             }
         }
 
-        public void addQuadWithUVs(Vector2[] uvs) {
-            this.addQuadTriangles();
+        public void generateQuad(Vector2[] uvs) {
+            this.generateQuad();
             this.uv.AddRange(uvs);
+        }
+
+        public void addQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector2[] uvs) {
+            this.addVertex(v1);
+            this.addVertex(v2);
+            this.addVertex(v3);
+            this.addVertex(v4);
+            this.generateQuad(uvs);
         }
 
         public override void addVertex(Vector3 vertex) {
@@ -53,6 +60,36 @@ namespace VoxelEngine.Render {
             if (this.useRenderDataForCol) {
                 this.colVertices.Add(vertex);
             }
+        }
+
+        public void addColliderBox(Bounds b, float x, float y, float z) {
+            int i = this.colVertices.Count - 1;
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.max.z));
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.min.z));
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.min.z));
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.max.z));
+
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.max.z));
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.min.z));
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.min.z));
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.max.z));
+
+            // Debug.DrawLine(new Vector3(x + b.min.x, y + b.min.y, z + b.min.z) + Vector3.up * 16, new Vector3(x + b.max.x, y + b.max.y, z + b.max.z) + Vector3.up * 16, Color.red, 1000);
+
+            this.colTriangles.AddRange(new int[36] {
+                i + 1, i + 6, i + 5, // + X
+                i + 1, i + 2, i + 6, // + X
+                i + 2, i + 3, i + 7,
+                i + 7, i + 6, i + 2,
+                i + 3, i + 4, i + 8,
+                i + 8, i + 7, i + 3,
+                i + 4, i + 1, i + 5,
+                i + 5, i + 8, i + 4,
+                i + 5, i + 6, i + 7, // Top
+                i + 7, i + 8, i + 5, // Top
+                i + 1, i + 4, i + 3, // Bottom
+                i + 3, i + 2, i + 1  // Bottom
+            });
         }
 
         public override void addTriangle(int tri) {
@@ -75,6 +112,7 @@ namespace VoxelEngine.Render {
             return this.vertices.Count;
         }
 
+        // Unused
         public override void addUv(Vector2 uv) {
             this.uv.Add(uv);
         }

@@ -6,17 +6,19 @@ namespace VoxelEngine.Util {
 
     public class PlayerRayHit {
         public RaycastHit unityRaycastHit;
-        public BlockState state;
+        public BlockState hitState;
         public Entity entity;
 
-        public PlayerRayHit(Block block, byte meta, BlockPos pos, RaycastHit unityRaycastHit) {
-            this.state = new BlockState(block, meta, pos);
+        public PlayerRayHit(RaycastHit unityRaycastHit) {
             this.unityRaycastHit = unityRaycastHit;
         }
 
-        public PlayerRayHit(Entity entity, RaycastHit unityRaycastHit) {
+        public PlayerRayHit(Block hitBlock, byte meta, BlockPos hitPos, RaycastHit unityRaycastHit) : this(unityRaycastHit) {
+            this.hitState = new BlockState(hitBlock, meta, hitPos);
+        }
+
+        public PlayerRayHit(Entity entity, RaycastHit unityRaycastHit) : this(unityRaycastHit) {
             this.entity = entity;
-            this.unityRaycastHit = unityRaycastHit;
         }
     }
 }

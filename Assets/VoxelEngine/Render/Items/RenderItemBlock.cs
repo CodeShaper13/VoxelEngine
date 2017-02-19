@@ -10,6 +10,10 @@ namespace VoxelEngine.Render.Items {
         public bool[] trueArray = new bool[6] { true, true, true, true, true, true };
         public Block[] airArray = new Block[6] {Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
 
+        public RenderItemBlock() {
+
+        }
+
         public Mesh renderItem(Item item, byte meta) {
             Block b = Block.BLOCK_LIST[item.id];
             return b.renderer.renderBlock(b, meta, new MeshData(), 0, 0, 0, this.trueArray, this.airArray).toMesh();

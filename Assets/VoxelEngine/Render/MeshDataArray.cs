@@ -30,7 +30,7 @@ namespace VoxelEngine.Render {
             this.colTriangles = new int[triCount];
         }
 
-        public override void addQuadTriangles() {
+        public override void generateQuad() {
             this.triangles[this.triIndex++] = this.vertIndex - 4;
             this.triangles[this.triIndex++] = this.vertIndex - 3;
             this.triangles[this.triIndex++] = this.vertIndex - 2;

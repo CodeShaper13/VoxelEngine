@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using VoxelEngine.Blocks;
-using VoxelEngine.Containers;
-using VoxelEngine.Render.Items;
 
 namespace VoxelEngine.Util {
 
@@ -13,7 +10,7 @@ namespace VoxelEngine.Util {
         //void OnPreRender() {}
 
         // Will be called from camera after regular rendering is done.
-        public void OnPostRender() {
+        //public void OnPostRender() {
             //if (!mat) {
             //    // Unity has a built-in shader that is useful for drawing
             //    // simple colored things. In this case, we just want to use
@@ -55,7 +52,7 @@ namespace VoxelEngine.Util {
             //m.SetPass(0);
 
             //Graphics.DrawMeshNow(mesh, render.getMatrix(pos));
-        }
+        //}
 
         void Awake() {
             if (HudCamera.camera == null) {

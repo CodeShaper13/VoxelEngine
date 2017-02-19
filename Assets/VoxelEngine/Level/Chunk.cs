@@ -5,6 +5,7 @@ using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Entities;
 using VoxelEngine.Render;
+using VoxelEngine.Render.BlockRender;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 

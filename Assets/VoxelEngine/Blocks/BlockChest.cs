@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.Render.BlockRender;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -10,11 +12,35 @@ namespace VoxelEngine.Blocks {
 
     public class BlockChest : BlockTileEntity {
 
-        public BlockChest(byte id) : base(id) { }
+        public BlockChest(byte id) : base(id) {
+            this.setRenderer(BlockRenderer.CHEST);
+        }
 
         public override bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
-            player.openContainer(References.list.containerChest, ((TileEntityChest)world.getTileEntity(pos)).chestData);
-            return true;
+            if(!world.getBlock(pos.move(Direction.UP)).isSolid) {
+                TileEntityChest chest = ((TileEntityChest)world.getTileEntity(pos));
+                //player.openContainer(References.list.containerChest, chest.chestData);
+                chest.chestOpen.setOpen(true);
+                return true;
+            }
+            return false;
+        }
+
+        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
+            if (Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
+                if(angle.x < 0) {
+                    return 1; // East
+                } else {
+                    return 3; // West
+                }
+            }
+            else { // Z axis
+                if (angle.z < 0) {
+                    return 0; // North
+                } else {
+                    return 2; // South
+                }
+            }
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
@@ -31,7 +57,11 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, byte meta) {
-            return new TileEntityChest(world, x, y, z);
+            return new TileEntityChest(world, x, y, z, meta);
+        }
+
+        public static byte getMetaFromDirection(Direction dir) {
+            return dir != Direction.DOWN ? (byte)dir.directionId : (byte)0;
         }
     }
 }

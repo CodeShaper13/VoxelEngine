@@ -26,7 +26,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.meshData.addVertex(new Vector3(p1.x, p2.y, p1.z));
             this.meshData.addVertex(p2);
             this.meshData.addVertex(new Vector3(p2.x, p1.y, p2.z));
-            this.meshData.addQuadWithUVs(b.getUVs(this.meta, dir, new Vector2[4]));
+            this.meshData.generateQuad(b.getUVs(this.meta, dir, this.uvArray));
         }
     }
 }

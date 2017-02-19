@@ -29,8 +29,7 @@ namespace VoxelEngine.Containers {
                 cd.index = 8;
             }
             this.slots[cd.index].transform.localScale = new Vector3(1.15f, 1.15f, 1.15f);
-
-            this.itemName.showAndStartFade(cd.getHeldItem() == null ? string.Empty : cd.getHeldItem().item.name, 1.5f);
+            this.showItemName();
         }
 
         public void setSelected(int index) {
@@ -43,7 +42,7 @@ namespace VoxelEngine.Containers {
 
         public void showItemName() {
             ItemStack s = ((ContainerDataHotbar)this.data).getHeldItem();
-            this.itemName.showAndStartFade(s == null ? string.Empty : s.item.name, 1.5f);
+            this.itemName.showAndStartFade(s == null ? string.Empty : s.item.getName(s.meta), 1.5f);
         }
     }
 }

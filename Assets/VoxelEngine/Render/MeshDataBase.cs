@@ -5,7 +5,7 @@ namespace VoxelEngine.Render {
 
     public abstract class MeshDataBase {
 
-        public abstract void addQuadTriangles();
+        public abstract void generateQuad();
 
         public abstract void addVertex(Vector3 vertex);
 

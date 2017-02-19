@@ -103,17 +103,27 @@ namespace VoxelEngine.Util {
             return new BlockPos(Mathf.RoundToInt(vector.x), Mathf.RoundToInt(vector.y), Mathf.RoundToInt(vector.z));
         }
 
-        public static BlockPos fromRaycast(RaycastHit hit, bool adjacent = false) {
-            //Debug.Log(hit.point.x + ", " + hit.point.y + ", " + hit.point.z);
+        public static BlockPos fromRaycastHit(RaycastHit hit) {
+            // Debug.DrawLine(Camera.main.transform.position, hit.point, Color.red);
+
+            Vector3 vec = hit.point + ((hit.normal * -1f) / 100);
+            int x = Mathf.RoundToInt(vec.x);
+            int y = Mathf.RoundToInt(vec.y);
+            int z = Mathf.RoundToInt(vec.z);
+
+            return new BlockPos(x, y, z);
+
+            /*
             float f = adjacent ? 1f : -1f;
             BlockPos pos = BlockPos.fromVec(new Vector3(
                 BlockPos.moveWithinBlock(hit.point.x + (hit.normal.x / 4) * f, hit.normal.x, adjacent),
                 BlockPos.moveWithinBlock(hit.point.y + (hit.normal.y / 4) * f, hit.normal.y, adjacent),
                 BlockPos.moveWithinBlock(hit.point.z + (hit.normal.z / 4) * f, hit.normal.z, adjacent)));
-            //Debug.Log(pos.ToString());
             return pos;
+            */
         }
 
+        // Unused Is it broken?
         private static float moveWithinBlock(float point, float normal, bool adjacent = false) {
             //Debug.Log(point + ", " + normal + " VALUE: " + (point - (int)point));
             if ((point - (int)point) == 0.5f || (point - (int)point) == -0.5f) {

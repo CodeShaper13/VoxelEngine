@@ -1,17 +1,18 @@
-﻿using VoxelEngine.Level;
+﻿using UnityEngine;
+using VoxelEngine.Level;
 using VoxelEngine.Render.BlockRender;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockLantern : BlockTileEntity {
+    public class BlockLantern : BlockTileEntity, ILightSource {
 
         public BlockLantern(byte id) : base(id) {
-            this.setRenderer(new BlockRendererMesh(References.list.lanturnMesh).setRenderInWorld(false));
+            this.setRenderer(BlockRenderer.LANTERN);
         }
 
-        public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {
+        public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
             if (neighborDir == Direction.DOWN && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
@@ -19,6 +20,10 @@ namespace VoxelEngine.Blocks {
 
         public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, byte meta) {
             return new TileEntityLantern(world, x, y, z);
+        }
+
+        public GameObject getPrefab() {
+            return References.list.lanternPrefab;
         }
     }
 }

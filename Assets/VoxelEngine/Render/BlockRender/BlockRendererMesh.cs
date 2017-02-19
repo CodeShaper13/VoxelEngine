@@ -1,27 +1,61 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using VoxelEngine.Blocks;
 
 namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererMesh : BlockRenderer {
 
-        public Vector3[] cachedMeshVerts;
-        public int[] cachedMeshTris;
-        public Vector2[] cachedMeshUVs;
+        private GameObject prefab;
+        private Vector3[] cachedMeshVerts;
+        private int[] cachedMeshTris;
+        private Vector2[] cachedMeshUVs;
+        private Bounds[] colliderArray;
 
-        private Mesh mesh;
-        private Vector3 shiftVec;
-        private bool flag = true;
+        private Vector3 offsetVector;
+        private bool randomMirror;
+        private bool useMeshForCollision = true;
 
-        public BlockRendererMesh(Mesh mesh) {
-            if(mesh == null) {
-                Debug.Log("ERROR!  Model not set in References!");
-                this.mesh = new Mesh();
+        public BlockRendererMesh(GameObject prefab) {
+            this.prefab = prefab;
+            List<Mesh> meshes = new List<Mesh>();
+
+            this.extractMesh(this.prefab.transform, meshes);
+            foreach(Transform t in this.prefab.transform) {
+                this.extractMesh(t, meshes);
+            }
+
+            if(meshes.Count == 0) {
+                Debug.Log("ERROR!  No MeshFilter components could be found on the Prefab!");
+            } else if (meshes.Count == 1) {
+                Mesh m = meshes[0];
+                this.cachedMeshVerts = m.vertices;
+                this.cachedMeshTris = m.triangles;
+                this.cachedMeshUVs = m.uv;
             } else {
-                this.mesh = mesh;
-                this.cachedMeshVerts = this.mesh.vertices;
-                this.cachedMeshTris = this.mesh.triangles;
-                this.cachedMeshUVs = this.mesh.uv;
+                List<Vector3> vertList = new List<Vector3>();
+                List<int> triList = new List<int>();
+                List<Vector2> uvList = new List<Vector2>();
+                foreach(Mesh m in meshes) {
+                    vertList.AddRange(m.vertices);
+                    triList.AddRange(m.triangles);
+                    uvList.AddRange(m.uv);
+                }
+                this.cachedMeshVerts = vertList.ToArray();
+                this.cachedMeshTris = triList.ToArray();
+                this.cachedMeshUVs = uvList.ToArray();
+            }
+        }
+
+        [Obsolete("Pass in a prefab instead", true)]
+        public BlockRendererMesh(Mesh m) {
+            if(m == null) {
+                Debug.Log("ERROR!  Mesh can not be null!  Was it not set in References?");
+            } else {
+                this.cachedMeshVerts = m.vertices;
+                this.cachedMeshTris = m.triangles;
+                this.cachedMeshUVs = m.uv;
             }
         }
 
@@ -32,11 +66,18 @@ namespace VoxelEngine.Render.BlockRender {
             //Vector3 sv = (this.flag ? this.pseudoRandomScale(new BlockPos(x, y, z).GetHashCode()) : Vector3.one);
             //Vector3 sv = Vector3.one;
 
+            if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Chech usRenderDataForCol because it is false if we are rendering an item
+                meshData.useRenderDataForCol = false;
+                for(i = 0; i < this.colliderArray.Length; i++) {
+                    meshData.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
+                }
+            }
+
             int vertStart = meshData.getVerticeCount();
             for(i = 0; i < this.cachedMeshVerts.Length; i++) {
                 v = this.cachedMeshVerts[i];
                 //meshData.addVertex(new Vector3((v.x * sv.x) + x + this.shiftVec.x, (v.y * sv.y) + y + this.shiftVec.y, (v.z * sv.z) + z + this.shiftVec.z));
-                meshData.addVertex(new Vector3(v.x + x + this.shiftVec.x, v.y + y + this.shiftVec.y, v.z + z + this.shiftVec.z));
+                meshData.addVertex(new Vector3(v.x + x + this.offsetVector.x, v.y + y + this.offsetVector.y, v.z + z + this.offsetVector.z));
             }
 
             for (i = 0; i < this.cachedMeshTris.Length; i++) {
@@ -63,13 +104,32 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public BlockRendererMesh setUseRandomRot(bool flag) {
-            this.flag = flag;
+        private void extractMesh(Transform t, List<Mesh> meshes) {
+            MeshFilter filter = t.GetComponent<MeshFilter>();
+            if (filter != null) {
+                meshes.Add(filter.sharedMesh);
+            }
+        }
+
+        public BlockRendererMesh useRandomMirror() {
+            this.randomMirror = true;
             return this;
         }
 
-        public BlockRendererMesh setShiftVec(Vector3 vec) {
-            this.shiftVec = vec;
+        public BlockRendererMesh setOffsetVector(Vector3 vec) {
+            this.offsetVector = vec;
+            return this;
+        }
+
+        public BlockRendererMesh useColliderComponent() {
+            //Debug.Log(GameObject.Instantiate(this.prefab).GetComponent<BoxCollider>().bounds);
+            this.useMeshForCollision = false;
+            BoxCollider[] bc = this.prefab.GetComponents<BoxCollider>();
+            this.colliderArray = new Bounds[bc.Length];
+            for (int i = 0; i < bc.Length; i++) {
+                BoxCollider b = bc[i];
+                this.colliderArray[i] = new Bounds(new Vector3(b.center.x, b.center.y, b.center.z), new Vector3(b.size.x, b.size.y, b.size.z));
+            }
             return this;
         }
     }

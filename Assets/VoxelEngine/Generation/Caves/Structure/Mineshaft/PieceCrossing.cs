@@ -30,7 +30,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         int z = k - chunk.pos.z;
                         if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
                             if (i == this.orgin.x && k == this.orgin.z && y == 4) {
-                                chunk.world.setBlock(i, j, k, Block.torch, false);
+                                chunk.world.setBlock(i, j, k, Block.torch, 0, false);
                                 continue;
                             }
                             if (y == 0 && (i == this.orgin.x || k == this.orgin.z) && rnd.Next(0, 10) != 0) {

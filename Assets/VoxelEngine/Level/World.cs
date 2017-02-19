@@ -169,26 +169,31 @@ namespace VoxelEngine.Level {
             }
         }
 
-        public void setBlock(BlockPos pos, Block block, bool updateNeighbors = true) {
-            this.setBlock(pos.x, pos.y, pos.z, block, updateNeighbors);
+        public void setBlock(BlockPos pos, Block block, byte meta = 255, bool updateNeighbors = true) {
+            this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors);
         }
 
-        public void setBlock(int x, int y, int z, Block block, bool updateNeighbors = true) {
+        public void setBlock(int x, int y, int z, Block block, byte newMeta = 255, bool updateNeighbors = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 int x1 = x - chunk.pos.x;
                 int y1 = y - chunk.pos.y;
                 int z1 = z - chunk.pos.z;
                 BlockPos pos = new BlockPos(x, y, z);
-                byte meta = chunk.getMeta(x1, y1, z1);
-                chunk.getBlock(x1, y1, z1).onDestroy(this, pos, meta);
+                byte oldBlockMeta = chunk.getMeta(x1, y1, z1);
+                chunk.getBlock(x1, y1, z1).onDestroy(this, pos, oldBlockMeta);
                 chunk.setBlock(x1, y1, z1, block);
-                block.onPlace(this, pos, meta);
+
+                byte meta1 = (newMeta == 255 ? chunk.getMeta(x1, y1, z1) : newMeta);
+                if(newMeta != 255) {
+                    chunk.setMeta(x1, y1, z1, newMeta);
+                }
+                block.onPlace(this, pos, meta1);
 
                 if (updateNeighbors) {
                     foreach (Direction dir in Direction.all) {
                         BlockPos shiftedPos = pos.move(dir);
-                        this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
+                        this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, this.getMeta(shiftedPos), dir.getOpposite());
                     }
                     chunk.isDirty = true;
                     this.updateIfEqual(x - chunk.pos.x, 0, new BlockPos(x - 1, y, z));
@@ -221,10 +226,11 @@ namespace VoxelEngine.Level {
                 chunk.setMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, meta);
                 chunk.isDirty = true;
 
-                foreach (Direction dir in Direction.all) {
-                    BlockPos shiftedPos = p.move(dir);
-                    this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
-                }
+                //TODO fix
+                //foreach (Direction dir in Direction.all) {
+                //    BlockPos shiftedPos = p.move(dir);
+                //    this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
+                //}
             }
         }
 

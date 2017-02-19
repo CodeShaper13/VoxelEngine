@@ -115,9 +115,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     }
                 }
             }
+            //Add the supports, torch and rails
             BlockPos pos = this.start;
             BlockPos endPoint = this.end + this.pointing.direction;
-            byte axis = (byte)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X);
+            byte axis = (byte)(this.pointing.axis);
+            byte perpAxis = (byte)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X); // Perpendicular to axis
             i = 0;
             do {
                 i++;
@@ -126,28 +128,35 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     y = pos.y + 4 - chunk.pos.y;
                     z = pos.z - chunk.pos.z;
                     if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                        chunk.world.setBlock(pos.x, pos.y + 3, pos.z, Block.lantern, false);
+                        chunk.world.setBlock(pos.x, pos.y + 3, pos.z, Block.torch, BlockTorch.getMetaFromDirection(this.pointing), false);
                     }
                 }
                 if (i == 4) {
-                    this.setStateIfInChunk(chunk, pos.x, pos.y + 3, pos.z, Block.wood, axis);
+                    // Top middle
+                    this.setStateIfInChunk(chunk, pos.x, pos.y + 3, pos.z, Block.wood, perpAxis);
+
+                    // Column
                     pos1 = pos + this.pointing.getClockwise().direction * 2;
                     for (j = 0; j < 4; j++) {
-                        this.setStateIfInChunk(chunk, pos1.x, pos1.y + j, pos1.z, Block.wood, j == 3 ? axis : (byte)0);
+                        this.setStateIfInChunk(chunk, pos1.x, pos1.y + j, pos1.z, Block.wood, j == 3 ? perpAxis : (byte)1);
                     }
+
+                    //Column
                     pos1 = pos + this.pointing.getCounterClockwise().direction * 2;
                     for (j = 0; j < 4; j++) {
-                        this.setStateIfInChunk(chunk, pos1.x, pos1.y + j, pos1.z, Block.wood, j == 3 ? axis : (byte)0);
+                        this.setStateIfInChunk(chunk, pos1.x, pos1.y + j, pos1.z, Block.wood, j == 3 ? perpAxis : (byte)1);
                     }
+
+                    // Top beam, one away from middle
                     pos1 = pos + this.pointing.getClockwise().direction;
-                    this.setStateIfInChunk(chunk, pos1.x, pos1.y + 3, pos1.z, Block.wood, axis);
+                    this.setStateIfInChunk(chunk, pos1.x, pos1.y + 3, pos1.z, Block.wood, perpAxis);
                     pos1 = pos + this.pointing.getCounterClockwise().direction;
-                    this.setStateIfInChunk(chunk, pos1.x, pos1.y + 3, pos1.z, Block.wood, axis);
+                    this.setStateIfInChunk(chunk, pos1.x, pos1.y + 3, pos1.z, Block.wood, perpAxis);
 
                     i = -4;
                 }
                 if (rnd.Next(0, 10) != 0) {
-                    this.setIfInChunk(chunk, pos.x, pos.y, pos.z, Block.rail);
+                    this.setStateIfInChunk(chunk, pos.x, pos.y, pos.z, Block.rail, axis == (byte)0 ? (byte)0 : (byte)1);
                 }
                 pos += this.pointing.direction;
 

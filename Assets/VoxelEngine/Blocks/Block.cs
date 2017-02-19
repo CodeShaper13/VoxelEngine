@@ -9,15 +9,14 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
     public class Block {
+
         public static Block[] BLOCK_LIST = new Block[256];
 
-        private static BlockRenderer RENDERER_CUBE = new BlockRendererPrimitiveCube();
-
-        public static Block air = new BlockAir(0).setName("Air").setSolid(false).setReplaceable(true).setRenderer(null);
+        public static Block air = new BlockAir(0).setName("Air").setTransparent().setReplaceable().setRenderer(null);
         public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(5);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
         public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
-        public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable(true);//.setSolid(false);
+        public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable();//.setSolid(false);
         public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
         public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
         public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
@@ -32,22 +31,22 @@ namespace VoxelEngine.Blocks {
         public static Block mossyBrick = new Block(16).setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
         public static Block cable = new Block(17).setName("Cable");
         public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
-        public static Block chest = new BlockChest(19).setName("Chest");
-        public static Block lantern = new BlockLantern(20).setName("Lanturn").setSolid(false);
-        public static Block torch = new BlockTorch(21).setName("Torch").setSolid(false);
+        public static Block chest = new BlockChest(19).setName("Chest").setTransparent();
+        public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent();
+        public static Block torch = new BlockTorch(21).setName("Torch").setTransparent();
         public static Block ladder = new Block(22).setName("Ladder");
-        public static Block rail = new Block(32).setName("Rail").setSolid(false);
-        public static Block fence = new Block(33).setName("Fence").setSolid(false).setRenderer(new BlockRendererPrimitiveFence());
+        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL).setRenderFlat();
+        public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(BlockRenderer.FENCE);
         public static Block moss;
         public static Block root;
         public static Block flower;
         public static Block door;
 
         public static Block grass = new BlockGrass(100).setName("grass").setMineTime(0.15f);
-        public static Block wood = new BlockWood(101).setName("log");
+        public static Block wood = new BlockWood(101).setName("log").setStatesUsed(3);
 
         [Obsolete("Remember to update the placeholder with the correct block")]
-        public static Block placeholder = new Block(255).setName("PLACEHOLDER");
+        public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(15, 15);
 
         //Fields:
         public byte id = 0;
@@ -59,6 +58,7 @@ namespace VoxelEngine.Blocks {
         public Type blockType;
         public BlockRenderer renderer;
         public byte statesUsed;
+        public bool renderFlat;
 
         public Block(byte id) {
             this.id = id;
@@ -67,7 +67,7 @@ namespace VoxelEngine.Blocks {
             } else {
                 Block.BLOCK_LIST[this.id] = this;
             }
-            this.renderer = Block.RENDERER_CUBE;
+            this.renderer = BlockRenderer.CUBE;
 
             this.setTexture(0, 0);
 
@@ -75,7 +75,7 @@ namespace VoxelEngine.Blocks {
         }
 
         //neighborDir points to the block that made this update happen
-        public virtual void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {
+        public virtual void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
             //TODO do we need to return a bool if the block changed, to make more chunks dirty?
         }
 
@@ -121,6 +121,14 @@ namespace VoxelEngine.Blocks {
             return uvArray;
         }
 
+        public virtual byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
+            return meta;
+        }
+
+        public virtual bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction intendedDir) {
+            return true;
+        }
+
         ////////////////////////////////
         // Constructor helper methods //
         ////////////////////////////////
@@ -139,13 +147,13 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
-        public Block setSolid(bool flag) {
-            this.isSolid = flag;
+        public Block setTransparent() {
+            this.isSolid = false;
             return this;
         }
 
-        public Block setReplaceable(bool flag) {
-            this.replaceable = flag;
+        public Block setReplaceable() {
+            this.replaceable = true;
             return this;
         }
 
@@ -164,6 +172,10 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
+        public Block setRenderFlat() {
+            this.renderFlat = true;
+            return this;
+        }
 
         public Item asItem() {
             return Item.ITEM_LIST[this.id];

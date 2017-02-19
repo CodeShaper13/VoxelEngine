@@ -60,7 +60,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override void carvePiece(Chunk chunk, System.Random rnd) {
             BlockPos p1 = new BlockPos(this.orgin.x - 4, this.orgin.y, this.orgin.z - 4);
             BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 16, this.orgin.z + 4);
-            BlockPos torchPos = this.orgin + (Direction.all[rnd.Next(1, 5)].direction * 4);
+            Direction torchDir = Direction.xzPlane[rnd.Next(0, 4)];
+            BlockPos torchPos = this.orgin + (torchDir.direction * 4);
             int x, y, z, i1, k1;
             Block b;
             for (int i = p1.x; i <= p2.x; i++) {
@@ -72,7 +73,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         z = k - chunk.pos.z;
                         if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
                             if(i == torchPos.x && k == torchPos.z && y == 10) {
-                                chunk.world.setBlock(i, j, k, Block.torch, false);
+                                chunk.world.setBlock(i, j, k, Block.torch, BlockTorch.getMetaFromDirection(torchDir), false);
                                 continue;
                             } else if (i == this.orgin.x + 4 && k == this.orgin.z + 4) {
                                 b = Block.ladder;

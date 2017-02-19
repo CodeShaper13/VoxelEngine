@@ -10,7 +10,9 @@ namespace VoxelEngine.TileEntity {
         public float flickerSpeed = 1f;
 
         public void Update() {
-            this.lightObj.intensity = Mathf.PingPong(Time.time * this.flickerSpeed, this.maxIntensity - this.minIntensity) + this.minIntensity;
+            if(!Main.singleton.isPaused) {
+                this.lightObj.intensity = Mathf.PingPong(Time.time * this.flickerSpeed, this.maxIntensity - this.minIntensity) + this.minIntensity;
+            }
         }
     }
 }

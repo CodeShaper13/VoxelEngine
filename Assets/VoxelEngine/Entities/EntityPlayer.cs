@@ -95,12 +95,12 @@ namespace VoxelEngine.Entities {
 
                 if (playerHit != null) {
                     if(playerHit.unityRaycastHit.distance <= this.reach) {
-                        if (playerHit.state != null) {
+                        if (playerHit.hitState != null) {
                             if (Input.GetMouseButton(0)) {
-                                this.blockBreakEffect.update(this, this.posLookingAt, playerHit.state.block, playerHit.state.meta);
+                                this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
                             }
                             if (Input.GetMouseButtonDown(1)) {
-                                if(!playerHit.state.block.onRightClick(this.world, this, this.posLookingAt, playerHit.state.meta)) {
+                                if(!playerHit.hitState.block.onRightClick(this.world, this, this.posLookingAt, playerHit.hitState.meta)) {
                                     if(this.heldStack != null) {
                                         this.heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
                                     }
@@ -134,12 +134,8 @@ namespace VoxelEngine.Entities {
                 bool isHoldingLight = false;
                 if (heldStack != null && heldStack.item is ItemBlock) {
                     Block b = ((ItemBlock)heldStack.item).block;
-                    if (b == Block.lantern) {
-                        this.copyLightData(References.list.lanternPrefab);
-                        isHoldingLight = true;
-                    }
-                    else if (b == Block.torch) {
-                        this.copyLightData(References.list.lanternPrefab);
+                    if(b is ILightSource) {
+                        this.copyLightData(((ILightSource)b).getPrefab());
                         isHoldingLight = true;
                     }
                 }
@@ -288,6 +284,7 @@ namespace VoxelEngine.Entities {
                 this.dropItem(this.heldStack);
                 this.heldStack = null;
             }
+            this.containerElement.onClose();
             GameObject.Destroy(this.containerElement.gameObject);
             Main.hideMouse(true);
         }
@@ -313,15 +310,15 @@ namespace VoxelEngine.Entities {
         }
 
         public void setupFirstTimePlayer() {
-            this.dataHotbar.addItemStack(new ItemStack(Block.fence, 0, 10));
-            this.dataHotbar.addItemStack(new ItemStack(Block.lantern, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Block.torch, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.food, 0, 10));
+            this.dataHotbar.addItemStack(new ItemStack(Item.uranium, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.fence, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
             this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 0));
-            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.poisonMushroom, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0));
+            this.dataHotbar.addItemStack(new ItemStack(Block.chest, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.rail, 0, 16));
+            this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0, 16));
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
             this.hunger = 75;
@@ -332,7 +329,7 @@ namespace VoxelEngine.Entities {
             bool rayHit = Physics.Raycast(this.mainCamera.position, this.mainCamera.forward, out hit);
 
             //Find out what we are looking at
-            BlockPos p = BlockPos.fromRaycast(hit, false);
+            BlockPos p = BlockPos.fromRaycastHit(hit);
 
             if (rayHit == false || !(p.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
                 //If we are looking at a new thing, reset/remove the block break effect

@@ -10,13 +10,13 @@ namespace VoxelEngine.Blocks {
 
         public BlockMushroom(byte id, int textureY) : base(id) {
             this.textureY = textureY;
-            this.setSolid(false);
+            this.setTransparent();
             this.setMineTime(0.1f);
-            this.setRenderer(new BlockRendererMesh(References.list.mushroomMesh).setUseRandomRot(true).setShiftVec(new Vector3(0, -0.5f, 0)));
+            this.setRenderer(BlockRenderer.MUSHROOM);
             this.setStatesUsed(4);
         }
 
-        public override void onNeighborChange(World world, BlockPos pos, Direction neighborDir) {
+        public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
             if (neighborDir == Direction.DOWN && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
@@ -29,6 +29,10 @@ namespace VoxelEngine.Blocks {
 
         public override TexturePos getTexturePos(Direction direction, byte meta) {
             return new TexturePos(5 + meta, textureY);
+        }
+
+        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction intendedDir) {
+            return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
     }
 }

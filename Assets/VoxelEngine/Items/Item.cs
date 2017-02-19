@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
@@ -10,9 +9,10 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Items {
 
     public class Item {
+
         public static Item[] ITEM_LIST = new Item[512];
 
-        private static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
+        public static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
 
         public static Item pebble = new ItemThrowable(256).setName("Pebble").setTexture(1, 0);
         public static Item coal = new Item(257).setName("Coal").setTexture(0, 0);
@@ -44,7 +44,7 @@ namespace VoxelEngine.Items {
         public static Item minecart;
 
         public int id = 256;
-        public string name = "null";
+        private string name = "null";
         public TexturePos texturePos;
         public IRenderItem itemRenderer;
         public Mesh[] preRenderedMeshes;
@@ -70,16 +70,26 @@ namespace VoxelEngine.Items {
             return 1;
         }
 
-        public Mesh getPreRenderedMesh(byte meta) {
-            return this.preRenderedMeshes[meta];
+        public virtual string getName(byte meta) {
+            return this.name;
         }
+
+        public Mesh getPreRenderedMesh(byte meta) {
+            if(meta >= this.preRenderedMeshes.Length) {
+                Debug.Log("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta);
+                return Block.placeholder.asItem().getPreRenderedMesh(0);
+            } else {
+                return this.preRenderedMeshes[meta];
+            }
+        }
+        
 
         public Item setName(string name) {
             this.name = name;
             return this;
         }
 
-        public Item setRenderData(IRenderItem data) {
+        public Item setRenderer(IRenderItem data) {
             this.itemRenderer = data;
             return this;
         }
@@ -93,7 +103,8 @@ namespace VoxelEngine.Items {
         public static void initBlockItems() {
             foreach (Block b in Block.BLOCK_LIST) {
                 if (b != null) {
-                    Item.ITEM_LIST[b.id] = new ItemBlock(b);
+                    Item item = new ItemBlock(b);
+                    Item.ITEM_LIST[b.id] = item;
                 }
             }
         }

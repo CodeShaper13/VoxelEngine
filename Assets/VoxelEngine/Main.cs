@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,7 +43,7 @@ namespace VoxelEngine {
         public void Start() {
             //Debug instant world generation
             string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.CAVE_1.id, true));
+            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.FLAT.id, true));
         }
 
         public void Update() {
@@ -133,7 +132,8 @@ namespace VoxelEngine {
             s.Append("Position: " + this.transform.position.ToString() + "\n");
             s.Append("Rotation: " + this.transform.eulerAngles.ToString() + "\n");
             BlockPos p = this.player.posLookingAt;
-            s.Append("Looking At: " + this.worldObj.getBlock(p).name + ":" + this.worldObj.getMeta(p) + " " + p.ToString() + "\n");
+            byte meta = this.worldObj.getMeta(p);
+            s.Append("Looking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString() + "\n");
             s.Append(this.worldObj.worldData.worldName + " " + this.worldObj.worldData.seed);
             return s.ToString();
         }

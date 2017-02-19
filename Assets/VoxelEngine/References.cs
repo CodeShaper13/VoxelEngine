@@ -28,11 +28,7 @@ namespace VoxelEngine {
         public GameObject glorbPrefab;
         public GameObject lanternPrefab;
         public GameObject torchPrefab;
-
-        // Meshes
-        public Mesh mushroomMesh;
-        public Mesh lanturnMesh;
-        public Mesh torchMesh;
+        public GameObject mushroomPrefab;
 
         public void initReferences() {
             References.list = this;
