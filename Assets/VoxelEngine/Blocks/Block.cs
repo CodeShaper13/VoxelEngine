@@ -32,10 +32,10 @@ namespace VoxelEngine.Blocks {
         public static Block cable = new Block(17).setName("Cable");
         public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
         public static Block chest = new BlockChest(19).setName("Chest").setTransparent();
-        public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent();
+        public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent().setRenderAsItem(1, 1);
         public static Block torch = new BlockTorch(21).setName("Torch").setTransparent();
         public static Block ladder = new Block(22).setName("Ladder");
-        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL).setRenderFlat();
+        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL);//.setRenderFlat();
         public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(BlockRenderer.FENCE);
         public static Block moss;
         public static Block root;
@@ -48,7 +48,6 @@ namespace VoxelEngine.Blocks {
         [Obsolete("Remember to update the placeholder with the correct block")]
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(15, 15);
 
-        //Fields:
         public byte id = 0;
         public string name = "null";
         public float mineTime;
@@ -58,7 +57,8 @@ namespace VoxelEngine.Blocks {
         public Type blockType;
         public BlockRenderer renderer;
         public byte statesUsed;
-        public bool renderFlat;
+        public bool renderAsItem;
+        public TexturePos itemAtlasPos;
 
         public Block(byte id) {
             this.id = id;
@@ -172,8 +172,9 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
-        public Block setRenderFlat() {
-            this.renderFlat = true;
+        public Block setRenderAsItem(int x, int y) {
+            this.renderAsItem = true;
+            this.itemAtlasPos = new TexturePos(x, y);
             return this;
         }
 

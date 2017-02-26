@@ -3,6 +3,7 @@
 namespace VoxelEngine.Util {
 
     public class BlockState {
+
         public Block block;
         public byte meta;
         public BlockPos pos;

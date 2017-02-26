@@ -4,7 +4,6 @@ using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
 
-    [Serializable]
     public struct BlockPos {
         /// <summary> Short for 0, 0, 0 </summary>
         public static BlockPos zero = new BlockPos(0, 0, 0);
@@ -33,10 +32,12 @@ namespace VoxelEngine.Util {
             this.z = z;
         }
 
+        // Converts the block pos to a chunk pos, multiplying everything by 16
         public ChunkPos toChunkPos() {
             return new ChunkPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);
         }
 
+        // Returns a new block pos moved in the passes direction
         public BlockPos move(Direction dir) {
             return new BlockPos(this.x + dir.direction.x, this.y + dir.direction.y, this.z + dir.direction.z);
         }
@@ -75,9 +76,7 @@ namespace VoxelEngine.Util {
             return new BlockPos(b.x / i, b.y / i, b.z / i);
         }
 
-        /// <summary>
-        /// Adds 1 to all of the axes that are not 0
-        /// </summary>
+        // Adds 1 to all of the axes that are not 0
         public static BlockPos operator ++(BlockPos p) {
             return new BlockPos(
                 p.x + (p.x != 0 ? 1 : 0),
@@ -85,9 +84,7 @@ namespace VoxelEngine.Util {
                 p.z + (p.z != 0 ? 1 : 0));
         }
 
-        /// <summary>
-        /// Subtracts 1 from all of the axes that are not 0
-        /// </summary>
+        // Subtracts 1 from all of the axes that are not 0
         public static BlockPos operator --(BlockPos p) {
             return new BlockPos(
                 p.x - (p.x != 0 ? 1 : 0),
@@ -104,15 +101,12 @@ namespace VoxelEngine.Util {
         }
 
         public static BlockPos fromRaycastHit(RaycastHit hit) {
-            // Debug.DrawLine(Camera.main.transform.position, hit.point, Color.red);
-
             Vector3 vec = hit.point + ((hit.normal * -1f) / 100);
             int x = Mathf.RoundToInt(vec.x);
             int y = Mathf.RoundToInt(vec.y);
             int z = Mathf.RoundToInt(vec.z);
 
             return new BlockPos(x, y, z);
-
             /*
             float f = adjacent ? 1f : -1f;
             BlockPos pos = BlockPos.fromVec(new Vector3(
@@ -123,18 +117,17 @@ namespace VoxelEngine.Util {
             */
         }
 
-        // Unused Is it broken?
+        /*
         private static float moveWithinBlock(float point, float normal, bool adjacent = false) {
-            //Debug.Log(point + ", " + normal + " VALUE: " + (point - (int)point));
             if ((point - (int)point) == 0.5f || (point - (int)point) == -0.5f) {
                 if (adjacent) {
                     point += (normal / 2);
-                }
-                else {
+                } else {
                     point -= (normal / 2);
                 }
             }
             return point;
         }
+        */
     }
 }

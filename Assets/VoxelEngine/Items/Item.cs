@@ -54,12 +54,11 @@ namespace VoxelEngine.Items {
 
             if (Item.ITEM_LIST[this.id] != null) {
                 Debug.Log("ERROR!  Two items may not have the same id " + this.id);
-            }
-            else {
+            } else {
                 Item.ITEM_LIST[this.id] = this;
             }
 
-            this.itemRenderer = Item.RENDER_BILLBOARD;
+            this.setRenderer(Item.RENDER_BILLBOARD);
         }
 
         public virtual ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
@@ -99,7 +98,7 @@ namespace VoxelEngine.Items {
             return this;
         }
 
-        //Static helper methods
+        // Creates item versions of all the blocks
         public static void initBlockItems() {
             foreach (Block b in Block.BLOCK_LIST) {
                 if (b != null) {
@@ -109,9 +108,8 @@ namespace VoxelEngine.Items {
             }
         }
 
-
+        // Prerenders all the items, saving the meshes in Item.preRenderedMeshes
         public static void preRenderItems() {
-            // Prerender Items
             for (int i = 0; i < Item.ITEM_LIST.Length; i++) {
                 Item item = Item.ITEM_LIST[i];
                 if (item != null) {

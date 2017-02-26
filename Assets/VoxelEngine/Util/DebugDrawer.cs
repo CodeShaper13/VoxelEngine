@@ -14,14 +14,14 @@ namespace VoxelEngine.Util {
         }
 
         public static void plane(Vector3 center, Vector3 size, Color color, float duration = 0) {
-            Vector3 c1 = new Vector3(center.x + size.x, center.y, center.z + size.z);
-            Vector3 c2 = new Vector3(center.x - size.x, center.y, center.z + size.z);
-            Vector3 c3 = new Vector3(center.x + size.x, center.y, center.z - size.z);
-            Vector3 c4 = new Vector3(center.x - size.x, center.y, center.z - size.z);
-            Debug.DrawLine(c1, c2, color, duration);
-            Debug.DrawLine(c2, c4, color, duration);
-            Debug.DrawLine(c3, c4, color, duration);
-            Debug.DrawLine(c1, c3, color, duration);
+            Vector3 corner1 = new Vector3(center.x + size.x, center.y, center.z + size.z);
+            Vector3 corner2 = new Vector3(center.x - size.x, center.y, center.z + size.z);
+            Vector3 corner3 = new Vector3(center.x + size.x, center.y, center.z - size.z);
+            Vector3 corner4 = new Vector3(center.x - size.x, center.y, center.z - size.z);
+            Debug.DrawLine(corner1, corner2, color, duration);
+            Debug.DrawLine(corner2, corner4, color, duration);
+            Debug.DrawLine(corner3, corner4, color, duration);
+            Debug.DrawLine(corner1, corner3, color, duration);
         }
 
         public static void line(Vector3 start, Vector3 end, Color color, float duration = 0) {

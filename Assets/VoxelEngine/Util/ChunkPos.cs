@@ -1,9 +1,9 @@
-﻿using System;
-using VoxelEngine.Level;
+﻿using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
 
     public struct ChunkPos {
+
         public int x;
         public int y;
         public int z;

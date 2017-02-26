@@ -1,11 +1,8 @@
-﻿using System;
-using VoxelEngine.Entities;
+﻿using VoxelEngine.Entities;
 using VoxelEngine.Level;
-using VoxelEngine.Util;
 
 namespace VoxelEngine.ChunkLoaders {
 
-    [Obsolete]
     public class ChunkLoaderRegionDebug : ChunkLoaderBase {
 
         public ChunkLoaderRegionDebug(World world, EntityPlayer player) : base(world, player, 0) {

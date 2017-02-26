@@ -29,7 +29,7 @@ namespace VoxelEngine.Entities.Player {
             MeshData meshData = new MeshData();
 
             BlockRenderer renderer = block.renderer;
-            if(renderer != null && renderer.renderInWorld) {
+            if(renderer != null && renderer.bakeIntoChunks) {
                 Block[] surroundingBlocks = new Block[6];
                 for (int i = 0; i < 6; i++) {
                     Direction d = Direction.all[i];
@@ -60,7 +60,7 @@ namespace VoxelEngine.Entities.Player {
                 this.isTerminated = false;
             }
 
-            ItemStack stack = player.dataHotbar.getHeldItem();
+            ItemStack stack = player.containerHotbar.getHeldItem();
             ItemTool tool = null;
             float f = 1;
             if (stack != null && stack.item is ItemTool) {

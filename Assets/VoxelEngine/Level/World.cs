@@ -8,7 +8,7 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using fNbt;
 using VoxelEngine.TileEntity;
-using VoxelEngine.Generation.Caves;
+using System;
 
 namespace VoxelEngine.Level {
 
@@ -67,21 +67,23 @@ namespace VoxelEngine.Level {
         }
 
         public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
-            Entity entity = this.func_01(prefab);
+            Entity entity = this.func_01(prefab, true);
             entity.readFromNbt(tag);
             return entity;
         }
 
         public Entity spawnEntity(GameObject prefab, Vector3 position, Quaternion rotation) {
-            Entity entity = this.func_01(prefab);
+            Entity entity = this.func_01(prefab, true);
             entity.transform.position = position;
             entity.transform.rotation = rotation;
             return entity;
         }
 
-        private Entity func_01(GameObject prefab) {
+        private Entity func_01(GameObject prefab, bool placeInWrapper) {
             GameObject gameObject = GameObject.Instantiate(prefab);
-            gameObject.transform.parent = this.entityWrapper;
+            if(placeInWrapper) {
+                gameObject.transform.parent = this.entityWrapper;
+            }
             Entity entity = gameObject.GetComponent<Entity>();
             entity.world = this;
             this.entityList.Add(entity);
@@ -89,14 +91,15 @@ namespace VoxelEngine.Level {
         }
 
         public EntityPlayer spawnPlayer(GameObject prefab) {
-            GameObject gameObject = GameObject.Instantiate(prefab);
-            gameObject.name = "Player";
-            EntityPlayer player = gameObject.GetComponent<EntityPlayer>();
-            player.world = this;
+            EntityPlayer player = (EntityPlayer)this.func_01(prefab, false);
+            //GameObject gameObject = GameObject.Instantiate(prefab);
+            player.name = "Player";
+            //EntityPlayer player = gameObject.GetComponent<EntityPlayer>();
+            //player.world = this;
             if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
                 //no player file was found
-                gameObject.transform.position = this.worldData.spawnPos;
-                gameObject.transform.rotation = Quaternion.identity;
+                player.transform.position = this.worldData.spawnPos;
+                player.transform.rotation = Quaternion.identity;
                 player.setupFirstTimePlayer();
             }
             return player;
@@ -104,7 +107,7 @@ namespace VoxelEngine.Level {
 
         public void killEntity(Entity entity) {
             this.entityList.Remove(entity);
-            GameObject.Destroy(entity.gameObject);
+            GameObject.DestroyImmediate(entity.gameObject);
         }
 
         public void spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
@@ -215,10 +218,12 @@ namespace VoxelEngine.Level {
             return chunk != null ? chunk.getMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z) : (byte)0;
         }
 
+        [Obsolete("Use World.setBlock to set the meta", true)]
         public void setMeta(BlockPos pos, byte meta) {
             this.setMeta(pos.x, pos.y, pos.z, meta);
         }
 
+        [Obsolete("Use World.setBlock to set the meta", true)]
         public void setMeta(int x, int y, int z, byte meta) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
@@ -226,14 +231,14 @@ namespace VoxelEngine.Level {
                 chunk.setMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, meta);
                 chunk.isDirty = true;
 
-                //TODO fix
-                //foreach (Direction dir in Direction.all) {
-                //    BlockPos shiftedPos = p.move(dir);
-                //    this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
-                //}
+                // Broken?
+                foreach (Direction dir in Direction.all) {
+                    //BlockPos shiftedPos = p.move(dir);
+                    //this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
+                }
             }
         }
-
+        
         public TileEntityBase getTileEntity(BlockPos pos) {
             return this.getChunk(pos).tileEntityDict[pos];
         }
@@ -255,8 +260,8 @@ namespace VoxelEngine.Level {
             Block block = this.getBlock(pos);
             foreach (ItemStack stack in block.getDrops(this, pos, this.getMeta(pos), brokenWith)) {
                 float f = 0.5f;
-                Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));
-                this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, Random.Range(0, 360), 0));
+                Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
+                this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0));
             }
             this.setBlock(pos, Block.air);
         }

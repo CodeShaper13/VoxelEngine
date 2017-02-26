@@ -1,80 +1,77 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
-using VoxelEngine.Items;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
 
     public class Container : MonoBehaviour {
 
-        public ContainerData data;
-        public EntityPlayer player;
-        public Button[] slots;
-        private Text[] slotText;
+        public Slot[] slots;
 
-        //Acts like a constructor, but since this is a GameObject we can't have a normal one
-        public virtual void initContainer(ContainerData data, EntityPlayer player) {
+        private ContainerData data;
+        private EntityPlayer player;
+
+        // Called when the container is opened
+        public virtual void onOpen(ContainerData data, EntityPlayer player) {
             this.data = data;
             this.player = player;
 
-            this.slotText = new Text[this.slots.Length];
-            for (int i = 0; i < this.slots.Length; i++) {
-                int j = i;
-                this.slots[i].onClick.AddListener(() => { onSlotClicked(j); });
-                this.slotText[i] = this.slots[i].GetComponentInChildren<Text>();
-            }
+            this.gameObject.SetActive(true);
 
-            this.transform.SetParent(HudCamera.camera.transform);
-            this.GetComponent<Canvas>().worldCamera = HudCamera.camera;
+            for (int i = 0; i < this.slots.Length; i++) {
+                this.slots[i].setContents(data.items[i]);
+            }
         }
 
-        public virtual void drawnContents() {
+        // Called every frame to render the items in the container
+        public void renderContents() {
             ItemStack stack;
+            Transform trans;
             for (int i = 0; i < this.slots.Length; i++) {
-                stack = this.data.items[i];
+                stack = this.slots[i].getContents();
                 if (stack != null) {
-                    Transform t = this.slots[i].transform;
-                    this.renderStack(stack, t.position + -t.forward);
+                    trans = this.slots[i].transform;
+                    RenderHelper.renderStack(stack, trans.position + -trans.forward);
                 }
-                this.slotText[i].text = (stack == null ? string.Empty : stack.count.ToString());
-            }
-
-            this.renderHeldItem();
-        }
-
-        public virtual void renderHeldItem() {
-            if (this.player.heldStack != null) {
-                Vector3 mousePosition = HudCamera.camera.ScreenToWorldPoint(Input.mousePosition);
-                //mousePosition.z = 1;
-                this.renderStack(this.player.heldStack, mousePosition);
             }
         }
 
-        private void renderStack(ItemStack stack, Vector3 pos) {
-            Item i = stack.item;
-            Graphics.DrawMesh(i.getPreRenderedMesh(stack.meta), i.itemRenderer.getMatrix(pos), References.getUnlitMaterial(i.id), 8, null, 0, null, false, false);
-        }
-
-        public void onSlotClicked(int slotIndex) {
-            ItemStack slotStack = this.data.items[slotIndex];
-            if (this.player.heldStack == null && slotStack != null) {
-                this.player.heldStack = slotStack;
-                this.data.items[slotIndex] = null;
-            }
-            else if (this.player.heldStack != null && slotStack == null) {
-                this.data.items[slotIndex] = this.player.heldStack;
-                this.player.heldStack = null;
-            }
-            else if (this.player.heldStack != null && slotStack != null) {
-                this.data.items[slotIndex] = this.player.heldStack;
-                this.player.heldStack = slotStack;
-            }
-        }
-
+        // Called when the container is closed for any reason
         public virtual void onClose() {
+            for (int i = 0; i < this.slots.Length; i++) {
+                this.data.items[i] = this.slots[i].getContents();
+            }
+        }
 
+        // Adds the passed stack to the hotbar, returning any we couldn't pick up
+        public ItemStack addItemStack(ItemStack stack) {
+            Slot slot;
+            //First try to fill up any slots that already have items
+            for (int i = 0; i < this.slots.Length; i++) {
+                slot = this.slots[i];
+                ItemStack contents = slot.getContents();
+                if (contents == null || (!contents.equals(stack)) || contents.count >= ItemStack.MAX_SIZE) {
+                    continue;
+                }
+                // Stacks are equal and slot is not full
+                stack = contents.merge(stack);
+                slot.updateSlotText();
+
+                if (stack == null) {
+                    return null;
+                }
+            }
+
+            //If we still have stuff to deposite, add it to an empty slot
+            for (int i = 0; i < this.slots.Length; i++) {
+                slot = this.slots[i];
+                if (slot.getContents() == null) {
+                    slot.setContents(stack);
+                    return null;
+                }
+            }
+            return stack;
         }
     }
 }

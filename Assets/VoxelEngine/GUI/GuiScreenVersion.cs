@@ -9,7 +9,7 @@ namespace VoxelEngine.GUI {
 
         public Text versionText;
 
-        public new void OnEnable() {
+        public void OnEnable() {
             this.versionText.text = "Voxel Engine\nVersion: " + Application.version + "\nRelease Data: " + GuiScreenVersion.releaseDate + "\nPlatform: " + Application.platform.ToString() + "\nUnity Version: " + Application.unityVersion + "\nModified Source: " + !Application.genuine + "\nSupport: " + GuiScreenVersion.supportEmail;
         }
     }

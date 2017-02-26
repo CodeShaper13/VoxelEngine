@@ -39,7 +39,7 @@ namespace VoxelEngine.Generation {
 
         public override void populateChunk(Chunk chunk) {
             base.populateChunk(chunk);
-
+            /*
             chunk.setBlock(15, 15, 15, Block.wood);
             return;
 
@@ -66,6 +66,7 @@ namespace VoxelEngine.Generation {
                     }
                 }
             }
+            */
         }
 
         public Chunk generateColumn(Chunk chunk, int x, int z) {

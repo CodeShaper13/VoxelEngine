@@ -17,17 +17,16 @@ namespace VoxelEngine.Items {
         public ItemBlock(Block block) : base(block.id) {
             this.block = block;
             this.id = block.id;
-            if(this.block.renderFlat) {
+            if(this.block.renderAsItem) {
                 this.setRenderer(Item.RENDER_BILLBOARD);
-                this.setTexture(this.block.texturePos.x, this.block.texturePos.y);
-            }
-            else {
+                this.setTexture(this.block.itemAtlasPos.x, this.block.itemAtlasPos.y);
+            } else {
                 this.setRenderer(ItemBlock.RENDER_BLOCK);
             }
         }
 
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
-            if (hit.hitState != null) {
+            if (hit.hitState != null && hit.unityRaycastHit.distance <= player.reach) {
                 BlockPos pos = BlockPos.fromRaycastHit(hit.unityRaycastHit);
 
                 Vector3 angle = new Vector3(player.transform.position.x, 0, player.transform.position.z)- new Vector3(hit.unityRaycastHit.point.x, 0, hit.unityRaycastHit.point.z);

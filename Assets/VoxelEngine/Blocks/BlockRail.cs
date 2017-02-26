@@ -63,7 +63,7 @@ namespace VoxelEngine.Blocks {
         }
 
         private byte getMetaForTurn(World world, BlockPos pos, byte inMeta) {
-            foreach (Direction dir in Direction.xzPlane) {
+            foreach (Direction dir in Direction.yPlane) {
                 if (world.getBlock(pos.move(dir)) == Block.rail && world.getBlock(pos.move(dir.getClockwise())) == Block.rail) {
                     Debug.Log(dir.directionId + 1);
                     return (byte)(dir.directionId + 1);

@@ -8,41 +8,46 @@ namespace VoxelEngine.Containers {
     public class ContainerHotbar : Container {
 
         public FadeText itemName;
+        public int index;
 
-        public override void initContainer(ContainerData data, EntityPlayer player) {
-            base.initContainer(data, player);
+        public override void onOpen(ContainerData data, EntityPlayer player) {
+            base.onOpen(data, player);
             this.scroll(0);
         }
-
-        public override void renderHeldItem() {
-            //Override method but dont do anything so we dont draw a second held item, as this is always active
-        }
-
+         // Scrolls the hotbar index in the passes direction
         public void scroll(int scrollDirection) {
-            ContainerDataHotbar cd = (ContainerDataHotbar)this.data;
-            this.slots[cd.index].transform.localScale = Vector3.one;
-            cd.index += scrollDirection * -1;
-            if (cd.index > 8) {
-                cd.index = 0;
+            int newIndex = this.index + scrollDirection;
+            if (newIndex > 8) {
+                newIndex = 0;
             }
-            if (cd.index < 0) {
-                cd.index = 8;
+            if (newIndex < 0) {
+                newIndex = 8;
             }
-            this.slots[cd.index].transform.localScale = new Vector3(1.15f, 1.15f, 1.15f);
-            this.showItemName();
+            this.setSelected(newIndex);
         }
 
+        // Sets the passed index to be the selected one, updating slot sizes and held text
         public void setSelected(int index) {
-            ContainerDataHotbar cd = (ContainerDataHotbar)this.data;
-            this.slots[cd.index].transform.localScale = Vector3.one;
-            cd.index = index;
-            this.slots[cd.index].transform.localScale = new Vector3(1.15f, 1.15f, 1.15f);
-            this.showItemName();
+            this.slots[this.index].transform.localScale = Vector3.one;
+            this.index = index;
+            this.slots[this.index].transform.localScale = new Vector3(1.15f, 1.15f, 1.15f);
+            this.updateHudItemName();
         }
 
-        public void showItemName() {
-            ItemStack s = ((ContainerDataHotbar)this.data).getHeldItem();
-            this.itemName.showAndStartFade(s == null ? string.Empty : s.item.getName(s.meta), 1.5f);
+        // Updates the hud name with the current held item
+        public void updateHudItemName() {
+            ItemStack stack = this.getHeldItem();
+            this.itemName.showAndStartFade(stack == null ? string.Empty : stack.item.getName(stack.meta), 1.5f);
+        }
+
+        // Helper method to get the currently held item
+        public ItemStack getHeldItem() {
+            return this.slots[this.index].getContents();
+        }
+
+        // Helper method to set the currently held item
+        public void setHeldItem(ItemStack stack) {
+            this.slots[this.index].setContents(stack);
         }
     }
 }

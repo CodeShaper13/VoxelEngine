@@ -18,8 +18,7 @@ namespace VoxelEngine.GUI {
             try {
                 Directory.Delete("saves/" + this.worldData.worldName, true);
                 this.openGuiScreen(this.escapeFallback);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 this.errorText.enabled = true;
             }
         }

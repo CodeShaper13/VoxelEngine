@@ -3,12 +3,10 @@
 namespace VoxelEngine.Util {
 
     public class HudCamera : MonoBehaviour {
-        public static new Camera camera;
 
-        private Material mat;
+        public static Camera cam;
 
-        //void OnPreRender() {}
-
+        /*
         // Will be called from camera after regular rendering is done.
         //public void OnPostRender() {
             //if (!mat) {
@@ -53,11 +51,19 @@ namespace VoxelEngine.Util {
 
             //Graphics.DrawMeshNow(mesh, render.getMatrix(pos));
         //}
+        */
 
         void Awake() {
-            if (HudCamera.camera == null) {
-                HudCamera.camera = this.GetComponent<Camera>();
+            if (HudCamera.cam == null) {
+                HudCamera.cam = this.GetComponent<Camera>();
+            } else {
+                Debug.Log("ERROR!  There are more than one game objects with HudCamera script!");
             }
+        }
+
+        public static void bind(Canvas canvas) {
+            canvas.transform.SetParent(HudCamera.cam.transform);
+            canvas.worldCamera = HudCamera.cam;
         }
     }
 }

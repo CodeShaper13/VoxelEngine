@@ -18,10 +18,15 @@ namespace VoxelEngine {
 
         // Containers gui prefabs
         public GameObject containerHotbar;
-        public GameObject containerInventory;
-        public GameObject containerChest;
-        public GameObject containerCrafting;
-        public GameObject containerFurnace;
+
+        public GameObject containerHeldText;
+
+        // Container Builder Parts
+        public GameObject conatinerPartCanvas;
+        public GameObject containerPartSlot;
+
+        public Transform containerLeftOrgin;
+        public Transform containerRightOrgin;
 
         // TileEntity prefabs
         public GameObject chestPrefab;

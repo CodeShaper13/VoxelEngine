@@ -2,6 +2,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Generation;
 using VoxelEngine.GUI;
@@ -14,8 +15,11 @@ namespace VoxelEngine {
     public class Main : MonoBehaviour {
         public static Main singleton;
 
+        [HideInInspector]
         public bool isDeveloperMode;
-        public bool showDebugText;
+        [HideInInspector]
+        public bool showDebugText = true;
+        [HideInInspector]
         public bool isPaused;
 
         public World worldObj;
@@ -25,10 +29,10 @@ namespace VoxelEngine {
 
         public GuiScreen pauseScreen;
         public GuiScreen respawnScreen;
-        //public GuiScreen waitingScreen;
         public GuiScreen currentGui;
 
-        public float averageChunkBakeTime;
+        public ContainerManager containerManager;
+        public FpsCounter fpsCounter;
 
         public void Awake() {
             //Make sure the singleton reference is set
@@ -38,21 +42,19 @@ namespace VoxelEngine {
 
             Item.initBlockItems();
             Item.preRenderItems();
+
+            this.fpsCounter = new FpsCounter();
         }
 
         public void Start() {
+            this.containerManager = new ContainerManager();
+
             //Debug instant world generation
             string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.FLAT.id, true));
+            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.CAVE_1.id, true));
         }
 
         public void Update() {
-            //if(this.data != null) {
-            //    this.worldObj = GameObject.Instantiate(this.worldPrefab).GetComponent<World>();
-            //    this.worldObj.initWorld(data);
-            //    this.data = null;
-            //}
-
             if (this.worldObj != null && this.player != null) {
                 if (Input.GetKeyDown(KeyCode.F1)) {
                     this.isDeveloperMode = !this.isDeveloperMode;
@@ -67,8 +69,8 @@ namespace VoxelEngine {
                     }
                 }
                 if (Input.GetKeyDown(KeyCode.Escape)) {
-                    if (this.player.containerElement != null) {
-                        this.player.closeContainer();
+                    if (this.player.contManager.isContainerOpen()) {
+                        this.player.contManager.closeContainer(this.player);
                     } else {
                         if(this.currentGui != null) {
                             this.currentGui = this.currentGui.onEscape(this);
@@ -80,15 +82,15 @@ namespace VoxelEngine {
                     }
                 }
 
-                if (!this.isPaused && player.health > 0) {
+                if (!this.isPaused && player.health > 0 && !this.containerManager.isContainerOpen()) {
                     this.player.handleInput();
                 }
 
-                //Draw the open container and hud
-                if (this.player.containerElement != null) {
-                    this.player.containerElement.drawnContents();
-                }
-                this.player.containerHotbar.drawnContents();
+                this.containerManager.drawContainerContents();
+
+                this.player.containerHotbar.renderContents();
+
+                this.fpsCounter.updateCounter();
 
                 //Update debug text
                 if (this.showDebugText) {
@@ -129,12 +131,14 @@ namespace VoxelEngine {
 
         public string getDebugText() {
             StringBuilder s = new StringBuilder();
-            s.Append("Position: " + this.transform.position.ToString() + "\n");
-            s.Append("Rotation: " + this.transform.eulerAngles.ToString() + "\n");
+            s.Append("FPS: " + this.fpsCounter.currentFps);
+            s.Append("\nPlayer Position: " + this.transform.position.ToString());
+            s.Append("\nPlayer Rotation: " + this.transform.eulerAngles.ToString());
             BlockPos p = this.player.posLookingAt;
             byte meta = this.worldObj.getMeta(p);
-            s.Append("Looking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString() + "\n");
-            s.Append(this.worldObj.worldData.worldName + " " + this.worldObj.worldData.seed);
+            s.Append("\nLooking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString());
+            s.Append("\n" + this.worldObj.worldData.worldName + " Seed: " + this.worldObj.worldData.seed);
+            s.Append("\nPress F3 to toggle");
             return s.ToString();
         }
 

@@ -60,7 +60,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override void carvePiece(Chunk chunk, System.Random rnd) {
             BlockPos p1 = new BlockPos(this.orgin.x - 4, this.orgin.y, this.orgin.z - 4);
             BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 16, this.orgin.z + 4);
-            Direction torchDir = Direction.xzPlane[rnd.Next(0, 4)];
+            Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
             int x, y, z, i1, k1;
             Block b;

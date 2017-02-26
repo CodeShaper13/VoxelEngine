@@ -1,6 +1,7 @@
 ﻿namespace VoxelEngine.Util {
 
     public struct TexturePos {
+
         public const float BLOCK_SIZE = 0.0625f; //size of the texture sheet
         public const float ITEM_SIZE = 0.0625f;
 

@@ -13,14 +13,14 @@ namespace VoxelEngine.Render.BlockRender {
         public static BlockRenderer TORCH = new BlockRendererMesh(References.list.torchPrefab).setRenderInWorld(false);
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
-        
+
         // false will make blocks not be baked into the world
-        public bool renderInWorld;
+        public bool bakeIntoChunks = true;
 
         public abstract MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
 
         public BlockRenderer setRenderInWorld(bool flag) {
-            this.renderInWorld = flag;
+            this.bakeIntoChunks = flag;
             return this;
         }
     }

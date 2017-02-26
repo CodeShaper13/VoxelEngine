@@ -131,7 +131,7 @@ namespace VoxelEngine.Level {
                 for (y = 0; y < Chunk.SIZE; y++) {
                     for (z = 0; z < Chunk.SIZE; z++) {
                         b = this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
-                        if(b.renderer != null && b.renderer.renderInWorld) {
+                        if(b.renderer != null && b.renderer.bakeIntoChunks) {
                             meta = this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
                             meshData.useRenderDataForCol = (b != Block.lava);
                             for (i = 0; i < 6; i++) {
@@ -173,13 +173,15 @@ namespace VoxelEngine.Level {
             List<Entity> entitiesInChunk = new List<Entity>();
             for (int i = this.world.entityList.Count - 1; i >= 0; i--) {
                 entity = this.world.entityList[i];
-                int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
-                int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
-                int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
+                if(!(entity is EntityPlayer)) {
+                    int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
+                    int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
+                    int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
 
-                if (x == this.chunkPos.x && y == this.chunkPos.y && z == this.chunkPos.z) {
-                    world.entityList.Remove(entity);
-                    entitiesInChunk.Add(entity);
+                    if (x == this.chunkPos.x && y == this.chunkPos.y && z == this.chunkPos.z) {
+                        world.entityList.Remove(entity);
+                        entitiesInChunk.Add(entity);
+                    }
                 }
             }
             NbtList list1 = new NbtList("entities", NbtTagType.Compound);

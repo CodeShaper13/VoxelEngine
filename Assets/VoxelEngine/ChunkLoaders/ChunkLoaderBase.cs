@@ -34,6 +34,7 @@ namespace VoxelEngine.ChunkLoaders {
             //UnityEngine.Debug.Log("Generation took " + s.Elapsed);
 
             this.generateChunks(10000);
+
             foreach (Chunk c in this.world.loadedChunks.Values) {
                 c.renderChunk();
                 c.isDirty = false;

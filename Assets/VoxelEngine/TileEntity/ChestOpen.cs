@@ -4,23 +4,26 @@ namespace VoxelEngine.TileEntity {
 
     public class ChestOpen : MonoBehaviour {
 
-        private float hingeSpeed = 1f;
+        private const float hingeSpeed = 1f;
 
         public Transform lid;
-        private int i;
+        // 1 = Opening, 0 = Closed, -1 = Closing
+        private int lidState;
 
         public void Update() {
             if(!Main.singleton.isPaused) {
-                if(this.i == 1) { // Open
-                    this.lid.eulerAngles = new Vector3(Mathf.Lerp(this.lid.localEulerAngles.x, 70, 1 * Time.deltaTime), 0, 0);
-                } else if(this.i == -1) { // Close
-                    this.lid.eulerAngles = new Vector3(Mathf.Lerp(this.lid.localEulerAngles.x, 0, 1 * Time.deltaTime), 0, 0);
+                if(this.lidState == 1 || this.lidState == -1) {
+                    float f = Mathf.Lerp(this.lid.localEulerAngles.x, this.lidState == 1 ? 70 : 0, ChestOpen.hingeSpeed * Time.deltaTime);
+                    if(f == 0) {
+                        this.lidState = 0;
+                    }
+                    this.lid.localEulerAngles = new Vector3(f, 0, 0);
                 }
             }
         }
 
         public void setOpen(bool open) {
-            this.i = open ? 1 : -1;
+            this.lidState = open ? 1 : -1;
         }
     }
 }

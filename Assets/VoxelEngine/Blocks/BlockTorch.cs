@@ -15,7 +15,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
-            Direction attached = (meta == 0 ? Direction.DOWN : Direction.xzPlane[meta - 1]);
+            Direction attached = (meta == 0 ? Direction.DOWN : Direction.yPlane[meta - 1]);
             if (neighborDir == attached && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }

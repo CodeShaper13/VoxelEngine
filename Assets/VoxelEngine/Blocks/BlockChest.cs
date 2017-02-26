@@ -19,7 +19,7 @@ namespace VoxelEngine.Blocks {
         public override bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
             if(!world.getBlock(pos.move(Direction.UP)).isSolid) {
                 TileEntityChest chest = ((TileEntityChest)world.getTileEntity(pos));
-                //player.openContainer(References.list.containerChest, chest.chestData);
+                player.contManager.openContainer(player, ContainerManager.containerChest, chest.chestData);
                 chest.chestOpen.setOpen(true);
                 return true;
             }

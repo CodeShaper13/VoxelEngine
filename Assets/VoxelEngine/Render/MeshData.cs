@@ -74,8 +74,6 @@ namespace VoxelEngine.Render {
             this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.min.z));
             this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.max.z));
 
-            // Debug.DrawLine(new Vector3(x + b.min.x, y + b.min.y, z + b.min.z) + Vector3.up * 16, new Vector3(x + b.max.x, y + b.max.y, z + b.max.z) + Vector3.up * 16, Color.red, 1000);
-
             this.colTriangles.AddRange(new int[36] {
                 i + 1, i + 6, i + 5, // + X
                 i + 1, i + 2, i + 6, // + X

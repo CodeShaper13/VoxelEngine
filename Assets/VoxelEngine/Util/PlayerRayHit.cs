@@ -5,6 +5,7 @@ using VoxelEngine.Entities;
 namespace VoxelEngine.Util {
 
     public class PlayerRayHit {
+
         public RaycastHit unityRaycastHit;
         public BlockState hitState;
         public Entity entity;

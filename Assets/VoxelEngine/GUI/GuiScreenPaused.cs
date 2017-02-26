@@ -16,7 +16,7 @@ namespace VoxelEngine.GUI {
             world.saveEntireWorld(exitWorld);
             if (exitWorld) {
                 Main ve = Main.singleton;
-                ve.player.cleanupObject();
+                ve.player.cleanupPlayerObj();
                 GameObject.Destroy(ve.player.gameObject);
                 GameObject.Destroy(world.gameObject);
                 this.openGuiScreen(this.escapeFallback); //Saves us needing a new field since we dont use base.escapeFallback

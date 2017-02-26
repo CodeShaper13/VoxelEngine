@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Containers;
+﻿using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
 using VoxelEngine.Util;

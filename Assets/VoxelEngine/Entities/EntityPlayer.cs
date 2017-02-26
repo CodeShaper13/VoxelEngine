@@ -17,9 +17,9 @@ using VoxelEngine.GUI.Effect;
 
 namespace VoxelEngine.Entities {
 
-    public class EntityPlayer : Entity {
+    public class EntityPlayer : Entity, ICollecting {
 
-        public float reach = 3.5f;
+        public float reach = 4f;
 
         // References
         public FadeText magnifyingText;
@@ -30,7 +30,6 @@ namespace VoxelEngine.Entities {
         public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
         public Transform mainCamera;
-        public Container containerElement;
         private LightFlicker lightObj;
         private ItemStack lastHeldItem;
         private ChunkLoaderBase chunkLoader;
@@ -40,10 +39,10 @@ namespace VoxelEngine.Entities {
         // State
         public float hunger;
         private float hungerDamageTimer;
-        // The stack the mouse is holding when a container is open
-        public ItemStack heldStack;
-        public ContainerDataHotbar dataHotbar;
+        public ContainerData dataHotbar;
         public ContainerData dataInventory;
+
+        public ContainerManager contManager;
 
         public new void Awake() {
             base.Awake();
@@ -52,12 +51,13 @@ namespace VoxelEngine.Entities {
             this.fpc = this.GetComponent<FirstPersonController>();
             this.lightObj = this.GetComponent<LightFlicker>();
 
-            this.dataHotbar = new ContainerDataHotbar();
-            this.dataInventory = new ContainerData(2, 2);
+            this.dataHotbar = new ContainerData(9, 1);
+            this.dataInventory = new ContainerData(5, 5);
 
-            //Setup the hotbar
-            this.containerHotbar = GameObject.Instantiate(References.list.containerHotbar).GetComponent<ContainerHotbar>();
-            this.containerHotbar.initContainer(this.dataHotbar, this);
+            this.contManager = Main.singleton.containerManager;
+
+            this.containerHotbar = ContainerManager.containerHotbar;
+            this.containerHotbar.onOpen(this.dataHotbar, this);
 
             this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
         }
@@ -88,9 +88,9 @@ namespace VoxelEngine.Entities {
 
             this.chunkLoader.updateChunkLoader();
 
-            ItemStack heldStack = this.dataHotbar.getHeldItem();
+            ItemStack heldStack = this.containerHotbar.getHeldItem();
 
-            if (this.containerElement == null) {
+            if (!this.contManager.isContainerOpen()) {
                 PlayerRayHit playerHit = this.getPlayerRayHit();
 
                 if (playerHit != null) {
@@ -101,8 +101,8 @@ namespace VoxelEngine.Entities {
                             }
                             if (Input.GetMouseButtonDown(1)) {
                                 if(!playerHit.hitState.block.onRightClick(this.world, this, this.posLookingAt, playerHit.hitState.meta)) {
-                                    if(this.heldStack != null) {
-                                        this.heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
+                                    if(this.contManager.heldStack != null) {
+                                        this.contManager.heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
                                     }
                                 }
                             }
@@ -124,12 +124,12 @@ namespace VoxelEngine.Entities {
                 //Right click
                 if (Input.GetMouseButtonDown(1)) {
                     if (playerHit != null && heldStack != null) {
-                        this.dataHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
+                        this.containerHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
                     }
                 }
             }
 
-            //TODO this can be optimised, when held is null it is called every frame
+            //TODO this can be optimized, when held is null it is called every frame
             if (this.lastHeldItem == null || (this.lastHeldItem != null && heldStack != null && !this.lastHeldItem.equals(heldStack))) {
                 bool isHoldingLight = false;
                 if (heldStack != null && heldStack.item is ItemBlock) {
@@ -159,19 +159,6 @@ namespace VoxelEngine.Entities {
             this.lastHeldItem = heldStack;
         }
 
-        public override void onEntityCollision(Entity otherEntity) {
-            if (otherEntity is EntityItem) {
-                EntityItem entityItem = (EntityItem)otherEntity;
-                if(entityItem.pickupDelay <= 0) {
-                    ItemStack stack = this.dataHotbar.addItemStack(entityItem.stack);
-                    //If we were able to pick up the entire contents of the stack, kill the entity
-                    if (stack == null) {
-                        this.world.killEntity(otherEntity);
-                    }
-                }
-            }
-        }
-
         public override void setHealth(int amount) {
             if (amount > 100) {
                 amount = 100;
@@ -188,11 +175,10 @@ namespace VoxelEngine.Entities {
             this.setHealth(this.health - amount);
             if (this.health <= 0) {
                 // Player has died
-                if(this.containerElement != null) {
-                    this.closeContainer();
-                }
-                this.func_001(this.world, this.dataHotbar);
-                this.func_001(this.world, this.dataInventory);
+                this.contManager.closeContainer(this);
+
+                this.scatterContainerContents(this.world, this.dataHotbar);
+                this.scatterContainerContents(this.world, this.dataInventory);
 
                 Main.hideMouse(false);
                 this.fpc.enabled = false;
@@ -215,6 +201,7 @@ namespace VoxelEngine.Entities {
             tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
             tag.Add(new NbtFloat("hunger", this.hunger));
             tag.Add(new NbtFloat("hungerTimer", this.hunger));
+            tag.Add(new NbtInt("selectedHotbarIndex", this.containerHotbar.index));
             //TODO jump
             return tag;
         }
@@ -226,6 +213,12 @@ namespace VoxelEngine.Entities {
             this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
             this.hunger = tag.Get<NbtFloat>("hunger").FloatValue;
             this.hungerDamageTimer = tag.Get<NbtFloat>("hungerTimer").FloatValue;
+            this.containerHotbar.index = tag.Get<NbtInt>("selectedHotbarIndex").IntValue;
+        }
+
+        public ItemStack tryPickupStack(ItemStack stack) {
+            ItemStack leftover = this.containerHotbar.addItemStack(stack);
+            return leftover;
         }
 
         public void handleInput() {
@@ -235,11 +228,11 @@ namespace VoxelEngine.Entities {
             for (int i = 0; i < 9; i++) {
                 if(Input.GetKeyDown((KeyCode)(i + 49))) {
                     if(isShiftDown) {
-                        if (this.dataHotbar.index != i) {
-                            ItemStack held = this.dataHotbar.getHeldItem();
-                            this.dataHotbar.setHeldItem(this.dataHotbar.getStack(i, 0));
+                        if (this.containerHotbar.index != i) {
+                            ItemStack held = this.containerHotbar.getHeldItem();
+                            this.containerHotbar.setHeldItem(this.dataHotbar.getStack(i, 0));
                             this.dataHotbar.setStack(i, 0, held);
-                            this.containerHotbar.showItemName();
+                            this.containerHotbar.updateHudItemName();
                         }
                     } else {
                         this.containerHotbar.setSelected(i);
@@ -252,47 +245,34 @@ namespace VoxelEngine.Entities {
             }
 
             if (Input.GetKeyDown(KeyCode.Q)) {
-                ItemStack stack = this.dataHotbar.dropItem(this.dataHotbar.index, isShiftDown);
+                ItemStack toDrop = null;
+                ItemStack stack = this.containerHotbar.getHeldItem();
                 if (stack != null) {
-                    this.dropItem(stack);
+                    int count = (isShiftDown ? stack.count : 1);
+                    toDrop = new ItemStack(stack.item, stack.meta, count);
+                    this.containerHotbar.setHeldItem(stack.safeDeduction(count));
+                }
+                if (toDrop != null) {
+                    this.dropItem(toDrop);
                 }
             }
 
             float f = Input.GetAxis("Mouse ScrollWheel");
             if (f != 0) {
-                this.containerHotbar.scroll(f > 0 ? 1 : (f < 0 ? -1 : 0));
+                this.containerHotbar.scroll(f > 0 ? -1 : (f < 0 ? 1 : 0));
             }
 
-            if (Input.GetKeyDown(KeyCode.E)) {
-                this.openContainer(References.list.containerInventory, this.dataInventory);
+            if (Input.GetKeyDown(KeyCode.E) && !this.contManager.isContainerOpen()) {
+                this.contManager.openContainer(this, ContainerManager.containerInventory, this.dataInventory);
             }
         }
 
-        // Opens and initializes a container
-        public void openContainer(GameObject containerObj, ContainerData containerData) {
-            this.fpc.allowInput = false;
-            this.containerElement = GameObject.Instantiate(containerObj).GetComponent<Container>();
-            this.containerElement.transform.SetParent(this.transform);
-            this.containerElement.initContainer(containerData, this);
-            Main.hideMouse(false);
-        }
-
-        // Closes the open container, doing any required cleanup
-        public void closeContainer() {
-            this.fpc.allowInput = true;
-            if (this.heldStack != null) {
-                this.dropItem(this.heldStack);
-                this.heldStack = null;
-            }
-            this.containerElement.onClose();
-            GameObject.Destroy(this.containerElement.gameObject);
-            Main.hideMouse(true);
-        }
-
+        // Sets the magnifying text
         public void setMagnifyingText(string text) {
             this.magnifyingText.showAndStartFade(text, 3);
         }
 
+        // Sets the players hunger, clamping it between 0 and 100
         public void setHunger(float amount) {
             if (amount > 100f) {
                 amount = 100f;
@@ -303,32 +283,34 @@ namespace VoxelEngine.Entities {
             this.hunger = amount;
         }
 
-        public void cleanupObject() {
-            GameObject.Destroy(this.containerHotbar.gameObject);
+        // Cleans up the player, destroying any associate GameObjects and disabling others
+        public void cleanupPlayerObj() {
+            this.containerHotbar.gameObject.SetActive(false);
             GameObject.Destroy(this.blockBreakEffect.gameObject);
             this.heartEffect.enabled = false;
         }
 
+        // Configures a first time player, setting the starting inventory and the default health
         public void setupFirstTimePlayer() {
-            this.dataHotbar.addItemStack(new ItemStack(Block.torch, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.uranium, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.fence, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 0));
-            this.dataHotbar.addItemStack(new ItemStack(Block.chest, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.rail, 0, 16));
-            this.dataHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Item.uranium, 0, 8));
+            this.containerHotbar.addItemStack(new ItemStack(Item.uranium, 0, 12));
+            this.containerHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Block.fence, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 0));
+            this.containerHotbar.addItemStack(new ItemStack(Block.chest, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Block.rail, 0, 16));
+            this.containerHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0, 16));
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
             this.hunger = 75;
         }
 
+        // Returns a PlayerHitOBject, representing what the player is looking at
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
             bool rayHit = Physics.Raycast(this.mainCamera.position, this.mainCamera.forward, out hit);
 
-            //Find out what we are looking at
             BlockPos p = BlockPos.fromRaycastHit(hit);
 
             if (rayHit == false || !(p.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
@@ -338,21 +320,22 @@ namespace VoxelEngine.Entities {
             this.posLookingAt = p;
 
             if (hit.transform != null) {
-                if (hit.transform.tag == "Chunk" || hit.transform.tag == "Block") {
+                if (hit.transform.CompareTag("Chunk") || hit.transform.CompareTag("Block")) {
                     return new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
-                }
-                else if (hit.transform.tag == "Entity") {
+                } else if (hit.transform.CompareTag("Entity")) {
                     return new PlayerRayHit(hit.transform.GetComponent<Entity>(), hit);
                 }
             }
             return null;
         }
 
-        private void dropItem(ItemStack stack) {
-            //TODO make items not collide with the player
+        // Drops an item, via 'q' or closing a container
+        //TODO make items not collide with the player
+        public void dropItem(ItemStack stack) {
             this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward / 5, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
         }
 
+        // Copies info from a prefab to the held light object
         private void copyLightData(GameObject obj) {
             LightFlicker l = obj.GetComponent<LightFlicker>();
             this.lightObj.minIntensity = l.minIntensity;
@@ -363,7 +346,8 @@ namespace VoxelEngine.Entities {
             this.lightObj.lightObj.intensity = l.lightObj.intensity;
         }
 
-        private void func_001(World world, ContainerData d) {
+        // Scatters all the contents of a container, used when the player dies
+        private void scatterContainerContents(World world, ContainerData d) {
             float f = 0.5f;
             for (int i = 0; i < d.items.Length; i++) {
                 Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));

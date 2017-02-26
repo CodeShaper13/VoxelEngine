@@ -1,11 +1,14 @@
 ﻿using fNbt;
+using System;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 
 namespace VoxelEngine.Containers {
 
+    [Serializable]
     public class ItemStack {
-        public const int MAX_SIZE = 16;
+
+        public const int MAX_SIZE = 32;
 
         public Item item;
         public byte meta;
@@ -19,6 +22,7 @@ namespace VoxelEngine.Containers {
 
         public ItemStack(Block block, byte meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
 
+        // Copies a stack
         public ItemStack(ItemStack stack) : this(stack.item, stack.meta, stack.count) { }
 
         public ItemStack(NbtCompound tag) {
@@ -27,10 +31,12 @@ namespace VoxelEngine.Containers {
             this.count = tag.Get<NbtInt>("count").IntValue;
         }
 
+        // Returns true if the stacks share id and meta
         public bool equals(ItemStack stack) {
             return this.item.id == stack.item.id && this.meta == stack.meta;
         }
 
+        // Merges two stacks together, returning any left over or null if there is none left
         public ItemStack merge(ItemStack otherStack) {
             if (!this.equals(otherStack)) {
                 return otherStack;
@@ -47,18 +53,23 @@ namespace VoxelEngine.Containers {
                 int freeSpace = ItemStack.MAX_SIZE - this.count;
                 this.count = ItemStack.MAX_SIZE;
                 otherStack.count -= freeSpace;
+                if(otherStack.count <= 0) {
+                    return null;
+                }
                 return otherStack;
             }
         }
 
-        public ItemStack safeDeduction() {
-            this.count -= 1;
+        // Removes items from the stack, returning it or null if the count is less than 0
+        public ItemStack safeDeduction(int i = 1) {
+            this.count -= i;
             if (count <= 0) {
                 return null;
             }
             return this;
         }
 
+        // Saves the stack to NBT.  See constructor for the reading
         public NbtCompound writeToNbt() {
             NbtCompound tag = new NbtCompound("stack");
             tag.Add(new NbtInt("id", this.item.id));         

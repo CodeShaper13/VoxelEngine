@@ -48,7 +48,6 @@ namespace VoxelEngine.Util {
             int endX = Mathf.Max(pos1.x, pos2.x);
             int endY = Mathf.Max(pos1.y, pos2.y);
             int endZ = Mathf.Max(pos1.z, pos2.z);
-            int x, y, z;
 
             Schematic s = new Schematic(endX - startX, endY - startY, endZ - startZ);
 
