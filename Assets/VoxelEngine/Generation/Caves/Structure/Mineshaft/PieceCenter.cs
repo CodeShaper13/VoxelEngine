@@ -20,10 +20,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.calculateBounds();
             pieces.Add(this);
 
-            new PieceHallway(new BlockPos(this.center.x + 9, this.center.y, this.center.z), Direction.EAST, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.center.x - 9, this.center.y, this.center.z), Direction.WEST, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.center.x, this.center.y, this.center.z + 9), Direction.NORTH, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.center.x, this.center.y, this.center.z - 9), Direction.SOUTH, pieces, piecesFromStart, rnd);
+            new PieceHallway(new BlockPos(this.center.x + 9, this.center.y + 1, this.center.z), Direction.EAST, pieces, piecesFromStart, rnd);
+            new PieceHallway(new BlockPos(this.center.x - 9, this.center.y + 1, this.center.z), Direction.WEST, pieces, piecesFromStart, rnd);
+            new PieceHallway(new BlockPos(this.center.x, this.center.y + 1, this.center.z + 9), Direction.NORTH, pieces, piecesFromStart, rnd);
+            new PieceHallway(new BlockPos(this.center.x, this.center.y + 1, this.center.z - 9), Direction.SOUTH, pieces, piecesFromStart, rnd);
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {

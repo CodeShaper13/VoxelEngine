@@ -5,12 +5,23 @@
         public GuiScreen pauseScreen;
 
         public override GuiScreen onEscape(Main voxelEngine) {
+            return this.goBack();
+        }
+
+        public void okCallback() {
+            this.goBack();
+        }
+
+        public void cancelCallback() {
+            this.goBack();
+        }
+
+        private GuiScreen goBack() {
             this.setActive(false);
             GuiScreen gui;
-            if (voxelEngine.worldObj == null) {
+            if (Main.singleton.worldObj == null) {
                 gui = this.escapeFallback; //Title
-            }
-            else {
+            } else {
                 gui = this.pauseScreen;
             }
             gui.setActive(true);

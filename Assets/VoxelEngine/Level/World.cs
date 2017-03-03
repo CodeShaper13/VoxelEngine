@@ -9,6 +9,7 @@ using VoxelEngine.Items;
 using fNbt;
 using VoxelEngine.TileEntity;
 using System;
+using VoxelEngine.Generation.Caves;
 
 namespace VoxelEngine.Level {
 
@@ -53,11 +54,11 @@ namespace VoxelEngine.Level {
             //Main.singleton.onWorldLoadFinish();
         }
 
-        //public void Update() {
-        //    if(this.generator is WorldGeneratorCaves) {
-        //        ((WorldGeneratorCaves)this.generator).debugDisplay();
-        //    }
-        //}
+        public void Update() {
+            if(this.generator is WorldGeneratorCaves) {
+                ((WorldGeneratorCaves)this.generator).debugDisplay();
+            }
+        }
 
         private Transform createWrapper(string name) {
             Transform t = new GameObject().transform;
@@ -107,12 +108,13 @@ namespace VoxelEngine.Level {
 
         public void killEntity(Entity entity) {
             this.entityList.Remove(entity);
-            GameObject.DestroyImmediate(entity.gameObject);
+            GameObject.Destroy(entity.gameObject);
         }
 
-        public void spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
+        public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
             EntityItem entityItem = (EntityItem)this.spawnEntity(EntityList.singleton.itemPrefab, position, rotation);
             entityItem.stack = stack;
+            return entityItem;
         }
 
         //Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
@@ -239,6 +241,10 @@ namespace VoxelEngine.Level {
             }
         }
         
+        public TileEntityBase getTileEntity(int x, int y, int z) {
+            return this.getTileEntity(new BlockPos(x, y, z));
+        }
+
         public TileEntityBase getTileEntity(BlockPos pos) {
             return this.getChunk(pos).tileEntityDict[pos];
         }

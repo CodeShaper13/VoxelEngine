@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using VoxelEngine.Blocks;
 
@@ -20,10 +19,11 @@ namespace VoxelEngine.Render.BlockRender {
         public BlockRendererMesh(GameObject prefab) {
             this.prefab = prefab;
             List<Mesh> meshes = new List<Mesh>();
+            List<Vector3> offsets = new List<Vector3>();
 
-            this.extractMesh(this.prefab.transform, meshes);
-            foreach(Transform t in this.prefab.transform) {
-                this.extractMesh(t, meshes);
+            this.extractMesh(this.prefab.transform, meshes, offsets);
+            foreach(Transform trans in this.prefab.transform) {
+                this.extractMesh(trans, meshes, offsets);
             }
 
             if(meshes.Count == 0) {
@@ -37,25 +37,19 @@ namespace VoxelEngine.Render.BlockRender {
                 List<Vector3> vertList = new List<Vector3>();
                 List<int> triList = new List<int>();
                 List<Vector2> uvList = new List<Vector2>();
-                foreach(Mesh m in meshes) {
-                    vertList.AddRange(m.vertices);
+                Vector3[] cachedVerts;
+                for(int i = 0; i < meshes.Count; i++) {
+                    Mesh m = meshes[i];
+                    cachedVerts = m.vertices;
+                    for(int j = 0; j < cachedVerts.Length; j++) {
+                        vertList.Add((cachedVerts[j] + offsets[i]));
+                    }
                     triList.AddRange(m.triangles);
                     uvList.AddRange(m.uv);
                 }
                 this.cachedMeshVerts = vertList.ToArray();
                 this.cachedMeshTris = triList.ToArray();
                 this.cachedMeshUVs = uvList.ToArray();
-            }
-        }
-
-        [Obsolete("Pass in a prefab instead", true)]
-        public BlockRendererMesh(Mesh m) {
-            if(m == null) {
-                Debug.Log("ERROR!  Mesh can not be null!  Was it not set in References?");
-            } else {
-                this.cachedMeshVerts = m.vertices;
-                this.cachedMeshTris = m.triangles;
-                this.cachedMeshUVs = m.uv;
             }
         }
 
@@ -104,10 +98,11 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        private void extractMesh(Transform t, List<Mesh> meshes) {
+        private void extractMesh(Transform t, List<Mesh> meshes, List<Vector3> offsets) {
             MeshFilter filter = t.GetComponent<MeshFilter>();
             if (filter != null) {
                 meshes.Add(filter.sharedMesh);
+                offsets.Add(t.localPosition);
             }
         }
 

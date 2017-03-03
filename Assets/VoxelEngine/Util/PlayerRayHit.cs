@@ -10,7 +10,7 @@ namespace VoxelEngine.Util {
         public BlockState hitState;
         public Entity entity;
 
-        public PlayerRayHit(RaycastHit unityRaycastHit) {
+        private PlayerRayHit(RaycastHit unityRaycastHit) {
             this.unityRaycastHit = unityRaycastHit;
         }
 
@@ -20,6 +20,14 @@ namespace VoxelEngine.Util {
 
         public PlayerRayHit(Entity entity, RaycastHit unityRaycastHit) : this(unityRaycastHit) {
             this.entity = entity;
+        }
+
+        public bool hitBlock() {
+            return this.hitState != null;
+        }
+
+        public bool hitEntity() {
+            return this.entity != null;
         }
     }
 }

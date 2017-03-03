@@ -20,6 +20,9 @@ namespace VoxelEngine.Containers {
 
         public void OnPointerClick(PointerEventData eventData) {
             ContainerManager cm = Main.singleton.containerManager;
+            if(!cm.isContainerOpen()) {
+                return;
+            }
             ItemStack heldStack = cm.heldStack;
 
             bool left = eventData.button == PointerEventData.InputButton.Left;

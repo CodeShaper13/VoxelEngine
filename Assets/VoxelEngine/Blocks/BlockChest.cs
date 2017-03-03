@@ -61,7 +61,12 @@ namespace VoxelEngine.Blocks {
         }
 
         public static byte getMetaFromDirection(Direction dir) {
-            return dir != Direction.DOWN ? (byte)dir.directionId : (byte)0;
+            if (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
+                return (byte)(dir.directionId - 1);
+            }
+            else {
+                return 0;
+            }
         }
     }
 }

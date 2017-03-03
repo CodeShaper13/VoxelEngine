@@ -39,6 +39,7 @@ namespace VoxelEngine.Containers {
 
         // Called when the container is closed for any reason
         public virtual void onClose() {
+            //TODO we need a reference to the tile entity that this belongs to, to the te knows when the container is closed
             for (int i = 0; i < this.slots.Length; i++) {
                 this.data.items[i] = this.slots[i].getContents();
             }

@@ -43,12 +43,12 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             if (piecesFromStart < 2) {
                 // If we are still close to the start, always go straight, so we arent wrapping back around the middle
                 new PieceHallway(this.end + this.pointing.direction, this.pointing, pieces, piecesFromStart, rnd);
-            } else if(piecesFromStart < 4) {
-                if(rnd.Next(2) == 0) {
-                    new PieceRoom(this.end + this.pointing.direction, this.pointing, pieces, piecesFromStart, rnd);
-                } else {
-                    this.addRoom(pieces, piecesFromStart, rnd);
-                }
+            //} else if(piecesFromStart < 4) {
+            //    if(rnd.Next(2) == 0) {
+            //        new PieceRoom(this.end + this.pointing.direction, this.pointing, pieces, piecesFromStart, rnd);
+            //    } else {
+            //        this.addRoom(pieces, piecesFromStart, rnd);
+            //    }
             } else {
                 int i = rnd.Next(7);
                 if (i == 0 || i == 1) {
@@ -166,8 +166,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override void calculateBounds() {
             Vector3 pieceCenter = ((this.start.toVector() / 2) + (this.end.toVector() / 2));
             this.pieceBounds = new Bounds(
-                new Vector3(pieceCenter.x, pieceCenter.y + 1.5f, pieceCenter.z),
-                MathHelper.absVec((this.start - this.end).toVector() + (this.pointing.getClockwise().direction.toVector() * 4) + new Vector3(0, 3, 0)));
+                new Vector3(pieceCenter.x, pieceCenter.y + 1f, pieceCenter.z),
+                MathHelper.absVec((this.start - this.end).toVector() + (this.pointing.getClockwise().direction.toVector() * 4) + new Vector3(0, 4, 0)));
 
         }
 

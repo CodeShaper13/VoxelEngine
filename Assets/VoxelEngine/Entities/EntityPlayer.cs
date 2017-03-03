@@ -80,6 +80,7 @@ namespace VoxelEngine.Entities {
         }
 
         public override void onEntityUpdate() {
+            // If the player is dead, don't update them
             if(this.health <= 0) {
                 return;
             }
@@ -91,42 +92,42 @@ namespace VoxelEngine.Entities {
             ItemStack heldStack = this.containerHotbar.getHeldItem();
 
             if (!this.contManager.isContainerOpen()) {
+                // Find out what the palayer is looking at
                 PlayerRayHit playerHit = this.getPlayerRayHit();
 
                 if (playerHit != null) {
-                    if(playerHit.unityRaycastHit.distance <= this.reach) {
-                        if (playerHit.hitState != null) {
-                            if (Input.GetMouseButton(0)) {
-                                this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
-                            }
-                            if (Input.GetMouseButtonDown(1)) {
-                                if(!playerHit.hitState.block.onRightClick(this.world, this, this.posLookingAt, playerHit.hitState.meta)) {
-                                    if(this.contManager.heldStack != null) {
-                                        this.contManager.heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
-                                    }
+                    // We are looking at something
+                    if (playerHit.hitBlock()) {
+                        if (Input.GetMouseButton(0)) {
+                            this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
+                        }
+                        if (Input.GetMouseButtonDown(1)) {
+                            if (!playerHit.hitState.block.onRightClick(this.world, this, this.posLookingAt, playerHit.hitState.meta)) {
+                                if (heldStack != null) {
+                                    heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
                                 }
-                            }
-                        } else if (playerHit.entity != null) {
-                            if (Input.GetMouseButtonDown(0)) {
-                                float damage = 1;
-                                if (heldStack != null && heldStack.item is ItemSword) {
-                                    damage = ((ItemSword)heldStack.item).damageAmount;
-                                }
-                                playerHit.entity.onEntityHit(this, damage);
-                            }
-                            if (Input.GetMouseButtonDown(1)) {
-                                playerHit.entity.onEntityInteract(this);
                             }
                         }
+                    } else if (playerHit.hitEntity()) {
+                        if (Input.GetMouseButtonDown(0)) {
+                            // Player is hitting an entity
+                            int damage = 1;
+                            if (heldStack != null && heldStack.item is ItemSword) {
+                                damage = ((ItemSword)heldStack.item).damageAmount;
+                            }
+                            playerHit.entity.damage(damage, "Player");
+                        }
+                        if (Input.GetMouseButtonDown(1)) {
+                            // Player is right clicking on an entity
+                            playerHit.entity.onEntityInteract(this);
+                        }
                     }
-                }
-
-                //Right click
-                if (Input.GetMouseButtonDown(1)) {
-                    if (playerHit != null && heldStack != null) {
+                } else {
+                    // We are clicking on the air
+                    if (Input.GetMouseButtonDown(1) && heldStack != null) {
                         this.containerHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
                     }
-                }
+                }                
             }
 
             //TODO this can be optimized, when held is null it is called every frame
@@ -143,12 +144,11 @@ namespace VoxelEngine.Entities {
                 this.lightObj.lightObj.enabled = isHoldingLight;
             }
 
-            // Hunger
+            // Update hunger
             this.hunger -= Time.deltaTime * 0.25f;
             this.hungerSlider.value = this.hunger;
             if(this.hunger <= 0f) {
                 this.hunger = 0f;
-
                 this.hungerDamageTimer -= Time.deltaTime;
                 if(this.hungerDamageTimer <= -2f) {
                     this.damage(1, "You forget to eat!");
@@ -292,47 +292,55 @@ namespace VoxelEngine.Entities {
 
         // Configures a first time player, setting the starting inventory and the default health
         public void setupFirstTimePlayer() {
-            this.containerHotbar.addItemStack(new ItemStack(Item.uranium, 0, 8));
-            this.containerHotbar.addItemStack(new ItemStack(Item.uranium, 0, 12));
-            this.containerHotbar.addItemStack(new ItemStack(Block.mushroom, 0, 16));
-            this.containerHotbar.addItemStack(new ItemStack(Block.fence, 0, 16));
-            this.containerHotbar.addItemStack(new ItemStack(Item.pebble, 0, 16));
-            this.containerHotbar.addItemStack(new ItemStack(Item.magnifyingGlass, 0));
-            this.containerHotbar.addItemStack(new ItemStack(Block.chest, 0, 16));
-            this.containerHotbar.addItemStack(new ItemStack(Block.rail, 0, 16));
-            this.containerHotbar.addItemStack(new ItemStack(Block.mossyBrick, 0, 16));
+            this.containerHotbar.slots[0].setContents(new ItemStack(Block.ladder, 0, 25));
+            this.containerHotbar.slots[1].setContents(new ItemStack(Block.torch, 0, 12));
+            this.containerHotbar.slots[2].setContents(new ItemStack(Block.mushroom, 0, 16));
+            this.containerHotbar.slots[3].setContents(new ItemStack(Block.fence, 0, 16));
+            this.containerHotbar.slots[4].setContents(new ItemStack(Item.pebble, 0, 16));
+            this.containerHotbar.slots[5].setContents(new ItemStack(Item.magnifyingGlass, 0));
+            this.containerHotbar.slots[6].setContents(new ItemStack(Block.chest, 0, 16));
+            this.containerHotbar.slots[7].setContents(new ItemStack(Block.rail, 0, 16));
+            this.containerHotbar.slots[8].setContents(new ItemStack(Block.mossyBrick, 0, 16));
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
             this.hunger = 75;
         }
 
-        // Returns a PlayerHitOBject, representing what the player is looking at
+        // Returns a PlayerHitObject, representing what the player is looking at, or null if they are not looking at anything
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
-            bool rayHit = Physics.Raycast(this.mainCamera.position, this.mainCamera.forward, out hit);
+            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.reach);
 
-            BlockPos p = BlockPos.fromRaycastHit(hit);
+            if(rayHit) {
+                // We are looking at something
+                BlockPos newLookPos = BlockPos.fromRaycastHit(hit);
 
-            if (rayHit == false || !(p.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
-                //If we are looking at a new thing, reset/remove the block break effect
-                this.blockBreakEffect.terminate();
-            }
-            this.posLookingAt = p;
+                if (!(newLookPos.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
+                    //We are either looking at a new thing or no longer holding the mouse button down
+                    this.blockBreakEffect.terminate();
+                }
+                this.posLookingAt = newLookPos;
 
-            if (hit.transform != null) {
                 if (hit.transform.CompareTag("Chunk") || hit.transform.CompareTag("Block")) {
                     return new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
                 } else if (hit.transform.CompareTag("Entity")) {
                     return new PlayerRayHit(hit.transform.GetComponent<Entity>(), hit);
+                } else {
+                    Debug.Log("Player is looking at an object with an unknown tag, " + hit.transform.tag);
+                    return null;
                 }
+            } else {
+                // We're not looking at anything
+                this.blockBreakEffect.terminate();
             }
+
             return null;
         }
 
         // Drops an item, via 'q' or closing a container
-        //TODO make items not collide with the player
         public void dropItem(ItemStack stack) {
-            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2) + this.transform.forward / 5, Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
+            EntityItem e = this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2), Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
+            e.rBody.AddForce(this.transform.forward * 2.5f, ForceMode.Impulse);
         }
 
         // Copies info from a prefab to the held light object

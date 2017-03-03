@@ -9,7 +9,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class PieceCrossing : PieceIntersection {
 
+        private int roomHeight;
+
         public PieceCrossing(NbtCompound tag) : base(tag) {
+            this.roomHeight = tag.Get<NbtInt>("h").IntValue;
             this.sizeRadius = this.getSizeRadius(null); //This doesnt use the rnd param
         }
 
@@ -18,26 +21,63 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos s = new BlockPos(this.orgin.x - 3, this.orgin.y, this.orgin.z - 3);
-            BlockPos e = new BlockPos(this.orgin.x + 3, this.orgin.y + 6, this.orgin.z + 3);
+            BlockPos p1 = new BlockPos(this.orgin.x - 4, this.orgin.y, this.orgin.z - 4);
+            BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 6, this.orgin.z + 4);
             Block b;
-            for (int i = s.x; i <= e.x; i++) {
-                for (int j = s.y; j <= e.y; j++) {
-                    for (int k = s.z; k <= e.z; k++) {
-                        b = Block.air;
-                        int x = i - chunk.pos.x;
-                        int y = j - chunk.pos.y;
-                        int z = k - chunk.pos.z;
-                        if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                            if (i == this.orgin.x && k == this.orgin.z && y == 4) {
-                                chunk.world.setBlock(i, j, k, Block.torch, 0, false);
-                                continue;
+            byte meta;
+            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ, absX, absZ;
+            for (int i = p1.x; i <= p2.x; i++) {
+                for (int j = p1.y; j <= p2.y; j++) {
+                    for (int k = p1.z; k <= p2.z; k++) {
+                        if (chunk.isInChunk(i, j, k)) {
+                            b = Block.air;
+                            meta = 0;
+                            chunkCoordX = i - chunk.pos.x;
+                            chunkCoordY = j - chunk.pos.y;
+                            chunkCoordZ = k - chunk.pos.z;
+                            offsetX = i - this.orgin.x;
+                            offsetY = j - this.orgin.y;
+                            offsetZ = k - this.orgin.z;
+                            absX = Mathf.Abs(offsetX);
+                            absZ = Mathf.Abs(offsetZ);
+                            
+                            // Column
+                            if (absX == 3 && absZ == 3 && offsetY < 4) {
+                                b = Block.wood;
+                                meta = 1;
                             }
-                            if (y == 0 && (i == this.orgin.x || k == this.orgin.z) && rnd.Next(0, 10) != 0) {
+                            // Rail
+                            else if (offsetY == 0 && (offsetX == 0 || offsetZ == 0) && rnd.Next(0, 10) != 0) {
                                 b = Block.rail;
-                                //TODO set rail meta
+                                meta = offsetX == 0 ? (byte)1 : (byte)0;
                             }
-                            chunk.setBlock(x, y, z, b);
+                            //Beams
+                            else if(offsetY == 4 && absX == 3 && absZ < 5) {
+                                b = Block.wood;
+                                meta = 2;
+                            } else if(offsetY == 5 && absZ == 3 && absX < 5) {
+                                b = Block.wood;
+                                meta = 0;
+                            }
+                            // Ceiling
+                            else if(offsetY == 6 && rnd.Next(4) > 0) {
+                                b = null;
+                            }
+                            // Torch
+                            else if (offsetY == 2) {
+                                if (absX == 3 && absZ == 2 && rnd.Next(0, 8) == 0) {                                    
+                                    chunk.world.setBlock(i, j, k, Block.torch, offsetZ == 2 ? (byte)1 : (byte)3, false);
+                                    continue;
+                                } else if(absX == 2 && absZ == 3 && rnd.Next(0, 8) == 0) {
+                                    chunk.world.setBlock(i, j, k, Block.torch, offsetX == 2 ? (byte)2 : (byte)4, false);
+                                    continue;
+                                }
+                            }
+
+                            if(b != null) {
+                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, b);
+                                chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
+                            }
                         }
                     }
                 }
@@ -48,8 +88,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return 1;
         }
 
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(new NbtInt("h", this.roomHeight));
+            return tag;
+        }
+
         protected override BlockPos getSizeRadius(System.Random rnd) {
-            return new BlockPos(3, 0, 3);
+            return new BlockPos(4, 0, 4);
         }
 
         protected override int getHeight() {

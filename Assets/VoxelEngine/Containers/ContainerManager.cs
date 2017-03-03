@@ -75,8 +75,8 @@ namespace VoxelEngine.Containers {
                     player.dropItem(this.heldStack);
                     this.heldStack = null;
                 }
-                this.contLeft = this.func_01(this.contLeft);
-                this.contRight = this.func_01(this.contRight);
+                this.contLeft = this.closeIfNotNull(this.contLeft);
+                this.contRight = this.closeIfNotNull(this.contRight);
 
                 Main.hideMouse(true);
             }
@@ -158,8 +158,7 @@ namespace VoxelEngine.Containers {
             return container;
         }
 
-        // Closes a container if it is not null
-        private Container func_01(Container container) {
+        private Container closeIfNotNull(Container container) {
             if (container != null) {
                 container.onClose();
                 container.gameObject.SetActive(false);

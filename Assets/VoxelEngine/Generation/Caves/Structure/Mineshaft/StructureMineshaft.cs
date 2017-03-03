@@ -7,7 +7,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class StructureMineshaft : StructureBase, IDebugDisplayable {
 
-        public const int SIZE_CAP = 12;
+        public const int SIZE_CAP = 20;
 
         public List<PieceBase> pieces;
         public BlockPos shaftOrgin;

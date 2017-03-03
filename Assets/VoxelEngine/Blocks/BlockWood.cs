@@ -31,12 +31,12 @@ namespace VoxelEngine.Blocks {
             return pos;
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
-            return (byte)clickedDir.axis;
+        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+            return (byte)clickedDirNormal.axis;
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
-            return base.getDrops(world, pos, 0, brokenWith);
+            return base.getDrops(world, pos, 1, brokenWith);
         }
     }
 }

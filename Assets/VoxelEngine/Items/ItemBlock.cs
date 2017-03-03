@@ -26,16 +26,16 @@ namespace VoxelEngine.Items {
         }
 
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
-            if (hit.hitState != null && hit.unityRaycastHit.distance <= player.reach) {
+            if (hit != null && hit.unityRaycastHit.distance <= player.reach) {
                 BlockPos pos = BlockPos.fromRaycastHit(hit.unityRaycastHit);
 
                 Vector3 angle = new Vector3(player.transform.position.x, 0, player.transform.position.z)- new Vector3(hit.unityRaycastHit.point.x, 0, hit.unityRaycastHit.point.z);
 
-                Direction clickedDir = this.getClickedFace(hit.unityRaycastHit.normal);
-                BlockPos newPos = pos.move(clickedDir);
+                Direction clickedDirNormal = this.getClickedFace(hit.unityRaycastHit.normal);
+                BlockPos newPos = pos.move(clickedDirNormal);
                 byte meta = stack.meta;
-                if (world.getBlock(newPos).replaceable && this.block.isValidPlaceLocation(world, newPos, meta, clickedDir)) {
-                    world.setBlock(newPos, this.block, this.block.adjustMetaOnPlace(world, newPos, meta, clickedDir, angle));
+                if (world.getBlock(newPos).replaceable && this.block.isValidPlaceLocation(world, newPos, meta, clickedDirNormal)) {
+                    world.setBlock(newPos, this.block, this.block.adjustMetaOnPlace(world, newPos, meta, clickedDirNormal, angle));
                     stack = stack.safeDeduction();
                 }
             }

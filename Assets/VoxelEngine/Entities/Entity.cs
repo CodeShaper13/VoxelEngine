@@ -8,12 +8,12 @@ namespace VoxelEngine.Entities {
     public abstract class Entity : MonoBehaviour {
         public World world;
         public int health;
-        private Rigidbody rigidBody;
+        public Rigidbody rBody;
 
         public void Awake() {
             this.tag = "Entity";
             this.health = 10;
-            this.rigidBody = this.GetComponent<Rigidbody>();
+            this.rBody = this.GetComponent<Rigidbody>();
         }
 
         public void OnCollisionEnter(Collision collision) {
@@ -21,8 +21,10 @@ namespace VoxelEngine.Entities {
             this.onEntityCollision(otherEntity);
         }
 
-        public void FixedUpdate() {
-            this.onEntityUpdate();
+        public void Update() {
+            if(!Main.singleton.isPaused) {
+                this.onEntityUpdate();
+            }
         }
 
         public virtual void onEntityUpdate() {
@@ -59,8 +61,8 @@ namespace VoxelEngine.Entities {
 
             tag.Add(NbtHelper.writeVector3("position", this.transform.position));
             tag.Add(NbtHelper.writeVector3("rotation", this.transform.eulerAngles));
-            tag.Add(NbtHelper.writeVector3("velocity", this.rigidBody.velocity));
-            tag.Add(NbtHelper.writeVector3("angularVelocity", this.rigidBody.angularVelocity));
+            tag.Add(NbtHelper.writeVector3("velocity", this.rBody.velocity));
+            tag.Add(NbtHelper.writeVector3("angularVelocity", this.rBody.angularVelocity));
 
             return tag;
         }
@@ -70,8 +72,8 @@ namespace VoxelEngine.Entities {
 
             this.transform.position = NbtHelper.readVector3(tag.Get<NbtCompound>("position"));
             this.transform.eulerAngles = NbtHelper.readVector3(tag.Get<NbtCompound>("rotation"));
-            this.rigidBody.velocity = NbtHelper.readVector3(tag.Get<NbtCompound>("velocity"));
-            this.rigidBody.angularVelocity = NbtHelper.readVector3(tag.Get<NbtCompound>("angularVelocity"));
+            this.rBody.velocity = NbtHelper.readVector3(tag.Get<NbtCompound>("velocity"));
+            this.rBody.angularVelocity = NbtHelper.readVector3(tag.Get<NbtCompound>("angularVelocity"));
         }
 
         public abstract byte getEntityId();

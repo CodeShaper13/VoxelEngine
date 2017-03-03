@@ -2,9 +2,9 @@
 
     public class ItemSword : Item {
 
-        public float damageAmount;
+        public int damageAmount;
 
-        public ItemSword(int id, float damage) : base(id) {
+        public ItemSword(int id, int damage) : base(id) {
             this.damageAmount = damage;
         }
     }

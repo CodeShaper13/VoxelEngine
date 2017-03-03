@@ -68,11 +68,6 @@ namespace VoxelEngine.Generation.Caves {
         public override void generateChunk(Chunk chunk) {
             this.rnd = new System.Random(this.seed + chunk.chunkPos.GetHashCode());
 
-            //if(c.chunkPos.x == 0 && c.chunkPos.y == 0 && c.chunkPos.z == 0) {
-            //    this.generateStartRoom(c);
-            //    return;
-            //}
-
             bool inCrackChunk = chunk.chunkPos.y % 2 != 0;
             byte closerToOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2));
             byte fartherFromOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2 + (chunk.chunkPos.y < 0 ? -1 : 1)));
@@ -104,7 +99,7 @@ namespace VoxelEngine.Generation.Caves {
                         //}
 
                         chunk.setBlock(x, y, z, block);
-                        chunk.setMeta(x, y, z, meta);
+                        chunk.setMeta(x, y, z, 0 /*meta*/);
                     }
                 }
             }

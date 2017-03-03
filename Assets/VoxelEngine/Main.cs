@@ -51,7 +51,7 @@ namespace VoxelEngine {
 
             //Debug instant world generation
             string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            this.generateWorld(new WorldData(name, UnityEngine.Random.Range(int.MinValue, int.MaxValue), WorldType.CAVE_1.id, true));
+            this.generateWorld(new WorldData(name, new System.Random().Next(), WorldType.CAVE_1.id, true));
         }
 
         public void Update() {

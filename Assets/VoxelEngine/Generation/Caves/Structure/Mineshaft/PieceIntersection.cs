@@ -7,6 +7,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public abstract class PieceIntersection : PieceBase {
 
+        // The center of the piece
         protected BlockPos orgin;
         protected BlockPos sizeRadius;
 
@@ -37,8 +38,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override void calculateBounds() {
             this.pieceBounds = new Bounds(
-                new Vector3(this.orgin.x, this.orgin.y + this.getHeight() / 2, this.orgin.z),
-                new Vector3(this.sizeRadius.x * 2, this.getHeight(), this.sizeRadius.z * 2));
+                new Vector3(this.orgin.x, this.orgin.y + (this.getHeight() - 0.5f) / 2, this.orgin.z),
+                new Vector3(this.sizeRadius.x * 2, this.getHeight() + 1, this.sizeRadius.z * 2));
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -69,6 +70,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         // Used by PieceShaft
         protected virtual void pieceAddedCallback() { }
 
+        // Standard hallway odds
         private void tryGenerateHallway(BlockPos pos, Direction direction, List<PieceBase> pieces, int chanceToFail, Direction comingFrom, System.Random rnd) {
             if (rnd.Next(0, 6) > 1) { //4 out of 5
                 new PieceHallway(pos, direction, pieces, chanceToFail, rnd);

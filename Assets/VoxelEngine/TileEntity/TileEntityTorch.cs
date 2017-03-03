@@ -20,13 +20,13 @@ namespace VoxelEngine.TileEntity {
             }
             else if (meta == 3) { // South
                 pos = new Vector3(x, y, z - f);
-                rot = new Vector3(-f1, 0, 0);
+                rot = new Vector3(f1, 0, 0);
             }
             else if (meta == 4) { // West
                 pos = new Vector3(x - f, y, z);
                 rot = new Vector3(0, 0, -f1);
             }
-            else { // On floor
+            else { // 0, On floor
                 pos = new Vector3(x, y, z);
                 rot = Vector3.zero;
             }

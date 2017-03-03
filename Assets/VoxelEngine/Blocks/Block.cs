@@ -34,7 +34,7 @@ namespace VoxelEngine.Blocks {
         public static Block chest = new BlockChest(19).setName("Chest").setTransparent();
         public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent().setRenderAsItem(1, 1);
         public static Block torch = new BlockTorch(21).setName("Torch").setTransparent();
-        public static Block ladder = new Block(22).setName("Ladder");
+        public static Block ladder = new BlockLadder(22).setName("Ladder");
         public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL);//.setRenderFlat();
         public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(BlockRenderer.FENCE);
         public static Block moss;
@@ -121,11 +121,11 @@ namespace VoxelEngine.Blocks {
             return uvArray;
         }
 
-        public virtual byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
+        public virtual byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
             return meta;
         }
 
-        public virtual bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction intendedDir) {
+        public virtual bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
             return true;
         }
 

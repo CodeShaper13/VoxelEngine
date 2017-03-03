@@ -21,12 +21,12 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction intendedDir) {
-            return intendedDir != Direction.UP && world.getBlock(pos.move(intendedDir)).isSolid;
+        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
+            return (clickedDirNormal != Direction.DOWN) && world.getBlock(pos.move(clickedDirNormal.getOpposite())).isSolid;
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
-            return BlockTorch.getMetaFromDirection(clickedDir);
+        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+            return BlockTorch.getMetaFromDirection(clickedDirNormal != Direction.DOWN ? clickedDirNormal.getOpposite() : clickedDirNormal);
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
@@ -38,7 +38,11 @@ namespace VoxelEngine.Blocks {
         }
 
         public static byte getMetaFromDirection(Direction dir) {
-            return dir != Direction.DOWN ? (byte)dir.directionId : (byte)0;
+            if(dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
+                return (byte)dir.directionId;
+            } else {
+                return 0;
+            }
         }
 
         public GameObject getPrefab() {

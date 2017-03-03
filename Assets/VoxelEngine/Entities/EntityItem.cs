@@ -21,10 +21,6 @@ namespace VoxelEngine.Entities {
             this.calculateMesh();
         }
 
-        public void OnTriggerEnter(Collider other) {
-            Debug.Log(other.name);
-        }
-
         public void calculateMesh() {
             if(this.stack == null) {
                 Debug.LogWarning("Items may not have a stack of null!  Killing Entity");

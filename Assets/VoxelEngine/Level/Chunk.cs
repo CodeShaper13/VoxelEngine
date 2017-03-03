@@ -116,6 +116,26 @@ namespace VoxelEngine.Level {
             this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = meta;
         }
 
+        // Takes world coordinates
+        public bool isInChunk(int worldX, int worldY, int worldZ) {
+            int inChunkX = worldX - this.pos.x;
+            int inChunkY = worldY - this.pos.y;
+            int inChunkZ = worldZ - this.pos.z;
+            return (
+                inChunkX >= 0 && inChunkX < Chunk.SIZE &&
+                inChunkY >= 0 && inChunkY < Chunk.SIZE &&
+                inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
+        }
+
+        // Takes world coordinates
+        public bool isInChunkIgnoreY(int worldX, int worldZ) {
+            int inChunkX = worldX - this.pos.x;
+            int inChunkZ = worldZ - this.pos.z;
+            return (
+                inChunkX >= 0 && inChunkX < Chunk.SIZE &&
+                inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
+        }
+
         //Renders all the blocks within the chunk
         public void renderChunk() {
             MeshData meshData = new MeshData();

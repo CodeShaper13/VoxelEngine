@@ -9,6 +9,7 @@ namespace VoxelEngine.Render.BlockRender {
         public static BlockRenderer CROSS = new BlockRendererPrimitiveCross();
         public static BlockRenderer RAIL = new BlockRendererPrimitiveRail();
         public static BlockRenderer FENCE = new BlockRendererPrimitiveFence();
+        public static BlockRenderer LADDER = new BlockRendererPrimitiveLadder();
         public static BlockRenderer LANTERN = new BlockRendererMesh(References.list.lanternPrefab).setRenderInWorld(false);
         public static BlockRenderer TORCH = new BlockRendererMesh(References.list.torchPrefab).setRenderInWorld(false);
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();

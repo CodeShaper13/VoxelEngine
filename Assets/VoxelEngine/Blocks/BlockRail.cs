@@ -22,7 +22,7 @@ namespace VoxelEngine.Blocks {
             return base.getDrops(world, pos, 0, brokenWith);
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
+        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
             if(Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
                 return this.getMetaForTurn(world, pos, 0);
                 //if (!(world.getBlock(pos.move(Direction.EAST)) == Block.rail || world.getBlock(pos.move(Direction.WEST)) == Block.rail)) {
@@ -40,7 +40,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction intendedDir) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 

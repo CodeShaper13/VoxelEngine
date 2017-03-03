@@ -9,6 +9,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class PieceRoom : PieceIntersection {
 
+        // 0 = X, 1 = 0
+        public int axis;
+
         public PieceRoom(NbtCompound tag) : base(tag) {
             this.sizeRadius = new BlockPos(
                 tag.Get<NbtInt>("sizeRx").IntValue, 0,
@@ -20,16 +23,24 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos s = new BlockPos(this.orgin.x - 3, this.orgin.y, this.orgin.z - 3);
-            BlockPos e = new BlockPos(this.orgin.x + 3, this.orgin.y + 6, this.orgin.z + 3);
+            BlockPos s = new BlockPos(this.orgin.x - this.sizeRadius.x, this.orgin.y, this.orgin.z - this.sizeRadius.z);
+            BlockPos e = new BlockPos(this.orgin.x + this.sizeRadius.x, this.orgin.y + 6, this.orgin.z + this.sizeRadius.z);
+            Block b;
+            byte meta;
+            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
             for (int i = s.x; i <= e.x; i++) {
                 for (int j = s.y; j <= e.y; j++) {
                     for (int k = s.z; k <= e.z; k++) {
-                        int x = i - chunk.pos.x;
-                        int y = j - chunk.pos.y;
-                        int z = k - chunk.pos.z;
-                        if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                            chunk.setBlock(x, y, z, Block.air);
+                        if (chunk.isInChunk(i, j, k)) {
+                            b = Block.air;
+                            meta = 0;
+                            chunkCoordX = i - chunk.pos.x;
+                            chunkCoordY = j - chunk.pos.y;
+                            chunkCoordZ = k - chunk.pos.z;
+                            offsetX = i - this.orgin.x;
+                            offsetY = j - this.orgin.y;
+                            offsetZ = k - this.orgin.z;
+                            chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, Block.air);
                         }
                     }
                 }
@@ -38,8 +49,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-            tag.Add(new NbtInt("sizeRx", this.sizeRadius.x));
-            tag.Add(new NbtInt("sizeRz", this.sizeRadius.z));
+            tag.Add(new NbtInt("axis", this.axis));
             return tag;
         }
 
@@ -52,7 +62,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         protected override BlockPos getSizeRadius(System.Random rnd) {
-            return new BlockPos(3 + rnd.Next(0, 3), 0, 3 + rnd.Next(0, 3));
+            if(rnd.Next(2) == 0) {
+                return new BlockPos(9, 0, 4); // X
+            }
+            return new BlockPos(4, 0, 9); // Z
         }
 
         protected override int getHeight() {
