@@ -23,7 +23,7 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public override bool generateLevelData() {
-            this.mineshaftList.Add(new StructureMineshaft(Vector3.zero, 100));
+            this.mineshaftList.Add(new StructureMineshaft(Vector3.zero, this.seed));
 
             return true;
         }

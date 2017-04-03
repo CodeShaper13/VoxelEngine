@@ -37,6 +37,7 @@ namespace VoxelEngine.Blocks {
         public static Block ladder = new BlockLadder(22).setName("Ladder");
         public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL);//.setRenderFlat();
         public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(BlockRenderer.FENCE);
+        public static Block plank = new Block(34).setName("Plank");
         public static Block moss;
         public static Block root;
         public static Block flower;

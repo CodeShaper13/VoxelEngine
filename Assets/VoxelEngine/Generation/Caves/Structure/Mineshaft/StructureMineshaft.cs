@@ -7,7 +7,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class StructureMineshaft : StructureBase, IDebugDisplayable {
 
-        public const int SIZE_CAP = 20;
+        public const int SIZE_CAP = 0; //20
 
         public List<PieceBase> pieces;
         public BlockPos shaftOrgin;
@@ -20,7 +20,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.shaftOrgin = new BlockPos((int)shaftOrgin.x, (int)shaftOrgin.y, (int)shaftOrgin.z);
 
             // Make the starting piece
-            new PieceCenter(this.shaftOrgin, pieces, 0, new System.Random(this.shaftOrgin.GetHashCode()));
+            new PieceCenter(this.shaftOrgin, pieces, 0, new System.Random(seed));
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -71,8 +71,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public void debugDisplay() {
-            foreach(PieceBase p in this.pieces) {
-                p.debugDisplay();
+            for(int i = 0; i < this.pieces.Count; i++) {
+                this.pieces[i].debugDisplay();
             }
         }
     }

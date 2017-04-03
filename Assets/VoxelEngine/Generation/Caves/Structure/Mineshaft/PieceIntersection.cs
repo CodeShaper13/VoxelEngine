@@ -7,15 +7,13 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public abstract class PieceIntersection : PieceBase {
 
-        // The center of the piece
-        protected BlockPos orgin;
         protected BlockPos sizeRadius;
 
-        public PieceIntersection(NbtCompound tag) {
-            this.orgin = NbtHelper.readDirectBlockPos(tag, "orgin");
+        public PieceIntersection(NbtCompound tag) : base(tag) {
+
         }
 
-        public PieceIntersection(BlockPos hallwayPoint, Direction hallwayDir, List<PieceBase> pieces, int piecesFromStart, System.Random rnd) {
+        public PieceIntersection(BlockPos hallwayPoint, Direction hallwayDir, List<PieceBase> pieces, int piecesFromStart, System.Random rnd) : base(BlockPos.zero) { // We set this to the correct value in two lines
             this.sizeRadius = this.getSizeRadius(rnd);
             this.orgin = hallwayPoint + (hallwayDir.direction * (hallwayDir.axis == EnumAxis.X ? this.sizeRadius.x : this.sizeRadius.z));
 
@@ -25,7 +23,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 return;
             } else {
                 pieces.Add(this);
-                this.pieceAddedCallback();
             }
 
             piecesFromStart++;
@@ -66,15 +63,5 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         protected abstract BlockPos getSizeRadius(System.Random rnd);
 
         protected abstract int getHeight();
-
-        // Used by PieceShaft
-        protected virtual void pieceAddedCallback() { }
-
-        // Standard hallway odds
-        private void tryGenerateHallway(BlockPos pos, Direction direction, List<PieceBase> pieces, int chanceToFail, Direction comingFrom, System.Random rnd) {
-            if (rnd.Next(0, 6) > 1) { //4 out of 5
-                new PieceHallway(pos, direction, pieces, chanceToFail, rnd);
-            }
-        }
     }
 }

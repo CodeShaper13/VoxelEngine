@@ -28,11 +28,12 @@ namespace VoxelEngine.Util {
             return tag;
         }
 
-        public static BlockPos readBlockPos(NbtCompound tag) {
+        public static BlockPos readBlockPos(NbtCompound tag, string compoundName) {
+            NbtCompound tag1 = tag.Get<NbtCompound>(compoundName);
             return new BlockPos(
-                tag.Get<NbtInt>("x").IntValue,
-                tag.Get<NbtInt>("y").IntValue,
-                tag.Get<NbtInt>("z").IntValue);
+                tag1.Get<NbtInt>("x").IntValue,
+                tag1.Get<NbtInt>("y").IntValue,
+                tag1.Get<NbtInt>("z").IntValue);
         }
 
         public static NbtCompound writeDirectBlockPos(NbtCompound tag, BlockPos pos, string prefix) {

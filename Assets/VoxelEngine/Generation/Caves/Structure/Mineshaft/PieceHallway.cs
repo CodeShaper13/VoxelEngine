@@ -12,19 +12,18 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         private const int minLength = 3;
         private const int maxLength = 5;
 
-        private BlockPos start;
+        // base.orgin = start
+        //private BlockPos start;
         private BlockPos end;
         private Direction pointing;
 
-        public PieceHallway(NbtCompound tag) {
-            this.start = NbtHelper.readDirectBlockPos(tag, "start");
+        public PieceHallway(NbtCompound tag) : base(tag) {
             this.end = NbtHelper.readDirectBlockPos(tag, "end");
             this.pointing = Direction.all[tag.Get<NbtInt>("pointing").IntValue];
         }
 
-        public PieceHallway(BlockPos start, Direction direction, List<PieceBase> pieces, int piecesFromStart, System.Random rnd) {
-            this.start = start;
-            this.end = this.start + (direction.direction * rnd.Next(PieceHallway.minLength, PieceHallway.minLength + 1) * 8);
+        public PieceHallway(BlockPos start, Direction direction, List<PieceBase> pieces, int piecesFromStart, System.Random rnd) : base(start) {
+            this.end = this.orgin + (direction.direction * rnd.Next(PieceHallway.minLength, PieceHallway.minLength + 1) * 8);
             this.pointing = direction;
 
             this.calculateBounds();
@@ -76,9 +75,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             if(i < 2) { // 0, 1
                 new PieceRoom(p, this.pointing, pieces, piecesFromStart, rnd);
             } else if(i == 2) { // 2
-                new PieceShaft(p, this.pointing, pieces, piecesFromStart, rnd, 0);
-            } else { //3, 4
                 new PieceCrossing(p, this.pointing, pieces, piecesFromStart, rnd);
+            } else { //3, 4
+                new PieceShaft(p, this.pointing, pieces, piecesFromStart, rnd, 0);
             }
         }
 
@@ -97,7 +96,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos pos1 = this.start + this.pointing.getClockwise().direction * 2; //bottom right
+            BlockPos pos1 = this.orgin + this.pointing.getClockwise().direction * 2; //bottom right
             BlockPos pos2 = this.end + this.pointing.getCounterClockwise().direction * 2 + new BlockPos(0, 3, 0);
             int i, j, k, x, y, z;
             int i1 = Mathf.Max(pos1.x, pos2.x);
@@ -116,7 +115,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 }
             }
             //Add the supports, torch and rails
-            BlockPos pos = this.start;
+            BlockPos pos = this.orgin; // this.start;
             BlockPos endPoint = this.end + this.pointing.direction;
             byte axis = (byte)(this.pointing.axis);
             byte perpAxis = (byte)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X); // Perpendicular to axis
@@ -164,16 +163,15 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void calculateBounds() {
-            Vector3 pieceCenter = ((this.start.toVector() / 2) + (this.end.toVector() / 2));
+            Vector3 pieceCenter = ((this.orgin.toVector() / 2) + (this.end.toVector() / 2));
             this.pieceBounds = new Bounds(
                 new Vector3(pieceCenter.x, pieceCenter.y + 1f, pieceCenter.z),
-                MathHelper.absVec((this.start - this.end).toVector() + (this.pointing.getClockwise().direction.toVector() * 4) + new Vector3(0, 4, 0)));
+                MathHelper.absVec((this.orgin - this.end).toVector() + (this.pointing.getClockwise().direction.toVector() * 4) + new Vector3(0, 4, 0)));
 
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-            NbtHelper.writeDirectBlockPos(tag, this.start, "start");
             NbtHelper.writeDirectBlockPos(tag, this.end, "end");
             tag.Add(new NbtInt("pointing", this.pointing.directionId - 1));
             return tag;
@@ -185,6 +183,16 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override Color getPieceColor() {
             return Color.blue;
+        }
+
+        private void setStateIfInChunk(Chunk chunk, int x, int y, int z, Block block, byte meta) {
+            if (chunk.isInChunk(x, y, z)) {
+                int i = x - chunk.pos.x;
+                int j = y - chunk.pos.y;
+                int k = z - chunk.pos.z;
+                chunk.setBlock(i, j, k, block);
+                chunk.setMeta(i, j, k, meta);
+            }
         }
     }
 }

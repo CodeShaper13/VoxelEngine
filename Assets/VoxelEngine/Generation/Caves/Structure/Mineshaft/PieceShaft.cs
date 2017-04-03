@@ -8,7 +8,7 @@ using System;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
-    public class PieceShaft : PieceIntersection {
+    public class PieceShaft : PieceBase {
                 
         protected bool addedToList = false;
 
@@ -28,7 +28,20 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public PieceShaft(BlockPos hallwayPoint, Direction hallwayDir, List<PieceBase> pieces, int piecesFromStart, System.Random rnd, int flag)
-            : base(hallwayPoint, hallwayDir, pieces, piecesFromStart, rnd) {
+            : base(hallwayPoint + (hallwayDir.direction * 4)) {
+
+            this.calculateBounds();
+
+            if (this.isIntersecting(pieces)) {
+                return;
+            }
+            pieces.Add(this);
+            this.addedToList = true;
+
+            piecesFromStart++;
+            if (piecesFromStart > StructureMineshaft.SIZE_CAP) {
+                return;
+            }
 
             this.specialFlag = flag;
             this.floor1Ladder = rnd.Next(4);
@@ -57,10 +70,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             } else if(flag == -1) {
                 //TODO chance for water filled bottom piece
             }
-        }
 
-        protected override void pieceAddedCallback() {
-            this.addedToList = true;
+            this.generateHallways(hallwayDir.getOpposite(), this.orgin, 5, 5, pieces, piecesFromStart, rnd);
         }
 
         public override Color getPieceColor() {
@@ -76,9 +87,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 15, this.orgin.z + 4);
             Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
-            int chunkCoordX, chunkCoordY, chunkCoordZ;
-            // The distance from the orgin of the piece
-            int offsetX, /*offsetY,*/ offsetZ;
+            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetZ;
             Block b;
             byte woodMeta = 0;
             for (int i = p1.x; i <= p2.x; i++) {
@@ -90,7 +99,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             chunkCoordY = j - chunk.pos.y;
                             chunkCoordZ = k - chunk.pos.z;
                             offsetX = i - this.orgin.x;
-                            //offsetY = j - this.orgin.y;
                             offsetZ = k - this.orgin.z;
 
                             // Random gravel on ground
@@ -227,12 +235,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return tag;
         }
 
-        protected override BlockPos getSizeRadius(System.Random rnd) {
-            return new BlockPos(4, 0, 4);
-        }
-
-        protected override int getHeight() {
-            return 14;
+        public override void calculateBounds() {
+            this.pieceBounds = new Bounds(
+                new Vector3(this.orgin.x, this.orgin.y + 6.5f, this.orgin.z),
+                new Vector3(8, 15, 8));
         }
     }
 }
