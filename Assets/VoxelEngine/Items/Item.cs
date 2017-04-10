@@ -108,7 +108,9 @@ namespace VoxelEngine.Items {
             }
         }
 
-        // Prerenders all the items, saving the meshes in Item.preRenderedMeshes
+        /// <summary>
+        /// Prerenders all the items, saving the meshes in Item.preRenderedMeshes
+        /// </summary>
         public static void preRenderItems() {
             for (int i = 0; i < Item.ITEM_LIST.Length; i++) {
                 Item item = Item.ITEM_LIST[i];

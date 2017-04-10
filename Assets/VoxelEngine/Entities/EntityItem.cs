@@ -1,6 +1,7 @@
 ﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Containers;
+using VoxelEngine.Render;
 
 namespace VoxelEngine.Entities {
 
@@ -11,17 +12,23 @@ namespace VoxelEngine.Entities {
 
         private MeshFilter filter;
 
-        public new void Awake() {
+        protected new void Awake() {
             base.Awake();
             this.filter = this.GetComponent<MeshFilter>();
             this.pickupDelay = 2f;
         }
 
-        public void Start() {
-            this.calculateMesh();
+        protected new void Start() {
+            // Start will interact with the material, so call calculateMesh() first.
+            this.calculateMesh(true);
+
+            base.Start();
         }
 
-        public void calculateMesh() {
+        /// <summary>
+        /// Creates and sets the items mesh.
+        /// </summary>
+        private void calculateMesh(bool lookupMaterial) {
             if(this.stack == null) {
                 Debug.LogWarning("Items may not have a stack of null!  Killing Entity");
                 this.world.killEntity(this);
@@ -30,23 +37,22 @@ namespace VoxelEngine.Entities {
                 this.world.killEntity(this);
             } else {
                 int modelCount;
-                int i = this.stack.count;
-                if (i >= 25) {
-                    i = 4;
-                }
-                else if (i >= 17) {
+                if (this.stack.count >= 25) {
+                    modelCount = 4;
+                } else if (this.stack.count >= 17) {
                     modelCount = 3;
-                }
-                else if (i >= 9) {
+                } else if (this.stack.count >= 9) {
                     modelCount = 2;
-                }
-                else {
+                } else {
                     modelCount = 1;
                 }
 
                 this.filter.mesh = this.stack.item.getPreRenderedMesh(this.stack.meta);
                 this.filter.mesh.RecalculateNormals();
-                this.GetComponent<MeshRenderer>().material = References.getMaterial(this.stack.item.id);
+                
+                if(lookupMaterial) {
+                    this.GetComponent<MeshRenderer>().material = RenderManager.getMaterial(this.stack.item.id);
+                }
             }
         }
 
@@ -93,7 +99,7 @@ namespace VoxelEngine.Entities {
         public ItemStack tryPickupStack(ItemStack stack) {
             if(this.stack.equals(stack)) {
                 ItemStack leftover = this.stack.merge(stack);
-                this.calculateMesh();
+                this.calculateMesh(false);
                 return leftover;
             } else {
                 return stack;

@@ -44,7 +44,7 @@ namespace VoxelEngine.Entities {
 
         public ContainerManager contManager;
 
-        public new void Awake() {
+        private new void Awake() {
             base.Awake();
 
             this.mainCamera = Camera.main.transform;
@@ -62,8 +62,8 @@ namespace VoxelEngine.Entities {
             this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
         }
 
-        public void Start() {
-            switch(WorldType.getFromId(this.world.worldData.worldType).chunkLoaderType) {
+        private new void Start() {
+            switch (WorldType.getFromId(this.world.worldData.worldType).chunkLoaderType) {
                 case ChunkLoaderBase.LOCKED_Y:
                     this.chunkLoader = new ChunkLoaderLockedY(this.world, this);
                     break;
@@ -130,6 +130,7 @@ namespace VoxelEngine.Entities {
                 }                
             }
 
+            /*
             //TODO this can be optimized, when held is null it is called every frame
             if (this.lastHeldItem == null || (this.lastHeldItem != null && heldStack != null && !this.lastHeldItem.equals(heldStack))) {
                 bool isHoldingLight = false;
@@ -143,6 +144,7 @@ namespace VoxelEngine.Entities {
                 this.lightObj.enabled = isHoldingLight;
                 this.lightObj.lightObj.enabled = isHoldingLight;
             }
+            */
 
             // Update hunger
             this.hunger -= Time.deltaTime * 0.25f;
@@ -343,7 +345,10 @@ namespace VoxelEngine.Entities {
             e.rBody.AddForce(this.transform.forward * 2.5f, ForceMode.Impulse);
         }
 
-        // Copies info from a prefab to the held light object
+        // Unused
+        /// <summary>
+        /// Copies info from a prefab to the held light object
+        /// </summary>
         private void copyLightData(GameObject obj) {
             LightFlicker l = obj.GetComponent<LightFlicker>();
             this.lightObj.minIntensity = l.minIntensity;

@@ -53,20 +53,22 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             int i;
             Vector3 v;
             // Broken, triangles normals are messed up when we scale model by -1
             //Vector3 sv = (this.flag ? this.pseudoRandomScale(new BlockPos(x, y, z).GetHashCode()) : Vector3.one);
             //Vector3 sv = Vector3.one;
 
-            if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Chech usRenderDataForCol because it is false if we are rendering an item
+            // Add the colliders
+            if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
                 meshData.useRenderDataForCol = false;
                 for(i = 0; i < this.colliderArray.Length; i++) {
                     meshData.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
                 }
             }
 
+            // Add vertices
             int vertStart = meshData.getVerticeCount();
             for(i = 0; i < this.cachedMeshVerts.Length; i++) {
                 v = this.cachedMeshVerts[i];
@@ -74,17 +76,22 @@ namespace VoxelEngine.Render.BlockRender {
                 meshData.addVertex(new Vector3(v.x + x + this.offsetVector.x, v.y + y + this.offsetVector.y, v.z + z + this.offsetVector.z));
             }
 
+            // Add triangles
             for (i = 0; i < this.cachedMeshTris.Length; i++) {
                 meshData.addTriangle(vertStart + this.cachedMeshTris[i]);
             }
 
+            // Add UVs
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
-                meshData.uv.Add(this.cachedMeshUVs[i]);
+                meshData.addUv(this.cachedMeshUVs[i]);
             }
         
             return meshData;
         }
 
+        /// <summary>
+        /// Returns a random scale to flip the block based on its position hash.
+        /// </summary>
         private Vector3 pseudoRandomScale(int hash) {
             int b = hash & 3; //Only use the first 2 bits
             if(b == 0) {
@@ -117,7 +124,6 @@ namespace VoxelEngine.Render.BlockRender {
         }
 
         public BlockRendererMesh useColliderComponent() {
-            //Debug.Log(GameObject.Instantiate(this.prefab).GetComponent<BoxCollider>().bounds);
             this.useMeshForCollision = false;
             BoxCollider[] bc = this.prefab.GetComponents<BoxCollider>();
             this.colliderArray = new Bounds[bc.Length];

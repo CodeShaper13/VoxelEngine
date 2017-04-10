@@ -31,5 +31,11 @@ namespace VoxelEngine.TileEntity {
         public override int getId() {
             return 1;
         }
+
+        public override Material[] getModelMaterials() {
+            return new Material[] {
+                this.gameObject.transform.GetChild(0).GetComponent<Renderer>().material,
+                this.gameObject.transform.GetChild(1).GetComponent<Renderer>().material};
+        }
     }
 }

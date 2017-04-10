@@ -6,10 +6,10 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererPrimitiveCross : BlockRendererPrimitive {
 
-        private MeshData meshData;
+        private MeshBuilder meshData;
         private byte meta;
 
-        public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             this.meshData = meshData;
             this.meta = meta;
 
@@ -22,11 +22,13 @@ namespace VoxelEngine.Render.BlockRender {
 
         // Adds a face to the model
         private void addFace(Block b, Vector3 p1, Vector3 p2, Direction dir) {
-            this.meshData.addVertex(p1);
-            this.meshData.addVertex(new Vector3(p1.x, p2.y, p1.z));
-            this.meshData.addVertex(p2);
-            this.meshData.addVertex(new Vector3(p2.x, p1.y, p2.z));
-            this.meshData.generateQuad(b.getUVs(this.meta, dir, this.uvArray));
+            meshData.addQuad(
+                p1,
+                new Vector3(p1.x, p2.y, p1.z),
+                p2,
+                new Vector3(p2.x, p1.y, p2.z),
+                b.getUVs(this.meta, dir, this.uvArray),
+                Direction.NONE_ID);
         }
     }
 }

@@ -8,10 +8,11 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockTorch : BlockTileEntity, ILightSource {
+    public class BlockTorch : BlockTileEntity {
 
         public BlockTorch(byte id) : base(id) {
             this.setRenderer(BlockRenderer.TORCH);
+            this.setEmittedLight(7);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
@@ -43,10 +44,6 @@ namespace VoxelEngine.Blocks {
             } else {
                 return 0;
             }
-        }
-
-        public GameObject getPrefab() {
-            return References.list.torchPrefab;
         }
     }
 }

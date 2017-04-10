@@ -8,8 +8,8 @@ namespace VoxelEngine {
         // Materials
         public Material blockMaterial;
         public Material itemMaterial;
-        public Material unlitBlockMaterial;
-        public Material unlitItemMaterial;
+
+        public Texture2D lightColorSheet;
 
         // Other prefabs
         public GameObject blockBreakEffect;
@@ -37,14 +37,6 @@ namespace VoxelEngine {
 
         public void initReferences() {
             References.list = this;
-        }
-
-        public static Material getUnlitMaterial(int id) {
-            return id < 256 ? References.list.unlitBlockMaterial : References.list.unlitItemMaterial;
-        }
-
-        public static Material getMaterial(int id) {
-            return id < 256 ? References.list.blockMaterial : References.list.itemMaterial;
         }
     }
 }

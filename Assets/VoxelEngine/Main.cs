@@ -8,6 +8,7 @@ using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine {
@@ -34,9 +35,11 @@ namespace VoxelEngine {
         public ContainerManager containerManager;
         public FpsCounter fpsCounter;
 
-        public void Awake() {
-            //Make sure the singleton reference is set
+        private void Awake() {
+            // Make sure the singleton reference is set.
             this.GetComponent<References>().initReferences();
+
+            new RenderManager();
 
             Main.singleton = this;
 
@@ -46,7 +49,7 @@ namespace VoxelEngine {
             this.fpsCounter = new FpsCounter();
         }
 
-        public void Start() {
+        private void Start() {
             this.containerManager = new ContainerManager();
 
             //Debug instant world generation
@@ -54,7 +57,7 @@ namespace VoxelEngine {
             this.generateWorld(new WorldData(name, new System.Random().Next(), WorldType.CAVE_1.id, true));
         }
 
-        public void Update() {
+        private void Update() {
             if (this.worldObj != null && this.player != null) {
                 if (Input.GetKeyDown(KeyCode.F1)) {
                     this.isDeveloperMode = !this.isDeveloperMode;
@@ -137,6 +140,7 @@ namespace VoxelEngine {
             BlockPos p = this.player.posLookingAt;
             byte meta = this.worldObj.getMeta(p);
             s.Append("\nLooking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString());
+            s.Append("\nLooking at Light: " + this.worldObj.getLight(p.x, p.y, p.z));
             s.Append("\n" + this.worldObj.worldData.worldName + " Seed: " + this.worldObj.worldData.seed);
             s.Append("\nPress F3 to toggle");
             return s.ToString();

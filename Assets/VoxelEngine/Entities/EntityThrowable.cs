@@ -5,15 +5,15 @@ namespace VoxelEngine.Entities {
 
     public class EntityThrowable : Entity {
 
-        public new void Awake() {
+        protected new void Awake() {
             base.Awake();
 
             this.GetComponent<MeshFilter>().mesh = Item.pebble.getPreRenderedMesh(0);
-            this.GetComponent<MeshRenderer>().material = References.list.itemMaterial;
         }
 
         public override void onEntityCollision(Entity otherEntity) {
             base.onEntityCollision(otherEntity);
+
             if (otherEntity != null) {
                 otherEntity.damage(1, "Smacked by a Flying Pebble!");
             }

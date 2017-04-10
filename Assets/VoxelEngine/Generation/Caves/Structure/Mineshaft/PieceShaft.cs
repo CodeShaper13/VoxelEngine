@@ -89,12 +89,13 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
             int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetZ;
             Block b;
-            byte woodMeta = 0;
+            byte meta = 0;
             for (int i = p1.x; i <= p2.x; i++) {
                 for (int j = p1.y; j <= p2.y; j++) {
                     for (int k = p1.z; k <= p2.z; k++) {
                         if(chunk.isInChunk(i, j, k)) {
                             b = Block.air;
+                            meta = 0;
                             chunkCoordX = i - chunk.pos.x;
                             chunkCoordY = j - chunk.pos.y;
                             chunkCoordZ = k - chunk.pos.z;
@@ -124,19 +125,19 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 } else if(chunkCoordY == 13) {
                                     if(Mathf.Abs(offsetX) < 4 && offsetZ == 0) {
                                         b = Block.wood;
-                                        woodMeta = 0;
+                                        meta = 0;
                                     }
                                 } else if(chunkCoordY == 12) {
                                     if(Mathf.Abs(offsetX) == 2 && (Mathf.Abs(offsetZ) <= 4)) {
                                         b = Block.wood;
-                                        woodMeta = 2;
+                                        meta = 2;
                                     }
                                 } else { // 11, 10, 9
                                     int xAbs = Mathf.Abs(offsetX);
                                     int zAbs = Mathf.Abs(offsetZ);
                                     if (xAbs == 2 && zAbs == 4) {
                                         b = Block.wood;
-                                        woodMeta = 1;
+                                        meta = 1;
                                     } else if(chunkCoordY == 9) {
                                         if(xAbs == 3 && zAbs <= 2 && rnd.Next(10) != 0) {
                                             b = Block.fence;
@@ -149,7 +150,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             }
                             // Torch
                             else if (i == torchPos.x && k == torchPos.z && chunkCoordY == 11) {
-                                chunk.world.setBlock(i, j, k, Block.torch, BlockTorch.getMetaFromDirection(torchDir), false);
+                                b = Block.torch;
+                                meta = BlockTorch.getMetaFromDirection(torchDir);
+                                //chunk.world.setBlock(i, j, k, Block.torch, BlockTorch.getMetaFromDirection(torchDir), false);
                                 continue;
                             }
                             // Railing
@@ -164,14 +167,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             else if(chunkCoordY == 8 || (chunkCoordY == 0)) {
                                 if(Mathf.Abs(offsetX) > 2 || Mathf.Abs(offsetZ) > 2) {
                                     b = Block.wood;
-                                    woodMeta = 1;
+                                    meta = 1;
                                 }
                             }
 
                             if (b != null) {
                                 chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, b);
-                                if (b == Block.wood) {
-                                    chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, woodMeta);
+                                if (meta != 0) {
+                                    chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
                                 }
                             }
                         }

@@ -26,7 +26,7 @@ namespace VoxelEngine.Entities.Player {
         //Beging the breaking of a block
         public void beginBreak(World world, int x, int y, int z, Block block, byte meta) {
             this.meshRenderer.enabled = true;
-            MeshData meshData = new MeshData();
+            MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
 
             BlockRenderer renderer = block.renderer;
             if(renderer != null && renderer.bakeIntoChunks) {

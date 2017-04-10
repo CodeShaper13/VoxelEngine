@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
@@ -20,14 +21,17 @@ namespace VoxelEngine.Containers {
         private Transform heldText;
         private Text heldTextName;
         private Text heldTextCount;
+        private HudCamera hudCamera;
 
         public ContainerManager() {
+            this.hudCamera = RenderManager.instance.hudCamera;
+
             ContainerManager.containerHotbar = GameObject.Instantiate(References.list.containerHotbar).GetComponent<ContainerHotbar>();
             for (int i = 0; i < ContainerManager.containerHotbar.slots.Length; i++) {
                 ContainerManager.containerHotbar.slots[i].container = ContainerManager.containerHotbar;
             }
             ContainerManager.containerHotbar.gameObject.SetActive(false);
-            HudCamera.bind(ContainerManager.containerHotbar.GetComponent<Canvas>());
+            RenderManager.instance.hudCamera.bindToHudCamera(ContainerManager.containerHotbar.GetComponent<Canvas>());
 
             ContainerManager.containerInventory = this.buildContainer("Inventory", 5, 5, true);
             ContainerManager.containerChest = this.buildContainer("Chest", 2, 2);
@@ -115,26 +119,29 @@ namespace VoxelEngine.Containers {
         }
 
         //TODO fix text position
-        // Draws the currently held item
+        /// <summary>
+        /// Draws the currently held item and info text
+        /// </summary>
         private void renderHeldItem() {
             if (this.heldStack != null) {
-                Vector3 mousePosition = HudCamera.cam.ScreenToWorldPoint(Input.mousePosition);
-                Vector3 v = HudCamera.cam.ScreenToViewportPoint(Input.mousePosition);
+                Vector3 mousePosition = this.hudCamera.orthoCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 v = this.hudCamera.orthoCamera.ScreenToViewportPoint(Input.mousePosition);
                 this.heldTextName.transform.localPosition = new Vector3((v.x - 0.5f) * 800, (v.y - 0.5f) * 600);
 
                 RenderHelper.renderStack(this.heldStack, mousePosition);
             }
         }
 
-        // Builds a container GameObject, returning it
-        private Container buildContainer( string name, int xSize, int ySize, bool isPlayerInventory = false) {
+        /// <summary>
+        /// Creates a container gameObject, prepares it for use and returns it.
+        /// </summary>
+        private Container buildContainer(string name, int xSize, int ySize, bool isPlayerInventory = false) {
             Vector3 orgin = isPlayerInventory ? References.list.containerRightOrgin.localPosition : References.list.containerLeftOrgin.localPosition;
             int slotSize = 80;
             float xOffset = ((xSize - 1) * slotSize / 2);
             float yOffset = ((ySize - 1) * slotSize / 2);
 
             GameObject canvas = GameObject.Instantiate(References.list.conatinerPartCanvas);
-            HudCamera.bind(canvas.GetComponent<Canvas>());
             canvas.name = name;
 
             Container container = canvas.GetComponent<Container>();
@@ -153,6 +160,9 @@ namespace VoxelEngine.Containers {
                 }
             }
 
+            this.hudCamera.bindToHudCamera(canvas.GetComponent<Canvas>());
+
+            // Hide the container ui for now.
             canvas.SetActive(false);
 
             return container;

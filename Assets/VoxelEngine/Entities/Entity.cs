@@ -1,29 +1,51 @@
 ﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities {
 
     public abstract class Entity : MonoBehaviour {
-        public World world;
+
+        // State
         public int health;
+
+        // References
+        public World world;
         public Rigidbody rBody;
 
-        public void Awake() {
+        protected Material entityMaterial;
+
+        protected void Awake() {
             this.tag = "Entity";
             this.health = 10;
             this.rBody = this.GetComponent<Rigidbody>();
         }
+        
+        protected void Start() {
+            if (this.getEntityId() != 1) { // Player entity id.
+                this.entityMaterial = this.GetComponent<Renderer>().material;
+            }
+        }        
 
-        public void OnCollisionEnter(Collision collision) {
+        private void OnCollisionEnter(Collision collision) {
             Entity otherEntity = collision.gameObject.GetComponent<Entity>();
             this.onEntityCollision(otherEntity);
         }
 
-        public void Update() {
+        private void Update() {
             if(!Main.singleton.isPaused) {
                 this.onEntityUpdate();
+
+                // Update the lighting on the entity
+                if (this.entityMaterial != null) { // Player's don't need renderering and don't have their material set.
+                    int lightLevel = this.world.getLight(
+                        Mathf.RoundToInt(this.transform.position.x),
+                        Mathf.RoundToInt(this.transform.position.y),
+                        Mathf.RoundToInt(this.transform.position.z));
+                    this.entityMaterial.SetColor(36, RenderManager.instance.lightHelper.getColorFromBrightness(lightLevel)); // 36 is the serialized form of _LightColor
+                }
             }
         }
 

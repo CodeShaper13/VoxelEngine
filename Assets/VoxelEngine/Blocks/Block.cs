@@ -24,7 +24,7 @@ namespace VoxelEngine.Blocks {
         public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
         public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
         public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
-        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom");
+        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setEmittedLight(3); // TODO Debuging light
         public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom");
         public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom");
         public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom");
@@ -51,13 +51,22 @@ namespace VoxelEngine.Blocks {
 
         public byte id = 0;
         public string name = "null";
+        /// <summary> In seconds how long it takes to mine the block. </summary>
         public float mineTime;
         public TexturePos texturePos;
+        /// <summary> Is the block a full 1x1x1 cube?  Commonly used to see if it can support other blocks, like ladders.  Also used to cull faces that are against solid blocks </summary>
         public bool isSolid = true;
+        /// <summary> Can other blocks replace this one.  Air is replaceable. </summary>
         public bool replaceable;
+        /// <summary> The blocks type.  Used by tools to increase efficiency. </summary>
         public Type blockType;
         public BlockRenderer renderer;
+        /// <summary> The highest used meta data, used in prerendering meshes for the hud. </summary>
         public byte statesUsed;
+        /// <summary> The amount of light given off by the block, 0-15.  0 is none. </summary>
+        public int emittedLight = 0;
+
+        // Unused???
         public bool renderAsItem;
         public TexturePos itemAtlasPos;
 
@@ -80,7 +89,7 @@ namespace VoxelEngine.Blocks {
             //TODO do we need to return a bool if the block changed, to make more chunks dirty?
         }
 
-        //Used by lova to update after x seconds
+        // Unused?
         public virtual void onTick(World world, BlockPos pos) {}
 
         public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) { }
@@ -178,6 +187,17 @@ namespace VoxelEngine.Blocks {
             this.itemAtlasPos = new TexturePos(x, y);
             return this;
         }
+
+        public Block setEmittedLight(int level) {
+            if(level > 15) {
+                Debug.Log("A Block can't emitt light greater than 15!");
+                this.emittedLight = 15;
+            } else {
+                this.emittedLight = level;
+            }
+            return this;
+        }
+
 
         public Item asItem() {
             return Item.ITEM_LIST[this.id];

@@ -134,46 +134,6 @@ namespace VoxelEngine.Generation.Caves {
             return Noise.Generate(x * scale, y * scale, z * scale);
         }
 
-
-
-
-
-        private void generateShaft(Chunk chunk) {
-            for (int x = 6; x < 11; x++) {
-                for (int z = 6; z < 11; z++) {
-                    if (x > 6 && x < 10 && z > 6 && z < 10) {
-                        this.setColumn(chunk, x, z, x == 8 && z == 8 ? Block.cable : Block.air);
-                    }
-                    else {
-                        this.setColumn(chunk, x, z, Block.mossyBrick);
-                    }
-                }
-            }
-        }
-
-        private void setColumn(Chunk chunk, int x, int z, Block block) {
-            for (int y = 0; y < Chunk.SIZE; y++) {
-                chunk.setBlock(x, y, z, block);
-            }
-        }
-
-        private void generateStartRoom(Chunk chunk) {
-            for (int x = 0; x < Chunk.SIZE; x++) {
-                for (int z = 0; z < Chunk.SIZE; z++) {
-                    for (int y = 0; y < Chunk.SIZE; y++) {
-                        chunk.setBlock(x, y, z, Block.air);
-                    }
-                }
-            }
-
-            this.generateShaft(chunk);
-            for (int x = 2; x < 14; x++) {
-                for (int z = 10; z < Chunk.SIZE; z++) {
-                    chunk.setBlock(x, 0, z, Block.mossyBrick);
-                }
-            }
-        }
-
         public int GetNoise(int x, int y, int z, float scale, int max) {
             return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
         }

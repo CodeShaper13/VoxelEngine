@@ -15,10 +15,12 @@ namespace VoxelEngine.Render.BlockRender {
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
 
-        // false will make blocks not be baked into the world
+        /// <summary> False will make blocks not be baked into the world. </summary>
         public bool bakeIntoChunks = true;
+        /// <summary> If true, adjacent light level will be looked up and passes into the MeshData. </summary>
+        public EnumLightLookup lookupAdjacentLight = EnumLightLookup.CURRENT;
 
-        public abstract MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
+        public abstract MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
 
         public BlockRenderer setRenderInWorld(bool flag) {
             this.bakeIntoChunks = flag;

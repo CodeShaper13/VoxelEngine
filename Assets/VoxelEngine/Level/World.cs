@@ -8,7 +8,6 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using fNbt;
 using VoxelEngine.TileEntity;
-using System;
 using VoxelEngine.Generation.Caves;
 
 namespace VoxelEngine.Level {
@@ -93,12 +92,9 @@ namespace VoxelEngine.Level {
 
         public EntityPlayer spawnPlayer(GameObject prefab) {
             EntityPlayer player = (EntityPlayer)this.func_01(prefab, false);
-            //GameObject gameObject = GameObject.Instantiate(prefab);
             player.name = "Player";
-            //EntityPlayer player = gameObject.GetComponent<EntityPlayer>();
-            //player.world = this;
             if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
-                //no player file was found
+                // No player file was found.
                 player.transform.position = this.worldData.spawnPos;
                 player.transform.rotation = Quaternion.identity;
                 player.setupFirstTimePlayer();
@@ -125,6 +121,10 @@ namespace VoxelEngine.Level {
 
             if (!this.nbtIOHelper.readChunk(chunk)) {
                 this.generator.generateChunk(chunk);
+
+                // Simulate lighting updates.
+                // TODO
+
                 chunk.isModified = true;
             }
             return chunk;
@@ -178,23 +178,30 @@ namespace VoxelEngine.Level {
             this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors);
         }
 
-        public void setBlock(int x, int y, int z, Block block, byte newMeta = 255, bool updateNeighbors = true) {
+        public void setBlock(int x, int y, int z, Block newBlock, byte newMeta = 255, bool updateNeighbors = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
-                int x1 = x - chunk.pos.x;
-                int y1 = y - chunk.pos.y;
-                int z1 = z - chunk.pos.z;
+                // Position of the setBlock event within the chunk
+                int localChunkX = x - chunk.pos.x;
+                int localChunkY = y - chunk.pos.y;
+                int localChunkZ = z - chunk.pos.z;
+
                 BlockPos pos = new BlockPos(x, y, z);
-                byte oldBlockMeta = chunk.getMeta(x1, y1, z1);
-                chunk.getBlock(x1, y1, z1).onDestroy(this, pos, oldBlockMeta);
-                chunk.setBlock(x1, y1, z1, block);
 
-                byte meta1 = (newMeta == 255 ? chunk.getMeta(x1, y1, z1) : newMeta);
+                Block oldBlock = chunk.getBlock(localChunkX, localChunkY, localChunkZ);
+                byte oldBlockMeta = chunk.getMeta(localChunkX, localChunkY, localChunkZ);
+                oldBlock.onDestroy(this, pos, oldBlockMeta);
+
+                chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
+
+                // Set meta if it's specified.  255 means don't change
+                byte meta1 = (newMeta == 255 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta);
                 if(newMeta != 255) {
-                    chunk.setMeta(x1, y1, z1, newMeta);
+                    chunk.setMeta(localChunkX, localChunkY, localChunkZ, newMeta);
                 }
-                block.onPlace(this, pos, meta1);
+                newBlock.onPlace(this, pos, meta1);
 
+                // Update surrounding blocks
                 if (updateNeighbors) {
                     foreach (Direction dir in Direction.all) {
                         BlockPos shiftedPos = pos.move(dir);
@@ -208,6 +215,13 @@ namespace VoxelEngine.Level {
                     this.updateIfEqual(z - chunk.pos.z, 0, new BlockPos(x, y, z - 1));
                     this.updateIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(x, y, z + 1));
                 }
+
+                //Update lighting
+                this.updateLighting(x, y, z, newBlock, oldBlock);
+
+                if(newBlock.emittedLight != 0) {
+                    this.lightRegionForBlock(x, y, z, newBlock.emittedLight);
+                }
             }
         }
 
@@ -220,24 +234,15 @@ namespace VoxelEngine.Level {
             return chunk != null ? chunk.getMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z) : (byte)0;
         }
 
-        [Obsolete("Use World.setBlock to set the meta", true)]
-        public void setMeta(BlockPos pos, byte meta) {
-            this.setMeta(pos.x, pos.y, pos.z, meta);
-        }
-
-        [Obsolete("Use World.setBlock to set the meta", true)]
-        public void setMeta(int x, int y, int z, byte meta) {
+        /// <summary>
+        /// Returns the light at (x, y, z) or 0 if the chunk is not loaded
+        /// </summary>
+        public int getLight(int x, int y, int z) {
             Chunk chunk = this.getChunk(x, y, z);
-            if (chunk != null) {
-                BlockPos p = new BlockPos(x, y, z);
-                chunk.setMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, meta);
-                chunk.isDirty = true;
-
-                // Broken?
-                foreach (Direction dir in Direction.all) {
-                    //BlockPos shiftedPos = p.move(dir);
-                    //this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, dir.getOpposite());
-                }
+            if(chunk != null) {
+                return chunk.getLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z);
+            } else {
+                return 0;
             }
         }
         
@@ -255,6 +260,71 @@ namespace VoxelEngine.Level {
 
         public void removeTileEntity(BlockPos pos) {
             this.getChunk(pos).tileEntityDict.Remove(pos);
+        }
+
+        private void updateLighting(int x, int y, int z, Block oldBlock, Block newblock) {
+            // Find the radius to update
+            int radius = 0;
+            int voxelLevel = this.getLight(x, y, z);
+
+            if (newblock.emittedLight == 0) {
+                if (voxelLevel == 0) {
+                    return; // No lighting updates to do.
+                } else { // Light greater than 0.
+                    radius = voxelLevel;
+                }
+            } else if(newblock.emittedLight > 0 || oldBlock.emittedLight > 0) { // The new or old block emitts light.
+                radius = voxelLevel;
+            } else if(newblock.emittedLight == 0) {
+                radius = Mathf.Max(
+                    this.getLight(x + 1, y, z),
+                    this.getLight(x - 1, y, z),
+                    this.getLight(x, y + 1, z),
+                    this.getLight(x, y - 1, z),
+                    this.getLight(x, y, z + 1),
+                    this.getLight(x, y, z - 1)); // Largest adjacent value.
+            }
+
+            // 1. Find every edge voxel that needs updating
+
+            // 2. Update every edge voxel
+
+            // 3. Make every inside square one less that the outside ones
+
+            // 4. Caculate light for every square within the region
+        }
+
+        /// <summary>
+        /// Moves out from passes pos, lighting the area with the emmit light from the block.
+        /// </summary>
+        private void lightRegionForBlock(int x, int y, int z, int light) {
+            if(light <= 0) {
+                return;
+            }
+            Chunk chunk = this.getChunk(x, y, z);
+            if(chunk == null) {
+                return;
+            }
+            int x1 = x - chunk.pos.x;
+            int y1 = y - chunk.pos.y;
+            int z1 = z - chunk.pos.z;
+            if (chunk.getBlock(x1, y1, z1).isSolid) {
+                return;
+            }
+
+            int oldLight = chunk.getLight(x1, y1, z1);
+            if(light >= oldLight) {
+                chunk.setLight(x1, y1, z1, (byte)light);
+                chunk.isDirty = true;
+            }
+
+            light -= 1;
+            this.lightRegionForBlock(x + 1, y, z, light);
+            this.lightRegionForBlock(x - 1, y, z, light);
+            this.lightRegionForBlock(x, y + 1, z, light);
+            this.lightRegionForBlock(x, y - 1, z, light);
+            this.lightRegionForBlock(x, y, z + 1, light);
+            this.lightRegionForBlock(x, y, z - 1, light);
         }
 
         public void tickBlock(BlockPos pos, int time) {

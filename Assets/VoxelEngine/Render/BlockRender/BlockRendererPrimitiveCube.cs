@@ -6,54 +6,70 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererPrimitiveCube : BlockRendererPrimitive {
 
-        public override MeshData renderBlock(Block b, byte meta, MeshData meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public BlockRendererPrimitiveCube() {
+            this.lookupAdjacentLight = EnumLightLookup.ADJACENT;
+        }
+
+        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+            // North
             if (renderFace[0]) {
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.NORTH, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
+                    b.getUVs(meta, Direction.NORTH, this.uvArray),
+                    Direction.NORTH_ID);
             }
+            // East
             if (renderFace[1]) {
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.EAST, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                    b.getUVs(meta, Direction.EAST, this.uvArray),
+                    Direction.EAST_ID);
             }
+            // South
             if (renderFace[2]) {
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.SOUTH, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
+                    b.getUVs(meta, Direction.SOUTH, this.uvArray),
+                    Direction.SOUTH_ID);
             }
+            // West
             if (renderFace[3]) {
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.WEST, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
+                    new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                    b.getUVs(meta, Direction.WEST, this.uvArray),
+                    Direction.WEST_ID);
             }
+            // Up
             if (renderFace[4]) {
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.UP, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
+                    b.getUVs(meta, Direction.UP, this.uvArray),
+                    Direction.UP_ID);
             }
+            // Down
             if (renderFace[5]) {
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
-                meshData.addVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
-                meshData.addVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
-                meshData.generateQuad();
-                meshData.uv.AddRange(b.getUVs(meta, Direction.DOWN, this.uvArray));
+                meshData.addQuad(
+                    new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
+                    new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
+                    b.getUVs(meta, Direction.DOWN, this.uvArray),
+                    Direction.DOWN_ID);
             }
 
             return meshData;

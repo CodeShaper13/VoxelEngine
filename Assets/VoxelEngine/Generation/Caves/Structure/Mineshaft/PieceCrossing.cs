@@ -65,11 +65,15 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             }
                             // Torch
                             else if (offsetY == 2) {
-                                if (absX == 3 && absZ == 2 && rnd.Next(0, 8) == 0) {                                    
-                                    chunk.world.setBlock(i, j, k, Block.torch, offsetZ == 2 ? (byte)1 : (byte)3, false);
+                                if (absX == 3 && absZ == 2 && rnd.Next(0, 8) == 0) {
+                                    b = Block.torch;
+                                    meta = (byte)(offsetZ == 2 ? 1 : 3);
+                                    //chunk.world.setBlock(i, j, k, Block.torch, offsetZ == 2 ? (byte)1 : (byte)3, false);
                                     continue;
                                 } else if(absX == 2 && absZ == 3 && rnd.Next(0, 8) == 0) {
-                                    chunk.world.setBlock(i, j, k, Block.torch, offsetX == 2 ? (byte)2 : (byte)4, false);
+                                    b = Block.torch;
+                                    meta = (byte)(offsetX == 2 ? 2 : 4);
+                                    //chunk.world.setBlock(i, j, k, Block.torch, offsetX == 2 ? (byte)2 : (byte)4, false);
                                     continue;
                                 }
                             }

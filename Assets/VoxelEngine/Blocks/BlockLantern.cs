@@ -6,10 +6,11 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockLantern : BlockTileEntity, ILightSource {
+    public class BlockLantern : BlockTileEntity {
 
         public BlockLantern(byte id) : base(id) {
             this.setRenderer(BlockRenderer.LANTERN);
+            this.setEmittedLight(12);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
@@ -20,10 +21,6 @@ namespace VoxelEngine.Blocks {
 
         public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, byte meta) {
             return new TileEntityLantern(world, x, y, z);
-        }
-
-        public GameObject getPrefab() {
-            return References.list.lanternPrefab;
         }
     }
 }

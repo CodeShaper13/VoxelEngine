@@ -1,4 +1,5 @@
-﻿using fNbt;
+﻿using Assets.VoxelEngine.Render;
+using fNbt;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Level {
 
-    public class Chunk : MonoBehaviour, IBlockHolder {
+    public class Chunk : MonoBehaviour, IChunk {
 
         public const int SIZE = 16;
         public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
@@ -23,6 +24,8 @@ namespace VoxelEngine.Level {
 
         public Block[] blocks;
         public byte[] metaData;
+        /// <summary> First 4 bits are block light, last 4 are sky light </summary>
+        public byte[] lightLevel;
         public Dictionary<BlockPos, TileEntityBase> tileEntityDict; //TODO replace with a faster collection type
         public List<ScheduledTick> scheduledTicks;
 
@@ -41,6 +44,7 @@ namespace VoxelEngine.Level {
 
             this.blocks = new Block[Chunk.BLOCK_COUNT];
             this.metaData = new byte[Chunk.BLOCK_COUNT];
+            this.lightLevel = new byte[Chunk.BLOCK_COUNT];
             this.tileEntityDict = new Dictionary<BlockPos, TileEntityBase>();
             this.scheduledTicks = new List<ScheduledTick>();
         }
@@ -55,8 +59,6 @@ namespace VoxelEngine.Level {
         }
 
         public void Update() {
-            //DebugDrawer.bounds(this.chunkBounds, Color.white);
-
             if (isDirty) {
                 isDirty = false;
                 this.renderChunk();
@@ -83,7 +85,9 @@ namespace VoxelEngine.Level {
             //}
         }
 
-        // Resets the chunk, clearing out fields and preparing it to be used again.
+        /// <summary>
+        /// Resets the chunk, clearing out fields and preparing it to be used again.
+        /// </summary>
         public void resetChunk() {
             this.tileEntityDict.Clear();
             this.scheduledTicks.Clear();
@@ -92,14 +96,11 @@ namespace VoxelEngine.Level {
             this.isPopulated = false;
             Array.Clear(this.blocks, 0, this.blocks.Length);
             Array.Clear(this.metaData, 0, this.metaData.Length);
+            Array.Clear(this.lightLevel, 0, this.lightLevel.Length);
         }
 
-        //TODO refactor code to remove this if block
         public Block getBlock(int x, int y, int z) {
-            if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                return this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
-            }
-            return world.getBlock(pos.x + x, pos.y + y, pos.z + z);
+            return this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
         public void setBlock(int x, int y, int z, Block block) {
@@ -116,7 +117,24 @@ namespace VoxelEngine.Level {
             this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = meta;
         }
 
-        // Takes world coordinates
+        /// <summary>
+        /// Returns the light level at (x, y, z)
+        /// </summary>
+        public int getLight(int x, int y, int z) {
+            return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+        }
+
+        /// <summary>
+        /// Sets the light level at (x, y, z)
+        /// </summary>
+        public void setLight(int x, int y, int z, int amount) {
+            this.isModified = true;
+            this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)amount;
+        }
+
+        /// <summary>
+        /// Checks if the passes world coordinates are within the chunk.
+        /// </summary>
         public bool isInChunk(int worldX, int worldY, int worldZ) {
             int inChunkX = worldX - this.pos.x;
             int inChunkY = worldY - this.pos.y;
@@ -127,7 +145,9 @@ namespace VoxelEngine.Level {
                 inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
         }
 
-        // Takes world coordinates
+        /// <summary>
+        /// Checks if the passed world x and z are in the chunk.
+        /// </summary>
         public bool isInChunkIgnoreY(int worldX, int worldZ) {
             int inChunkX = worldX - this.pos.x;
             int inChunkZ = worldZ - this.pos.z;
@@ -136,17 +156,22 @@ namespace VoxelEngine.Level {
                 inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
         }
 
-        //Renders all the blocks within the chunk
+        /// <summary>
+        /// Bakes the block meshes and light levels into the chunk.
+        /// </summary>
         public void renderChunk() {
-            MeshData meshData = new MeshData();
+            MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
 
             Block b, b1;
             byte meta;
             bool[] renderFace = new bool[6];
             Block[] surroundingBlocks = new Block[6];
-            Direction d;
+            Direction dir;
             int x, y, z, i;
 
+            CachedRegion cachedRegion = new CachedRegion(this.world, this);
+
+            // Bake blocks into mesh.
             for (x = 0; x < Chunk.SIZE; x++) {
                 for (y = 0; y < Chunk.SIZE; y++) {
                     for (z = 0; z < Chunk.SIZE; z++) {
@@ -154,24 +179,51 @@ namespace VoxelEngine.Level {
                         if(b.renderer != null && b.renderer.bakeIntoChunks) {
                             meta = this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
                             meshData.useRenderDataForCol = (b != Block.lava);
+
+                            // Find the surrounding blocks and faces to cull.
                             for (i = 0; i < 6; i++) {
-                                d = Direction.all[i];
-                                b1 = this.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z);
+                                dir = Direction.all[i];
+                                b1 = cachedRegion.getBlock(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
                                 renderFace[i] = !b1.isSolid;
                                 surroundingBlocks[i] = b1;
                             }
+
+                            // Populate the meshData with light levels.
+                            if(b.renderer.lookupAdjacentLight == EnumLightLookup.CURRENT) {
+                                meshData.lightLevels[0] = this.getLight(x, y, z); // No need for cachedRegion overhead, this is always in the chunk
+                            } else {
+                                for (i = 0; i < 6; i++) {
+                                    dir = Direction.all[i];
+                                    meshData.lightLevels[i + 1] = cachedRegion.getLight(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+                                }
+                                meshData.lightLevels[0] = this.getLight(x, y, z);
+                            }
+
+                            // Render the block.
                             b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
                         }
                     }
                 }
             }
-            this.filter.mesh = meshData.toMesh();
-            Mesh colMesh = new Mesh();
-            colMesh.vertices = meshData.colVertices.ToArray();
-            colMesh.triangles = meshData.colTriangles.ToArray();
-            colMesh.RecalculateNormals();
 
-            this.blockCollider.sharedMesh = colMesh;
+            // Set light uvs for tile entities.
+            Material[] materials;
+            foreach (TileEntityBase te in this.tileEntityDict.Values) {
+                if(te is TileEntityGameObject) {
+                    x = te.posX - this.pos.x;
+                    y = te.posY - this.pos.y;
+                    z = te.posZ - this.pos.z;
+                    materials = ((TileEntityGameObject)te).modelMaterials;
+                    for (i = 0; i < materials.Length; i++) {
+                        materials[i].SetColor(LightHelper.COLOR_ID, RenderManager.instance.lightHelper.getColorFromBrightness(this.getLight(x, y, z)));
+                    }
+                }
+            }
+
+            this.filter.mesh = meshData.toMesh();
+            this.blockCollider.sharedMesh = meshData.getColliderMesh();
+
+            meshData.cleanup();
         }
 
         public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {
@@ -182,6 +234,7 @@ namespace VoxelEngine.Level {
             }
             tag.Add(new NbtByteArray("blocks", blockBytes));
             tag.Add(new NbtByteArray("meta", this.metaData));
+            tag.Add(new NbtByteArray("light", this.lightLevel));
 
             NbtList list = new NbtList("tileEntities", NbtTagType.Compound);
             foreach(TileEntityBase te in this.tileEntityDict.Values) {
@@ -224,6 +277,7 @@ namespace VoxelEngine.Level {
                 this.blocks[i] = Block.getBlock(blockBytes[i]);
             }
             this.metaData = tag.Get<NbtByteArray>("meta").ByteArrayValue;
+            this.lightLevel = tag.Get<NbtByteArray>("light").ByteArrayValue;
 
             //Populate the tile entity dictionary
             foreach(NbtCompound compound in tag.Get<NbtList>("tileEntities")) {

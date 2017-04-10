@@ -127,7 +127,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     y = pos.y + 4 - chunk.pos.y;
                     z = pos.z - chunk.pos.z;
                     if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                        chunk.world.setBlock(pos.x, pos.y + 3, pos.z, Block.torch, BlockTorch.getMetaFromDirection(this.pointing), false);
+                        this.setStateIfInChunk(chunk, pos.x, pos.y + 4, pos.z, Block.torch, BlockTorch.getMetaFromDirection(this.pointing));
+                        //chunk.world.setBlock(pos.x, pos.y + 3, pos.z, Block.torch, BlockTorch.getMetaFromDirection(this.pointing), false);
                     }
                 }
                 if (i == 4) {
