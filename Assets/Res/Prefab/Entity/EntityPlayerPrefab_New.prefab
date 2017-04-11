@@ -116,8 +116,6 @@ GameObject:
   - component: {fileID: 8206026}
   - component: {fileID: 13606584}
   - component: {fileID: 11482584}
-  - component: {fileID: 10828770}
-  - component: {fileID: 11428244}
   m_Layer: 2
   m_Name: EntityPlayerPrefab_New
   m_TagString: Untagged
@@ -378,42 +376,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!108 &10828770
-Light:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 176332}
-  m_Enabled: 0
-  serializedVersion: 8
-  m_Type: 2
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 0
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_Lightmapping: 4
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
 --- !u!114 &11410462
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -490,21 +452,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &11428244
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 176332}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bb57a3adaee01a4bb28fde33afa5b1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightObj: {fileID: 10828770}
-  minIntensity: 1
-  maxIntensity: 2
-  flickerSpeed: 1
 --- !u!114 &11431354
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -872,8 +819,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c350b26b616ce7643a4ee1a6d1826ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  world: {fileID: 0}
   health: 0
+  world: {fileID: 0}
   rBody: {fileID: 0}
   reach: 3.5
   magnifyingText: {fileID: 11460260}

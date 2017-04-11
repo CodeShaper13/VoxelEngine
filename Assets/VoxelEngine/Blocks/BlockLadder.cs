@@ -2,7 +2,7 @@
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -11,7 +11,7 @@ namespace VoxelEngine.Blocks {
 
         public BlockLadder(byte id) : base(id) {
             this.setTransparent();
-            this.setRenderer(BlockRenderer.LADDER);
+            this.setRenderer(RenderManager.LADDER);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {

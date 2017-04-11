@@ -1,37 +1,25 @@
 ﻿using UnityEngine;
 using VoxelEngine.Level;
+using VoxelEngine.Render.BlockRender;
 
 namespace VoxelEngine.TileEntity {
 
     public class TileEntityTorch : TileEntityGameObject {
 
-        public TileEntityTorch(World world, int x, int y, int z, byte meta) : base(world, x, y, z, References.list.torchPrefab) {
-            float f = 0.35f;
-            float f1 = 15.0f;
-            Vector3 pos;
-            Vector3 rot;
+        public TileEntityTorch(World world, int x, int y, int z, byte meta) :
+            base(world, x, y, z, References.list.torchPrefab) {
+            float f = 0.25f;
+            Vector3 pos = new Vector3(x, y + BlockRendererTorch.SHIFT + 0.05f, z);
             if (meta == 1) { // North
-                pos = new Vector3(x, y, z + f);
-                rot = new Vector3(-f1, 0, 0);
+                pos.z += f;
+            } else if (meta == 2) { // East
+                pos.x += f;
+            } else if (meta == 3) { // South
+                pos.z -= f;
+            } else if (meta == 4) { // West
+                pos.x -= f;
             }
-            else if (meta == 2) { // East
-                pos = new Vector3(x + f, y, z);
-                rot = new Vector3(0, 0, f1);
-            }
-            else if (meta == 3) { // South
-                pos = new Vector3(x, y, z - f);
-                rot = new Vector3(f1, 0, 0);
-            }
-            else if (meta == 4) { // West
-                pos = new Vector3(x - f, y, z);
-                rot = new Vector3(0, 0, -f1);
-            }
-            else { // 0, On floor
-                pos = new Vector3(x, y, z);
-                rot = Vector3.zero;
-            }
-            this.gameObject.transform.localPosition = pos;
-            this.gameObject.transform.localEulerAngles = rot;
+            this.gameObject.transform.position = pos;
         }
 
         public override int getId() {

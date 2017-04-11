@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render {
 
@@ -101,6 +103,36 @@ namespace VoxelEngine.Render {
             this.lightUvs.Add(new Vector2(x, y + LightHelper.PIXEL_SIZE));
             this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y + LightHelper.PIXEL_SIZE));
             this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y));
+        }
+
+        /// <summary>
+        /// Adds a rotated box of quads.  Note, adjacent lighting is not used on quads.
+        /// </summary>
+        public void addBox(Vector3 p, Vector3 size, Quaternion rotation, Block block, byte meta, Vector2[] allocatedUvArray) {
+            // Top points.
+            Vector3 p1 = p + MathHelper.rotateVecAround(new Vector3(size.x, size.y, size.z), Vector3.zero, rotation);
+            Vector3 p2 = p + MathHelper.rotateVecAround(new Vector3(size.x, size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p3 = p + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, size.z), Vector3.zero, rotation);
+            Vector3 p4 = p + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, -size.z), Vector3.zero, rotation);
+
+            // Bottom points.
+            Vector3 p5 = p + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, size.z), Vector3.zero, rotation);
+            Vector3 p6 = p + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p7 = p + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, size.z), Vector3.zero, rotation);
+            Vector3 p8 = p + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, -size.z), Vector3.zero, rotation);
+
+            // Top face.
+            this.addQuad(p1, p2, p4, p3, block.getUVs(meta, Direction.UP, allocatedUvArray), 0);
+            // Bottom face.
+            this.addQuad(p5, p7, p8, p6, block.getUVs(meta, Direction.DOWN, allocatedUvArray), 0);
+            // +X face.
+            this.addQuad(p1, p5, p6, p2, block.getUVs(meta, Direction.EAST, allocatedUvArray), 0);
+            // +Z face.
+            this.addQuad(p1, p3, p7, p5, block.getUVs(meta, Direction.NORTH, allocatedUvArray), 0);
+            // -X face.
+            this.addQuad(p3, p4, p8, p7, block.getUVs(meta, Direction.WEST, allocatedUvArray), 0);
+            // -Z face.
+            this.addQuad(p2, p6, p8, p4, block.getUVs(meta, Direction.SOUTH, allocatedUvArray), 0);
         }
 
         /// <summary>

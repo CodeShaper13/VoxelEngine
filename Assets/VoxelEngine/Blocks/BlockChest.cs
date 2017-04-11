@@ -4,7 +4,7 @@ using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
+using VoxelEngine.Render;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -13,7 +13,7 @@ namespace VoxelEngine.Blocks {
     public class BlockChest : BlockTileEntity {
 
         public BlockChest(byte id) : base(id) {
-            this.setRenderer(BlockRenderer.CHEST);
+            this.setRenderer(RenderManager.CHEST);
         }
 
         public override bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {

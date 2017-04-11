@@ -30,7 +30,6 @@ namespace VoxelEngine.Entities {
         public FirstPersonController fpc;
         private BreakBlockEffect blockBreakEffect;
         public Transform mainCamera;
-        private LightFlicker lightObj;
         private ItemStack lastHeldItem;
         private ChunkLoaderBase chunkLoader;
         public BlockPos posLookingAt;
@@ -49,7 +48,6 @@ namespace VoxelEngine.Entities {
 
             this.mainCamera = Camera.main.transform;
             this.fpc = this.GetComponent<FirstPersonController>();
-            this.lightObj = this.GetComponent<LightFlicker>();
 
             this.dataHotbar = new ContainerData(9, 1);
             this.dataInventory = new ContainerData(5, 5);
@@ -343,20 +341,6 @@ namespace VoxelEngine.Entities {
         public void dropItem(ItemStack stack) {
             EntityItem e = this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2), Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
             e.rBody.AddForce(this.transform.forward * 2.5f, ForceMode.Impulse);
-        }
-
-        // Unused
-        /// <summary>
-        /// Copies info from a prefab to the held light object
-        /// </summary>
-        private void copyLightData(GameObject obj) {
-            LightFlicker l = obj.GetComponent<LightFlicker>();
-            this.lightObj.minIntensity = l.minIntensity;
-            this.lightObj.maxIntensity = l.maxIntensity;
-            this.lightObj.flickerSpeed = l.flickerSpeed;
-            this.lightObj.lightObj.range = l.lightObj.range;
-            this.lightObj.lightObj.color = l.lightObj.color;
-            this.lightObj.lightObj.intensity = l.lightObj.intensity;
         }
 
         // Scatters all the contents of a container, used when the player dies

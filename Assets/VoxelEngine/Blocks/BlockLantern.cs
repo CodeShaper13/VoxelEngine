@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
+﻿using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -9,7 +8,7 @@ namespace VoxelEngine.Blocks {
     public class BlockLantern : BlockTileEntity {
 
         public BlockLantern(byte id) : base(id) {
-            this.setRenderer(BlockRenderer.LANTERN);
+            this.setRenderer(RenderManager.LANTERN);
             this.setEmittedLight(12);
         }
 

@@ -4,6 +4,7 @@ using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
 
@@ -35,8 +36,8 @@ namespace VoxelEngine.Blocks {
         public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent().setRenderAsItem(1, 1);
         public static Block torch = new BlockTorch(21).setName("Torch").setTransparent();
         public static Block ladder = new BlockLadder(22).setName("Ladder");
-        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(BlockRenderer.RAIL);//.setRenderFlat();
-        public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(BlockRenderer.FENCE);
+        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(RenderManager.RAIL);//.setRenderFlat();
+        public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE);
         public static Block plank = new Block(34).setName("Plank");
         public static Block moss;
         public static Block root;
@@ -77,7 +78,7 @@ namespace VoxelEngine.Blocks {
             } else {
                 Block.BLOCK_LIST[this.id] = this;
             }
-            this.renderer = BlockRenderer.CUBE;
+            this.renderer = RenderManager.CUBE;
 
             this.setTexture(0, 0);
 

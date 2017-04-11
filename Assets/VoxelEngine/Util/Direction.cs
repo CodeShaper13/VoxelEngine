@@ -11,11 +11,17 @@
         public const int DOWN_ID = 6;
 
         public static Direction NONE =  new Direction(BlockPos.zero,  "NONE",  EnumAxis.NONE, NONE_ID, NONE_ID, NONE_ID, NONE_ID);
+        /// <summary> +Z </summary>
         public static Direction NORTH = new Direction(BlockPos.north, "North", EnumAxis.Z,    SOUTH_ID, EAST_ID, WEST_ID, NORTH_ID);
+        /// <summary> +X </summary>
         public static Direction EAST =  new Direction(BlockPos.east,  "East",  EnumAxis.X,    WEST_ID, SOUTH_ID, NORTH_ID, EAST_ID);
+        /// <summary> -Z </summary>
         public static Direction SOUTH = new Direction(BlockPos.south, "South", EnumAxis.Z,    NORTH_ID, WEST_ID, EAST_ID, SOUTH_ID);
+        /// <summary> -X </summary>
         public static Direction WEST =  new Direction(BlockPos.west,  "West",  EnumAxis.X,    EAST_ID, NORTH_ID, SOUTH_ID, WEST_ID);
+        /// <summary> +Y </summary>
         public static Direction UP =    new Direction(BlockPos.up,    "Up",    EnumAxis.Y,    DOWN_ID, UP_ID, UP_ID, UP_ID);
+        /// <summary> -Y </summary>
         public static Direction DOWN =  new Direction(BlockPos.down,  "Down",  EnumAxis.Y,    UP_ID, DOWN_ID, DOWN_ID, DOWN_ID);
 
         public static Direction[] yPlane = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };

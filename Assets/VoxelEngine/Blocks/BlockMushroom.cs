@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
+﻿using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -12,7 +11,7 @@ namespace VoxelEngine.Blocks {
             this.textureY = textureY;
             this.setTransparent();
             this.setMineTime(0.1f);
-            this.setRenderer(BlockRenderer.MUSHROOM);
+            this.setRenderer(RenderManager.MUSHROOM);
             this.setStatesUsed(4);
         }
 

@@ -2,7 +2,7 @@
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
+using VoxelEngine.Render;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -11,7 +11,7 @@ namespace VoxelEngine.Blocks {
     public class BlockTorch : BlockTileEntity {
 
         public BlockTorch(byte id) : base(id) {
-            this.setRenderer(BlockRenderer.TORCH);
+            this.setRenderer(RenderManager.TORCH);
             this.setEmittedLight(7);
         }
 
