@@ -6,9 +6,9 @@ namespace VoxelEngine.ChunkLoaders {
 
     public class ChunkLoaderLockedY : ChunkLoaderBase {
 
-        private int worldHeight = 8;
+        private int worldHeight = 4;
 
-        public ChunkLoaderLockedY(World world, EntityPlayer player) : base(world, player, 3) {}
+        public ChunkLoaderLockedY(World world, EntityPlayer player) : base(world, player, 2) {}
 
         protected override bool isOutOfBounds(ChunkPos occupiedChunkPos, Chunk chunk) {
             if (this.toFar(occupiedChunkPos.x, chunk.chunkPos.x) || this.toFar(occupiedChunkPos.z, chunk.chunkPos.z)) {

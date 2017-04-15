@@ -31,9 +31,9 @@ namespace VoxelEngine.Items {
 
                 Vector3 angle = new Vector3(player.transform.position.x, 0, player.transform.position.z)- new Vector3(hit.unityRaycastHit.point.x, 0, hit.unityRaycastHit.point.z);
 
-                Direction clickedDirNormal = this.getClickedFace(hit.unityRaycastHit.normal);
+                Direction clickedDirNormal = hit.getClickedBlockFace();
                 BlockPos newPos = pos.move(clickedDirNormal);
-                byte meta = stack.meta;
+                int meta = stack.meta;
                 if (world.getBlock(newPos).replaceable && this.block.isValidPlaceLocation(world, newPos, meta, clickedDirNormal)) {
                     world.setBlock(newPos, this.block, this.block.adjustMetaOnPlace(world, newPos, meta, clickedDirNormal, angle));
                     stack = stack.safeDeduction();
@@ -42,21 +42,12 @@ namespace VoxelEngine.Items {
             return stack;
         }
 
-        public override byte getStatesUsed() {
+        public override int getStatesUsed() {
             return this.block.statesUsed;
         }
 
-        public override string getName(byte meta) {
+        public override string getName(int meta) {
             return this.block.getName(meta);
-        }
-
-        private Direction getClickedFace(Vector3 normal) {
-            foreach (Direction d in Direction.all) {
-                if (normal == d.direction.toVector()) {
-                    return d;
-                }
-            }
-            return Direction.NONE;
         }
     }
 }

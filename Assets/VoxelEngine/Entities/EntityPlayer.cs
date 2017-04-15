@@ -10,7 +10,6 @@ using VoxelEngine.Util;
 using UnityStandardAssets.Characters.FirstPerson;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Generation;
-using VoxelEngine.TileEntity;
 using VoxelEngine.GUI;
 using VoxelEngine.Level;
 using VoxelEngine.GUI.Effect;
@@ -100,9 +99,9 @@ namespace VoxelEngine.Entities {
                             this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
                         }
                         if (Input.GetMouseButtonDown(1)) {
-                            if (!playerHit.hitState.block.onRightClick(this.world, this, this.posLookingAt, playerHit.hitState.meta)) {
+                            if (!playerHit.hitState.block.onRightClick(this.world, this, heldStack, this.posLookingAt, playerHit.hitState.meta, playerHit.getClickedBlockFace())) {
                                 if (heldStack != null) {
-                                    heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
+                                    this.containerHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
                                 }
                             }
                         }
@@ -183,8 +182,9 @@ namespace VoxelEngine.Entities {
                 Main.hideMouse(false);
                 this.fpc.enabled = false;
                 Main m = Main.singleton;
-                m.openGuiScreen(m.respawnScreen);
-                ((GuiScreenRespawn)m.currentGui).deathMessageText.text = message;
+                
+                m.openGuiScreen(GuiManager.respawn);
+                GuiManager.respawn.deathMessageText.text = message;
                 return true;
             }
             return false;
@@ -267,7 +267,9 @@ namespace VoxelEngine.Entities {
             }
         }
 
-        // Sets the magnifying text
+        /// <summary>
+        /// Sets the magnifying text.
+        /// </summary>
         public void setMagnifyingText(string text) {
             this.magnifyingText.showAndStartFade(text, 3);
         }
@@ -283,16 +285,20 @@ namespace VoxelEngine.Entities {
             this.hunger = amount;
         }
 
-        // Cleans up the player, destroying any associate GameObjects and disabling others
+        /// <summary>
+        /// Cleans up the player, destroying any associate GameObjects and disabling others.
+        /// </summary>
         public void cleanupPlayerObj() {
             this.containerHotbar.gameObject.SetActive(false);
             GameObject.Destroy(this.blockBreakEffect.gameObject);
             this.heartEffect.enabled = false;
         }
 
-        // Configures a first time player, setting the starting inventory and the default health
+        /// <summary>
+        /// Configures a first time player, setting the starting inventory and the default health.
+        /// </summary>
         public void setupFirstTimePlayer() {
-            this.containerHotbar.slots[0].setContents(new ItemStack(Block.ladder, 0, 25));
+            this.containerHotbar.slots[0].setContents(new ItemStack(Block.stoneSlab, 0, 25));
             this.containerHotbar.slots[1].setContents(new ItemStack(Block.torch, 0, 12));
             this.containerHotbar.slots[2].setContents(new ItemStack(Block.mushroom, 0, 16));
             this.containerHotbar.slots[3].setContents(new ItemStack(Block.fence, 0, 16));
@@ -306,7 +312,9 @@ namespace VoxelEngine.Entities {
             this.hunger = 75;
         }
 
-        // Returns a PlayerHitObject, representing what the player is looking at, or null if they are not looking at anything
+        /// <summary>
+        /// Returns a PlayerHitObject, representing what the player is looking at, or null if they are not looking at anything.
+        /// </summary>
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
             bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.reach);
@@ -337,13 +345,21 @@ namespace VoxelEngine.Entities {
             return null;
         }
 
-        // Drops an item, via 'q' or closing a container
+        /// <summary>
+        /// Drops an item, via 'q' or closing a container.
+        /// </summary>
         public void dropItem(ItemStack stack) {
             EntityItem e = this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2), Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
             e.rBody.AddForce(this.transform.forward * 2.5f, ForceMode.Impulse);
         }
 
-        // Scatters all the contents of a container, used when the player dies
+        public void reduceHeldStackByOne() {
+            this.containerHotbar.setHeldItem(this.containerHotbar.getHeldItem().safeDeduction());
+        }
+
+        /// <summary>
+        /// Scatters all the contents of a container, used when the player dies.
+        /// </summary>
         private void scatterContainerContents(World world, ContainerData d) {
             float f = 0.5f;
             for (int i = 0; i < d.items.Length; i++) {

@@ -28,7 +28,7 @@ namespace VoxelEngine.GUI {
             string newName = this.field.text;
             Directory.Move("saves/" + this.worldData.worldName, "saves/" + newName);
             this.worldData.worldName = newName;
-            this.openGuiScreen(this.escapeFallback);
+            this.openGuiScreen(GuiManager.worldSelect);
         }
 
         public void characterChangeCallback() {
@@ -43,6 +43,10 @@ namespace VoxelEngine.GUI {
             bool flag = validName || this.field.text == this.worldData.worldName;
             this.button.interactable = flag;
             this.textErrorMsg.text = flag ? string.Empty : "You may not have duplicate world names, pick a different one";
+        }
+
+        public override GuiScreen getEscapeCallback() {
+            return GuiManager.worldSelect;
         }
     }
 }

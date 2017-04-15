@@ -8,14 +8,16 @@ namespace VoxelEngine.GUI {
 
         public Text deathMessageText;
 
-        public override GuiScreen onEscape(Main voxelEngine) {
-            this.setActive(false);
-            this.respawnPlayer(voxelEngine.worldObj, voxelEngine.player);
-            return null;
+        public override void onEscape() {
+            this.respawnPlayer();
         }
 
         public void respawnButtonCallback() {
-            this.setActive(false);
+            this.respawnPlayer();
+        }
+
+        private void respawnPlayer() {
+            this.setVisible(false);
             this.respawnPlayer(Main.singleton.worldObj, Main.singleton.player);
         }
 
@@ -24,6 +26,10 @@ namespace VoxelEngine.GUI {
             player.health = 10;
             player.transform.position = world.worldData.spawnPos;
             player.damageEffect.clearEffect();
+        }
+
+        public override GuiScreen getEscapeCallback() {
+            return null;
         }
     }
 }

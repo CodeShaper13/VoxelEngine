@@ -14,7 +14,7 @@ namespace VoxelEngine.ChunkLoaders {
 
         protected World world;
         protected EntityPlayer player;
-        protected int maxBuildPerLoop = 1;
+        protected int maxBuildPerLoop = 4;
         protected ChunkPos previousOccupiedChunkPos;
         protected Queue<ChunkPos> buildQueue;
         protected int loadRadius;
@@ -27,13 +27,9 @@ namespace VoxelEngine.ChunkLoaders {
             this.buildQueue = new Queue<ChunkPos>();
             this.cachedUnusedChunks = new Queue<Chunk>();
 
-            //Stopwatch s = new Stopwatch();
-            //s.Start();
             this.loadChunks(this.getOccupiedChunkPos(this.player.transform.position));
-            //s.Stop();
-            //UnityEngine.Debug.Log("Generation took " + s.Elapsed);
 
-            this.generateChunks(10000);
+            this.generateChunks(-1);
 
             foreach (Chunk c in this.world.loadedChunks.Values) {
                 c.renderChunk();
@@ -48,9 +44,8 @@ namespace VoxelEngine.ChunkLoaders {
             }
             this.previousOccupiedChunkPos = pos;
 
-            if (this.generateChunks(this.maxBuildPerLoop) == 0) {
-                this.unloadChunks(pos);
-            }
+            this.unloadChunks(pos);
+            this.generateChunks(this.maxBuildPerLoop);
         }
 
         //Returns the position of the chunk the player is in
@@ -61,28 +56,27 @@ namespace VoxelEngine.ChunkLoaders {
                 Mathf.FloorToInt(playerPos.z / Chunk.SIZE));
         }
 
-        // Generates up to the passed number of chunks, returning the total generated
+        /// <summary>
+        /// Generates up to the passed number of chunks, or infinite if -1.  Then returns the total number generated.
+        /// </summary>
         protected int generateChunks(int max) {
             int builtChunks = 0;
             if (this.buildQueue.Count > 0) {
-                while (this.buildQueue.Count > 0 && builtChunks < max) {
+                while (this.buildQueue.Count > 0 && (builtChunks < max || max == -1)) {
                     ChunkPos chunkPos = this.buildQueue.Dequeue();
                     Chunk chunk;
                     if(this.cachedUnusedChunks.Count > 0) {
                         chunk = this.cachedUnusedChunks.Dequeue();
-                        chunk.transform.position = new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16);
                         chunk.gameObject.SetActive(true);
-                        chunk.isDirty = true;
                     } else {
-                        //We need a new Chunk
-                        GameObject chunkGameObject = GameObject.Instantiate(
-                            References.list.chunkPrefab,
-                            new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16),
-                            Quaternion.identity) as GameObject;
+                        // The cache queue is empty, create a new chunk from scratch.
+                        GameObject chunkGameObject = GameObject.Instantiate(References.list.chunkPrefab) as GameObject;
                         chunkGameObject.transform.parent = this.world.chunkWrapper;
                         chunk = chunkGameObject.GetComponent<Chunk>();
-                        chunk.isDirty = true;
                     }
+
+                    chunk.transform.position = new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16);
+                    chunk.isDirty = true;
 
                     this.world.loadChunk(chunk, chunkPos);
 

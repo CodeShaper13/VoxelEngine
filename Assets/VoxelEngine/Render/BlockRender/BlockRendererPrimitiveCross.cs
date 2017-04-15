@@ -7,9 +7,9 @@ namespace VoxelEngine.Render.BlockRender {
     public class BlockRendererPrimitiveCross : BlockRendererPrimitive {
 
         private MeshBuilder meshData;
-        private byte meta;
+        private int meta;
 
-        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             this.meshData = meshData;
             this.meta = meta;
 

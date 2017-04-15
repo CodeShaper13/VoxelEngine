@@ -3,6 +3,7 @@
 namespace VoxelEngine {
 
     public class References : MonoBehaviour {
+
         public static References list; //Singleton
 
         // Materials

@@ -8,8 +8,8 @@ namespace VoxelEngine.Util {
 
         void setBlock(int x, int y, int z, Block block);
 
-        byte getMeta(int x, int y, int z);
+        int getMeta(int x, int y, int z);
 
-        void setMeta(int x, int y, int z, byte meta);
+        void setMeta(int x, int y, int z, int meta);
     }
 }

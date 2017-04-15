@@ -2,30 +2,24 @@
 
     public class GuiScreenOptions : GuiScreen {
 
-        public GuiScreen pauseScreen;
-
-        public override GuiScreen onEscape(Main voxelEngine) {
-            return this.goBack();
-        }
-
         public void okCallback() {
-            this.goBack();
+            // Save options...
+
+            this.onEscape();
         }
 
         public void cancelCallback() {
-            this.goBack();
+            // Revert to previous options
+
+            this.onEscape();
         }
 
-        private GuiScreen goBack() {
-            this.setActive(false);
-            GuiScreen gui;
+        public override GuiScreen getEscapeCallback() {
             if (Main.singleton.worldObj == null) {
-                gui = this.escapeFallback; //Title
+                return GuiManager.title;
             } else {
-                gui = this.pauseScreen;
+                return GuiManager.paused;
             }
-            gui.setActive(true);
-            return gui;
         }
     }
 }

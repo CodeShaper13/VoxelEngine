@@ -6,6 +6,7 @@ using VoxelEngine.Level;
 namespace VoxelEngine.GUI {
 
     public class PlayWorldButton : MonoBehaviour {
+
         public Image background;
         public Image worldImage;
         public Text worldInfo;

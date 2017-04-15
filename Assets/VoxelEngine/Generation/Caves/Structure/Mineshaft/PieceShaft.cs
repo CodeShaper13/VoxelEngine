@@ -89,7 +89,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
             int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetZ;
             Block b;
-            byte meta = 0;
+            int meta = 0;
             for (int i = p1.x; i <= p2.x; i++) {
                 for (int j = p1.y; j <= p2.y; j++) {
                     for (int k = p1.z; k <= p2.z; k++) {

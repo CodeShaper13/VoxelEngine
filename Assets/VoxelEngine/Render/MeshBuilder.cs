@@ -23,12 +23,12 @@ namespace VoxelEngine.Render {
         public bool useRenderDataForCol;
 
         public MeshBuilder() {
-            this.vertices = new List<Vector3>();
-            this.triangles = new List<int>();
-            this.uv = new List<Vector2>();
-            this.colVertices = new List<Vector3>();
-            this.colTriangles = new List<int>();
-            this.lightUvs = new List<Vector2>();
+            this.vertices = new List<Vector3>(65536);
+            this.triangles = new List<int>(65536);
+            this.uv = new List<Vector2>(65536);
+            this.colVertices = new List<Vector3>(65536);
+            this.colTriangles = new List<int>(65536);
+            this.lightUvs = new List<Vector2>(65536);
             this.lightLevels = new int[7];
             this.cachedColliderPoints = new int[36];
         }
@@ -71,30 +71,42 @@ namespace VoxelEngine.Render {
         /// </summary>
         public void addQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector2[] uvs, int lightSampleDirection) {
             // Add the 4 corner vertices.
-            this.addVertex(v1);
-            this.addVertex(v2);
-            this.addVertex(v3);
-            this.addVertex(v4);
+            this.vertices.Add(v1);
+            this.vertices.Add(v2);
+            this.vertices.Add(v3);
+            this.vertices.Add(v4);
 
-            // Add the tirangles to the quad.
-            this.triangles.Add(this.vertices.Count - 4);
-            this.triangles.Add(this.vertices.Count - 3);
-            this.triangles.Add(this.vertices.Count - 2);
-            this.triangles.Add(this.vertices.Count - 4);
-            this.triangles.Add(this.vertices.Count - 2);
-            this.triangles.Add(this.vertices.Count - 1);
+            if(this.useRenderDataForCol) {
+                this.colVertices.Add(v1);
+                this.colVertices.Add(v2);
+                this.colVertices.Add(v3);
+                this.colVertices.Add(v4);
+            }
+
+            int i = this.vertices.Count;
+
+            // Add the triangles to the quad.
+            this.triangles.Add(i - 4);
+            this.triangles.Add(i - 3);
+            this.triangles.Add(i - 2);
+            this.triangles.Add(i - 4);
+            this.triangles.Add(i - 2);
+            this.triangles.Add(i - 1);
 
             if (this.useRenderDataForCol) {
-                this.colTriangles.Add(this.colVertices.Count - 4);
-                this.colTriangles.Add(this.colVertices.Count - 3);
-                this.colTriangles.Add(this.colVertices.Count - 2);
-                this.colTriangles.Add(this.colVertices.Count - 4);
-                this.colTriangles.Add(this.colVertices.Count - 2);
-                this.colTriangles.Add(this.colVertices.Count - 1);
+                i = this.colVertices.Count;
+                this.colTriangles.Add(i - 4);
+                this.colTriangles.Add(i - 3);
+                this.colTriangles.Add(i - 2);
+                this.colTriangles.Add(i - 4);
+                this.colTriangles.Add(i - 2);
+                this.colTriangles.Add(i - 1);
             }
 
             // Add the uvs.
-            this.uv.AddRange(uvs);
+            for(i = 0; i < uvs.Length; i++) {
+                this.uv.Add(uvs[i]);
+            }
 
             // Add light mapping.
             float x = LightHelper.PIXEL_SIZE * this.lightLevels[lightSampleDirection];
@@ -105,21 +117,49 @@ namespace VoxelEngine.Render {
             this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y));
         }
 
+        public void addBox(Vector3 pos, Vector3 size, Block block, int meta, Vector2[] allocatedUvArray) {
+            // Top points.
+            Vector3 p1 = pos + new Vector3(size.x, size.y, size.z);
+            Vector3 p2 = pos + new Vector3(size.x, size.y, -size.z);
+            Vector3 p3 = pos + new Vector3(-size.x, size.y, size.z);
+            Vector3 p4 = pos + new Vector3(-size.x, size.y, -size.z);
+
+            // Bottom points.
+            Vector3 p5 = pos + new Vector3(size.x, -size.y, size.z);
+            Vector3 p6 = pos + new Vector3(size.x, -size.y, -size.z);
+            Vector3 p7 = pos + new Vector3(-size.x, -size.y, size.z);
+            Vector3 p8 = pos + new Vector3(-size.x, -size.y, -size.z);
+
+            // Top face.
+            this.addQuad(p1, p2, p4, p3, block.getUVs(meta, Direction.UP, allocatedUvArray), Direction.UP_ID);
+            // Bottom face.
+            this.addQuad(p5, p7, p8, p6, block.getUVs(meta, Direction.DOWN, allocatedUvArray), Direction.DOWN_ID);
+            // +X face.
+            this.addQuad(p1, p5, p6, p2, block.getUVs(meta, Direction.EAST, allocatedUvArray), Direction.EAST_ID);
+            // +Z face.
+            this.addQuad(p1, p3, p7, p5, block.getUVs(meta, Direction.NORTH, allocatedUvArray), Direction.NORTH_ID);
+            // -X face.
+            this.addQuad(p3, p4, p8, p7, block.getUVs(meta, Direction.WEST, allocatedUvArray), Direction.WEST_ID);
+            // -Z face.
+            this.addQuad(p2, p6, p8, p4, block.getUVs(meta, Direction.SOUTH, allocatedUvArray), Direction.SOUTH_ID);
+
+        }
+
         /// <summary>
         /// Adds a rotated box of quads.  Note, adjacent lighting is not used on quads.
         /// </summary>
-        public void addBox(Vector3 p, Vector3 size, Quaternion rotation, Block block, byte meta, Vector2[] allocatedUvArray) {
+        public void addRotatedBox(Vector3 pos, Vector3 size, Quaternion rotation, Block block, int meta, Vector2[] allocatedUvArray) {
             // Top points.
-            Vector3 p1 = p + MathHelper.rotateVecAround(new Vector3(size.x, size.y, size.z), Vector3.zero, rotation);
-            Vector3 p2 = p + MathHelper.rotateVecAround(new Vector3(size.x, size.y, -size.z), Vector3.zero, rotation);
-            Vector3 p3 = p + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, size.z), Vector3.zero, rotation);
-            Vector3 p4 = p + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p1 = pos + MathHelper.rotateVecAround(new Vector3(size.x, size.y, size.z), Vector3.zero, rotation);
+            Vector3 p2 = pos + MathHelper.rotateVecAround(new Vector3(size.x, size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p3 = pos + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, size.z), Vector3.zero, rotation);
+            Vector3 p4 = pos + MathHelper.rotateVecAround(new Vector3(-size.x, size.y, -size.z), Vector3.zero, rotation);
 
             // Bottom points.
-            Vector3 p5 = p + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, size.z), Vector3.zero, rotation);
-            Vector3 p6 = p + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, -size.z), Vector3.zero, rotation);
-            Vector3 p7 = p + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, size.z), Vector3.zero, rotation);
-            Vector3 p8 = p + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p5 = pos + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, size.z), Vector3.zero, rotation);
+            Vector3 p6 = pos + MathHelper.rotateVecAround(new Vector3(size.x, -size.y, -size.z), Vector3.zero, rotation);
+            Vector3 p7 = pos + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, size.z), Vector3.zero, rotation);
+            Vector3 p8 = pos + MathHelper.rotateVecAround(new Vector3(-size.x, -size.y, -size.z), Vector3.zero, rotation);
 
             // Top face.
             this.addQuad(p1, p2, p4, p3, block.getUVs(meta, Direction.UP, allocatedUvArray), 0);

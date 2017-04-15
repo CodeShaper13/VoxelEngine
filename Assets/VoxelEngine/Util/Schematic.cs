@@ -79,12 +79,12 @@ namespace VoxelEngine.Util {
             this.blocks[(y * this.sizeX * this.sizeZ) + (z * this.sizeX) + x] = block;
         }
 
-        public byte getMeta(int x, int y, int z) {
+        public int getMeta(int x, int y, int z) {
             return this.metaData[(y * this.sizeX * this.sizeZ) + (z * this.sizeX) + x];
         }
 
-        public void setMeta(int x, int y, int z, byte meta) {
-            this.metaData[(y * this.sizeX * this.sizeZ) + (z * this.sizeX) + x] = meta;
+        public void setMeta(int x, int y, int z, int meta) {
+            this.metaData[(y * this.sizeX * this.sizeZ) + (z * this.sizeX) + x] = (byte)meta;
         }
 
         public NbtCompound writeToNbt(NbtCompound tag) {
@@ -94,7 +94,7 @@ namespace VoxelEngine.Util {
             tag.Add(new NbtInt("sizeZ", this.sizeZ));
             byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                blockBytes[i] = this.blocks[i].id;
+                blockBytes[i] = (byte)this.blocks[i].id;
             }
             tag.Add(new NbtByteArray("blocks", blockBytes));
             tag.Add(new NbtByteArray("meta", this.metaData));

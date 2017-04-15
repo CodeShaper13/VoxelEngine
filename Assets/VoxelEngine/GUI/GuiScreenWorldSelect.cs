@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using VoxelEngine.Generation;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.GUI {
@@ -20,13 +19,13 @@ namespace VoxelEngine.GUI {
 
         private List<WorldData> cachedWorlds;
         private string[] worldFolderNames;
-        public PlayWorldButton selectedWorld;
+        private PlayWorldButton selectedWorld;
 
-        public void Awake() {
+        private void Awake() {
             this.cachedWorlds = new List<WorldData>();
         }
 
-        public void OnEnable() {
+        public override void onGuiOpen() {
             this.selectedWorld = null;
             this.cachedWorlds.Clear();
 
@@ -60,16 +59,16 @@ namespace VoxelEngine.GUI {
             this.worldTileWrapperObj.sizeDelta = new Vector2(this.worldTileWrapperObj.sizeDelta.x, (i * 130) + 10);
         }
 
-        public void OnDisable() {
+        public override void onGuiClose() {
             foreach (Transform t in this.worldTileWrapperObj) {
                 GameObject.Destroy(t.gameObject);
             }
             this.toggleButtons(false);
         }
 
-        public void newWorldCallback(GuiScreenCreateWorld screen) {
-            this.openGuiScreen(screen);
-            screen.cachedWorlds = this.cachedWorlds;
+        public void newWorldCallback() {
+            this.openGuiScreen(GuiManager.createWorld);
+            GuiManager.createWorld.cachedWorlds = this.cachedWorlds;
         }
 
         public void loadCallback() {
@@ -77,19 +76,21 @@ namespace VoxelEngine.GUI {
             Main.singleton.generateWorld(data);
         }
 
-        public void deleteWorldCallback(GuiScreenDeleteWorld screen) {
-            this.openGuiScreen(screen);
-            screen.worldData = this.cachedWorlds[this.selectedWorld.index];
+        public void deleteWorldCallback() {
+            this.openGuiScreen(GuiManager.deleteWorld);
+            GuiManager.deleteWorld.worldData = this.cachedWorlds[this.selectedWorld.index];
         }
 
-        public void renameWorldCallback(GuiScreenRenameWorld screen) {
-            this.openGuiScreen(screen);
-            screen.init(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
+        public void renameWorldCallback() {
+            this.openGuiScreen(GuiManager.renameWorld);
+            GuiManager.renameWorld.init(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
         }
 
-        //Used by PlayWorldButton
+        /// <summary>
+        /// Called by PlayWorldButton.
+        /// </summary>
         public void selectWorldCallback(PlayWorldButton obj) {
-            //reset color of previous
+            // Reset color of previous selected.
             if (this.selectedWorld != null) {
                 this.selectedWorld.background.color = new Color(1, 1, 1, 0.5f);
             }
@@ -99,10 +100,17 @@ namespace VoxelEngine.GUI {
             this.toggleButtons(true);
         }
 
+        /// <summary>
+        /// Toggles if the buttons along the bottom are active.
+        /// </summary>
         private void toggleButtons(bool flag) {
             this.loadButton.interactable = flag;
             this.renameButton.interactable = flag;
             this.deleteButton.interactable = flag;
+        }
+
+        public override GuiScreen getEscapeCallback() {
+            return GuiManager.title;
         }
     }
 }

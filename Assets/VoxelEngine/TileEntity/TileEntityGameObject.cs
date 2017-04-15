@@ -18,7 +18,7 @@ namespace VoxelEngine.TileEntity {
             this.modelMaterials = this.getModelMaterials();
         }
 
-        public override void onDestruction(World world, BlockPos pos, byte meta) {
+        public override void onDestruction(World world, BlockPos pos, int meta) {
             GameObject.Destroy(this.gameObject);
             base.onDestruction(world, pos, meta);
         }

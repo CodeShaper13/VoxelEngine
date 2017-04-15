@@ -8,7 +8,7 @@ namespace VoxelEngine.Render.BlockRender {
 
         private const float f = 0.45f;
 
-        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
 
             if (meta == 2) {
                 meshData.addQuad(

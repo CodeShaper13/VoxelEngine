@@ -185,7 +185,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return Color.blue;
         }
 
-        private void setStateIfInChunk(Chunk chunk, int x, int y, int z, Block block, byte meta) {
+        private void setStateIfInChunk(Chunk chunk, int x, int y, int z, Block block, int meta) {
             if (chunk.isInChunk(x, y, z)) {
                 int i = x - chunk.pos.x;
                 int j = y - chunk.pos.y;

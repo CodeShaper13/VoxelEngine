@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Level;
+﻿using VoxelEngine.Level;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -8,7 +7,7 @@ namespace VoxelEngine.Blocks {
 
         public BlockGrass(byte id) : base(id) {}
 
-        public override void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) {
+        public override void onRandomTick(World world, int x, int y, int z, int meta, int tickSeed) {
             //int i = (tickSeed) & 0x03;
             //BlockPos pos1 = pos + Direction.xzPlane[i].direction;
             //if (world.getBlock(pos1) == Block.dirt) {
@@ -16,7 +15,7 @@ namespace VoxelEngine.Blocks {
             //}
         }
 
-        public override TexturePos getTexturePos(Direction direction, byte meta) {
+        public override TexturePos getTexturePos(Direction direction, int meta) {
             TexturePos tile = new TexturePos(0, 0);
             if (direction == Direction.UP) {
                 tile.x = 2;

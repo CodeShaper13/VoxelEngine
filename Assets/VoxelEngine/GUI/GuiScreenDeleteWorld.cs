@@ -10,17 +10,25 @@ namespace VoxelEngine.GUI {
         public WorldData worldData;
         public Text errorText;
 
-        public void OnDisable() {
-            this.errorText.enabled = false;
+        public override void onGuiClose() {
+            this.errorText.gameObject.SetActive(false);
         }
 
         public void deleteWorldCallback() {
             try {
                 Directory.Delete("saves/" + this.worldData.worldName, true);
-                this.openGuiScreen(this.escapeFallback);
+                this.openGuiScreen(GuiManager.worldSelect);
             } catch (Exception e) {
-                this.errorText.enabled = true;
+                this.errorText.gameObject.SetActive(true);
             }
+        }
+
+        public void callbackCancel() {
+            this.openGuiScreen(GuiManager.worldSelect);
+        }
+
+        public override GuiScreen getEscapeCallback() {
+            return GuiManager.worldSelect;
         }
     }
 }

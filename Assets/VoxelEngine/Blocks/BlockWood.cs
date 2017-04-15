@@ -10,7 +10,7 @@ namespace VoxelEngine.Blocks {
 
         public BlockWood(byte id) : base(id) { }
 
-        public override TexturePos getTexturePos(Direction direction, byte meta) {
+        public override TexturePos getTexturePos(Direction direction, int meta) {
             TexturePos pos = new TexturePos(1, 1);
             // X
             if(meta == 0) {
@@ -31,11 +31,11 @@ namespace VoxelEngine.Blocks {
             return pos;
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+        public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
             return (byte)clickedDirNormal.axis;
         }
 
-        public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 1, brokenWith);
         }
     }

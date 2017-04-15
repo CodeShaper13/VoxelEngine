@@ -14,7 +14,7 @@ namespace VoxelEngine.Blocks {
         public static Block[] BLOCK_LIST = new Block[256];
 
         public static Block air = new BlockAir(0).setName("Air").setTransparent().setReplaceable().setRenderer(null);
-        public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(5);
+        public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(4);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
         public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
         public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable();//.setSolid(false);
@@ -39,6 +39,7 @@ namespace VoxelEngine.Blocks {
         public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(RenderManager.RAIL);//.setRenderFlat();
         public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE);
         public static Block plank = new Block(34).setName("Plank");
+        public static Block stoneSlab = new BlockSlab(35, Block.dirt);
         public static Block moss;
         public static Block root;
         public static Block flower;
@@ -50,7 +51,7 @@ namespace VoxelEngine.Blocks {
         [Obsolete("Remember to update the placeholder with the correct block")]
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(15, 15);
 
-        public byte id = 0;
+        public int id = 0;
         public string name = "null";
         /// <summary> In seconds how long it takes to mine the block. </summary>
         public float mineTime;
@@ -62,8 +63,8 @@ namespace VoxelEngine.Blocks {
         /// <summary> The blocks type.  Used by tools to increase efficiency. </summary>
         public Type blockType;
         public BlockRenderer renderer;
-        /// <summary> The highest used meta data, used in prerendering meshes for the hud. </summary>
-        public byte statesUsed;
+        /// <summary> The number of meta data numbers used.  Used in prerendering held item meshes. </summary>
+        public int statesUsed;
         /// <summary> The amount of light given off by the block, 0-15.  0 is none. </summary>
         public int emittedLight = 0;
 
@@ -71,7 +72,7 @@ namespace VoxelEngine.Blocks {
         public bool renderAsItem;
         public TexturePos itemAtlasPos;
 
-        public Block(byte id) {
+        public Block(int id) {
             this.id = id;
             if (Block.BLOCK_LIST[this.id] != null) {
                 Debug.Log("ERROR!  Two blocks may not have the same id " + this.id);
@@ -86,42 +87,48 @@ namespace VoxelEngine.Blocks {
         }
 
         //neighborDir points to the block that made this update happen
-        public virtual void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
+        public virtual void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
             //TODO do we need to return a bool if the block changed, to make more chunks dirty?
         }
 
-        // Unused?
-        public virtual void onTick(World world, BlockPos pos) {}
+        /// <summary>
+        /// Called randomly on blocks.
+        /// </summary>
+        public virtual void onRandomTick(World world, int x, int y, int z, int meta, int tickSeed) { }
 
-        public virtual void onRandomTick(World world, int x, int y, int z, byte meta, int tickSeed) { }
-
-        // Returns true if something happened
-        public virtual bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
+        /// <summary>
+        /// Called when the player clicks a block.  Return true to stop further prossessing,
+        /// eg. the held ItemBlock being placed.
+        /// </summary>
+        public virtual bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
             return false;
         }
 
-        public virtual void onPlace(World world, BlockPos pos, byte meta) { }
+        public virtual void onPlace(World world, BlockPos pos, int meta) { }
 
         //Called when the block is removed from World.setBlock()
-        public virtual void onDestroy(World world, BlockPos pos, byte meta) {}
+        public virtual void onDestroy(World world, BlockPos pos, int meta) {}
 
-        public virtual string getName(byte meta) {
+        public virtual string getName(int meta) {
             return this.name;
         }
 
-        public virtual ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
-            return new ItemStack[] { new ItemStack(this.asItem(), meta) };
+        /// <summary>
+        /// Returns an array of ItemStacks that this block should drop.
+        /// </summary>
+        public virtual ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
+            return new ItemStack[] { new ItemStack(this.asItem(), (byte)meta) };
         }
 
-        public virtual string getMagnifyingText(byte meta) {
+        public virtual string getMagnifyingText(int meta) {
             return this.getName(meta);
         }
 
-        public virtual TexturePos getTexturePos(Direction direction, byte meta) {
+        public virtual TexturePos getTexturePos(Direction direction, int meta) {
             return this.texturePos;
         }
 
-        public virtual Vector2[] getUVs(byte meta, Direction direction, Vector2[] uvArray) {
+        public virtual Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
             TexturePos tilePos = this.getTexturePos(direction, meta);
             float x = TexturePos.BLOCK_SIZE * tilePos.x;
             float y = TexturePos.BLOCK_SIZE * tilePos.y;
@@ -132,11 +139,14 @@ namespace VoxelEngine.Blocks {
             return uvArray;
         }
 
-        public virtual byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+        /// <summary>
+        /// Called by ItemBlock when a block is placed.  By default the held meta is used, but this method can change it to a different meta to be used.
+        /// </summary>
+        public virtual int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
             return meta;
         }
 
-        public virtual bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
+        public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
             return true;
         }
 
@@ -178,7 +188,11 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
-        public Block setStatesUsed(byte statesUsed) {
+        /// <summary>
+        /// The number of meta values used, NOT the maximum used.  If a
+        /// block had an (on) and (off) state, this value would be 2.
+        /// </summary>
+        public Block setStatesUsed(int statesUsed) {
             this.statesUsed = statesUsed;
             return this;
         }
@@ -204,8 +218,8 @@ namespace VoxelEngine.Blocks {
             return Item.ITEM_LIST[this.id];
         }
 
-        public static Block getBlock(byte id) {
-            return Block.BLOCK_LIST[id] != null ? Block.BLOCK_LIST[id] : Block.air;
+        public static Block getBlock(int id) {
+            return (Block.BLOCK_LIST[id] != null || id > Block.BLOCK_LIST.Length) ? Block.BLOCK_LIST[id] : Block.air;
         }
 
         public enum Type {

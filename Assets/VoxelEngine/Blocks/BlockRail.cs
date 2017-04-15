@@ -12,17 +12,17 @@ namespace VoxelEngine.Blocks {
             this.setTexture(0, 13);
         }
 
-        public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
+        public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
             if (neighborDir == Direction.DOWN && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }
 
-        public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 0, brokenWith);
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+        public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
             if(Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
                 return this.getMetaForTurn(world, pos, 0);
                 //if (!(world.getBlock(pos.move(Direction.EAST)) == Block.rail || world.getBlock(pos.move(Direction.WEST)) == Block.rail)) {
@@ -40,11 +40,11 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 
-        public override Vector2[] getUVs(byte meta, Direction direction, Vector2[] uvArray) {
+        public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
             bool flag = meta >= 2 && meta <= 5;
             float x = TexturePos.BLOCK_SIZE * (flag ? 1f : 0f);
             float y = TexturePos.BLOCK_SIZE * 13;
@@ -62,11 +62,11 @@ namespace VoxelEngine.Blocks {
             return uvArray;
         }
 
-        private byte getMetaForTurn(World world, BlockPos pos, byte inMeta) {
+        private int getMetaForTurn(World world, BlockPos pos, int inMeta) {
             foreach (Direction dir in Direction.yPlane) {
                 if (world.getBlock(pos.move(dir)) == Block.rail && world.getBlock(pos.move(dir.getClockwise())) == Block.rail) {
                     Debug.Log(dir.directionId + 1);
-                    return (byte)(dir.directionId + 1);
+                    return dir.directionId + 1;
                 }
             }
             return inMeta;

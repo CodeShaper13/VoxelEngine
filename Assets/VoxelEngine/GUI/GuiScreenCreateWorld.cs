@@ -18,12 +18,12 @@ namespace VoxelEngine.GUI {
         private int typeIndex;
         public List<WorldData> cachedWorlds;
 
-        public void OnEnable() {
+        public override void onGuiOpen() {
             this.buttonCreate.interactable = false;
             this.func_01();
         }
 
-        public void OnDisable() {
+        public override void onGuiClose() {
             this.fieldName.text = string.Empty;
             this.fieldSeed.text = string.Empty;
         }
@@ -56,6 +56,10 @@ namespace VoxelEngine.GUI {
 
         private void func_01() {
             this.buttonToggleTypeText.text = "Type: " + WorldType.typeList[this.typeIndex].name;
+        }
+
+        public override GuiScreen getEscapeCallback() {
+            return GuiManager.worldSelect;
         }
     }
 }

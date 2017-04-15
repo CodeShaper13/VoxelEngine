@@ -22,7 +22,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.westBounds = new Bounds(new Vector3(-0.35f, 0, 0), new Vector3(0.3f, 1f, 0.1f));
         }
 
-        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             meshData.useRenderDataForCol = false;
             meshData.addColliderBox(this.postBounds, x, y, z);
 

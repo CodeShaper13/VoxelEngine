@@ -32,7 +32,7 @@ namespace VoxelEngine.Render.Items {
             new Vector2(1, 1),
             new Vector2(1, 0.9375f), };
 
-        public Mesh renderItem(Item item, byte meta) {
+        public Mesh renderItem(Item item, int meta) {
             float x = TexturePos.ITEM_SIZE * item.texturePos.x;
             float y = TexturePos.ITEM_SIZE * item.texturePos.y;
 

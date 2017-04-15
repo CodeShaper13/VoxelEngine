@@ -14,25 +14,25 @@ namespace VoxelEngine.Blocks {
             this.setRenderer(RenderManager.LADDER);
         }
 
-        public override void onNeighborChange(World world, BlockPos pos, byte meta, Direction neighborDir) {
+        public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
             if (neighborDir == Direction.yPlane[meta] && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, byte meta, Direction clickedDirNormal) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
             return (clickedDirNormal.axis == EnumAxis.X || clickedDirNormal.axis == EnumAxis.Z) && !(world.getBlock(pos.move(clickedDirNormal)).isSolid);
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDirNormal, Vector3 angle) {
+        public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
             return BlockLadder.getMetaFromDirection(clickedDirNormal.getOpposite());
         }
 
-        public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 0, brokenWith);
         }
 
-        public static byte getMetaFromDirection(Direction dir) {
+        public static int getMetaFromDirection(Direction dir) {
             if (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
                 return (byte)(dir.directionId - 1);
             } else {

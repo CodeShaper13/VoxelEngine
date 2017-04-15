@@ -65,15 +65,15 @@ namespace VoxelEngine.Items {
             return stack;
         }
 
-        public virtual byte getStatesUsed() {
+        public virtual int getStatesUsed() {
             return 1;
         }
 
-        public virtual string getName(byte meta) {
+        public virtual string getName(int meta) {
             return this.name;
         }
 
-        public Mesh getPreRenderedMesh(byte meta) {
+        public Mesh getPreRenderedMesh(int meta) {
             if(meta >= this.preRenderedMeshes.Length) {
                 Debug.Log("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta);
                 return Block.placeholder.asItem().getPreRenderedMesh(0);
@@ -104,21 +104,6 @@ namespace VoxelEngine.Items {
                 if (b != null) {
                     Item item = new ItemBlock(b);
                     Item.ITEM_LIST[b.id] = item;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Prerenders all the items, saving the meshes in Item.preRenderedMeshes
-        /// </summary>
-        public static void preRenderItems() {
-            for (int i = 0; i < Item.ITEM_LIST.Length; i++) {
-                Item item = Item.ITEM_LIST[i];
-                if (item != null) {
-                    item.preRenderedMeshes = new Mesh[item.getStatesUsed()];
-                    for (byte j = 0; j < item.preRenderedMeshes.Length; j++) {
-                        item.preRenderedMeshes[j] = item.itemRenderer.renderItem(item, j);
-                    }
                 }
             }
         }

@@ -1,4 +1,6 @@
-﻿using Assets.VoxelEngine.Render;
+﻿#define MAX_LIGHT
+
+using Assets.VoxelEngine.Render;
 using fNbt;
 using System;
 using System.Collections.Generic;
@@ -108,19 +110,22 @@ namespace VoxelEngine.Level {
             this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = block;
         }
 
-        public byte getMeta(int x, int y, int z) {
+        public int getMeta(int x, int y, int z) {
             return this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
-        public void setMeta(int x, int y, int z, byte meta) {
+        public void setMeta(int x, int y, int z, int meta) {
             this.isModified = true;
-            this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = meta;
+            this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)meta;
         }
 
         /// <summary>
         /// Returns the light level at (x, y, z)
         /// </summary>
         public int getLight(int x, int y, int z) {
+#if (MAX_LIGHT)
+            return 15;
+#endif
             return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
@@ -162,12 +167,15 @@ namespace VoxelEngine.Level {
         public void renderChunk() {
             MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
 
-            Block b, b1;
+            Block b, neightborBlock;
             byte meta;
+            bool flag;
             bool[] renderFace = new bool[6];
             Block[] surroundingBlocks = new Block[6];
             Direction dir;
-            int x, y, z, i;
+            int x, y, z, i, facesCulled, x1, y1, z1;
+            int blocksSkipped = 0;
+            IChunk c;
 
             CachedRegion cachedRegion = new CachedRegion(this.world, this);
 
@@ -177,45 +185,71 @@ namespace VoxelEngine.Level {
                     for (z = 0; z < Chunk.SIZE; z++) {
                         b = this.blocks[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
                         if(b.renderer != null && b.renderer.bakeIntoChunks) {
-                            meta = this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
-                            meshData.useRenderDataForCol = (b != Block.lava);
-
                             // Find the surrounding blocks and faces to cull.
+                            facesCulled = 0;
                             for (i = 0; i < 6; i++) {
                                 dir = Direction.all[i];
-                                b1 = cachedRegion.getBlock(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
-                                renderFace[i] = !b1.isSolid;
-                                surroundingBlocks[i] = b1;
-                            }
 
-                            // Populate the meshData with light levels.
-                            if(b.renderer.lookupAdjacentLight == EnumLightLookup.CURRENT) {
-                                meshData.lightLevels[0] = this.getLight(x, y, z); // No need for cachedRegion overhead, this is always in the chunk
-                            } else {
-                                for (i = 0; i < 6; i++) {
-                                    dir = Direction.all[i];
-                                    meshData.lightLevels[i + 1] = cachedRegion.getLight(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+                                x1 = x + dir.direction.x;
+                                y1 = y + dir.direction.y;
+                                z1 = z + dir.direction.z;
+
+                                c = cachedRegion.getChunk(x1, y1, z1);
+                                x1 += (x1 < 0 ? Chunk.SIZE : x1 >= Chunk.SIZE ? -Chunk.SIZE : 0);
+                                y1 += (y1 < 0 ? Chunk.SIZE : y1 >= Chunk.SIZE ? -Chunk.SIZE : 0);
+                                z1 += (z1 < 0 ? Chunk.SIZE : z1 >= Chunk.SIZE ? -Chunk.SIZE : 0);
+                                neightborBlock = c.getBlock(x1, y1, z1);
+                                //neightborBlock = cachedRegion.getBlock(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+
+
+                                flag = neightborBlock.isSolid;
+                                renderFace[i] = !flag;
+                                surroundingBlocks[i] = neightborBlock;
+                                if (flag) {
+                                    facesCulled++;
                                 }
-                                meshData.lightLevels[0] = this.getLight(x, y, z);
                             }
 
-                            // Render the block.
-                            b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
+                            if(facesCulled != 6) {
+                                meta = this.metaData[x + Chunk.SIZE * (z + Chunk.SIZE * y)];
+                                meshData.useRenderDataForCol = (b != Block.lava);
+
+                                // Populate the meshData with light levels.
+                                if (b.renderer.lookupAdjacentLight == EnumLightLookup.CURRENT) {
+                                    meshData.lightLevels[0] = this.getLight(x, y, z); // No need for cachedRegion overhead, this is always in the chunk
+                                } else {
+                                    for (i = 0; i < 6; i++) {
+                                        dir = Direction.all[i];
+
+                                        meshData.lightLevels[i + 1] = cachedRegion.getLight(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+                                    }
+                                    meshData.lightLevels[0] = this.getLight(x, y, z);
+                                }
+
+                                // Render the block.
+                                b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
+                            } else {
+                                blocksSkipped++;
+                            }
                         }
                     }
                 }
             }
 
+            //print("Blocks skipped: " + j);
+
             // Set light uvs for tile entities.
             Material[] materials;
+            Color lightColor;
             foreach (TileEntityBase te in this.tileEntityDict.Values) {
                 if(te is TileEntityGameObject) {
                     x = te.posX - this.pos.x;
                     y = te.posY - this.pos.y;
                     z = te.posZ - this.pos.z;
                     materials = ((TileEntityGameObject)te).modelMaterials;
+                    lightColor = RenderManager.instance.lightHelper.getColorFromBrightness(this.getLight(x, y, z));
                     for (i = 0; i < materials.Length; i++) {
-                        materials[i].SetColor(LightHelper.COLOR_ID, RenderManager.instance.lightHelper.getColorFromBrightness(this.getLight(x, y, z)));
+                        materials[i].SetColor(LightHelper.COLOR_ID, lightColor);
                     }
                 }
             }
@@ -230,7 +264,7 @@ namespace VoxelEngine.Level {
             tag.Add(new NbtByte("isPopulated", this.isPopulated ? (byte)1 : (byte)0));
             byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                blockBytes[i] = this.blocks[i].id;
+                blockBytes[i] = (byte)this.blocks[i].id;
             }
             tag.Add(new NbtByteArray("blocks", blockBytes));
             tag.Add(new NbtByteArray("meta", this.metaData));

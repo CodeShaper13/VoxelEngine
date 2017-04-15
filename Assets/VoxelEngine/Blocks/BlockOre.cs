@@ -9,13 +9,13 @@ namespace VoxelEngine.Blocks {
         private Item droppedItem;
         private int textureY;
 
-        public BlockOre(byte id, Item drop, int textureY) : base(id) {
+        public BlockOre(int id, Item drop, int textureY) : base(id) {
             this.droppedItem = drop;
             this.textureY = textureY;
             this.setStatesUsed(5);
         }
 
-        public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             ItemStack stack;
             if (brokenWith != null && brokenWith.toolType == ItemTool.ToolType.PICKAXE) {
                 stack = new ItemStack(this.droppedItem);
@@ -26,7 +26,7 @@ namespace VoxelEngine.Blocks {
             return new ItemStack[] { stack };
         }
 
-        public override TexturePos getTexturePos(Direction direction, byte meta) {
+        public override TexturePos getTexturePos(Direction direction, int meta) {
             return new TexturePos(meta, this.textureY);
         }
     }

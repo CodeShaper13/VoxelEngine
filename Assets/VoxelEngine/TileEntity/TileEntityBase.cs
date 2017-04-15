@@ -20,7 +20,7 @@ namespace VoxelEngine.TileEntity {
         /// <summary>
         /// Only called when the block is broken, not when it is unloaded.  Use if the TileEntity should drop it's contents, ect
         /// </summary>
-        public virtual void onDestruction(World world, BlockPos pos, byte meta) { }
+        public virtual void onDestruction(World world, BlockPos pos, int meta) { }
 
         public abstract int getId();
 
@@ -38,7 +38,7 @@ namespace VoxelEngine.TileEntity {
         }
 
         public static TileEntityBase getTileEntityFromId(World world, BlockPos pos, NbtCompound tag) {
-            byte meta = world.getMeta(pos);
+            int meta = world.getMeta(pos);
             switch (tag.Get<NbtInt>("id").IntValue) {
                 case 1:
                     return new TileEntityChest(world, pos.x, pos.y, pos.z, meta);

@@ -10,7 +10,7 @@ namespace VoxelEngine.TileEntity {
         public ContainerData chestData;
         public ChestOpen chestOpen;
 
-        public TileEntityChest(World world, int x, int y, int z, byte meta) : base(world, x, y, z, References.list.chestPrefab) {
+        public TileEntityChest(World world, int x, int y, int z, int meta) : base(world, x, y, z, References.list.chestPrefab) {
             this.chestData = new ContainerData(2, 2);
             this.gameObject.transform.position = new Vector3(x, y - 0.05f, z);
             this.gameObject.transform.rotation = Quaternion.Euler(0, meta * 90, 0);

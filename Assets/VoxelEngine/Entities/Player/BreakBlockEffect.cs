@@ -24,7 +24,7 @@ namespace VoxelEngine.Entities.Player {
         }
 
         //Beging the breaking of a block
-        public void beginBreak(World world, int x, int y, int z, Block block, byte meta) {
+        public void beginBreak(World world, int x, int y, int z, Block block, int meta) {
             this.meshRenderer.enabled = true;
             MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
 
@@ -54,7 +54,7 @@ namespace VoxelEngine.Entities.Player {
             this.isTerminated = true;
         }
 
-        public void update(EntityPlayer player, BlockPos lookingAt, Block block, byte meta) {
+        public void update(EntityPlayer player, BlockPos lookingAt, Block block, int meta) {
             if (this.isTerminated) {
                 this.beginBreak(player.world, lookingAt.x, lookingAt.y, lookingAt.z, block, meta);
                 this.isTerminated = false;

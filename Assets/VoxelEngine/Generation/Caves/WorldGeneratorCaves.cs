@@ -60,9 +60,9 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public void debugDisplay() {
-            for(int i = 0; i < this.mineshaftList.Count; i++) {
-                this.mineshaftList[i].debugDisplay();
-            }
+            //for(int i = 0; i < this.mineshaftList.Count; i++) {
+            //    this.mineshaftList[i].debugDisplay();
+            //}
         }
 
         public override void generateChunk(Chunk chunk) {
@@ -73,7 +73,8 @@ namespace VoxelEngine.Generation.Caves {
             byte fartherFromOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2 + (chunk.chunkPos.y < 0 ? -1 : 1)));
             Block block;
             byte meta;
-            float crackNoise;
+
+            float noise;
 
             //Iterate through all blocks in the chunk, setting them to the correct stone
             for (int x = 0; x < Chunk.SIZE; x++) {
@@ -81,22 +82,19 @@ namespace VoxelEngine.Generation.Caves {
                     for (int y = 0; y < Chunk.SIZE; y++) {
                         meta = (chunk.chunkPos.y < 0 && inCrackChunk) ? fartherFromOrgin : closerToOrgin;
 
+                        noise = Noise.Generate(chunk.pos.x + x, chunk.pos.y, chunk.pos.z + z);
+
                         if (inCrackChunk) {
-                            crackNoise = getNoise(chunk.pos.x + x, chunk.pos.y, chunk.pos.z + z, 0.05f);
-                            if (y > (Chunk.SIZE / 2) + (crackNoise * 2)) {
+                            if (y > (Chunk.SIZE / 2) + ((noise * 0.05f) * 2)) {
                                 meta = chunk.chunkPos.y > 0 ? fartherFromOrgin : closerToOrgin;
                             }
                         }
 
-                        if (this.getNoise(chunk.pos.x + x, chunk.pos.y + y, chunk.pos.z + z, 0.05f) >= 0.85f && rnd.Next(0, 4) < 3) {
+                        if(noise * 0.05f >= 0.85f && rnd.Next(0, 4) < 3) {
                             block = Block.coalOre;
                         } else {
                             block = Block.stone;
                         }
-
-                        //if (this.getNoise(c.pos.x + x, (c.pos.y + y) * 2, c.pos.z + z, 0.01f) >= 0.85f) {
-                        //    block = Block.lava;
-                        //}
 
                         chunk.setBlock(x, y, z, block);
                         chunk.setMeta(x, y, z, 0 /*meta*/);
@@ -129,13 +127,11 @@ namespace VoxelEngine.Generation.Caves {
             }
         }
 
-        //Helper function for getting noise
-        public float getNoise(int x, int y, int z, float scale) {
+        /// <summary>
+        /// Gets noise and multiplies it by a scale.
+        /// </summary>
+        private float getNoise(int x, int y, int z, float scale) {
             return Noise.Generate(x * scale, y * scale, z * scale);
-        }
-
-        public int GetNoise(int x, int y, int z, float scale, int max) {
-            return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
         }
     }
 }

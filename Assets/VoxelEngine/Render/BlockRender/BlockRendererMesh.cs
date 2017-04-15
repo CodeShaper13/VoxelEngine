@@ -53,7 +53,7 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             int i;
             Vector3 v;
             // Broken, triangles normals are messed up when we scale model by -1

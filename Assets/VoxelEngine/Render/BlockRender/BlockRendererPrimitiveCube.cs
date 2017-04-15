@@ -10,7 +10,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentLight = EnumLightLookup.ADJACENT;
         }
 
-        public override MeshBuilder renderBlock(Block b, byte meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             // North
             if (renderFace[0]) {
                 meshData.addQuad(

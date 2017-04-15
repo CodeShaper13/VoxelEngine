@@ -16,7 +16,7 @@ namespace VoxelEngine.Blocks {
             this.setRenderer(RenderManager.CHEST);
         }
 
-        public override bool onRightClick(World world, EntityPlayer player, BlockPos pos, byte meta) {
+        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
             if(!world.getBlock(pos.move(Direction.UP)).isSolid) {
                 TileEntityChest chest = ((TileEntityChest)world.getTileEntity(pos));
                 player.contManager.openContainer(player, ContainerManager.containerChest, chest.chestData);
@@ -26,7 +26,7 @@ namespace VoxelEngine.Blocks {
             return false;
         }
 
-        public override byte adjustMetaOnPlace(World world, BlockPos pos, byte meta, Direction clickedDir, Vector3 angle) {
+        public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDir, Vector3 angle) {
             if (Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
                 if(angle.x < 0) {
                     return 1; // East
@@ -43,7 +43,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override ItemStack[] getDrops(World world, BlockPos pos, byte meta, ItemTool brokenWith) {
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             ItemStack[] contents = ((TileEntityChest)world.getTileEntity(pos)).chestData.items;
 
             List<ItemStack> list = new List<ItemStack>();
@@ -56,7 +56,7 @@ namespace VoxelEngine.Blocks {
             return list.ToArray();
         }
 
-        public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, byte meta) {
+        public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, int meta) {
             return new TileEntityChest(world, x, y, z, meta);
         }
 

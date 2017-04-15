@@ -174,11 +174,17 @@ namespace VoxelEngine.Level {
             }
         }
 
-        public void setBlock(BlockPos pos, Block block, byte meta = 255, bool updateNeighbors = true) {
+        /// <summary>
+        /// Sets a block.  Using a meta of -1 will not change the meta
+        /// </summary>
+        public void setBlock(BlockPos pos, Block block, int meta = -1, bool updateNeighbors = true) {
             this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors);
         }
 
-        public void setBlock(int x, int y, int z, Block newBlock, byte newMeta = 255, bool updateNeighbors = true) {
+        /// <summary>
+        /// Sets a block.  Using a meta of -1 will not change the meta
+        /// </summary>
+        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 // Position of the setBlock event within the chunk
@@ -189,13 +195,13 @@ namespace VoxelEngine.Level {
                 BlockPos pos = new BlockPos(x, y, z);
 
                 Block oldBlock = chunk.getBlock(localChunkX, localChunkY, localChunkZ);
-                byte oldBlockMeta = chunk.getMeta(localChunkX, localChunkY, localChunkZ);
+                int oldBlockMeta = chunk.getMeta(localChunkX, localChunkY, localChunkZ);
                 oldBlock.onDestroy(this, pos, oldBlockMeta);
 
                 chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
 
                 // Set meta if it's specified.  255 means don't change
-                byte meta1 = (newMeta == 255 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta);
+                int meta1 = (newMeta == -1 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta);
                 if(newMeta != 255) {
                     chunk.setMeta(localChunkX, localChunkY, localChunkZ, newMeta);
                 }
@@ -225,13 +231,13 @@ namespace VoxelEngine.Level {
             }
         }
 
-        public byte getMeta(BlockPos pos) {
+        public int getMeta(BlockPos pos) {
             return this.getMeta(pos.x, pos.y, pos.z);
         }
 
-        public byte getMeta(int x, int y, int z) {
+        public int getMeta(int x, int y, int z) {
             Chunk chunk = this.getChunk(x, y, z);
-            return chunk != null ? chunk.getMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z) : (byte)0;
+            return chunk != null ? chunk.getMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z) : 0;
         }
 
         /// <summary>

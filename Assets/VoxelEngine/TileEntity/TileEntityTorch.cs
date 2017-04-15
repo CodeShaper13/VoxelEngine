@@ -6,7 +6,7 @@ namespace VoxelEngine.TileEntity {
 
     public class TileEntityTorch : TileEntityGameObject {
 
-        public TileEntityTorch(World world, int x, int y, int z, byte meta) :
+        public TileEntityTorch(World world, int x, int y, int z, int meta) :
             base(world, x, y, z, References.list.torchPrefab) {
             float f = 0.25f;
             Vector3 pos = new Vector3(x, y + BlockRendererTorch.SHIFT + 0.05f, z);

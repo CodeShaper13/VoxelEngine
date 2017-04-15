@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render.BlockRender;
 
@@ -17,6 +18,7 @@ namespace VoxelEngine.Render {
         public static BlockRenderer TORCH = new BlockRendererTorch();
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
+        public static BlockRenderer SLAB = new BlockRendererSlab();
 
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
@@ -31,6 +33,9 @@ namespace VoxelEngine.Render {
             this.lightHelper = new LightHelper(References.list.lightColorSheet);
             this.reusableMeshData = new MeshBuilder();
             this.airChunk = new AirChunk();
+
+            Item.initBlockItems();
+            this.preRenderItems();
         }
 
         /// <summary>
@@ -39,6 +44,21 @@ namespace VoxelEngine.Render {
         public MeshBuilder getMeshBuilder() {
             this.reusableMeshData.cleanup();
             return this.reusableMeshData;
+        }
+
+        /// <summary>
+        /// Prerenders all the items, saving the meshes in Item.preRenderedMeshes
+        /// </summary>
+        private void preRenderItems() {
+            for (int i = 0; i < Item.ITEM_LIST.Length; i++) {
+                Item item = Item.ITEM_LIST[i];
+                if (item != null) {
+                    item.preRenderedMeshes = new Mesh[item.getStatesUsed()];
+                    for (int j = 0; j < item.preRenderedMeshes.Length; j++) {
+                        item.preRenderedMeshes[j] = item.itemRenderer.renderItem(item, j);
+                    }
+                }
+            }
         }
 
         /// <summary>
