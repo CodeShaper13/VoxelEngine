@@ -10,11 +10,12 @@ namespace VoxelEngine.Render.Items {
         private static Block[] AIR_ARRAY = new Block[6] {Block.air, Block.air, Block.air, Block.air, Block.air, Block.air};
         private static int[] MAX_LIGHT_LEVELS = new int[7] {15, 15, 15, 15, 15, 15, 15};
 
-        public Mesh renderItem(Item item, int meta) {
+        public Mesh renderItem(RenderManager rm, Item item, int meta) {
             Block block = Block.BLOCK_LIST[item.id];
-            MeshBuilder meshBuilder = RenderManager.instance.getMeshBuilder();
+            MeshBuilder meshBuilder = rm.getMeshBuilder();
             meshBuilder.lightLevels = RenderItemBlock.MAX_LIGHT_LEVELS;
-            return block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderItemBlock.TRUE_ARRAY, RenderItemBlock.AIR_ARRAY).toMesh();
+            block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderItemBlock.TRUE_ARRAY, RenderItemBlock.AIR_ARRAY);
+            return meshBuilder.toMesh();
         }
 
         public Matrix4x4 getMatrix(Vector3 pos) {

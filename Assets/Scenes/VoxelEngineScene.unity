@@ -327,7 +327,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1016968355472724, guid: 5da602b22dd14fe49b6a146be7f14acf, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114858080332571238, guid: 5da602b22dd14fe49b6a146be7f14acf,
         type: 2}
@@ -345,6 +345,28 @@ Prefab:
       propertyPath: m_PreserveAspect
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114910474282965256, guid: 5da602b22dd14fe49b6a146be7f14acf,
+        type: 2}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 88a2777f43ed0a34d9b8892472cf71a6,
+        type: 3}
+    - target: {fileID: 114906469154954824, guid: 5da602b22dd14fe49b6a146be7f14acf,
+        type: 2}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 76c905f688d5de64a8b78ec90cbf62c8,
+        type: 3}
+    - target: {fileID: 114906469154954824, guid: 5da602b22dd14fe49b6a146be7f14acf,
+        type: 2}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114196713289687002, guid: 5da602b22dd14fe49b6a146be7f14acf,
+        type: 2}
+      propertyPath: itemAtlas
+      value: 
+      objectReference: {fileID: 2800000, guid: 3091413ee3ae5744586963eb59fcc62d, type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5da602b22dd14fe49b6a146be7f14acf, type: 2}
   m_IsPrefabParent: 0

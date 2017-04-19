@@ -9,7 +9,7 @@ namespace VoxelEngine.Render.BlockRender {
         private MeshBuilder meshData;
         private int meta;
 
-        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             this.meshData = meshData;
             this.meta = meta;
 
@@ -17,7 +17,6 @@ namespace VoxelEngine.Render.BlockRender {
             this.addFace(b, new Vector3(x + 0.5f, y - 0.5f, z + 0.5f), new Vector3(x - 0.5f, y + 0.5f, z - 0.5f), Direction.UP);
             this.addFace(b, new Vector3(x + 0.5f, y - 0.5f, z - 0.5f), new Vector3(x - 0.5f, y + 0.5f, z + 0.5f), Direction.UP);
             this.addFace(b, new Vector3(x - 0.5f, y - 0.5f, z + 0.5f), new Vector3(x + 0.5f, y + 0.5f, z - 0.5f), Direction.UP);
-            return meshData;
         }
 
         // Adds a face to the model

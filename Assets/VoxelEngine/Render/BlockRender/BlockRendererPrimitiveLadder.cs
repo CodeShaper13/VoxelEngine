@@ -8,8 +8,7 @@ namespace VoxelEngine.Render.BlockRender {
 
         private const float f = 0.45f;
 
-        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
-
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             if (meta == 2) {
                 meshData.addQuad(
                     new Vector3(x + 0.5f, y - 0.5f, z - f),
@@ -43,7 +42,6 @@ namespace VoxelEngine.Render.BlockRender {
                     b.getUVs(meta, Direction.WEST, this.uvArray),
                     0);
             }
-            return meshData;
         }
     }
 }

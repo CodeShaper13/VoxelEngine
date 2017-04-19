@@ -119,29 +119,29 @@ namespace VoxelEngine.Render {
 
         public void addBox(Vector3 pos, Vector3 size, Block block, int meta, Vector2[] allocatedUvArray) {
             // Top points.
-            Vector3 p1 = pos + new Vector3(size.x, size.y, size.z);
-            Vector3 p2 = pos + new Vector3(size.x, size.y, -size.z);
-            Vector3 p3 = pos + new Vector3(-size.x, size.y, size.z);
-            Vector3 p4 = pos + new Vector3(-size.x, size.y, -size.z);
+            Vector3 ppp = pos + new Vector3(size.x, size.y, size.z);
+            Vector3 ppn = pos + new Vector3(size.x, size.y, -size.z);
+            Vector3 npp = pos + new Vector3(-size.x, size.y, size.z);
+            Vector3 npn = pos + new Vector3(-size.x, size.y, -size.z);
 
             // Bottom points.
-            Vector3 p5 = pos + new Vector3(size.x, -size.y, size.z);
-            Vector3 p6 = pos + new Vector3(size.x, -size.y, -size.z);
-            Vector3 p7 = pos + new Vector3(-size.x, -size.y, size.z);
-            Vector3 p8 = pos + new Vector3(-size.x, -size.y, -size.z);
+            Vector3 pnp = pos + new Vector3(size.x, -size.y, size.z);
+            Vector3 pnn = pos + new Vector3(size.x, -size.y, -size.z);
+            Vector3 nnp = pos + new Vector3(-size.x, -size.y, size.z);
+            Vector3 nnn = pos + new Vector3(-size.x, -size.y, -size.z);
 
             // Top face.
-            this.addQuad(p1, p2, p4, p3, block.getUVs(meta, Direction.UP, allocatedUvArray), Direction.UP_ID);
+            this.addQuad(npp, ppp, ppn, npn, block.getUVs(meta, Direction.UP, allocatedUvArray), Direction.UP_ID);
             // Bottom face.
-            this.addQuad(p5, p7, p8, p6, block.getUVs(meta, Direction.DOWN, allocatedUvArray), Direction.DOWN_ID);
+            this.addQuad(nnn, pnn, pnp, nnp, block.getUVs(meta, Direction.DOWN, allocatedUvArray), Direction.DOWN_ID);
             // +X face.
-            this.addQuad(p1, p5, p6, p2, block.getUVs(meta, Direction.EAST, allocatedUvArray), Direction.EAST_ID);
+            this.addQuad(pnn, ppn, ppp, pnp, block.getUVs(meta, Direction.EAST, allocatedUvArray), Direction.EAST_ID);
             // +Z face.
-            this.addQuad(p1, p3, p7, p5, block.getUVs(meta, Direction.NORTH, allocatedUvArray), Direction.NORTH_ID);
+            this.addQuad(pnp, ppp, npp, nnp, block.getUVs(meta, Direction.NORTH, allocatedUvArray), Direction.NORTH_ID);
             // -X face.
-            this.addQuad(p3, p4, p8, p7, block.getUVs(meta, Direction.WEST, allocatedUvArray), Direction.WEST_ID);
+            this.addQuad(nnp, npp, npn, nnn, block.getUVs(meta, Direction.WEST, allocatedUvArray), Direction.WEST_ID);
             // -Z face.
-            this.addQuad(p2, p6, p8, p4, block.getUVs(meta, Direction.SOUTH, allocatedUvArray), Direction.SOUTH_ID);
+            this.addQuad(nnn, npn, ppn, pnn, block.getUVs(meta, Direction.SOUTH, allocatedUvArray), Direction.SOUTH_ID);
 
         }
 

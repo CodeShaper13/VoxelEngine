@@ -8,8 +8,9 @@ namespace VoxelEngine.Entities {
     public class EntityItem : Entity, ICollecting {
 
         public ItemStack stack;
-        public float pickupDelay;
 
+        /// <summary> How long until the stack can be picked up or merge with another stack. </summary>
+        private float pickupDelay;
         private MeshFilter filter;
 
         protected new void Awake() {
@@ -58,12 +59,13 @@ namespace VoxelEngine.Entities {
 
         public override void onEntityUpdate() {
             base.onEntityUpdate();
+
             this.transform.Rotate(0, Time.deltaTime * 25, 0);
             this.pickupDelay -= Time.deltaTime;
 
             for (int i = this.world.entityList.Count - 1; i >= 0; i--) {
                 Entity entity = this.world.entityList[i];
-                if (entity != this && entity is ICollecting && this.pickupDelay <= 0 && Vector3.Distance(this.transform.position, entity.transform.position) <= 1f) {
+                if (entity != this && entity is ICollecting && this.pickupDelay <= 0 && Vector3.Distance(this.transform.position, entity.transform.position) <= 0.5f) {
                     if((entity is EntityItem && ((EntityItem)entity).pickupDelay <= 0)) {
                         continue;
                     }

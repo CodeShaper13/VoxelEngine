@@ -10,11 +10,11 @@ namespace VoxelEngine.Blocks {
         public TexturePos[] texturePosArray;
 
         public BlockStone(int id) : base(id) {
-            this.texturePosArray = new TexturePos[] {new TexturePos(0, 4), new TexturePos(1, 4), new TexturePos(2, 4), new TexturePos(3, 4), new TexturePos(4, 4)};
+            this.texturePosArray = new TexturePos[] {new TexturePos(1, 4), new TexturePos(1, 4), new TexturePos(2, 4), new TexturePos(3, 4), new TexturePos(4, 4)};
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
-            return new TexturePos(0, 4); // this.texturePosArray[meta];
+            return this.texturePosArray[meta];
         }
 
         public override string getName(int meta) {

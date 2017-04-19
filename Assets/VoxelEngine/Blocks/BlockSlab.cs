@@ -40,8 +40,35 @@ namespace VoxelEngine.Blocks {
             return new ItemStack [] { new ItemStack(this.asItem(), 0, BlockSlab.isFull(meta) ? 2 : 1) };
         }
 
-        public override TexturePos getTexturePos(Direction direction, int meta) {
-            return this.baseBlock.getTexturePos(direction, meta);
+        public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
+            uvArray = this.baseBlock.getUVs(meta, direction, uvArray);
+
+            // Adjust the uvs for the not full side of a slab.
+            if(!BlockSlab.isFull(meta)) {
+                if(direction.axis != BlockSlab.getDirectionFromMeta(meta).axis) {
+                    if(meta == 0) { // North.
+                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
+                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
+                    } else if(meta == 1) { // East.
+                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
+                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
+                    } else if(meta == 2) { // South.
+                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
+                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
+                    } else if(meta == 3) { // West.
+                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
+                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
+                    } else if(meta == 4) { // Down.
+                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
+                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
+                    } else if(meta == 5) { //Up.
+                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
+                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
+                    }
+                }                
+            }
+
+            return uvArray;
         }
 
         public static bool isFull(int meta) {

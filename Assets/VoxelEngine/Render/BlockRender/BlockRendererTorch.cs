@@ -9,8 +9,7 @@ namespace VoxelEngine.Render.BlockRender {
         public const float SHIFT = 0.35f;
         private const float TORCH_HEIGHT = 0.4f;
 
-        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
-
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             Vector3 offset;
             Quaternion rotation;
             if (meta == 1) { // North
@@ -31,8 +30,6 @@ namespace VoxelEngine.Render.BlockRender {
             }
 
             meshData.addRotatedBox(offset, new Vector3(0.15f, TORCH_HEIGHT, 0.15f), rotation, b, meta, this.uvArray);
-
-            return meshData;
         }
     }
 }

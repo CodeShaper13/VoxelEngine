@@ -5,7 +5,7 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererSlab : BlockRendererPrimitive {
 
-        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             if(BlockSlab.isFull(meta)) {
                 RenderManager.CUBE.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
             } else {
@@ -16,8 +16,6 @@ namespace VoxelEngine.Render.BlockRender {
                     v.z == 0 ? 0.5f : 0.25f);
                 meshData.addBox(new Vector3(x + (v.x / 4), y + (v.y / 4), z + (v.z / 4)), size, b, meta, this.uvArray);
             }
-
-            return meshData;
         }
     }
 }

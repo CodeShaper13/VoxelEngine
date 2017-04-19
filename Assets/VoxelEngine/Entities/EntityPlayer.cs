@@ -300,13 +300,13 @@ namespace VoxelEngine.Entities {
         public void setupFirstTimePlayer() {
             this.containerHotbar.slots[0].setContents(new ItemStack(Block.stoneSlab, 0, 25));
             this.containerHotbar.slots[1].setContents(new ItemStack(Block.torch, 0, 12));
-            this.containerHotbar.slots[2].setContents(new ItemStack(Block.mushroom, 0, 16));
-            this.containerHotbar.slots[3].setContents(new ItemStack(Block.fence, 0, 16));
+            this.containerHotbar.slots[2].setContents(new ItemStack(Item.fishingRod, 0, 16));
+            this.containerHotbar.slots[3].setContents(new ItemStack(Item.bucket, 0, 16));
             this.containerHotbar.slots[4].setContents(new ItemStack(Item.pebble, 0, 16));
-            this.containerHotbar.slots[5].setContents(new ItemStack(Item.magnifyingGlass, 0));
-            this.containerHotbar.slots[6].setContents(new ItemStack(Block.chest, 0, 16));
-            this.containerHotbar.slots[7].setContents(new ItemStack(Block.rail, 0, 16));
-            this.containerHotbar.slots[8].setContents(new ItemStack(Block.mossyBrick, 0, 16));
+            this.containerHotbar.slots[5].setContents(new ItemStack(Item.skull, 0, 25));
+            this.containerHotbar.slots[6].setContents(new ItemStack(Item.rawFish, 0, 16));
+            this.containerHotbar.slots[7].setContents(new ItemStack(Item.bone, 0, 16));
+            this.containerHotbar.slots[8].setContents(new ItemStack(Item.magnifyingGlass, 0, 16));
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
             this.hunger = 75;

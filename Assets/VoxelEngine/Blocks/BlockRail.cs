@@ -48,17 +48,16 @@ namespace VoxelEngine.Blocks {
             bool flag = meta >= 2 && meta <= 5;
             float x = TexturePos.BLOCK_SIZE * (flag ? 1f : 0f);
             float y = TexturePos.BLOCK_SIZE * 13;
-            if(meta == 1) {
-                uvArray[0] = new Vector2(x, y);
-                uvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
-                uvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
-                uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
-            } else {
-                uvArray[1] = new Vector2(x, y);
-                uvArray[2] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
-                uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
-                uvArray[0] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
+
+            uvArray[0] = new Vector2(x, y);
+            uvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
+            uvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
+            uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
+
+            if(meta == 0) {
+                uvArray =  UvHelper.rotateUVs(uvArray, 1);
             }
+
             return uvArray;
         }
 

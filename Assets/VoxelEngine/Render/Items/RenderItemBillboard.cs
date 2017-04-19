@@ -6,55 +6,93 @@ namespace VoxelEngine.Render.Items {
 
     public class RenderItemBillboard : IRenderItem {
 
-        private static Vector3 scale = new Vector3(0.15f, 0.15f, 0.15f);
-        private static Vector3[] verts = new Vector3[] {
-            new Vector3(0.5f, -0.5f, 0),  // Bottom right
-            new Vector3(0.5f, 0.5f, 0),   // Top right
-            new Vector3(-0.5f, 0.5f, 0),  // Top left
-            new Vector3(-0.5f, -0.5f, 0), // Bottom left
-            new Vector3(-0.5f, -0.5f, 0),
-            new Vector3(-0.5f, 0.5f, 0),
-            new Vector3(0.5f, 0.5f, 0),
-            new Vector3(0.5f, -0.5f, 0) };
-        private static int[] tris = new int[] {
-            0, 1, 2,
-            0, 2, 3,
-            4, 5, 6,
-            4, 6, 7 };        
-        private static Vector2[] uv2 = new Vector2[] {
-            new Vector2(0.9375f, 0.9375f),
-            new Vector2(0.9375f, 1),
-            new Vector2(1, 1),
-            new Vector2(1, 0.9375f),
+        private static Vector3 scale = new Vector3(0.2f, 0.2f, 0.2f);
 
-            new Vector2(0.9375f, 0.9375f),
-            new Vector2(0.9375f, 1),
-            new Vector2(1, 1),
-            new Vector2(1, 0.9375f), };
+        public Mesh renderItem(RenderManager rm, Item item, int meta) {
+            MeshBuilder meshBuilder = rm.getMeshBuilder();
+            meshBuilder.lightLevels[0] = 15;
+            TexturePos textPos = item.getItemTexturePos(meta);
 
-        public Mesh renderItem(Item item, int meta) {
-            float x = TexturePos.ITEM_SIZE * item.texturePos.x;
-            float y = TexturePos.ITEM_SIZE * item.texturePos.y;
+            // Add the front and back.
+            float zOffset = TexturePos.ITEM_SIZE / 2;
+            meshBuilder.addQuad(
+                new Vector3(0.5f, -0.5f, zOffset), // Bottom right
+                new Vector3(0.5f, 0.5f, zOffset),   // Top right
+                new Vector3(-0.5f, 0.5f, zOffset),  // Top left
+                new Vector3(-0.5f, -0.5f, zOffset), // Bottom left
+                this.getUvs(item, textPos),
+                0);
+            meshBuilder.addQuad(
+                new Vector3(-0.5f, -0.5f, -zOffset),
+                new Vector3(-0.5f, 0.5f, -zOffset),
+                new Vector3(0.5f, 0.5f, -zOffset),
+                new Vector3(0.5f, -0.5f, -zOffset),
+                this.getUvs(item, textPos),
+                0);
 
-            Vector2[] uvArray = new Vector2[8];
-            for(int i = 0; i < 5; i += 4) {
-                uvArray[i]      = new Vector2(x, y);
-                uvArray[i + 1]  = new Vector2(x, y + TexturePos.ITEM_SIZE);
-                uvArray[i + 2]  = new Vector2(x + TexturePos.ITEM_SIZE, y + TexturePos.ITEM_SIZE);
-                uvArray[i + 3]  = new Vector2(x + TexturePos.ITEM_SIZE, y);
+            // Add the side pixels
+            int startX = textPos.x * 32;
+            int startY = textPos.y * 32;
+            Texture2D atlas = References.list.itemAtlas;
+            Vector2[] pixelUvs = new Vector2[4];
+            for(int x = 1; x < 31; x++) {
+                for(int y = 1; y < 31; y++) {
+                    // Right.
+                    if(this.getSidePixel(atlas, startX + x + 1, startY + y, ref pixelUvs)) {
+                        meshBuilder.addQuad(
+                            new Vector2(),
+                            new Vector2(),
+                            new Vector2(),
+                            new Vector2(),
+                            pixelUvs,
+                            0);
+                    }
+                    // Left.
+                    if (this.getSidePixel(atlas, startX + x - 1, startY + y, ref pixelUvs)) {
+
+                    }
+                    // Up.
+                    if (this.getSidePixel(atlas, startX + x, startY + y + 1, ref pixelUvs)) {
+
+                    }
+                    // Down.
+                    if (this.getSidePixel(atlas, startX + x, startY + y - 1, ref pixelUvs)) {
+                    }
+                }
             }
-
-            Mesh m = new Mesh();
-            m.vertices = RenderItemBillboard.verts;
-            m.triangles = RenderItemBillboard.tris;
-            m.uv = uvArray;
-            m.uv2 = RenderItemBillboard.uv2;
-
-            return m;
+            return meshBuilder.toMesh();
         }
 
         public Matrix4x4 getMatrix(Vector3 pos) {
             return Matrix4x4.TRS(pos, Quaternion.identity, RenderItemBillboard.scale);
+        }
+
+        private bool getSidePixel(Texture2D atlas, int x, int y, ref Vector2[] pixelUvs) {
+            Color c = atlas.GetPixel(x, y);
+            if(c.a == 0) { // Transparent pixel.
+                float px = x * TexturePos.ITEM_PIXEL_SIZE;
+                float py = y * TexturePos.ITEM_PIXEL_SIZE;
+                pixelUvs[0] = new Vector2(px, py);
+                pixelUvs[1] = new Vector2(px, py + TexturePos.ITEM_PIXEL_SIZE);
+                pixelUvs[2] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py + TexturePos.ITEM_PIXEL_SIZE);
+                pixelUvs[3] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py);
+                return true;
+            }
+
+            return false;
+        }
+
+        private Vector2[] getUvs(Item item, TexturePos textPos) {
+            float x = TexturePos.ITEM_SIZE * textPos.x;
+            float y = TexturePos.ITEM_SIZE * textPos.y;
+
+            Vector2[] uvArray = new Vector2[4];
+            uvArray[0] = new Vector2(x, y);
+            uvArray[1] = new Vector2(x, y + TexturePos.ITEM_SIZE);
+            uvArray[2] = new Vector2(x + TexturePos.ITEM_SIZE, y + TexturePos.ITEM_SIZE);
+            uvArray[3] = new Vector2(x + TexturePos.ITEM_SIZE, y);
+
+            return uvArray;
         }
     }
 }

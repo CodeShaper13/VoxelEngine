@@ -10,6 +10,8 @@ namespace VoxelEngine {
         public Material blockMaterial;
         public Material itemMaterial;
 
+        // Textures.
+        public Texture2D itemAtlas;
         public Texture2D lightColorSheet;
 
         // Other prefabs

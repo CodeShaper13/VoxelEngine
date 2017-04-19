@@ -5,26 +5,31 @@ using VoxelEngine.Items;
 
 namespace VoxelEngine.Containers {
 
-    [Serializable]
     public class ItemStack {
 
+        /// <summary> The maximum size of a stack.  Used by both EntityItem and containers to know how large a stack can be. </summary>
         public const int MAX_SIZE = 32;
 
         public Item item;
         public int meta;
         public int count;
 
-        public ItemStack(Item i, int meta = 0, int count = 1) {
-            this.item = i;
+        public ItemStack(Item item, int meta = 0, int count = 1) {
+            this.item = item;
             this.meta = meta;
             this.count = count;
         }
 
         public ItemStack(Block block, int meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
 
-        // Copies a stack
+        /// <summary>
+        /// Creates a copy of the passed stack.
+        /// </summary>
         public ItemStack(ItemStack stack) : this(stack.item, stack.meta, stack.count) { }
 
+        /// <summary>
+        /// Creates a stack from a saved NbtCompound.
+        /// </summary>
         public ItemStack(NbtCompound tag) {
             this.item = Item.ITEM_LIST[tag.Get<NbtInt>("id").IntValue];
             this.meta = tag.Get<NbtByte>("meta").ByteValue;

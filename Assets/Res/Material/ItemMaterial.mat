@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: ItemMaterial
-  m_Shader: {fileID: 4800000, guid: dc44172e70fb8e54185ebea9892e9a06, type: 3}
+  m_Shader: {fileID: 4800000, guid: b147a82edfe69914b8aa032c8e10025e, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
@@ -17,6 +17,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _CutTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _LightMapTex:
         m_Texture: {fileID: 2800000, guid: 9ea577bdfcdb2e940b84d0327ef5af87, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -25,6 +29,8 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3091413ee3ae5744586963eb59fcc62d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - _Cutoff: 0.5
     m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _LightColor: {r: 1, g: 1, b: 1, a: 0}

@@ -19,6 +19,7 @@ namespace VoxelEngine.Render {
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
         public static BlockRenderer SLAB = new BlockRendererSlab();
+        public static BlockRenderer FLUID = new BlockRendererFluid();
 
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
@@ -55,7 +56,7 @@ namespace VoxelEngine.Render {
                 if (item != null) {
                     item.preRenderedMeshes = new Mesh[item.getStatesUsed()];
                     for (int j = 0; j < item.preRenderedMeshes.Length; j++) {
-                        item.preRenderedMeshes[j] = item.itemRenderer.renderItem(item, j);
+                        item.preRenderedMeshes[j] = item.itemRenderer.renderItem(this, item, j);
                     }
                 }
             }

@@ -23,10 +23,12 @@ namespace VoxelEngine.Entities.Player {
             this.ps = this.transform.GetChild(0).GetComponent<ParticleSystem>();
         }
 
-        //Beging the breaking of a block
+        /// <summary>
+        /// Begins the breaking of a block.
+        /// </summary>
         public void beginBreak(World world, int x, int y, int z, Block block, int meta) {
             this.meshRenderer.enabled = true;
-            MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
+            MeshBuilder meshBuilder = RenderManager.instance.getMeshBuilder();
 
             BlockRenderer renderer = block.renderer;
             if(renderer != null && renderer.bakeIntoChunks) {
@@ -35,7 +37,8 @@ namespace VoxelEngine.Entities.Player {
                     Direction d = Direction.all[i];
                     surroundingBlocks[i] = world.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z);
                 }
-                this.meshFilter.mesh = renderer.renderBlock(block, meta, meshData, 0, 0, 0, new bool[6] { true, true, true, true, true, true }, surroundingBlocks).toMesh();
+                renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, new bool[6] { true, true, true, true, true, true }, surroundingBlocks);
+                this.meshFilter.mesh = meshBuilder.toMesh();
             }
 
             this.transform.position = new Vector3(x, y, z);

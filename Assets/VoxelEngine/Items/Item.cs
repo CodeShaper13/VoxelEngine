@@ -14,12 +14,12 @@ namespace VoxelEngine.Items {
 
         public static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
 
-        public static Item pebble = new ItemThrowable(256).setName("Pebble").setTexture(1, 0);
-        public static Item coal = new Item(257).setName("Coal").setTexture(0, 0);
+        public static Item pebble = new ItemThrowable(256).setName("Throwing Rock").setTexture(1, 0);
+        public static Item coal = new Item(257).setName("Coal Lump").setTexture(0, 0);
         public static Item bronzeBar = new Item(258).setName("Bronze Bar").setTexture(0, 1);
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
         public static Item goldBar = new Item(260).setName("Gold Bar").setTexture(0, 3);
-        public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 4);
+        public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
         public static Item uranium = new Item(262).setName("Uranium").setTexture(0, 5);
         public static Item bronzePickaxe = new ItemTool(263, 1.25f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Bronze Pickaxe").setTexture(2, 0);
         public static Item bronzeShovel = new ItemTool(264, 1.25f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Bronze Shovel").setTexture(3, 0);
@@ -35,6 +35,11 @@ namespace VoxelEngine.Items {
         public static Item flowerItem = new Item(274).setName("Flower").setTexture(1, 3);
         public static Item magnifyingGlass = new ItemMagnifyingGlass(275).setName("Magnifying Glass").setTexture(1, 4);
         public static Item food = new ItemFood(276, 25, 5).setName("Food").setTexture(0, 0);
+        public static Item bone = new Item(277).setName("Bone").setTexture(0, 6);
+        public static Item skull = new Item(278).setName("Skull").setTexture(1, 6);
+        public static Item rawFish = new Item(279).setName("Raw Fish").setTexture(2, 6);
+        public static Item bucket = new Item(280).setName("Bucket").setTexture(1, 2);
+        public static Item fishingRod = new Item(281).setName("Fishing Pole").setTexture(1, 5);
         public static Item bronzeHelmet;
         public static Item bronzeChestplate;
         public static Item ironHelmet;
@@ -61,6 +66,9 @@ namespace VoxelEngine.Items {
             this.setRenderer(Item.RENDER_BILLBOARD);
         }
 
+        /// <summary>
+        /// Callback for when the player clicks while holding this item.  Return the passed in item stack.
+        /// </summary>
         public virtual ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             return stack;
         }
@@ -69,8 +77,18 @@ namespace VoxelEngine.Items {
             return 1;
         }
 
+        /// <summary>
+        /// Returns the items name based on it's meta.
+        /// </summary>
         public virtual string getName(int meta) {
             return this.name;
+        }
+
+        /// <summary>
+        /// Returns the correct TexturePos for an item.
+        /// </summary>
+        public virtual TexturePos getItemTexturePos(int meta) {
+            return this.texturePos;
         }
 
         public Mesh getPreRenderedMesh(int meta) {
@@ -80,8 +98,7 @@ namespace VoxelEngine.Items {
             } else {
                 return this.preRenderedMeshes[meta];
             }
-        }
-        
+        }        
 
         public Item setName(string name) {
             this.name = name;

@@ -22,7 +22,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.westBounds = new Bounds(new Vector3(-0.35f, 0, 0), new Vector3(0.3f, 1f, 0.1f));
         }
 
-        public override MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             meshData.useRenderDataForCol = false;
             meshData.addColliderBox(this.postBounds, x, y, z);
 
@@ -87,8 +87,6 @@ namespace VoxelEngine.Render.BlockRender {
             this.addCrossPiece(surroundingBlocks[1], meshData, x, y, z, 0.5f,  0,     this.eastBounds);
             this.addCrossPiece(surroundingBlocks[2], meshData, x, y, z, 0,     -0.5f, this.southBounds);
             this.addCrossPiece(surroundingBlocks[3], meshData, x, y, z, -0.5f, 0,     this.westBounds);
-
-            return meshData;
         }
 
         private void addCrossPiece(Block surroundingBlock, MeshBuilder meshData, int x, int y, int z, float xAxis, float zAxis, Bounds bounds) {

@@ -9,7 +9,7 @@ namespace VoxelEngine.Render.BlockRender {
         /// <summary> If true, adjacent light level will be looked up and passes into the MeshData. </summary>
         public EnumLightLookup lookupAdjacentLight = EnumLightLookup.CURRENT;
 
-        public abstract MeshBuilder renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
+        public abstract void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
 
         public BlockRenderer setRenderInWorld(bool flag) {
             this.bakeIntoChunks = flag;

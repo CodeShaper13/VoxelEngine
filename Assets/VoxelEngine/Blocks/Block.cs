@@ -9,22 +9,28 @@ using VoxelEngine.Render.BlockRender;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
+
+    /// <summary>
+    /// Base class for any block in the game.  You should never directly create any new block instances, use the static references below.
+    /// </summary>
     public class Block {
 
         public static Block[] BLOCK_LIST = new Block[256];
 
+        [Obsolete("Remember to update the placeholder with the correct block")]
+        public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(0, 0);
+
         public static Block air = new BlockAir(0).setName("Air").setTransparent().setReplaceable().setRenderer(null);
         public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(4);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
-        public static Block gravel = new Block(3).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
-        public static Block lava = new BlockLava(4).setName("Lava").setTexture(0, 12).setReplaceable();//.setSolid(false);
+        public static Block grass = new BlockGrass(3).setName("grass").setMineTime(0.15f);
+        public static Block gravel = new Block(4).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
         public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
         public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
         public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
         public static Block goldOre = new BlockOre(8, Item.goldBar, 8).setName("Gold Ore").setMineTime(0).setType(Type.STONE);
         public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
         public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
-        public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
         public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setEmittedLight(3); // TODO Debuging light
         public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom");
         public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom");
@@ -39,18 +45,20 @@ namespace VoxelEngine.Blocks {
         public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(RenderManager.RAIL);//.setRenderFlat();
         public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE);
         public static Block plank = new Block(34).setName("Plank");
-        public static Block stoneSlab = new BlockSlab(35, Block.dirt);
+        public static Block wood = new BlockWood(36).setName("Log").setStatesUsed(3);
+        public static Block stoneSlab = new BlockSlab(35, Block.wood);
+        public static Block leaves = new Block(37).setName("Leaves").setTexture(0, 1).setTransparent();
+        public static Block water = new BlockFluid(38).setName("Water").setTexture(0, 12).setRenderer(RenderManager.FLUID);
+        public static Block lava = new BlockFluid(39).setName("Lava").setTexture(1, 12).setRenderer(RenderManager.FLUID).setEmittedLight(5);
+
         public static Block moss;
         public static Block root;
         public static Block flower;
         public static Block door;
 
-        public static Block grass = new BlockGrass(100).setName("grass").setMineTime(0.15f);
-        public static Block wood = new BlockWood(101).setName("log").setStatesUsed(3);
+        public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
 
-        [Obsolete("Remember to update the placeholder with the correct block")]
-        public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(15, 15);
-
+        /// <summary> The blocks id, there will never be duplicate. </summary>
         public int id = 0;
         public string name = "null";
         /// <summary> In seconds how long it takes to mine the block. </summary>
@@ -104,11 +112,19 @@ namespace VoxelEngine.Blocks {
             return false;
         }
 
+        /// <summary>
+        /// Called when a block is placed in World.setBlock().
+        /// </summary>
         public virtual void onPlace(World world, BlockPos pos, int meta) { }
 
-        //Called when the block is removed from World.setBlock()
-        public virtual void onDestroy(World world, BlockPos pos, int meta) {}
+        /// <summary>
+        /// Called right before a block is removed from World.setBlock(). Used by TileEntities to remove itself from the chunk and provide cleanup.
+        /// </summary>
+        public virtual void onDestroy(World world, BlockPos pos, int meta) { }
 
+        /// <summary>
+        /// Returns the name of a block.  Override if a block changes name based on meta.
+        /// </summary>
         public virtual string getName(int meta) {
             return this.name;
         }
@@ -124,10 +140,16 @@ namespace VoxelEngine.Blocks {
             return this.getName(meta);
         }
 
+        /// <summary>
+        /// Returns the correct TexturePos for a block.
+        /// </summary>
         public virtual TexturePos getTexturePos(Direction direction, int meta) {
             return this.texturePos;
         }
 
+        /// <summary>
+        /// Returns an array of uvs to use for the corresponding face of a block.
+        /// </summary>
         public virtual Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
             TexturePos tilePos = this.getTexturePos(direction, meta);
             float x = TexturePos.BLOCK_SIZE * tilePos.x;
@@ -146,6 +168,10 @@ namespace VoxelEngine.Blocks {
             return meta;
         }
 
+        /// <summary>
+        /// Called by item block to determin if the block trying to be placed is in a vlid spot,
+        /// stops torches from going on non solid blocks, like fences, etc...
+        /// </summary>
         public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
             return true;
         }
@@ -213,11 +239,17 @@ namespace VoxelEngine.Blocks {
             return this;
         }
 
-
+        /// <summary>
+        /// Returns the Block as an item, it will be an instance of ItemBlock.
+        /// </summary>
+        /// <returns></returns>
         public Item asItem() {
             return Item.ITEM_LIST[this.id];
         }
 
+        /// <summary>
+        /// Returns the block with the corresponding id.
+        /// </summary>
         public static Block getBlock(int id) {
             return (Block.BLOCK_LIST[id] != null || id > Block.BLOCK_LIST.Length) ? Block.BLOCK_LIST[id] : Block.air;
         }

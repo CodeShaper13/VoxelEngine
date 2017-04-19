@@ -29,7 +29,6 @@ namespace VoxelEngine {
 
         public Text textDebug;
 
-        [HideInInspector]
         public GuiScreen currentGui;
 
         public ContainerManager containerManager;
@@ -75,7 +74,7 @@ namespace VoxelEngine {
                         this.player.contManager.closeContainer(this.player);
                     } else {
                         if(this.currentGui != null) {
-                            this.openGuiScreen(this.currentGui.getEscapeCallback());
+                            this.currentGui.onEscape();
                         } else {
                             if(!this.isPaused) {
                                 this.pauseGame();
@@ -114,6 +113,7 @@ namespace VoxelEngine {
         }
 
         public void resumeGame() {
+            this.currentGui = null;
             this.isPaused = false;
             this.player.fpc.enabled = true;
             Main.hideMouse(true);
