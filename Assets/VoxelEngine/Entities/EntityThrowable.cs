@@ -5,9 +5,10 @@ namespace VoxelEngine.Entities {
 
     public class EntityThrowable : Entity {
 
-        protected new void Awake() {
-            base.Awake();
+        protected override void onConstruct() {
+            base.onConstruct();
 
+            // Set the entity's mesh.
             this.GetComponent<MeshFilter>().mesh = Item.pebble.getPreRenderedMesh(0);
         }
 
@@ -20,7 +21,7 @@ namespace VoxelEngine.Entities {
             this.world.killEntity(this);
         }
 
-        public override byte getEntityId() {
+        public override int getEntityId() {
             return 3;
         }
     }

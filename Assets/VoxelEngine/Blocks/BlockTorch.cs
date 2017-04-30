@@ -13,6 +13,8 @@ namespace VoxelEngine.Blocks {
         public BlockTorch(int id) : base(id) {
             this.setRenderer(RenderManager.TORCH);
             this.setEmittedLight(7);
+            this.setTransparent();
+            this.setType(Type.WOOD);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
@@ -23,7 +25,8 @@ namespace VoxelEngine.Blocks {
         }
 
         public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
-            return (clickedDirNormal != Direction.DOWN) && world.getBlock(pos.move(clickedDirNormal.getOpposite())).isSolid;
+            Block clickedBlock = world.getBlock(pos.move(clickedDirNormal.getOpposite()));
+            return ((clickedDirNormal != Direction.DOWN) && clickedBlock.isSolid) ||(clickedDirNormal == Direction.UP && (clickedBlock == Block.fence || clickedBlock == Block.ironFence));
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {

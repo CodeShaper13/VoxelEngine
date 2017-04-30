@@ -125,8 +125,12 @@ namespace VoxelEngine.Containers {
         private void renderHeldItem() {
             if (this.heldStack != null) {
                 Vector3 mousePosition = this.hudCamera.orthoCamera.ScreenToWorldPoint(Input.mousePosition);
-                Vector3 v = this.hudCamera.orthoCamera.ScreenToViewportPoint(Input.mousePosition);
-                this.heldTextName.transform.localPosition = new Vector3((v.x - 0.5f) * 800, (v.y - 0.5f) * 600);
+                //Vector3 v = this.hudCamera.orthoCamera.ScreenToViewportPoint(Input.mousePosition);
+                //this.heldTextName.transform.localPosition = new Vector3((v.x - 0.5f) * 800, (v.y - 0.5f) * 600);
+
+                //Vector3 mousePosition = this.hudCamera.orthoCamera.ScreenToWorldPoint(Input.mousePosition);
+
+                this.heldTextName.transform.localPosition = this.hudCamera.orthoCamera.ScreenToViewportPoint(Input.mousePosition);
 
                 RenderHelper.renderStack(this.heldStack, mousePosition);
             }

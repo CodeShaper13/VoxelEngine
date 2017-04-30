@@ -13,10 +13,14 @@ namespace VoxelEngine.Entities {
         private float pickupDelay;
         private MeshFilter filter;
 
-        protected new void Awake() {
-            base.Awake();
+        protected override void onConstruct() {
+            base.onConstruct();
+
             this.filter = this.GetComponent<MeshFilter>();
             this.pickupDelay = 2f;
+
+            this.setHealth(10);
+            this.setShadow(0.6f, 0.75f);
         }
 
         protected new void Start() {
@@ -63,15 +67,20 @@ namespace VoxelEngine.Entities {
             this.transform.Rotate(0, Time.deltaTime * 25, 0);
             this.pickupDelay -= Time.deltaTime;
 
+            // Loop through every entity that implements ICollecting, is not this and is within range.
+            ICollecting iCollecting;
+            Entity otherEntity;
             for (int i = this.world.entityList.Count - 1; i >= 0; i--) {
-                Entity entity = this.world.entityList[i];
-                if (entity != this && entity is ICollecting && this.pickupDelay <= 0 && Vector3.Distance(this.transform.position, entity.transform.position) <= 0.5f) {
-                    if((entity is EntityItem && ((EntityItem)entity).pickupDelay <= 0)) {
-                        continue;
-                    }
-                    if (((ICollecting)entity).tryPickupStack(this.stack) == null) {
-                        this.world.killEntity(this);
-                        break;
+                otherEntity = this.world.entityList[i];
+                if(otherEntity != this && otherEntity is ICollecting) {
+                    iCollecting = (ICollecting)otherEntity;
+                    if(Vector3.Distance(this.transform.position, otherEntity.transform.position) <= iCollecting.getPickupRadius()) {
+                        if (this.pickupDelay <= 0) {
+                            if (iCollecting.tryPickupStack(this.stack) == null) {
+                                this.world.killEntity(this);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -81,7 +90,7 @@ namespace VoxelEngine.Entities {
             return "An item, bumping into it will let you pick it up.";
         }
 
-        public override byte getEntityId() {
+        public override int getEntityId() {
             return 2;
         }
 
@@ -99,13 +108,21 @@ namespace VoxelEngine.Entities {
         }
 
         public ItemStack tryPickupStack(ItemStack stack) {
+            if(this.pickupDelay > 0) {
+                return stack;
+            }
             if(this.stack.equals(stack)) {
+                // Stacks are the same, we might be able to merge.
                 ItemStack leftover = this.stack.merge(stack);
                 this.calculateMesh(false);
                 return leftover;
             } else {
                 return stack;
             }
+        }
+
+        public float getPickupRadius() {
+            return 0.5f;
         }
     }
 }

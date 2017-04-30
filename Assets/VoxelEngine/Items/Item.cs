@@ -3,6 +3,7 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Render.Items;
 using VoxelEngine.Util;
 
@@ -20,33 +21,35 @@ namespace VoxelEngine.Items {
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
         public static Item goldBar = new Item(260).setName("Gold Bar").setTexture(0, 3);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
-        public static Item uranium = new Item(262).setName("Uranium").setTexture(0, 5);
-        public static Item bronzePickaxe = new ItemTool(263, 1.25f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Bronze Pickaxe").setTexture(2, 0);
-        public static Item bronzeShovel = new ItemTool(264, 1.25f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Bronze Shovel").setTexture(3, 0);
-        public static Item bronzeSword = new ItemSword(265, 2).setName("Bronze Sword").setTexture(4, 0);
-        public static Item ironPickaxe = new ItemTool(266, 1.5f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Iron Pickaxe").setTexture(2, 1);
-        public static Item ironShovel = new ItemTool(267, 1.5f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Iron Shovel").setTexture(3, 1);
-        public static Item ironSword = new ItemSword(268, 4).setName("Iron Sword").setTexture(4, 1);
-        public static Item goldPickaxe = new ItemTool(269, 2f, ItemTool.ToolType.PICKAXE, Block.Type.STONE).setName("Gold Pickaxe").setTexture(2, 2);
-        public static Item goldShovel = new ItemTool(270, 2f, ItemTool.ToolType.SHOVEL, Block.Type.DIRT).setName("Gold Shovel").setTexture(3, 2);
-        public static Item goldSword = new ItemSword(271, 5).setName("Gold Sword").setTexture(4, 2);
-        public static Item glassShard = new Item(272).setName("Glass Shard").setTexture(1, 1);
-        public static Item glorbDust = new Item(273).setName("Glorb Dust").setTexture(1, 2);
-        public static Item flowerItem = new Item(274).setName("Flower").setTexture(1, 3);
-        public static Item magnifyingGlass = new ItemMagnifyingGlass(275).setName("Magnifying Glass").setTexture(1, 4);
-        public static Item food = new ItemFood(276, 25, 5).setName("Food").setTexture(0, 0);
-        public static Item bone = new Item(277).setName("Bone").setTexture(0, 6);
-        public static Item skull = new Item(278).setName("Skull").setTexture(1, 6);
-        public static Item rawFish = new Item(279).setName("Raw Fish").setTexture(2, 6);
+        public static Item pickaxe = new ItemTool(262, 1.25f, EnumToolType.PICKAXE, Block.Type.STONE).setName("Pickaxe").setTexture(2, 0);
+        public static Item shovel = new ItemTool(263, 1.25f, EnumToolType.SHOVEL, Block.Type.DIRT).setName("Shovel").setTexture(3, 0);
+        public static Item axe = new ItemTool(264, 1.25f, EnumToolType.AXE, Block.Type.WOOD).setName("Axe");
+        public static Item knife = new ItemSword(265, 2).setName("Hunting Knife").setTexture(4, 0);
+        public static Item pistol; // 266
+        public static Item shotgun; // 267
+        public static Item rifle; // 268
+        public static Item glassShard = new Item(269).setName("Glass Shard").setTexture(1, 1);
+        public static Item flowerItem = new Item(270).setName("Flower").setTexture(1, 3);
+        public static Item bone = new Item(271).setName("Bone").setTexture(0, 6);
+        public static Item skull = new Item(272).setName("Skull").setTexture(1, 6);
+        public static Item rawFish = new Item(273).setName("Raw Fish").setTexture(2, 6);
+        public static Item cookedFish = new ItemFood(274, 10, 1).setName("Cooked Fish").setTexture(0, 0);
+        public static Item corn = new ItemFood(275, 25, 5).setName("Corn").setTexture(2, 3);
+        public static Item flesh = new ItemFood(276, 25, 5).setName("Flesh").setTexture(2, 2);
+        public static Item mushroom = new ItemFood(277, 25, 5).setName("Mushroom").setTexture(0, 0);
+        public static Item stew = new ItemFood(278, 25, 5).setName("Stew").setTexture(0, 0);
+        public static Item carrot = new ItemFood(279, 25, 5).setName("Carrot").setTexture(2, 1);
         public static Item bucket = new Item(280).setName("Bucket").setTexture(1, 2);
         public static Item fishingRod = new Item(281).setName("Fishing Pole").setTexture(1, 5);
-        public static Item bronzeHelmet;
-        public static Item bronzeChestplate;
-        public static Item ironHelmet;
-        public static Item ironChestplate;
-        public static Item goldHelmet;
-        public static Item goldChestplate;
+        public static Item magnifyingGlass = new ItemMagnifyingGlass(282).setName("Magnifying Glass").setTexture(1, 4);
         public static Item minecart;
+        public static Item topHat;
+        public static Item goggles;
+        public static Item pilotHat;
+        public static Item trenchCoat;
+        public static Item vest;
+        public static Item combatBoots;
+        public static Item smellyBoots;
 
         public int id = 256;
         private string name = "null";
@@ -91,6 +94,32 @@ namespace VoxelEngine.Items {
             return this.texturePos;
         }
 
+        /// <summary>
+        /// Renders the item in the players hand.  Override for special held renderings.
+        /// </summary>
+        public virtual void renderAsHeldItem(int meta, int count, Transform handTransfrom) {
+            MutableTransform mt = this.getHandTransform();
+            Matrix4x4 matrix = Matrix4x4.TRS(
+                handTransfrom.position + mt.position + new Vector3(),
+                handTransfrom.rotation * mt.rotation,
+                mt.scale);
+            Graphics.DrawMesh(this.getPreRenderedMesh(meta), matrix, RenderManager.getMaterial(this.id), 0, null, 0, null, false, false);
+        }
+
+        /// <summary>
+        /// Returns the MutableTransfrom to use when rendering an item in a container.
+        /// </summary>
+        public virtual MutableTransform getContainerTransfrom() {
+            return new MutableTransform(Vector3.zero, Quaternion.identity, new Vector3(0.2f, 0.2f, 0.2f));
+        }
+
+        /// <summary>
+        /// Returns the mutable transfrom to use when the item is held in the players hand.
+        /// </summary>
+        public virtual MutableTransform getHandTransform() {
+            return new MutableTransform(new Vector3(0, 0, 0), Quaternion.Euler(0, -106, -2), new Vector3(0.2f, 0.2f, 0.2f));
+        }
+
         public Mesh getPreRenderedMesh(int meta) {
             if(meta >= this.preRenderedMeshes.Length) {
                 Debug.Log("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta);
@@ -115,7 +144,9 @@ namespace VoxelEngine.Items {
             return this;
         }
 
-        // Creates item versions of all the blocks
+        /// <summary>
+        /// Creates item versions of all the blocks.
+        /// </summary>
         public static void initBlockItems() {
             foreach (Block b in Block.BLOCK_LIST) {
                 if (b != null) {
@@ -124,5 +155,11 @@ namespace VoxelEngine.Items {
                 }
             }
         }
+
+        /// <summary>
+        /// Creates item versions of all the blocks.
+        /// </summary>
+
+
     }
 }

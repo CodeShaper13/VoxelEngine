@@ -17,46 +17,46 @@ namespace VoxelEngine.Blocks {
 
         public static Block[] BLOCK_LIST = new Block[256];
 
-        [Obsolete("Remember to update the placeholder with the correct block")]
-        public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(0, 0);
-
         public static Block air = new BlockAir(0).setName("Air").setTransparent().setReplaceable().setRenderer(null);
         public static Block stone = new BlockStone(1).setMineTime(1f).setTexture(0, 0).setType(Type.STONE).setStatesUsed(4);
         public static Block dirt = new Block(2).setName("Dirt").setMineTime(0.15f).setTexture(1, 0).setType(Type.DIRT);
-        public static Block grass = new BlockGrass(3).setName("grass").setMineTime(0.15f);
+        public static Block grass = new BlockGrass(3).setName("grass").setMineTime(0.15f).setType(Type.DIRT);
         public static Block gravel = new Block(4).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(Type.DIRT);
-        public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0).setType(Type.STONE);
-        public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0).setType(Type.STONE);
-        public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0).setType(Type.STONE);
-        public static Block goldOre = new BlockOre(8, Item.goldBar, 8).setName("Gold Ore").setMineTime(0).setType(Type.STONE);
-        public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0).setType(Type.STONE);
-        public static Block uraniumOre = new BlockOre(10, Item.uranium, 10).setName("Uranium Ore").setMineTime(0).setType(Type.STONE);
-        public static Block mushroom = new BlockMushroom(12, 4).setName("Mushroom").setEmittedLight(3); // TODO Debuging light
-        public static Block mushroom2 = new BlockMushroom(13, 5).setName("Mushroom");
-        public static Block healingMushroom = new BlockMushroom(14, 6).setName("Healshroom");
-        public static Block poisonMushroom = new BlockMushroom(15, 7).setName("Deathshroom");
-        public static Block mossyBrick = new Block(16).setName("Brick").setMineTime(0.5f).setTexture(2, 11).setType(Type.STONE);
-        public static Block cable = new Block(17).setName("Cable");
-        public static Block ironGrate = new Block(18).setName("Iron Grate").setType(Type.STONE);
-        public static Block chest = new BlockChest(19).setName("Chest").setTransparent();
-        public static Block lantern = new BlockLantern(20).setName("Lanturn").setTransparent().setRenderAsItem(1, 1);
-        public static Block torch = new BlockTorch(21).setName("Torch").setTransparent();
-        public static Block ladder = new BlockLadder(22).setName("Ladder");
-        public static Block rail = new BlockRail(32).setName("Rail").setTransparent().setRenderer(RenderManager.RAIL);//.setRenderFlat();
-        public static Block fence = new Block(33).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE);
-        public static Block plank = new Block(34).setName("Plank");
-        public static Block wood = new BlockWood(36).setName("Log").setStatesUsed(3);
-        public static Block stoneSlab = new BlockSlab(35, Block.wood);
-        public static Block leaves = new Block(37).setName("Leaves").setTexture(0, 1).setTransparent();
-        public static Block water = new BlockFluid(38).setName("Water").setTexture(0, 12).setRenderer(RenderManager.FLUID);
-        public static Block lava = new BlockFluid(39).setName("Lava").setTexture(1, 12).setRenderer(RenderManager.FLUID).setEmittedLight(5);
+        public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0);
+        public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0);
+        public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0);
+        public static Block goldOre = new BlockOre(8, Item.goldBar, 8).setName("Gold Ore").setMineTime(0);
+        public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0);
+        public static Block water = new BlockFluid(10).setName("Water").setTexture(0, 12).setRenderer(RenderManager.FLUID);
+        public static Block lava = new BlockFluid(11).setName("Lava").setTexture(1, 12).setRenderer(RenderManager.FLUID).setEmittedLight(5);
+        public static Block cornCrop = new BlockCrop(12, Item.corn, 3, 5, 7).setName("Corn");
+        public static Block carrotCrop = new BlockCrop(13, Item.carrot, 2, 4, 3).setName("Carrots");
+        public static Block mushroom = new BlockMushroom(14, 4).setName("Mushroom");
+        public static Block chest = new BlockChest(16).setName("Chest");
+        public static Block lantern = new BlockLantern(17).setName("Lanturn").setRenderAsItem(1, 1);
+        public static Block torch = new BlockTorch(18).setName("Torch");
+        public static Block ladder = new BlockLadder(19).setName("Ladder").setType(Type.WOOD);
+        public static Block fence = new Block(20).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE).setType(Type.WOOD);
+        public static Block ironFence = new Block(21).setName("Iron Fence").setType(Type.STONE);
+        public static Block plank = new Block(22).setName("Wood Plank").setTexture(5, 0).setType(Type.WOOD);
+        public static Block plankSlab = new BlockSlab(23, Block.plank);
+        public static Block plankStair; // 24
+        public static Block brick = new Block(25).setName("Brick").setTexture(5, 1).setType(Type.STONE);
+        public static Block brickSlab = new BlockSlab(26, Block.brick);
+        public static Block brickStair; // 27
+        public static Block wood = new BlockWood(28).setName("Log").setStatesUsed(3).setType(Type.WOOD);
+        public static Block leaves = new Block(29).setName("Leaves").setTexture(0, 1).setTransparent();
+        public static Block cobblestone = new Block(30).setName("Cobblestone").setTexture(5, 2).setType(Type.STONE);
+        public static Block roof = new Block(31).setName("Roof").setType(Type.WOOD).setTexture(5, 3);
+        public static Block roofSlab = new BlockSlab(32, Block.roof);
+        public static Block roodStair; // 33
+        public static Block glass = new Block(34).setName("Glass").setTransparent().setTexture(3, 1);
+        public static Block rail = new BlockRail(35).setName("Rail").setTransparent().setRenderer(RenderManager.RAIL);
+        public static Block door; // 36
+        public static Block farmland = new BlockFarmland(37).setName("Farmland");
 
-        public static Block moss;
-        public static Block root;
-        public static Block flower;
-        public static Block door;
-
-        public static Block glorb = new BlockGlorb(11).setName("Glorb").setTexture(1, 11).setType(Type.STONE).setMineTime(1);
+        [Obsolete("Remember to update the placeholder with the correct block")]
+        public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(0, 0);
 
         /// <summary> The blocks id, there will never be duplicate. </summary>
         public int id = 0;
@@ -248,16 +248,17 @@ namespace VoxelEngine.Blocks {
         }
 
         /// <summary>
-        /// Returns the block with the corresponding id.
+        /// Returns the block with the corresponding id, or air if the block could not be found.
         /// </summary>
-        public static Block getBlock(int id) {
-            return (Block.BLOCK_LIST[id] != null || id > Block.BLOCK_LIST.Length) ? Block.BLOCK_LIST[id] : Block.air;
+        public static Block getBlockFromId(int id) {
+            return (id > 0 && id < Block.BLOCK_LIST.Length && Block.BLOCK_LIST[id] != null) ? Block.BLOCK_LIST[id] : Block.air;
         }
 
         public enum Type {
-            NORMAL,
-            STONE,
-            DIRT
+            NORMAL = 0,
+            STONE = 1,
+            DIRT = 2,
+            WOOD = 3
         }
     }
 }

@@ -31,6 +31,7 @@ namespace VoxelEngine.Render {
             this.lightUvs = new List<Vector2>(65536);
             this.lightLevels = new int[7];
             this.cachedColliderPoints = new int[36];
+            this.useRenderDataForCol = true;
         }
 
         public void addVertex(Vector3 vertex) {

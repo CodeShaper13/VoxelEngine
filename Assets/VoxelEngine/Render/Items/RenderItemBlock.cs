@@ -17,9 +17,5 @@ namespace VoxelEngine.Render.Items {
             block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderItemBlock.TRUE_ARRAY, RenderItemBlock.AIR_ARRAY);
             return meshBuilder.toMesh();
         }
-
-        public Matrix4x4 getMatrix(Vector3 pos) {
-            return Matrix4x4.TRS(pos, Quaternion.Euler(-9.2246f, 45.7556f, -9.346399f), new Vector3(0.125f, 0.125f, 0.125f));
-        }
     }
 }

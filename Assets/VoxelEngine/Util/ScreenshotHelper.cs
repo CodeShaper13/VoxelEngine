@@ -8,6 +8,9 @@ namespace VoxelEngine.Util {
 
         private static string screenshotDirectoryName = "screenshots/";
 
+        /// <summary>
+        /// Takes a screenshot.  When no path is passes, the default screenshot directory is used.
+        /// </summary>
         public static void captureScreenshot(string screenshotPath = null) {
             if (screenshotPath == null) {
                 string time = DateTime.Now.ToString();

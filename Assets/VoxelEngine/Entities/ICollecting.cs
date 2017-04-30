@@ -8,5 +8,7 @@ namespace VoxelEngine.Entities {
     public interface ICollecting {
 
         ItemStack tryPickupStack(ItemStack stack);
+
+        float getPickupRadius();
     }
 }

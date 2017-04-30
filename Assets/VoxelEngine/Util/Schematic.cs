@@ -106,7 +106,7 @@ namespace VoxelEngine.Util {
             this.schematicName = tag.Get<NbtString>("name").StringValue;
             byte[] blockBytes = tag.Get<NbtByteArray>("blocks").ByteArrayValue;
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                this.blocks[i] = Block.getBlock(blockBytes[i]);
+                this.blocks[i] = Block.getBlockFromId(blockBytes[i]);
             }
             this.metaData = tag.Get<NbtByteArray>("meta").ByteArrayValue;
         }

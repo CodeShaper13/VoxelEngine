@@ -12,7 +12,9 @@ namespace VoxelEngine.Containers {
         private ContainerData data;
         private EntityPlayer player;
 
-        // Called when the container is opened
+        /// <summary>
+        /// Called when the container is opened.
+        /// </summary>
         public virtual void onOpen(ContainerData data, EntityPlayer player) {
             this.data = data;
             this.player = player;
@@ -24,7 +26,19 @@ namespace VoxelEngine.Containers {
             }
         }
 
-        // Called every frame to render the items in the container
+        /// <summary>
+        /// Called when the container is closed for any reason.
+        /// </summary>
+        public virtual void onClose() {
+            //TODO we need a reference to the tile entity that this belongs to, to the te knows when the container is closed
+            for (int i = 0; i < this.slots.Length; i++) {
+                this.data.items[i] = this.slots[i].getContents();
+            }
+        }
+
+        /// <summary>
+        /// Called every frame to render the items in the container.
+        /// </summary>
         public void renderContents() {
             ItemStack stack;
             Transform trans;
@@ -37,16 +51,14 @@ namespace VoxelEngine.Containers {
             }
         }
 
-        // Called when the container is closed for any reason
-        public virtual void onClose() {
-            //TODO we need a reference to the tile entity that this belongs to, to the te knows when the container is closed
-            for (int i = 0; i < this.slots.Length; i++) {
-                this.data.items[i] = this.slots[i].getContents();
-            }
-        }
-
-        // Adds the passed stack to the hotbar, returning any we couldn't pick up
+        /// <summary>
+        /// Adds the passed stack to the container, returning any we couldn't add.
+        /// </summary>
         public ItemStack addItemStack(ItemStack stack) {
+            if(stack == null) {
+                return null;
+            }
+
             Slot slot;
             //First try to fill up any slots that already have items
             for (int i = 0; i < this.slots.Length; i++) {

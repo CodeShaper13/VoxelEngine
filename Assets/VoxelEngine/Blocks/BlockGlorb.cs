@@ -15,9 +15,11 @@ namespace VoxelEngine.Blocks {
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
+            /*
             if (brokenWith != null && brokenWith.toolType == ItemTool.ToolType.PICKAXE) {
                 return new ItemStack[] { new ItemStack(Item.glorbDust) };
             }
+            */
             return new ItemStack[0];
         }
     }

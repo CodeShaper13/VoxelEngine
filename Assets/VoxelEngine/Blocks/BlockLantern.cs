@@ -10,6 +10,7 @@ namespace VoxelEngine.Blocks {
         public BlockLantern(int id) : base(id) {
             this.setRenderer(RenderManager.LANTERN);
             this.setEmittedLight(12);
+            this.setTransparent();
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {

@@ -14,12 +14,22 @@ namespace VoxelEngine.Containers.Data {
             this.items = new ItemStack[this.width * this.height];
         }
 
+        /// <summary>
+        /// Returns the stack at (x, y).
+        /// </summary>
         public ItemStack getStack(int x, int y) {
             return this.items[x + this.width * y];
         }
 
+        /// <summary>
+        /// Sets the stack at (x, y).
+        /// </summary>
         public void setStack(int x, int y, ItemStack stack) {
             this.items[x + this.width * y] = stack;
+        }
+
+        public ItemStack[] getRawItemArray() {
+            return this.items;
         }
 
         public virtual NbtCompound writeToNbt(NbtCompound tag) {

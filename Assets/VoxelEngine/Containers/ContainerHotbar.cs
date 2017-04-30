@@ -8,25 +8,30 @@ namespace VoxelEngine.Containers {
     public class ContainerHotbar : Container {
 
         public FadeText itemName;
+        /// <summary> The selected index. </summary>
         public int index;
 
         public override void onOpen(ContainerData data, EntityPlayer player) {
             base.onOpen(data, player);
             this.scroll(0);
         }
-         // Scrolls the hotbar index in the passes direction
+
+        /// <summary>
+        /// Scrolls the hotbar index in the passed direction.
+        /// </summary>
         public void scroll(int scrollDirection) {
             int newIndex = this.index + scrollDirection;
             if (newIndex > 8) {
                 newIndex = 0;
-            }
-            if (newIndex < 0) {
+            } else if (newIndex < 0) {
                 newIndex = 8;
             }
             this.setSelected(newIndex);
         }
 
-        // Sets the passed index to be the selected one, updating slot sizes and held text
+        /// <summary>
+        /// Sets the passed index to be the selected one, updating slot sizes and held text.
+        /// </summary>
         public void setSelected(int index) {
             this.slots[this.index].transform.localScale = Vector3.one;
             this.index = index;
@@ -34,18 +39,24 @@ namespace VoxelEngine.Containers {
             this.updateHudItemName();
         }
 
-        // Updates the hud name with the current held item
+        /// <summary>
+        /// Updates the hud name with the current held item.
+        /// </summary>
         public void updateHudItemName() {
             ItemStack stack = this.getHeldItem();
             this.itemName.showAndStartFade(stack == null ? string.Empty : stack.item.getName(stack.meta), 1.5f);
         }
 
-        // Helper method to get the currently held item
+        /// <summary>
+        /// Helper method to get the currently held item.
+        /// </summary>
         public ItemStack getHeldItem() {
             return this.slots[this.index].getContents();
         }
 
-        // Helper method to set the currently held item
+        /// <summary>
+        /// Helper method to set the currently held item.
+        /// </summary>
         public void setHeldItem(ItemStack stack) {
             this.slots[this.index].setContents(stack);
         }

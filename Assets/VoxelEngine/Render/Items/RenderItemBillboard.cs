@@ -6,21 +6,20 @@ namespace VoxelEngine.Render.Items {
 
     public class RenderItemBillboard : IRenderItem {
 
-        private static Vector3 scale = new Vector3(0.2f, 0.2f, 0.2f);
-
         public Mesh renderItem(RenderManager rm, Item item, int meta) {
             MeshBuilder meshBuilder = rm.getMeshBuilder();
             meshBuilder.lightLevels[0] = 15;
             TexturePos textPos = item.getItemTexturePos(meta);
+            float halfPixelSize = 0.015625f;
 
             // Add the front and back.
-            float zOffset = TexturePos.ITEM_SIZE / 2;
+            float zOffset = halfPixelSize;
             meshBuilder.addQuad(
                 new Vector3(0.5f, -0.5f, zOffset), // Bottom right
                 new Vector3(0.5f, 0.5f, zOffset),   // Top right
                 new Vector3(-0.5f, 0.5f, zOffset),  // Top left
                 new Vector3(-0.5f, -0.5f, zOffset), // Bottom left
-                this.getUvs(item, textPos),
+                UvHelper.mirrorUvsX(this.getUvs(item, textPos)),
                 0);
             meshBuilder.addQuad(
                 new Vector3(-0.5f, -0.5f, -zOffset),
@@ -31,57 +30,88 @@ namespace VoxelEngine.Render.Items {
                 0);
 
             // Add the side pixels
-            int startX = textPos.x * 32;
-            int startY = textPos.y * 32;
+            int pixelStartX = textPos.x * 32;
+            int pixelStartY = textPos.y * 32;
             Texture2D atlas = References.list.itemAtlas;
             Vector2[] pixelUvs = new Vector2[4];
-            for(int x = 1; x < 31; x++) {
-                for(int y = 1; y < 31; y++) {
-                    // Right.
-                    if(this.getSidePixel(atlas, startX + x + 1, startY + y, ref pixelUvs)) {
-                        meshBuilder.addQuad(
-                            new Vector2(),
-                            new Vector2(),
-                            new Vector2(),
-                            new Vector2(),
-                            pixelUvs,
-                            0);
-                    }
-                    // Left.
-                    if (this.getSidePixel(atlas, startX + x - 1, startY + y, ref pixelUvs)) {
+            float pixelOrginX, pixelOrginY;
 
-                    }
-                    // Up.
-                    if (this.getSidePixel(atlas, startX + x, startY + y + 1, ref pixelUvs)) {
+            for(int x = 1; x < 32; x++) {
+                for(int y = 1; y < 32; y++) {
+                    if(atlas.GetPixel(pixelStartX + x, pixelStartY + y).a != 0) { // Solid pixel.
+                        pixelOrginX = (x - 15) * (halfPixelSize * 2) - halfPixelSize;
+                        pixelOrginY = (y - 15) * (halfPixelSize * 2) - halfPixelSize;
 
-                    }
-                    // Down.
-                    if (this.getSidePixel(atlas, startX + x, startY + y - 1, ref pixelUvs)) {
+                        // Right/+X
+                        if (this.func(atlas, pixelStartX + x, pixelStartY + y, 1, 0, ref pixelUvs)) {
+                            meshBuilder.addQuad(
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY - halfPixelSize, 0 - halfPixelSize),
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY + halfPixelSize, 0 - halfPixelSize),
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY + halfPixelSize, 0 + halfPixelSize),
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY - halfPixelSize, 0 + halfPixelSize),
+                                pixelUvs,
+                                0);
+                        }
+                        // Left/-X
+                        if (this.func(atlas, pixelStartX + x, pixelStartY + y, -1, 0, ref pixelUvs)) {
+                            meshBuilder.addQuad(
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY - halfPixelSize, 0 + halfPixelSize),
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY + halfPixelSize, 0 + halfPixelSize),
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY + halfPixelSize, 0 - halfPixelSize),
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY - halfPixelSize, 0 - halfPixelSize),
+                                pixelUvs,
+                                0);
+                        }
+                        // Up/+Y
+                        if (this.func(atlas, pixelStartX + x, pixelStartY + y, 0, 1, ref pixelUvs)) {
+                            meshBuilder.addQuad(
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY + halfPixelSize, 0 - halfPixelSize),
+                                new Vector3(pixelOrginX - halfPixelSize, pixelOrginY + halfPixelSize, 0 + halfPixelSize),
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY + halfPixelSize, 0 + halfPixelSize),
+                                new Vector3(pixelOrginX + halfPixelSize, pixelOrginY + halfPixelSize, 0 - halfPixelSize),
+                                pixelUvs,
+                                0);
+                        }
+                        // Down/-Y
+                        if (this.func(atlas, pixelStartX + x, pixelStartY + y, 0, -1, ref pixelUvs)) {
+                            meshBuilder.addQuad(
+                               new Vector3(pixelOrginX - halfPixelSize, pixelOrginY - halfPixelSize, 0 + halfPixelSize),
+                               new Vector3(pixelOrginX - halfPixelSize, pixelOrginY - halfPixelSize, 0 - halfPixelSize),
+                               new Vector3(pixelOrginX + halfPixelSize, pixelOrginY - halfPixelSize, 0 - halfPixelSize),
+                               new Vector3(pixelOrginX + halfPixelSize, pixelOrginY - halfPixelSize, 0 + halfPixelSize),
+                               pixelUvs,
+                               0);
+                        }
                     }
                 }
             }
+
             return meshBuilder.toMesh();
         }
 
-        public Matrix4x4 getMatrix(Vector3 pos) {
-            return Matrix4x4.TRS(pos, Quaternion.identity, RenderItemBillboard.scale);
-        }
-
-        private bool getSidePixel(Texture2D atlas, int x, int y, ref Vector2[] pixelUvs) {
-            Color c = atlas.GetPixel(x, y);
+        /// <summary>
+        /// Checks if an adjacent pixel is transparent, and if so returns true and populates pixelUvs with uvs for the orgin pixel.
+        /// </summary>
+        private bool func(Texture2D textureAtlas, int x, int y, int shiftX, int shiftY, ref Vector2[] pixelUvs) {
+            Color c = textureAtlas.GetPixel(x + shiftX, y + shiftY);
             if(c.a == 0) { // Transparent pixel.
                 float px = x * TexturePos.ITEM_PIXEL_SIZE;
                 float py = y * TexturePos.ITEM_PIXEL_SIZE;
+                
                 pixelUvs[0] = new Vector2(px, py);
                 pixelUvs[1] = new Vector2(px, py + TexturePos.ITEM_PIXEL_SIZE);
                 pixelUvs[2] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py + TexturePos.ITEM_PIXEL_SIZE);
                 pixelUvs[3] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py);
+                
                 return true;
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Returns the uvs for an item's front and back.
+        /// </summary>
         private Vector2[] getUvs(Item item, TexturePos textPos) {
             float x = TexturePos.ITEM_SIZE * textPos.x;
             float y = TexturePos.ITEM_SIZE * textPos.y;

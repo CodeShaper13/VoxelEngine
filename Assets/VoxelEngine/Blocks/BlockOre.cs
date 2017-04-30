@@ -12,12 +12,13 @@ namespace VoxelEngine.Blocks {
         public BlockOre(int id, Item drop, int textureY) : base(id) {
             this.droppedItem = drop;
             this.textureY = textureY;
+            this.setType(Type.STONE);
             this.setStatesUsed(5);
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             ItemStack stack;
-            if (brokenWith != null && brokenWith.toolType == ItemTool.ToolType.PICKAXE) {
+            if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
                 stack = new ItemStack(this.droppedItem);
             }
             else {

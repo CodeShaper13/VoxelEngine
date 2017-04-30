@@ -49,5 +49,16 @@ namespace VoxelEngine.Items {
         public override string getName(int meta) {
             return this.block.getName(meta);
         }
+
+        public override MutableTransform getContainerTransfrom() {
+            return new MutableTransform(Vector3.zero, Quaternion.Euler(-9.2246f, 45.7556f, -9.346399f), new Vector3(0.125f, 0.125f, 0.125f));
+        }
+
+        public override MutableTransform getHandTransform() {
+            return new MutableTransform(
+                Vector3.zero,
+                Quaternion.Euler(-9.2246f, 45.7556f, -9.346399f),
+                new Vector3(0.075f, 0.075f, 0.075f));
+        }
     }
 }

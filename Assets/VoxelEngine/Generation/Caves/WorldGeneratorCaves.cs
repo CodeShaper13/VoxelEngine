@@ -102,7 +102,7 @@ namespace VoxelEngine.Generation.Caves {
                 }
             }
 
-            chunk.setBlock(rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), Block.uraniumOre);
+            //chunk.setBlock(rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), Block.uraniumOre);
 
             this.generateRubyPatch(chunk, rnd.Next(0, Chunk.SIZE - 2), rnd.Next(0, Chunk.SIZE - 2), rnd.Next(0, Chunk.SIZE - 2), rnd);
 

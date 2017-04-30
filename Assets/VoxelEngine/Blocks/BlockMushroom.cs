@@ -1,4 +1,6 @@
-﻿using VoxelEngine.Level;
+﻿using VoxelEngine.Containers;
+using VoxelEngine.Items;
+using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
 
@@ -13,6 +15,10 @@ namespace VoxelEngine.Blocks {
             this.setMineTime(0.1f);
             this.setRenderer(RenderManager.MUSHROOM);
             this.setStatesUsed(4);
+        }
+
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
+            return new ItemStack[] { new ItemStack(Item.mushroom, 0, 1) };
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {

@@ -14,6 +14,8 @@ namespace VoxelEngine.Blocks {
 
         public BlockChest(byte id) : base(id) {
             this.setRenderer(RenderManager.CHEST);
+            this.setTransparent();
+            this.setType(Type.WOOD);
         }
 
         public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
@@ -44,7 +46,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
-            ItemStack[] contents = ((TileEntityChest)world.getTileEntity(pos)).chestData.items;
+            ItemStack[] contents = ((TileEntityChest)world.getTileEntity(pos)).chestData.getRawItemArray();
 
             List<ItemStack> list = new List<ItemStack>();
             list.Add(new ItemStack(Block.chest));

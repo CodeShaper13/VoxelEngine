@@ -10,7 +10,7 @@ namespace VoxelEngine.Render {
         public static RenderManager instance;
 
         public static BlockRenderer CUBE = new BlockRendererPrimitiveCube();
-        public static BlockRenderer CROSS = new BlockRendererPrimitiveCross();
+        public static BlockRenderer CROSS = new BlockRendererCorn();
         public static BlockRenderer RAIL = new BlockRendererPrimitiveRail();
         public static BlockRenderer FENCE = new BlockRendererPrimitiveFence();
         public static BlockRenderer LADDER = new BlockRendererPrimitiveLadder();

@@ -75,7 +75,7 @@ namespace VoxelEngine.ChunkLoaders {
                         chunk = chunkGameObject.GetComponent<Chunk>();
                     }
 
-                    chunk.transform.position = new Vector3(chunkPos.x * 16, chunkPos.y * 16, chunkPos.z * 16);
+                    chunk.transform.position = new Vector3(chunkPos.x * Chunk.SIZE, chunkPos.y * Chunk.SIZE, chunkPos.z * Chunk.SIZE);
                     chunk.isDirty = true;
 
                     this.world.loadChunk(chunk, chunkPos);

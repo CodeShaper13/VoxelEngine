@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Blocks;
+﻿using UnityEngine.Profiling;
+using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
@@ -59,6 +60,13 @@ namespace Assets.VoxelEngine.Render {
         }
 
         public Block getBlock(int x, int y, int z) {
+            IChunk c = this.getChunk(x, y, z);
+            Profiler.BeginSample("Ternary");
+            x += (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            y += (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            z += (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            Profiler.EndSample();
+            return c.getBlock(x, y, z);
             /*
             if (x < 0) {
                 x += Chunk.SIZE;
@@ -88,11 +96,6 @@ namespace Assets.VoxelEngine.Render {
                 return this.cachedChunks[0].getBlock(x, y, z);
             }
             */
-            IChunk c = this.getChunk(x, y, z);
-            x += (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
-            y += (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
-            z += (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
-            return c.getBlock(x, y, z);
         }
 
         public int getLight(int x, int y, int z) {

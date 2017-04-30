@@ -5,6 +5,9 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.ChunkLoaders {
 
+    /// <summary>
+    /// Unused a broken!
+    /// </summary>
     public class ChunkMap {
         public int radius;
         public int size;

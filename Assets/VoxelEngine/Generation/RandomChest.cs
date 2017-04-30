@@ -41,7 +41,7 @@ namespace VoxelEngine.Generation {
 
         public void makeChest(World world, int x, int y, int z, Direction chestDirection, System.Random rnd) {
             world.setBlock(x, y, z, Block.chest, BlockChest.getMetaFromDirection(chestDirection));
-            this.generateChestContents(((TileEntityChest)world.getTileEntity(x, y, z)).chestData, rnd);
+            this.generateChestContents(((TileEntityChest)world.getTileEntity(new BlockPos(x, y, z))).chestData, rnd);
         }
 
         public void generateChestContents(ContainerData data, Random rnd) {

@@ -5,6 +5,7 @@ namespace VoxelEngine.Render {
     public class HudCamera : MonoBehaviour {
 
         /// <summary> Reference to the attached camera </summary>
+        [HideInInspector]
         public Camera orthoCamera;
 
         private void Awake() {

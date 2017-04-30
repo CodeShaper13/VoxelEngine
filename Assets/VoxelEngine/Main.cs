@@ -2,6 +2,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using VoxelEngine.Command;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Generation;
@@ -13,6 +14,7 @@ using VoxelEngine.Util;
 namespace VoxelEngine {
 
     public class Main : MonoBehaviour {
+
         public static Main singleton;
 
         [HideInInspector]
@@ -28,19 +30,27 @@ namespace VoxelEngine {
         public EntityPlayer player;
 
         public Text textDebug;
+        public Transform textWindowRoot;
 
+        [HideInInspector]
         public GuiScreen currentGui;
 
+        public TextWindow textWindow;
+        public CommandManager commandManager;
         public ContainerManager containerManager;
-        public FpsCounter fpsCounter;
+        private FpsCounter fpsCounter;
 
         private void Awake() {
             Main.singleton = this;
 
             // Make sure the singleton reference is set.
-            this.GetComponent<References>().initReferences();
+            this.GetComponent<References>().loadResources();
 
+            this.textWindow = new TextWindow(this.textWindowRoot);
+            new EntityRegistry().registerEntities();
             new RenderManager();
+
+            this.commandManager = new CommandManager();
 
             this.fpsCounter = new FpsCounter();
         }
@@ -48,7 +58,7 @@ namespace VoxelEngine {
         private void Start() {
             this.containerManager = new ContainerManager();
 
-            this.openGuiScreen(GuiManager.title);
+            //this.openGuiScreen(GuiManager.title);
 
             //Debug instant world generation
             string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
@@ -57,11 +67,15 @@ namespace VoxelEngine {
 
         private void Update() {
             if (this.worldObj != null && this.player != null) {
+                // Playing the game.
+
                 if (Input.GetKeyDown(KeyCode.F1)) {
                     this.isDeveloperMode = !this.isDeveloperMode;
+                    this.textWindow.logMessage("Developer Mode is now " + (this.isDeveloperMode ? "ON" : "OFF"));
                 }
                 if (Input.GetKeyDown(KeyCode.F2)) {
                     ScreenshotHelper.captureScreenshot();
+                    this.textWindow.logMessage("Captured screenshot");
                 }
                 if (Input.GetKeyDown(KeyCode.F3)) {
                     this.showDebugText = !this.showDebugText;
@@ -69,21 +83,27 @@ namespace VoxelEngine {
                         this.textDebug.text = string.Empty;
                     }
                 }
+                if(Input.GetKeyDown(KeyCode.Slash)) {
+                    if(!this.containerManager.isContainerOpen() && this.currentGui == null && !this.textWindow.isOpen) {
+                        this.textWindow.openWindow();
+                    }
+                }
                 if (Input.GetKeyDown(KeyCode.Escape)) {
-                    if (this.player.contManager.isContainerOpen()) {
-                        this.player.contManager.closeContainer(this.player);
-                    } else {
-                        if(this.currentGui != null) {
-                            this.currentGui.onEscape();
-                        } else {
-                            if(!this.isPaused) {
-                                this.pauseGame();
-                            }
-                        }
+                    if (this.textWindow.isOpen) {
+                        this.textWindow.closeWindow();
+                    }
+                    else if (this.containerManager.isContainerOpen()) {
+                        this.containerManager.closeContainer(this.player);
+                    }
+                    else if(this.currentGui != null) {
+                        this.currentGui.onEscape();
+                    }
+                    else if(!this.isPaused) {
+                        this.pauseGame();
                     }
                 }
 
-                if (!this.isPaused && player.health > 0 && !this.containerManager.isContainerOpen()) {
+                if (!this.isPaused && player.health > 0 && !this.containerManager.isContainerOpen() && !this.textWindow.isOpen) {
                     this.player.handleInput();
                 }
 
@@ -93,18 +113,28 @@ namespace VoxelEngine {
 
                 this.fpsCounter.updateCounter();
 
-                //Update debug text
+                //Update debug text.
                 if (this.showDebugText) {
                     this.textDebug.text = this.getDebugText();
                 }
+
+                // Draw held item.
+                ItemStack stack = this.player.containerHotbar.getHeldItem();
+                if (stack != null) {
+                    stack.item.renderAsHeldItem(stack.meta, stack.count, this.player.handTransfrom);
+                }
             } else {
+                // Menu screens.
                 if (Input.GetKeyDown(KeyCode.Escape)) {
                     this.openGuiScreen(this.currentGui.getEscapeCallback());
                 }
             }
         }
 
-        private void pauseGame() {
+        /// <summary>
+        /// Pauses the game and handles the blocking of input.
+        /// </summary>
+        public void pauseGame() {
             this.isPaused = true;
             this.player.fpc.enabled = false;
             Main.hideMouse(false);
@@ -112,6 +142,9 @@ namespace VoxelEngine {
             this.openGuiScreen(GuiManager.paused);
         }
 
+        /// <summary>
+        /// Resumes the game.
+        /// </summary>
         public void resumeGame() {
             this.currentGui = null;
             this.isPaused = false;
@@ -131,6 +164,9 @@ namespace VoxelEngine {
             this.currentGui.setVisible(true);
         }
 
+        /// <summary>
+        /// Returns the debug text to display.
+        /// </summary>
         public string getDebugText() {
             StringBuilder s = new StringBuilder();
             s.Append("FPS: " + this.fpsCounter.currentFps);
@@ -140,33 +176,43 @@ namespace VoxelEngine {
             int meta = this.worldObj.getMeta(p);
             s.Append("\nLooking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString());
             s.Append("\nLooking at Light: " + this.worldObj.getLight(p.x, p.y, p.z));
-            s.Append("\n" + this.worldObj.worldData.worldName + " Seed: " + this.worldObj.worldData.seed);
-            s.Append("\nPress F3 to toggle");
+            s.Append("\nPress F3 to toggle debug info");
             return s.ToString();
         }
 
+        /// <summary>
+        /// Creates a new world and loads it.
+        /// </summary>
         public void generateWorld(WorldData data) {
-            //this.openGuiScreen(this.waitingScreen);
-            //this.data = data;
             this.worldObj = GameObject.Instantiate(References.list.worldPrefab).GetComponent<World>();
             this.worldObj.initWorld(data);
 
-            this.currentGui.setVisible(false);
+            if(this.currentGui != null) {
+                this.currentGui.setVisible(false);
+            }
             this.currentGui = null;
-            this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
+            this.player = this.worldObj.spawnPlayer(EntityRegistry.player.prefab);
             Main.hideMouse(true);
         }
 
-        //public void onWorldLoadFinish() {
-        //    this.currentGui.setActive(false);
-        //    this.currentGui = null;
-        //    this.player = this.worldObj.spawnPlayer(EntityList.singleton.playerPrefab);
-        //    Main.setMouseLock(true);
-        //}
-
+        /// <summary>
+        /// Toggles the mouse visibility.  True means it is hidden and can't move.
+        /// </summary>
+        /// <param name="flag"></param>
         public static void hideMouse(bool flag) {
             Cursor.visible = !flag;
             Cursor.lockState = flag ? CursorLockMode.Locked : CursorLockMode.None;
+        }
+
+        /// <summary>
+        /// Used by the text window input field.
+        /// </summary>
+        public void callbackTextWindowChange(string text) {
+            //TODO tab auto complete.
+        }
+
+        public void callbackTextWindowEnter(string text) {
+            this.textWindow.onEnter(text);
         }
     }
 }

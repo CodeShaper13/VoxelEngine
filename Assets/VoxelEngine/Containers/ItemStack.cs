@@ -90,5 +90,9 @@ namespace VoxelEngine.Containers {
             tag.Add(new NbtInt("count", this.count));
             return tag;
         }
+
+        public override string ToString() {
+            return "(Item: " + this.item.getName(this.meta) + ":" + this.meta + " x " + this.count + ")";
+        }
     }
 }
