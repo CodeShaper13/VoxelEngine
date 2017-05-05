@@ -13,14 +13,10 @@ using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Level;
 using VoxelEngine.GUI.Effect;
-using VoxelEngine.Render;
 
 namespace VoxelEngine.Entities {
 
     public class EntityPlayer : Entity, ICollecting {
-
-        [HideInInspector]
-        public float reach = 4f;
 
         // References
         public FadeText magnifyingText;
@@ -95,21 +91,6 @@ namespace VoxelEngine.Entities {
             this.chunkLoader.updateChunkLoader();
 
             /*
-            //TODO this can be optimized, when held is null it is called every frame
-            if (this.lastHeldItem == null || (this.lastHeldItem != null && heldStack != null && !this.lastHeldItem.equals(heldStack))) {
-                bool isHoldingLight = false;
-                if (heldStack != null && heldStack.item is ItemBlock) {
-                    Block b = ((ItemBlock)heldStack.item).block;
-                    if(b is ILightSource) {
-                        this.copyLightData(((ILightSource)b).getPrefab());
-                        isHoldingLight = true;
-                    }
-                }
-                this.lightObj.enabled = isHoldingLight;
-                this.lightObj.lightObj.enabled = isHoldingLight;
-            }
-            */
-
             // Update hunger
             this.hunger -= Time.deltaTime * 0.25f;
             this.hungerSlider.value = this.hunger;
@@ -121,8 +102,7 @@ namespace VoxelEngine.Entities {
                     this.hungerDamageTimer = 0f;
                 }
             }
-
-            //this.lastHeldItem = heldStack;
+            */
         }
 
         public override void setHealth(int amount) {
@@ -178,8 +158,7 @@ namespace VoxelEngine.Entities {
         }
 
         public ItemStack tryPickupStack(ItemStack stack) {
-            ItemStack leftover = this.containerHotbar.addItemStack(stack);
-            return ContainerManager.containerInventory.addItemStack(leftover);
+            return this.dataInventory.addItemStack(this.dataHotbar.addItemStack(stack));
         }
 
         public float getPickupRadius() {
@@ -202,7 +181,8 @@ namespace VoxelEngine.Entities {
                     if (Input.GetMouseButtonDown(1)) {
                         if (!playerHit.hitState.block.onRightClick(this.world, this, heldStack, this.posLookingAt, playerHit.hitState.meta, playerHit.getClickedBlockFace())) {
                             if (heldStack != null) {
-                                this.containerHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
+                                ItemStack clickResult = heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
+                                this.containerHotbar.setHeldItem(clickResult);
                             }
                         }
                     }
@@ -246,9 +226,11 @@ namespace VoxelEngine.Entities {
                 }
             }
 
+            /*
             if(Input.GetKeyDown(KeyCode.Y)) {
                 this.damage(30, "Test");
             }
+            */
 
             if (Input.GetKeyDown(KeyCode.Q)) {
                 ItemStack toDrop = null;
@@ -306,15 +288,16 @@ namespace VoxelEngine.Entities {
         /// Configures a first time player, setting the starting inventory and the default health.
         /// </summary>
         public void setupFirstTimePlayer() {
-            this.containerHotbar.slots[0].setContents(new ItemStack(Block.torch, 0, 25));
-            this.containerHotbar.slots[1].setContents(new ItemStack(Block.stone, 0, 12));
-            this.containerHotbar.slots[2].setContents(new ItemStack(Item.fishingRod, 0, 16));
-            this.containerHotbar.slots[3].setContents(new ItemStack(Item.bucket, 0, 16));
-            this.containerHotbar.slots[4].setContents(new ItemStack(Item.corn, 0, 1));
-            this.containerHotbar.slots[5].setContents(new ItemStack(Item.skull, 0, 25));
-            this.containerHotbar.slots[6].setContents(new ItemStack(Item.carrot, 0, 1));
-            this.containerHotbar.slots[7].setContents(new ItemStack(Item.bone, 0, 1));
-            this.containerHotbar.slots[8].setContents(new ItemStack(Item.flesh, 0, 1));
+            this.dataHotbar.items[0] = new ItemStack(Block.rail, 0, 25);
+            this.dataHotbar.items[1] = new ItemStack(Block.ladder, 0, 12);
+            this.dataHotbar.items[2] = new ItemStack(Block.mushroom, 0, 16);
+            this.dataHotbar.items[3] = new ItemStack(Item.bucket, 0, 16);
+            this.dataHotbar.items[4] = new ItemStack(Item.corn, 0, 1);
+            this.dataHotbar.items[5] = new ItemStack(Item.skull, 0, 25);
+            this.dataHotbar.items[6] = new ItemStack(Item.carrot, 0, 1);
+            this.dataHotbar.items[7] = new ItemStack(Item.bone, 0, 1);
+            this.dataHotbar.items[8] = new ItemStack(Item.flesh, 0, 1);
+
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
             this.hunger = 75;
@@ -325,7 +308,7 @@ namespace VoxelEngine.Entities {
         /// </summary>
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
-            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.reach);
+            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach());
 
             if(rayHit) {
                 // We are looking at something
@@ -379,6 +362,10 @@ namespace VoxelEngine.Entities {
                     items[i] = null;
                 }
             }
+        }
+
+        public float getReach() {
+            return 3f;
         }
     }
 }

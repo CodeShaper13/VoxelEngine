@@ -5,6 +5,7 @@ using VoxelEngine.Items;
 
 namespace VoxelEngine.Containers {
 
+    [Serializable]
     public class ItemStack {
 
         /// <summary> The maximum size of a stack.  Used by both EntityItem and containers to know how large a stack can be. </summary>

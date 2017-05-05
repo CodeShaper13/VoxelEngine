@@ -7,15 +7,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 using VoxelEngine.Blocks;
+using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
 using VoxelEngine.Render;
-using VoxelEngine.Render.BlockRender;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Level {
 
-    public class Chunk : MonoBehaviour, IChunk {
+    public class Chunk : MonoBehaviour {
 
         public const int SIZE = 15;
         public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
@@ -38,6 +38,8 @@ namespace VoxelEngine.Level {
         public bool isDirty;
         /// <summary> If true, the population world gen phase has been done. </summary>
         public bool isPopulated;
+        /// <summary> If true, the chunk should not be rendered and is ment to read from only </summary>
+        public bool isReadOnly;
 
         public void Awake() {
             this.filter = this.GetComponent<MeshFilter>();
@@ -49,55 +51,59 @@ namespace VoxelEngine.Level {
             this.metaData = new byte[Chunk.BLOCK_COUNT];
             this.lightLevel = new byte[Chunk.BLOCK_COUNT];
             this.tileEntityDict = new Dictionary<BlockPos, TileEntityBase>();
-            //this.scheduledTicks = new List<ScheduledTick>();
         }
 
         /// <summary>
         /// Acts like a constructor of a chunk.
         /// </summary>
-        public void initChunk(World w, ChunkPos pos) {
+        public void initChunk(World w, NewChunkInstructions instructions) {
             this.world = w;
-            this.pos = pos.toBlockPos();
-            this.chunkPos = pos;
-            this.gameObject.name = "Chunk" + this.chunkPos;
-            this.chunkBounds = new Bounds(new Vector3(this.pos.x + 8, this.pos.y + 8, this.pos.z + 8), new Vector3(16, 16, 16));
+            this.pos = instructions.chunkPos.toBlockPos();
+            this.chunkPos = instructions.chunkPos;
+            this.setReadOnly(instructions.isReadOnly);
+            float radius = (float)Chunk.SIZE / 2;
+            this.chunkBounds = new Bounds(new Vector3(this.pos.x + radius, this.pos.y + radius, this.pos.z + radius), new Vector3(Chunk.SIZE * 0.9f, Chunk.SIZE * 0.9f, Chunk.SIZE * 0.9f));
         }
 
         private void Update() {
-            if (this.isDirty) {
+            if (!this.isReadOnly && this.isDirty) {
                 this.renderChunk();
             }
+
+            //DebugDrawer.bounds(this.chunkBounds, this.isReadOnly ? Color.red : Color.green);
         }
 
         public void FixedUpdate() {
-            // Randomly tick blocks.
-            int x, y, z;
-            for(int i = 0; i < 3; i++) {
-                x = UnityEngine.Random.Range(0, Chunk.SIZE);
-                y = UnityEngine.Random.Range(0, Chunk.SIZE);
-                z = UnityEngine.Random.Range(0, Chunk.SIZE);
-                this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
-            }
-            /*
-            int i = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            for (int j = 0; j < 3; j++) {
-                x = (i >> j * 12) & 0x0F;     // 0  12
-                y = (i >> j * 12 + 4) & 0x0F; // 4  16
-                z = (i >> j * 12 + 8) & 0x0F; // 8  20
-                this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
-            }
-            */
-
-            /*
-            for(int k = this.scheduledTicks.Count - 1; k >= 0; k--) {
-                ScheduledTick tick = this.scheduledTicks[k];
-                tick.remainingTicks -= 1;
-                if(tick.remainingTicks <= 0) {
-                    this.getBlock()
-                    this.scheduledTicks.RemoveAt(k);
+            if(!this.isReadOnly) {
+                // Randomly tick blocks.
+                int x, y, z;
+                for (int i = 0; i < 3; i++) {
+                    x = UnityEngine.Random.Range(0, Chunk.SIZE);
+                    y = UnityEngine.Random.Range(0, Chunk.SIZE);
+                    z = UnityEngine.Random.Range(0, Chunk.SIZE);
+                    this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
                 }
+                /*
+                int i = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+                for (int j = 0; j < 3; j++) {
+                    x = (i >> j * 12) & 0x0F;     // 0  12
+                    y = (i >> j * 12 + 4) & 0x0F; // 4  16
+                    z = (i >> j * 12 + 8) & 0x0F; // 8  20
+                    this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
+                }
+                */
+
+                /*
+                for(int k = this.scheduledTicks.Count - 1; k >= 0; k--) {
+                    ScheduledTick tick = this.scheduledTicks[k];
+                    tick.remainingTicks -= 1;
+                    if(tick.remainingTicks <= 0) {
+                        this.getBlock()
+                        this.scheduledTicks.RemoveAt(k);
+                    }
+                }
+                */
             }
-            */
         }
 
         /// <summary>
@@ -105,15 +111,23 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void resetChunk() {
             this.tileEntityDict.Clear();
-            //this.scheduledTicks.Clear();
             this.isDirty = false;
             this.isPopulated = false;
+            this.isReadOnly = false;
             Array.Clear(this.blocks, 0, this.blocks.Length);
             Array.Clear(this.metaData, 0, this.metaData.Length);
             Array.Clear(this.lightLevel, 0, this.lightLevel.Length);
         }
 
+        public void setReadOnly(bool flag) {
+            this.isReadOnly = flag;
+            this.gameObject.name = "Chunk" + this.chunkPos + (flag ? "(READ ONLY)" : string.Empty);
+        }
+
         public Block getBlock(int x, int y, int z) {
+            if((x < 0 || y < 0 || z < 0 || x >= Chunk.SIZE || y >= Chunk.SIZE || z >= Chunk.SIZE)) {
+                Debug.Log(x + ", " + y + ", " + z);
+            }
             return this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
@@ -180,6 +194,12 @@ namespace VoxelEngine.Level {
         /// Bakes the block meshes and light levels into the chunk.
         /// </summary>
         public void renderChunk() {
+            CachedRegion cachedRegion = new CachedRegion(this.world, this);
+            if(cachedRegion.check()) {
+                //Debug.Log("Waiting..."); // Waiting for the lazy chunk loading to finish...
+                return;
+            }
+
             this.isDirty = false;
 
             MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
@@ -189,9 +209,8 @@ namespace VoxelEngine.Level {
             bool cachedIsSolid;
             bool[] renderFace = new bool[6];
             Block[] surroundingBlocks = new Block[6];
-            Direction dir;
-            int x, y, z, i, facesCulled, meta;
-            CachedRegion cachedRegion = new CachedRegion(this.world, this);
+            BlockPos dirPos;
+            int x, y, z, i, facesCulled, meta, x1, y1, z1;
 
             // Bake blocks into mesh.
             for (x = 0; x < Chunk.SIZE; x++) {
@@ -199,45 +218,99 @@ namespace VoxelEngine.Level {
                     for (z = 0; z < Chunk.SIZE; z++) {
                         b = this.getBlock(x, y, z);
                         if(b.renderer != null && b.renderer.bakeIntoChunks) {
+
                             Profiler.BeginSample("Looking up data");
                             // Find the surrounding blocks and faces to cull.
                             facesCulled = 0;
+
                             for (i = 0; i < 6; i++) {
-                                dir = Direction.all[i];
+                                Profiler.BeginSample("Direction Stuff");
 
-                                neighborBlock = cachedRegion.getBlock(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+                                dirPos = Direction.all[i].direction;
+                                x1 = x + dirPos.x;
+                                y1 = y + dirPos.y;
+                                z1 = z + dirPos.z;
 
-                                Profiler.BeginSample("Other data");
+                                Profiler.EndSample();
+                                Profiler.BeginSample("Lookup Neighbor");
+                                if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
+                                    neighborBlock = cachedRegion.getBlock(x1, y1, z1);
+                                } else {
+                                    neighborBlock = this.getBlock(x1, y1, z1);
+                                }
+                                Profiler.EndSample();
+
+                                Profiler.BeginSample("Lookup other data");                           
+
                                 cachedIsSolid = neighborBlock.isSolid;
                                 renderFace[i] = !cachedIsSolid;
-                                surroundingBlocks[i] = neighborBlock;
+                                if(b.renderer.lookupAdjacentBlocks) {
+                                    surroundingBlocks[i] = neighborBlock;
+                                }
                                 if (cachedIsSolid) {
                                     facesCulled++;
                                 }
+                                
                                 Profiler.EndSample();
                             }
                             Profiler.EndSample();
 
-                            Profiler.BeginSample("Render Block");
                             if(facesCulled != 6) {
                                 meta = this.getMeta(x, y, z);
 
+                                Profiler.BeginSample("Lookup Light");
                                 // Populate the meshData with light levels.
-                                if (b.renderer.lookupAdjacentLight == EnumLightLookup.CURRENT) {
-                                    meshData.lightLevels[0] = this.getLight(x, y, z); // No need for cachedRegion overhead, this is always in the chunk
-                                } else {
+                                meshData.lightLevels[0] = this.getLight(x, y, z);
+
+                                
+                                if(b.renderer.lookupAdjacentLight == true) {
                                     for (i = 0; i < 6; i++) {
-                                        dir = Direction.all[i];
+                                        dirPos = Direction.all[i].direction;
+                                        x1 = x + dirPos.x;
+                                        y1 = y + dirPos.y;
+                                        z1 = z + dirPos.z;
 
-                                        meshData.lightLevels[i + 1] = cachedRegion.getLight(x + dir.direction.x, y + dir.direction.y, z + dir.direction.z);
+                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
+                                            meshData.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
+                                        } else {
+                                            meshData.lightLevels[i + 1] = this.getLight(x1, y1, z1);
+                                        }
                                     }
-                                    meshData.lightLevels[0] = this.getLight(x, y, z);
                                 }
+                                
 
-                                // Render the block.
+                                /*
+                                for (i = 0; i < 6; i++) {
+                                    dir = Direction.all[i];
+
+                                    x1 = x + dir.direction.x;
+                                    y1 = y + dir.direction.y;
+                                    z1 = z + dir.direction.z;
+
+                                    if(b.renderer.lookupAdjacentLight) {
+                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
+                                            meshData.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
+                                        }
+                                        else {
+                                            meshData.lightLevels[i + 1] = this.getLight(x1, y1, z1);
+                                        }
+                                    }
+
+                                    if(b.renderer.lookupAdjacentBlocks) {
+                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
+                                            neighborBlock = cachedRegion.getBlock(x1, y1, z1);
+                                        } else {
+                                            neighborBlock = this.getBlock(x1, y1, z1);
+                                        }
+                                        surroundingBlocks[i] = neighborBlock;
+                                    }
+                                }
+                                */
+
+                                Profiler.EndSample();
+
                                 b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
                             }
-                            Profiler.EndSample();
                         }
                     }
                 }

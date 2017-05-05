@@ -181,70 +181,65 @@ namespace VoxelEngine.Render {
         /// </summary>
         public void addColliderBox(Bounds b, float x, float y, float z) {
             int i = this.colVertices.Count - 1;
-            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.max.z));
-            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.min.z));
-            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.min.z));
-            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.max.z));
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.max.z)); // 1
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.min.y, z + b.min.z)); // 2
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.min.z)); // 3
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.min.y, z + b.max.z)); // 4
 
-            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.max.z));
-            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.min.z));
-            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.min.z));
-            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.max.z));
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.max.z)); // 5
+            this.colVertices.Add(new Vector3(x + b.max.x, y + b.max.y, z + b.min.z)); // 6
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.min.z)); // 7
+            this.colVertices.Add(new Vector3(x + b.min.x, y + b.max.y, z + b.max.z)); // 8
 
+            // +X
             this.cachedColliderPoints[0] = i + 1;
             this.cachedColliderPoints[1] = i + 6;
-            this.cachedColliderPoints[2] = i + 5; // + X
+            this.cachedColliderPoints[2] = i + 5;
             this.cachedColliderPoints[3] = i + 1;
             this.cachedColliderPoints[4] = i + 2;
-            this.cachedColliderPoints[5] = i + 6; // + X
+            this.cachedColliderPoints[5] = i + 6;
+            
+            // -Z
             this.cachedColliderPoints[6] = i + 2;
             this.cachedColliderPoints[7] = i + 3;
             this.cachedColliderPoints[8] = i + 7;
             this.cachedColliderPoints[9] = i + 7;
             this.cachedColliderPoints[10] = i + 6;
             this.cachedColliderPoints[11] = i + 2;
+            
+            // +X
             this.cachedColliderPoints[12] = i + 3;
             this.cachedColliderPoints[13] = i + 4;
             this.cachedColliderPoints[14] = i + 8;
             this.cachedColliderPoints[15] = i + 8;
             this.cachedColliderPoints[16] = i + 7;
             this.cachedColliderPoints[17] = i + 3;
+            
+            // +Z
             this.cachedColliderPoints[18] = i + 4;
             this.cachedColliderPoints[19] = i + 1;
             this.cachedColliderPoints[20] = i + 5;
             this.cachedColliderPoints[21] = i + 5;
-            this.cachedColliderPoints[24] = i + 8;
+            this.cachedColliderPoints[22] = i + 8;
             this.cachedColliderPoints[23] = i + 4;
+
+            // +Y
             this.cachedColliderPoints[24] = i + 5;
             this.cachedColliderPoints[25] = i + 6;
-            this.cachedColliderPoints[26] = i + 7; // Top
+            this.cachedColliderPoints[26] = i + 7;
             this.cachedColliderPoints[27] = i + 7;
             this.cachedColliderPoints[28] = i + 8;
-            this.cachedColliderPoints[29] = i + 5; // Top
+            this.cachedColliderPoints[29] = i + 5;
+
+            // -Y
             this.cachedColliderPoints[30] = i + 1;
             this.cachedColliderPoints[31] = i + 4;
-            this.cachedColliderPoints[32] = i + 3; // Bottom
+            this.cachedColliderPoints[32] = i + 3;
             this.cachedColliderPoints[33] = i + 3;
             this.cachedColliderPoints[34] = i + 2;
-            this.cachedColliderPoints[35] = i + 1;  // Bottom
-            this.colTriangles.AddRange(this.cachedColliderPoints);
+            this.cachedColliderPoints[35] = i + 1;
 
-            /*
-                this.colTriangles.AddRange(new int[36] {
-                    i + 1, i + 6, i + 5, // + X
-                    i + 1, i + 2, i + 6, // + X
-                    i + 2, i + 3, i + 7,
-                    i + 7, i + 6, i + 2,
-                    i + 3, i + 4, i + 8,
-                    i + 8, i + 7, i + 3,
-                    i + 4, i + 1, i + 5,
-                    i + 5, i + 8, i + 4,
-                    i + 5, i + 6, i + 7, // Top
-                    i + 7, i + 8, i + 5, // Top
-                    i + 1, i + 4, i + 3, // Bottom
-                    i + 3, i + 2, i + 1  // Bottom
-                });
-                */
+            this.colTriangles.AddRange(this.cachedColliderPoints);
         }
 
         /// <summary>

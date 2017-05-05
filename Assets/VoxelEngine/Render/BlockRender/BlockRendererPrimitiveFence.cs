@@ -23,8 +23,7 @@ namespace VoxelEngine.Render.BlockRender {
         }
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
-            meshData.useRenderDataForCol = false;
-            meshData.addColliderBox(this.postBounds, x, y, z);
+            //meshData.addColliderBox(this.postBounds, x, y, z);
 
             // North
             meshData.addQuad(
@@ -62,7 +61,7 @@ namespace VoxelEngine.Render.BlockRender {
                 b.getUVs(meta, Direction.WEST, this.uvArray),
                 0);
 
-            if(renderFace[4]) {
+            if (renderFace[4]) {
                 // Up
                 meshData.addQuad(
                     new Vector3(x - postRadius, y + 0.5f, z + postRadius),
@@ -83,10 +82,14 @@ namespace VoxelEngine.Render.BlockRender {
                     Direction.DOWN_ID);
             }
 
+            meshData.useRenderDataForCol = false;
+
             this.addCrossPiece(surroundingBlocks[0], meshData, x, y, z, 0,     0.5f,  this.northBounds);
             this.addCrossPiece(surroundingBlocks[1], meshData, x, y, z, 0.5f,  0,     this.eastBounds);
             this.addCrossPiece(surroundingBlocks[2], meshData, x, y, z, 0,     -0.5f, this.southBounds);
             this.addCrossPiece(surroundingBlocks[3], meshData, x, y, z, -0.5f, 0,     this.westBounds);
+
+            meshData.useRenderDataForCol = true;
         }
 
         private void addCrossPiece(Block surroundingBlock, MeshBuilder meshData, int x, int y, int z, float xAxis, float zAxis, Bounds bounds) {

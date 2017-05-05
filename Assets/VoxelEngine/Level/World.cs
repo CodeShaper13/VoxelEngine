@@ -10,6 +10,7 @@ using fNbt;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Generation.Caves;
 using System;
+using VoxelEngine.ChunkLoaders;
 
 namespace VoxelEngine.Level {
 
@@ -113,17 +114,17 @@ namespace VoxelEngine.Level {
 
         public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
             EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item.prefab, position, rotation);
-            entityItem.stack = stack;
+            entityItem.setStack(stack);
             return entityItem;
         }
 
         /// <summary>
         /// Loads a new chunk, loading it if the save exists, otherwise we generate a new one.
         /// </summary>
-        public Chunk loadChunk(Chunk chunk, ChunkPos pos) {
-            chunk.initChunk(this, pos);
+        public Chunk loadChunk(Chunk chunk, NewChunkInstructions instructions) {
+            chunk.initChunk(this, instructions);
 
-            this.loadedChunks.Add(pos, chunk);
+            this.loadedChunks.Add(instructions.chunkPos, chunk);
 
             if (!this.nbtIOHelper.readChunk(chunk)) {
                 this.generator.generateChunk(chunk);

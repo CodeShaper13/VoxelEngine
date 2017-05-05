@@ -2,6 +2,7 @@
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -10,6 +11,9 @@ namespace VoxelEngine.Blocks {
 
         public BlockRail(byte id) : base(id) {
             this.setTexture(0, 13);
+            this.setTransparent();
+            this.setRenderer(RenderManager.RAIL);
+            this.setContainerTransfrom(new MutableTransform(Vector3.zero, Quaternion.Euler(-90, 0, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
@@ -55,7 +59,7 @@ namespace VoxelEngine.Blocks {
             uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
 
             if(meta == 0) {
-                uvArray =  UvHelper.rotateUVs(uvArray, 1);
+                return  UvHelper.rotateUVs(uvArray, 90);
             }
 
             return uvArray;

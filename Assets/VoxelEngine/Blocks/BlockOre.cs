@@ -12,7 +12,7 @@ namespace VoxelEngine.Blocks {
         public BlockOre(int id, Item drop, int textureY) : base(id) {
             this.droppedItem = drop;
             this.textureY = textureY;
-            this.setType(Type.STONE);
+            this.setType(EnumBlockType.STONE);
             this.setStatesUsed(5);
         }
 

@@ -7,7 +7,8 @@ namespace VoxelEngine.Render.BlockRender {
     public class BlockRendererPrimitiveCube : BlockRendererPrimitive {
 
         public BlockRendererPrimitiveCube() {
-            this.lookupAdjacentLight = EnumLightLookup.ADJACENT;
+            this.lookupAdjacentLight = true;
+            this.lookupAdjacentBlocks = false;
         }
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {

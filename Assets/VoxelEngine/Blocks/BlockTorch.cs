@@ -14,7 +14,7 @@ namespace VoxelEngine.Blocks {
             this.setRenderer(RenderManager.TORCH);
             this.setEmittedLight(7);
             this.setTransparent();
-            this.setType(Type.WOOD);
+            this.setType(EnumBlockType.WOOD);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {

@@ -11,9 +11,11 @@ namespace VoxelEngine.Containers {
         /// <summary> The selected index. </summary>
         public int index;
 
-        public override void onOpen(ContainerData data, EntityPlayer player) {
+        public override Container onOpen(ContainerData data, EntityPlayer player) {
             base.onOpen(data, player);
             this.scroll(0);
+
+            return this;
         }
 
         /// <summary>
@@ -51,14 +53,14 @@ namespace VoxelEngine.Containers {
         /// Helper method to get the currently held item.
         /// </summary>
         public ItemStack getHeldItem() {
-            return this.slots[this.index].getContents();
+            return this.data.items[this.index]; // this.slots[this.index].getContents();
         }
 
         /// <summary>
         /// Helper method to set the currently held item.
         /// </summary>
         public void setHeldItem(ItemStack stack) {
-            this.slots[this.index].setContents(stack);
+            this.data.items[this.index] = stack; // this.slots[this.index].setContents(stack);
         }
     }
 }

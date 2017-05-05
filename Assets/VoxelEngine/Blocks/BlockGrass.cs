@@ -5,7 +5,10 @@ namespace VoxelEngine.Blocks {
 
     public class BlockGrass : Block {
 
-        public BlockGrass(byte id) : base(id) {}
+        public BlockGrass(byte id) : base(id) {
+            this.setMineTime(0.15f);
+            this.setType(EnumBlockType.DIRT);
+        }
 
         public override void onRandomTick(World world, int x, int y, int z, int meta, int tickSeed) {
             //int i = (tickSeed) & 0x03;

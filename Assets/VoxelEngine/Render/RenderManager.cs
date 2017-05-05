@@ -25,15 +25,12 @@ namespace VoxelEngine.Render {
         public HudCamera hudCamera;
         public LightHelper lightHelper;
         private MeshBuilder reusableMeshData;
-        /// <summary> A chunk that is all air. </summary>
-        public IChunk airChunk;
 
         public RenderManager() {
             RenderManager.instance = this;
 
             this.lightHelper = new LightHelper(References.list.lightColorSheet);
             this.reusableMeshData = new MeshBuilder();
-            this.airChunk = new AirChunk();
 
             Item.initBlockItems();
             this.preRenderItems();

@@ -62,8 +62,8 @@ namespace VoxelEngine.Render.BlockRender {
 
             // Add the colliders
             if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
-                meshData.useRenderDataForCol = false;
                 for(i = 0; i < this.colliderArray.Length; i++) {
+                    meshData.useRenderDataForCol = false;
                     meshData.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
                 }
             }
@@ -85,6 +85,8 @@ namespace VoxelEngine.Render.BlockRender {
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
                 meshData.addUv(this.cachedMeshUVs[i]);
             }
+
+            meshData.useRenderDataForCol = true;
         }
 
         /// <summary>

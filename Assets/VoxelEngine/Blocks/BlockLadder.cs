@@ -12,6 +12,8 @@ namespace VoxelEngine.Blocks {
         public BlockLadder(byte id) : base(id) {
             this.setTransparent();
             this.setRenderer(RenderManager.LADDER);
+            this.setType(EnumBlockType.WOOD);
+            this.setContainerTransfrom(new MutableTransform(Vector3.zero, Quaternion.Euler(0, 0, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {

@@ -17,12 +17,17 @@ namespace VoxelEngine.ChunkLoaders {
             return false;
         }
 
-        protected override void loadYAxis(ChunkPos occupiedChunkPos, int x, int z) {
+        protected override void loadYAxis(ChunkPos occupiedChunkPos, int x, int z, bool isReadOnly) {
             for (int y = 0; y < this.worldHeight; y++) {
-                ChunkPos pos = new ChunkPos(x + occupiedChunkPos.x, y, z + occupiedChunkPos.z);
-                Chunk chunk = world.getChunk(pos);
-                if (chunk == null && !this.buildQueue.Contains(pos)) {
-                    this.buildQueue.Enqueue(pos);
+                NewChunkInstructions instructions = new NewChunkInstructions(x + occupiedChunkPos.x, y + occupiedChunkPos.y, z + occupiedChunkPos.z, isReadOnly);
+                Chunk chunk = world.getChunk(instructions.chunkPos);
+
+                if (chunk == null) {
+                    if(!this.buildQueue.Contains(instructions)) {
+                        this.buildQueue.Enqueue(instructions);
+                    }
+                } else {
+                    chunk.setReadOnly(isReadOnly);
                 }
             }
         }

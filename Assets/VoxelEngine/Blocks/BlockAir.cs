@@ -1,13 +1,12 @@
-﻿using UnityEngine;
-using VoxelEngine.Level;
-using VoxelEngine.Util;
-
-namespace VoxelEngine.Blocks {
+﻿namespace VoxelEngine.Blocks {
 
     public class BlockAir : Block {
 
         public BlockAir(byte id) : base(id) {
             this.setStatesUsed(0);
+            this.setTransparent();
+            this.setReplaceable();
+            this.setRenderer(null);
         }
 
         //public override void onDestroy(World world, BlockPos pos, byte meta) {

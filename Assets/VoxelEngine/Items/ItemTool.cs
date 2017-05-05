@@ -6,9 +6,9 @@ namespace VoxelEngine.Items {
 
         public float time;
         public EnumToolType toolType;
-        public Block.Type effectiveOn;
+        public EnumBlockType effectiveOn;
 
-        public ItemTool(int id, float time, EnumToolType toolType, Block.Type effectiveOn) : base(id) {
+        public ItemTool(int id, float time, EnumToolType toolType, EnumBlockType effectiveOn) : base(id) {
             this.time = time;
             this.toolType = toolType;
             this.effectiveOn = effectiveOn;

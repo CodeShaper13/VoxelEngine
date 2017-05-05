@@ -11,7 +11,7 @@ namespace VoxelEngine.Items {
 
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             string s = null;
-            if (hit.unityRaycastHit.distance <= player.reach) {
+            if (hit.unityRaycastHit.distance <= player.getReach()) {
                 if (hit.hitState != null) {
                     s = hit.hitState.block.getMagnifyingText(hit.hitState.meta);
                 }

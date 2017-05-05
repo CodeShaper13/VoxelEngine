@@ -29,12 +29,14 @@ namespace VoxelEngine.Containers {
             ContainerManager.containerHotbar = GameObject.Instantiate(References.list.containerHotbar).GetComponent<ContainerHotbar>();
             for (int i = 0; i < ContainerManager.containerHotbar.slots.Length; i++) {
                 ContainerManager.containerHotbar.slots[i].container = ContainerManager.containerHotbar;
+                ContainerManager.containerHotbar.slots[i].index = i;
             }
             ContainerManager.containerHotbar.gameObject.SetActive(false);
             RenderManager.instance.hudCamera.bindToHudCamera(ContainerManager.containerHotbar.GetComponent<Canvas>());
 
             ContainerManager.containerInventory = this.buildContainer("Inventory", 5, 5, true);
             ContainerManager.containerChest = this.buildContainer("Chest", 2, 2);
+
             this.heldText = References.list.containerHeldText.transform;
             this.heldTextName = this.heldText.transform.GetChild(0).GetComponent<Text>();
             this.heldTextCount = this.heldText.transform.GetChild(1).GetComponent<Text>();
@@ -56,22 +58,26 @@ namespace VoxelEngine.Containers {
             }
         }
 
-        // Opens and initializes a container
+        /// <summary>
+        /// Opens and initializes a container.
+        /// </summary>
         public void openContainer(EntityPlayer player, Container container, ContainerData containerData) {
             player.fpc.allowInput = false;
 
             if (container == ContainerManager.containerInventory) {
-                this.contRight = func_02(container, containerData, player);
+                this.contRight = container.onOpen(containerData, player);
             } else {
-                this.contRight = func_02(ContainerManager.containerInventory, player.dataInventory, player);
-                this.contLeft = func_02(container, containerData, player);
+                this.contRight = ContainerManager.containerInventory.onOpen(player.dataInventory, player);
+                this.contLeft = container.onOpen(containerData, player);
             }
 
             
             Main.hideMouse(false);
         }
 
-        // Closes the open container, doing any required cleanup
+        /// <summary>
+        /// Closes the open container, doing any required cleanup.
+        /// </summary>
         public void closeContainer(EntityPlayer player) {
             if(this.isContainerOpen()) {
                 player.fpc.allowInput = true;
@@ -86,7 +92,9 @@ namespace VoxelEngine.Containers {
             }
         }
 
-        // Returns the opposite container, used for shift clicking hotkey
+        /// <summary>
+        /// Returns the opposite container, used for shift clicking hotkey.
+        /// </summary>
         public Container getOppositeContainer(Container oppositeOf) {
             if(this.contLeft == null) {
                 // Player inventory is open only
@@ -105,7 +113,9 @@ namespace VoxelEngine.Containers {
             }
         }
 
-        // Draws all the items for any open container
+        /// <summary>
+        /// Draws all the items for any open container.
+        /// </summary>
         public void drawContainerContents() {
             if(this.contRight != null) {
                 this.contRight.renderContents();
@@ -116,6 +126,8 @@ namespace VoxelEngine.Containers {
             if(this.heldStack != null) {
                 this.renderHeldItem();
             }
+
+            ContainerManager.containerHotbar.renderContents();
         }
 
         //TODO fix text position
@@ -159,6 +171,7 @@ namespace VoxelEngine.Containers {
                     slotObj.transform.localPosition = new Vector3((xOffset - x * slotSize) + orgin.x, (yOffset - y * slotSize) + orgin.y);
                     Slot slot = slotObj.GetComponent<Slot>();
                     slot.container = container;
+                    slot.index = index;
                     container.slots[index] = slot;
                     index++;
                 }
@@ -172,17 +185,15 @@ namespace VoxelEngine.Containers {
             return container;
         }
 
+        /// <summary>
+        /// Closes the passed container, if it is not null, then returns null.
+        /// </summary>
         private Container closeIfNotNull(Container container) {
             if (container != null) {
                 container.onClose();
                 container.gameObject.SetActive(false);
                 container = null;
             }
-            return container;
-        }
-
-        private Container func_02(Container container, ContainerData data, EntityPlayer player) {
-            container.onOpen(data, player);
             return container;
         }
     }

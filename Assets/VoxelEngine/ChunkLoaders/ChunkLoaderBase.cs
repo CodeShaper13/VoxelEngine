@@ -16,7 +16,7 @@ namespace VoxelEngine.ChunkLoaders {
         protected EntityPlayer player;
         protected int maxBuildPerLoop = 4;
         protected ChunkPos previousOccupiedChunkPos;
-        protected Queue<ChunkPos> buildQueue;
+        protected Queue<NewChunkInstructions> buildQueue;
         protected int loadRadius;
         protected Queue<Chunk> cachedUnusedChunks;
 
@@ -24,7 +24,7 @@ namespace VoxelEngine.ChunkLoaders {
             this.world = world;
             this.player = player;
             this.loadRadius = loadRadius;
-            this.buildQueue = new Queue<ChunkPos>();
+            this.buildQueue = new Queue<NewChunkInstructions>();
             this.cachedUnusedChunks = new Queue<Chunk>();
 
             this.loadChunks(this.getOccupiedChunkPos(this.player.transform.position));
@@ -32,8 +32,9 @@ namespace VoxelEngine.ChunkLoaders {
             this.generateChunks(-1);
 
             foreach (Chunk c in this.world.loadedChunks.Values) {
-                c.renderChunk();
-                c.isDirty = false;
+                if(!c.isReadOnly) {
+                    c.renderChunk();
+                }
             }
         }
 
@@ -48,7 +49,9 @@ namespace VoxelEngine.ChunkLoaders {
             this.generateChunks(this.maxBuildPerLoop);
         }
 
-        //Returns the position of the chunk the player is in
+        /// <summary>
+        /// Returns the position of the chunk the player is in.
+        /// </summary>
         protected ChunkPos getOccupiedChunkPos(Vector3 playerPos) {
             return new ChunkPos(
                 Mathf.FloorToInt(playerPos.x / Chunk.SIZE),
@@ -63,7 +66,7 @@ namespace VoxelEngine.ChunkLoaders {
             int builtChunks = 0;
             if (this.buildQueue.Count > 0) {
                 while (this.buildQueue.Count > 0 && (builtChunks < max || max == -1)) {
-                    ChunkPos chunkPos = this.buildQueue.Dequeue();
+                    NewChunkInstructions instructions = this.buildQueue.Dequeue();
                     Chunk chunk;
                     if(this.cachedUnusedChunks.Count > 0) {
                         chunk = this.cachedUnusedChunks.Dequeue();
@@ -75,10 +78,10 @@ namespace VoxelEngine.ChunkLoaders {
                         chunk = chunkGameObject.GetComponent<Chunk>();
                     }
 
-                    chunk.transform.position = new Vector3(chunkPos.x * Chunk.SIZE, chunkPos.y * Chunk.SIZE, chunkPos.z * Chunk.SIZE);
+                    chunk.transform.position = instructions.toChunkVector();
                     chunk.isDirty = true;
 
-                    this.world.loadChunk(chunk, chunkPos);
+                    this.world.loadChunk(chunk, instructions);
 
                     builtChunks++;
                 }
@@ -102,11 +105,19 @@ namespace VoxelEngine.ChunkLoaders {
             }
         }
 
-        //Adds all the chunks close to the player to the list of chunks to generate.
-        protected void loadChunks(ChunkPos occupiedChunkPos) {
-            for (int x = -this.loadRadius; x < this.loadRadius + 1; x++) {
-                for (int z = -this.loadRadius; z < this.loadRadius + 1; z++) {
-                    this.loadYAxis(occupiedChunkPos, x, z);
+        /// <summary>
+        /// Adds all the chunks close to the player to the list of chunks to generate.
+        /// </summary>
+        protected virtual void loadChunks(ChunkPos occupiedChunkPos) {
+            int x, z;
+            bool flagX, flagZ;
+            for (x = -this.loadRadius; x <= this.loadRadius; x++) {
+                for (z = -this.loadRadius; z <= this.loadRadius; z++) {
+                    flagX = (x == loadRadius || x == -loadRadius);
+                    flagZ = (z == loadRadius || z == -loadRadius);
+                    if (!(flagX && flagZ)) {
+                        this.loadYAxis(occupiedChunkPos, x, z, flagX || flagZ);
+                    }
                 }
             }
         }
@@ -122,6 +133,6 @@ namespace VoxelEngine.ChunkLoaders {
             return false;
         }
 
-        protected virtual void loadYAxis(ChunkPos occupiedChunkPos, int x, int z) {}
+        protected virtual void loadYAxis(ChunkPos occupiedChunkPos, int x, int z, bool isReadOnly) {}
     }
 }

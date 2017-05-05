@@ -32,6 +32,39 @@ namespace VoxelEngine.Containers.Data {
             return this.items;
         }
 
+        /// <summary>
+        /// Adds the passed stack to the container, returning any we couldn't add.
+        /// </summary>
+        public ItemStack addItemStack(ItemStack stack) {
+            if (stack == null) {
+                return null;
+            }
+
+            // First try to fill up any slots that already have items
+            for (int i = 0; i < this.items.Length; i++) {
+                //slot = this.slots[i];
+                ItemStack contents = this.items[i];
+                if (contents == null || (!contents.equals(stack)) || contents.count >= ItemStack.MAX_SIZE) {
+                    continue;
+                }
+                // Stacks are equal and slot is not full
+                stack = contents.merge(stack);
+
+                if (stack == null) {
+                    return null;
+                }
+            }
+
+            // If we still have stuff to deposite, add it to an empty slot
+            for (int i = 0; i < this.items.Length; i++) {
+                if (this.items[i] == null) {
+                    this.items[i] = stack;
+                    return null;
+                }
+            }
+            return stack;
+        }
+
         public virtual NbtCompound writeToNbt(NbtCompound tag) {
             NbtList list = new NbtList("items", NbtTagType.Compound);
             

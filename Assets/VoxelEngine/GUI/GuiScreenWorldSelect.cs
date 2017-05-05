@@ -10,19 +10,21 @@ namespace VoxelEngine.GUI {
 
     public class GuiScreenWorldSelect : GuiScreen {
 
-        public GameObject worldTilePrefab;
         public RectTransform worldTileWrapperObj;
 
         public Button loadButton;
         public Button renameButton;
         public Button deleteButton;
 
+        private GameObject worldTilePrefab;
         private List<WorldData> cachedWorlds;
         private string[] worldFolderNames;
         private PlayWorldButton selectedWorld;
 
         private void Awake() {
             this.cachedWorlds = new List<WorldData>();
+
+            this.worldTilePrefab = Resources.Load<GameObject>("Prefabs/GUI/Panel_WorldTile");
         }
 
         public override void onGuiOpen() {

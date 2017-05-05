@@ -61,8 +61,10 @@ namespace VoxelEngine {
             //this.openGuiScreen(GuiManager.title);
 
             //Debug instant world generation
-            string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            this.generateWorld(new WorldData(name, new System.Random().Next(), WorldType.CAVE_1.id, true));
+            if(1 == 1) {
+                string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+                this.generateWorld(new WorldData(name, new System.Random().Next(), WorldType.CAVE_1.id, true));
+            }
         }
 
         private void Update() {
@@ -108,8 +110,6 @@ namespace VoxelEngine {
                 }
 
                 this.containerManager.drawContainerContents();
-
-                this.player.containerHotbar.renderContents();
 
                 this.fpsCounter.updateCounter();
 

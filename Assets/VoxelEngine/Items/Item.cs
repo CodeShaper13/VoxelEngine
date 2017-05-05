@@ -21,9 +21,9 @@ namespace VoxelEngine.Items {
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
         public static Item goldBar = new Item(260).setName("Gold Bar").setTexture(0, 3);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
-        public static Item pickaxe = new ItemTool(262, 1.25f, EnumToolType.PICKAXE, Block.Type.STONE).setName("Pickaxe").setTexture(2, 0);
-        public static Item shovel = new ItemTool(263, 1.25f, EnumToolType.SHOVEL, Block.Type.DIRT).setName("Shovel").setTexture(3, 0);
-        public static Item axe = new ItemTool(264, 1.25f, EnumToolType.AXE, Block.Type.WOOD).setName("Axe");
+        public static Item pickaxe = new ItemTool(262, 1.25f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(2, 0);
+        public static Item shovel = new ItemTool(263, 1.25f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(3, 0);
+        public static Item axe = new ItemTool(264, 1.25f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe");
         public static Item knife = new ItemSword(265, 2).setName("Hunting Knife").setTexture(4, 0);
         public static Item pistol; // 266
         public static Item shotgun; // 267

@@ -8,7 +8,10 @@ namespace VoxelEngine.Blocks {
 
     public class BlockWood : Block {
 
-        public BlockWood(int id) : base(id) { }
+        public BlockWood(int id) : base(id) {
+            this.setStatesUsed(3);
+            this.setType(EnumBlockType.WOOD);
+        }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
             TexturePos pos = new TexturePos(1, 1);
