@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
@@ -7,22 +6,31 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
-    public class PieceCrossing : PieceIntersection {
+    public class PieceCrossing : PieceBase {
 
         private int roomHeight;
 
         public PieceCrossing(NbtCompound tag) : base(tag) {
             this.roomHeight = tag.Get<NbtInt>("h").IntValue;
-            this.sizeRadius = this.getSizeRadius(null); //This doesnt use the rnd param
         }
 
-        public PieceCrossing(BlockPos hallwayPoint, Direction hallwayDir, List<PieceBase> pieces, int piecesFromStart, System.Random rnd)
-            : base(hallwayPoint, hallwayDir, pieces, piecesFromStart, rnd) {
+        public PieceCrossing(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
+            : base(shaft, hallwayPoint + (hallwayDir.direction * 4)) {
+
+            
+            piecesFromCenter += 1;
+            if (this.func(piecesFromCenter)) {
+                this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 6, piecesFromCenter);
+            }
+        }
+
+        public override void calculateBounds() {
+            this.setPieceSize(1, 6, 4);
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos p1 = new BlockPos(this.orgin.x - 4, this.orgin.y, this.orgin.z - 4);
-            BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 6, this.orgin.z + 4);
+            BlockPos p1 = this.getPosMin();
+            BlockPos p2 = this.getPosMax();
             Block b;
             byte meta;
             int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ, absX, absZ;
@@ -96,14 +104,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             base.writeToNbt(tag);
             tag.Add(new NbtInt("h", this.roomHeight));
             return tag;
-        }
-
-        protected override BlockPos getSizeRadius(System.Random rnd) {
-            return new BlockPos(4, 0, 4);
-        }
-
-        protected override int getHeight() {
-            return 6;
         }
 
         public override Color getPieceColor() {

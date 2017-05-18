@@ -60,11 +60,7 @@ namespace VoxelEngine {
 
             //this.openGuiScreen(GuiManager.title);
 
-            //Debug instant world generation
-            if(1 == 1) {
-                string name = "world" + UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-                this.generateWorld(new WorldData(name, new System.Random().Next(), WorldType.CAVE_1.id, true));
-            }
+            this.createNewWorld(false);
         }
 
         private void Update() {
@@ -131,12 +127,17 @@ namespace VoxelEngine {
             }
         }
 
+        public void createNewWorld(bool flag = true) {
+            string name = "World_1";
+            Main.singleton.generateWorld(new WorldData(name, 2346347 /*new System.Random().Next()*/, WorldType.CAVE_1.id, flag));
+        }
+
         /// <summary>
         /// Pauses the game and handles the blocking of input.
         /// </summary>
         public void pauseGame() {
             this.isPaused = true;
-            this.player.fpc.enabled = false;
+            //this.player.fpc.enabled = false;
             Main.hideMouse(false);
             Time.timeScale = 0;
             this.openGuiScreen(GuiManager.paused);
@@ -148,7 +149,7 @@ namespace VoxelEngine {
         public void resumeGame() {
             this.currentGui = null;
             this.isPaused = false;
-            this.player.fpc.enabled = true;
+            //this.player.fpc.enabled = true;
             Main.hideMouse(true);
             Time.timeScale = 1;
         }

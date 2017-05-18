@@ -51,7 +51,7 @@ Shader "VoxelEngine/Block" {
 				// Added:
 				float2 uv2 : TEXCOORD1;
 
-				UNITY_FOG_COORDS(1)
+				UNITY_FOG_COORDS(2) // Was 1
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 

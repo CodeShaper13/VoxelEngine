@@ -4,7 +4,6 @@ using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
-using System;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
@@ -12,7 +11,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 
         protected bool addedToList = false;
 
-        // -1 = bottom piece of stack, 1 = top of stack
+        /// <summary> -1 = bottom piece of stack, 1 = top of stack. </summary>
         private int specialFlag = 0;
         // 0 = NE, 1 = SE, 2 = SW, 3 = NW
         private int floor1Ladder;
@@ -27,33 +26,33 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.floorBelowLadderFlag = tag.Get<NbtInt>("fbl").IntValue;
         }
 
-        public PieceShaft(BlockPos hallwayPoint, Direction hallwayDir, List<PieceBase> pieces, int piecesFromStart, System.Random rnd, int flag)
-            : base(hallwayPoint + (hallwayDir.direction * 4)) {
+        public PieceShaft(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter, int flag)
+            : base(shaft, hallwayPoint + (hallwayDir.direction * 4)) {
 
             this.calculateBounds();
 
-            if (this.isIntersecting(pieces)) {
+            if (this.isIntersecting(this.shaft.pieces)) {
                 return;
             }
-            pieces.Add(this);
+            this.shaft.pieces.Add(this);
             this.addedToList = true;
 
-            piecesFromStart++;
-            if (piecesFromStart > StructureMineshaft.SIZE_CAP) {
+            piecesFromCenter++;
+            if (piecesFromCenter > StructureMineshaft.SIZE_CAP) {
                 return;
             }
 
             this.specialFlag = flag;
-            this.floor1Ladder = rnd.Next(4);
-            this.floor2Ladder = rnd.Next(4);
+            this.floor1Ladder = this.shaft.rnd.Next(4);
+            this.floor2Ladder = this.shaft.rnd.Next(4);
 
             if(this.specialFlag == 0) {
                 //This is the middle/first piece
-                PieceShaft up = new PieceShaft(new BlockPos(hallwayPoint.x, hallwayPoint.y + 16, hallwayPoint.z), hallwayDir, pieces, piecesFromStart, rnd, this.specialFlag + 1);
-                PieceShaft down = new PieceShaft(new BlockPos(hallwayPoint.x, hallwayPoint.y - 16, hallwayPoint.z), hallwayDir, pieces, piecesFromStart, rnd, this.specialFlag - 1);
+                PieceShaft up = new PieceShaft(this.shaft, new BlockPos(hallwayPoint.x, hallwayPoint.y + 14, hallwayPoint.z), hallwayDir, piecesFromCenter, this.specialFlag + 1);
+                PieceShaft down = new PieceShaft(this.shaft, new BlockPos(hallwayPoint.x, hallwayPoint.y - 14, hallwayPoint.z), hallwayDir, piecesFromCenter, this.specialFlag - 1);
                 if (!up.addedToList && !down.addedToList) {
                     //Both pieces failed, remove this piece. The whole stack failed, so nothing should be here
-                    pieces.RemoveAt(pieces.Count - 1);
+                    this.shaft.pieces.RemoveAt(this.shaft.pieces.Count - 1);
                 } else {
                     // We added at least one piece, up or down or both
                     if (up.addedToList) {
@@ -67,11 +66,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         this.specialFlag = -1;
                     }
                 }
-            } else if(flag == -1) {
+            } else if(this.specialFlag == -1) {
                 //TODO chance for water filled bottom piece
             }
 
-            this.generateHallways(hallwayDir.getOpposite(), this.orgin, 5, 5, pieces, piecesFromStart, rnd);
+            this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 5, piecesFromCenter);
         }
 
         public override Color getPieceColor() {
@@ -83,27 +82,28 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos p1 = new BlockPos(this.orgin.x - 4, this.orgin.y - 1, this.orgin.z - 4);
-            BlockPos p2 = new BlockPos(this.orgin.x + 4, this.orgin.y + 15, this.orgin.z + 4);
+            BlockPos p1 = this.getPosMin();
+            BlockPos p2 = this.getPosMax();
             Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
-            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetZ;
+            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
             Block b;
             int meta = 0;
-            for (int i = p1.x; i <= p2.x; i++) {
-                for (int j = p1.y; j <= p2.y; j++) {
-                    for (int k = p1.z; k <= p2.z; k++) {
-                        if(chunk.isInChunk(i, j, k)) {
+            for (int x = p1.x; x <= p2.x; x++) {
+                for (int y = p1.y; y <= p2.y; y++) {
+                    for (int z = p1.z; z <= p2.z; z++) {
+                        if(chunk.isInChunk(x, y, z)) {
                             b = Block.air;
                             meta = 0;
-                            chunkCoordX = i - chunk.pos.x;
-                            chunkCoordY = j - chunk.pos.y;
-                            chunkCoordZ = k - chunk.pos.z;
-                            offsetX = i - this.orgin.x;
-                            offsetZ = k - this.orgin.z;
+                            chunkCoordX = x - chunk.pos.x;
+                            chunkCoordY = y - chunk.pos.y;
+                            chunkCoordZ = z - chunk.pos.z;
+                            offsetX = x - this.orgin.x;
+                            offsetY = y - this.orgin.y;
+                            offsetZ = z - this.orgin.z;
 
                             // Random gravel on ground
-                            if (chunkCoordY == 0 && this.specialFlag == -1) {
+                            if (this.specialFlag == -1 && offsetY == -1) {
                                 if(rnd.Next(4) == 0) {
                                     b = Block.gravel;
                                 } else {
@@ -111,52 +111,52 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 }
                             }
                             // Top room code block
-                            else if (this.specialFlag == 1 && chunkCoordY > 8) {
-                                if(chunkCoordY == 15) {
+                            else if (this.specialFlag == 1 && offsetY > 8) {
+                                if(offsetY == 14) {
                                     if ((Mathf.Abs(offsetX) < 3 || Mathf.Abs(offsetZ) < 3) && rnd.Next(3) > 0) {
                                         b = null;
                                     }
-                                } else if(chunkCoordY == 14) {
+                                } else if(offsetY == 13) {
                                     if(Mathf.Abs(offsetZ) == 4 || Mathf.Abs(offsetX) == 4) {
                                         if(rnd.Next(2) == 0) {
                                             b = null;
                                         }
                                     }
-                                } else if(chunkCoordY == 13) {
+                                } else if(offsetY == 12) {
                                     if(Mathf.Abs(offsetX) < 4 && offsetZ == 0) {
                                         b = Block.wood;
                                         meta = 0;
                                     }
-                                } else if(chunkCoordY == 12) {
+                                } else if(offsetY == 11) {
                                     if(Mathf.Abs(offsetX) == 2 && (Mathf.Abs(offsetZ) <= 4)) {
                                         b = Block.wood;
                                         meta = 2;
                                     }
-                                } else { // 11, 10, 9
+                                } else { // 10, 9, 8
                                     int xAbs = Mathf.Abs(offsetX);
                                     int zAbs = Mathf.Abs(offsetZ);
                                     if (xAbs == 2 && zAbs == 4) {
                                         b = Block.wood;
                                         meta = 1;
-                                    } else if(chunkCoordY == 9) {
+                                    } else if(offsetY == 8) {
                                         if(xAbs == 3 && zAbs <= 2 && rnd.Next(10) != 0) {
                                             b = Block.fence;
                                         } else if(xAbs == 3 && zAbs == 4 && rnd.Next(25) == 0) {
-                                            RandomChest.SPAWN_CHEST.makeChest(chunk.world, i, j, k, k > this.orgin.z ? Direction.NORTH : Direction.SOUTH, rnd);
+                                            RandomChest.SPAWN_CHEST.makeChest(chunk.world, x, y, z, z > this.orgin.z ? Direction.NORTH : Direction.SOUTH, rnd);
                                             continue;
                                         }
                                     }
                                 }
                             }
                             // Torch
-                            else if (i == torchPos.x && k == torchPos.z && chunkCoordY == 11) {
+                            else if (x == torchPos.x && z == torchPos.z && chunkCoordY == 9) {
                                 b = Block.torch;
                                 meta = BlockTorch.getMetaFromDirection(torchDir);
                                 //chunk.world.setBlock(i, j, k, Block.torch, BlockTorch.getMetaFromDirection(torchDir), false);
                                 continue;
                             }
                             // Railing
-                            else if (chunkCoordY == 9 || (chunkCoordY == 1 && this.specialFlag != -1)) {
+                            else if (offsetY == 7 || (offsetY == 0 && this.specialFlag != -1)) {
                                 int xAbs = Mathf.Abs(offsetX);
                                 int zAbs = Mathf.Abs(offsetZ);
                                 if (((xAbs == 3 && zAbs < 3) || (zAbs == 3 && xAbs < 3)) && rnd.Next(20) != 0) {
@@ -164,7 +164,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 }
                             }
                             // Floor
-                            else if(chunkCoordY == 8 || (chunkCoordY == 0)) {
+                            else if(offsetY == -1 || offsetY == 6) {
                                 if(Mathf.Abs(offsetX) > 2 || Mathf.Abs(offsetZ) > 2) {
                                     b = Block.wood;
                                     meta = 1;
@@ -187,36 +187,38 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
         }
 
-        // Places the ladder for a "floor"
+        /// <summary>
+        /// Places the ladder blocks for a floor.
+        /// </summary>
         private void placeLadder(int ladderFlag, Chunk chunk, int orginX, int orginZ, bool isBottomFloor) {
-            BlockPos p = this.getLadderOffset(ladderFlag, orginX, orginZ);
-            int x1, z1, y;
-            if (chunk.isInChunkIgnoreY(p.x, p.z)) {
-                x1 = p.x - chunk.pos.x;
-                z1 = p.z - chunk.pos.z;
+            BlockPos ladderShift = this.getLadderOffset(ladderFlag, orginX, orginZ);
+            if (chunk.isInChunkIgnoreY(ladderShift.x, ladderShift.z)) {
+                int x = ladderShift.x - chunk.pos.x;
+                int z = ladderShift.z - chunk.pos.z;
                 //int ladderBottom = (isBottomFloor ? (this.specialFlag == -1 ? 1 : 1) : 9);
-                int ladderBottom = (isBottomFloor ? 1 : 9);
-                int ladderTop = (isBottomFloor ? 11 : (this.specialFlag == 1 ? 11 : 16));
-                for (y = ladderBottom; y < ladderTop; y++) {                    
-                    chunk.setBlock(x1, y, z1, Block.ladder);
-                    chunk.setMeta(x1, y, z1, (byte)ladderFlag);
+                int ladderBottom = (isBottomFloor ? this.orgin.y : this.orgin.y + 9);
+                int ladderTop = (isBottomFloor ? this.orgin.y + 10 : (this.specialFlag == 1 ? this.orgin.y + 12 : this.orgin.y + 14));
+                for (int y = ladderBottom; y < ladderTop; y++) {
+                    this.setStateIfInChunk(chunk, x, y, z, Block.ladder, ladderFlag);
                 }
             }
 
             // Place the ladder stub
-            p = this.getLadderOffset(this.floorBelowLadderFlag, orginX, orginZ);
-            if (chunk.isInChunkIgnoreY(p.x, p.z)) {
+            ladderShift = this.getLadderOffset(this.floorBelowLadderFlag, orginX, orginZ);
+            if (chunk.isInChunkIgnoreY(ladderShift.x, ladderShift.z)) {
                 if (isBottomFloor && this.floorBelowLadderFlag != -1) {
-                    x1 = p.x - chunk.pos.x;
-                    z1 = p.z - chunk.pos.z;
-                    for (y = 0; y < 3; y++) {
-                        chunk.setBlock(x1, y, z1, Block.ladder);
-                        chunk.setMeta(x1, y, z1, (byte)this.floorBelowLadderFlag);
+                    int x = ladderShift.x - chunk.pos.x;
+                    int z = ladderShift.z - chunk.pos.z;
+                    for (int y = 0; y < 3; y++) {
+                        this.setStateIfInChunk(chunk, x, y, z, Block.ladder, ladderFlag);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Shifts the passed BlockPos based on the passed ladder flag.
+        /// </summary>
         private BlockPos getLadderOffset(int ladderFlag, int orginX, int orginZ) {
             if (ladderFlag == 0) {
                 return new BlockPos(orginX + 4, 0, orginZ + 4);
@@ -239,9 +241,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void calculateBounds() {
-            this.pieceBounds = new Bounds(
-                new Vector3(this.orgin.x, this.orgin.y + 6.5f, this.orgin.z),
-                new Vector3(8, 15, 8));
+            this.setPieceSize(1, 12, 4);
         }
     }
 }

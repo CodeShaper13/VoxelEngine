@@ -13,10 +13,10 @@ namespace VoxelEngine.Render.BlockRender {
         public const int UP = Direction.UP_ID;
         public const int DOWN = Direction.DOWN_ID;
 
-        protected Vector2[] uvArray;
+        protected Vector2[] preAllocatedUvArray;
 
         public BlockRendererPrimitive() {
-            this.uvArray = new Vector2[4];
+            this.preAllocatedUvArray = new Vector2[4];
             this.setRenderInWorld(true);
         }
     }

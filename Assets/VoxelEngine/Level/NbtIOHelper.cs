@@ -18,7 +18,7 @@ namespace VoxelEngine.Level {
         private string saveImageFileName;
 
         public NbtIOHelper(WorldData data) {
-            this.dontWriteToDisk = data.dontWriteToDisk;
+            this.dontWriteToDisk = !data.writeToDisk;
             this.saveFolderName = "saves/" + data.worldName + "/";
             this.chunkFolderName = this.saveFolderName + "chunks/";
             this.worldDataFileName = this.saveFolderName + "world.nbt";

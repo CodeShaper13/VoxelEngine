@@ -15,6 +15,7 @@ namespace VoxelEngine.Blocks {
             this.setEmittedLight(7);
             this.setTransparent();
             this.setType(EnumBlockType.WOOD);
+            this.setTexture(3, 2);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
@@ -39,6 +40,18 @@ namespace VoxelEngine.Blocks {
 
         public override TileEntityBase getAssociatedTileEntity(World world, int x, int y, int z, int meta) {
             return new TileEntityTorch(world, x, y, z, meta);
+        }
+
+        public override TexturePos getTexturePos(Direction direction, int meta) {
+            int i;
+            if (direction == Direction.UP) {
+                i = 1;
+            } else if (direction == Direction.DOWN) {
+                i = 2;
+            } else {
+                i = 0;
+            }
+            return new TexturePos(8, i);
         }
 
         public static int getMetaFromDirection(Direction dir) {

@@ -11,17 +11,17 @@ namespace VoxelEngine.Level {
         public Vector3 spawnPos;
         public int worldType;
         public DateTime lastLoaded;
-        public bool dontWriteToDisk;
+        public bool writeToDisk;
 
         public WorldData(string worldName) {
             this.worldName = worldName;
         }
 
-        public WorldData(string worldName, int seed, int worldType, bool dontWriteToDisk) : this(worldName) {
+        public WorldData(string worldName, int seed, int worldType, bool writeToDisk) : this(worldName) {
             this.seed = (int)DateTime.Today.ToBinary();
             this.worldType = worldType;
             this.lastLoaded = DateTime.Now;
-            this.dontWriteToDisk = dontWriteToDisk;
+            this.writeToDisk = writeToDisk;
         }
 
         public NbtCompound writeToNbt() {

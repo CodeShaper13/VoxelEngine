@@ -24,9 +24,9 @@ namespace VoxelEngine.Blocks {
         public static Block gravel = new Block(4).setName("Gravel").setMineTime(0).setTexture(0, 11).setType(EnumBlockType.DIRT);
         public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(0);
         public static Block bronzeOre = new BlockOre(6, Item.bronzeBar, 6).setName("Bronze Ore").setMineTime(0);
-        public static Block ironOre = new BlockOre(7, Item.ironBar, 7).setName("Iron Ore").setMineTime(0);
-        public static Block goldOre = new BlockOre(8, Item.goldBar, 8).setName("Gold Ore").setMineTime(0);
-        public static Block rubyOre = new BlockOre(9, Item.ruby, 9).setName("Ruby Ore").setMineTime(0);
+        public static Block ironOre = new BlockOre(7, Item.ironBar, 6).setName("Iron Ore").setMineTime(0);
+        public static Block goldOre = new BlockOre(8, Item.goldBar, 9).setName("Gold Ore").setMineTime(0);
+        public static Block rubyOre = new BlockOre(9, Item.ruby, 8).setName("Ruby Ore").setMineTime(0);
         public static Block water = new BlockFluid(10).setName("Water").setTexture(0, 12);
         public static Block lava = new BlockFluid(11).setName("Lava").setTexture(1, 12).setEmittedLight(5);
         public static Block cornCrop = new BlockCrop(12, Item.corn, 3, 5, 7).setName("Corn");
@@ -36,7 +36,7 @@ namespace VoxelEngine.Blocks {
         public static Block lantern = new BlockLantern(17).setName("Lanturn");
         public static Block torch = new BlockTorch(18).setName("Torch");
         public static Block ladder = new BlockLadder(19).setName("Ladder");
-        public static Block fence = new Block(20).setName("Fence").setTransparent().setRenderer(RenderManager.FENCE).setType(EnumBlockType.WOOD);
+        public static Block fence = new BlockFence(20).setName("Fence");
         public static Block ironFence = new Block(21).setName("Iron Fence").setType(EnumBlockType.STONE);
         public static Block plank = new Block(22).setName("Wood Plank").setTexture(5, 0).setType(EnumBlockType.WOOD);
         public static Block plankSlab = new BlockSlab(23, Block.plank);
@@ -54,6 +54,7 @@ namespace VoxelEngine.Blocks {
         public static Block rail = new BlockRail(35).setName("Rail");
         public static Block door; // 36
         public static Block farmland = new BlockFarmland(37).setName("Farmland");
+        public static Block bed = new BlockBed(38).setName("Bed");
 
         [Obsolete("Remember to update the placeholder with the correct block")]
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(0, 0);

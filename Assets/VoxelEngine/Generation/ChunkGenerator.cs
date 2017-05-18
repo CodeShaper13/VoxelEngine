@@ -205,15 +205,17 @@ namespace VoxelEngine.Generation {
 
         //Generates the spawn chunk
         private void generateSpawnChunk(Chunk c) {
-            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
-                c.blocks[i] = Block.air;
-            }
-            for (int i = 0; i < Chunk.SIZE; i++) {
-                for (int j = 0; j < Chunk.SIZE; j++) {
-                    c.setBlock(i, 0, j, Block.wood);
+            for(int x = 0; x < Chunk.SIZE; x++) {
+                for (int z = 0; z < Chunk.SIZE; z++) {
+                    for (int y = 0; y < Chunk.SIZE; y++) {
+                        if (y == 0) {
+                            c.setBlock(x, 0, z, Block.wood);
+                        } else {
+                            c.setBlock(x, y, z, Block.air);
+                        }                        
+                    }
                 }
             }
-            c.isDirty = true;
         }
 
         private BlockPos randomChunkPos() {

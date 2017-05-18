@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererTorch : BlockRendererPrimitive {
 
         private const float ROT = 15.0f;
-        public const float SHIFT = 0.35f;
-        private const float TORCH_HEIGHT = 0.4f;
+        public const float SHIFT = 0.4375f;
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             Vector3 offset;
@@ -29,7 +29,9 @@ namespace VoxelEngine.Render.BlockRender {
                 rotation = Quaternion.identity;
             }
 
-            meshData.addRotatedBox(offset, new Vector3(0.15f, TORCH_HEIGHT, 0.15f), rotation, b, meta, this.uvArray);
+            float r = MathHelper.pixelToWorld(4);
+
+            meshData.addBox(offset, new Vector3(r, MathHelper.pixelToWorld(14), r), rotation, b, meta, this.preAllocatedUvArray);
         }
     }
 }

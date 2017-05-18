@@ -2,15 +2,19 @@
 using fNbt;
 using UnityEngine;
 using VoxelEngine.Util;
+using VoxelEngine.Generation.Caves.Structure.Mineshaft.Center;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class StructureMineshaft : StructureBase, IDebugDisplayable {
 
-        public const int SIZE_CAP = 0; //20
+        public const int SIZE_CAP = 20;
 
         public List<PieceBase> pieces;
-        public BlockPos shaftOrgin;
+        public System.Random rnd;
+
+        private BlockPos shaftOrgin;
+        
 
         public StructureMineshaft() {
             this.pieces = new List<PieceBase>();
@@ -18,9 +22,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public StructureMineshaft(Vector3 shaftOrgin, int seed) : this() {
             this.shaftOrgin = new BlockPos((int)shaftOrgin.x, (int)shaftOrgin.y, (int)shaftOrgin.z);
+            this.rnd = new System.Random(seed);
 
             // Make the starting piece
-            new PieceCenter(this.shaftOrgin, pieces, 0, new System.Random(seed));
+            new PieceCenter(this, this.shaftOrgin);
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -57,9 +62,19 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     case 4:
                         p = new PieceShaft(compound);
                         break;
+                    case 7:
+                        p = new PieceSmallShaft(compound);
+                        break;
+                    case 8:
+                        p = new PieceBedroom(compound);
+                        break;
+                    case 9:
+                        p = new PieceSmallStoreRoom(compound);
+                        break;
                 }
 
                 if(p != null) {
+                    p.shaft = this;
                     p.calculateBounds();
                     this.pieces.Add(p);
                 }

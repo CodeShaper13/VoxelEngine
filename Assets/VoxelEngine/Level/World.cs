@@ -41,7 +41,7 @@ namespace VoxelEngine.Level {
                 }
                 this.worldData.spawnPos = this.generator.getSpawnPoint();
 
-                if (!this.worldData.dontWriteToDisk) {
+                if (this.worldData.writeToDisk) {
                     // Save the world data right away so we don't have a folder with chunks that is
                     // recognized as a save.
                     this.nbtIOHelper.writeWorldDataToDisk(this.worldData);
@@ -112,9 +112,11 @@ namespace VoxelEngine.Level {
             GameObject.Destroy(entity.gameObject);
         }
 
-        public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation) {
+        public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation, Vector3 force) {
             EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item.prefab, position, rotation);
             entityItem.setStack(stack);
+            entityItem.rBody.AddForce(force, ForceMode.Impulse);
+
             return entityItem;
         }
 
@@ -260,6 +262,10 @@ namespace VoxelEngine.Level {
                 return 0;
             }
         }
+
+        public TileEntityBase getTileEntity(int x, int y, int z) {
+            return this.getTileEntity(new BlockPos(x, y, z));
+        }
         
         /// <summary>
         /// Returns the TileEntity at pos, or null if it can't be found.
@@ -385,10 +391,13 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void breakBlock(BlockPos pos, ItemTool brokenWith) {
             Block block = this.getBlock(pos);
-            foreach (ItemStack stack in block.getDrops(this, pos, this.getMeta(pos), brokenWith)) {
-                float f = 0.5f;
-                Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
-                this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0));
+            ItemStack[] stacks = block.getDrops(this, pos, this.getMeta(pos), brokenWith);
+            if(stacks != null) {
+                foreach (ItemStack stack in stacks) {
+                    float f = 0.5f;
+                    Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
+                    this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0), Vector3.zero);
+                }
             }
             this.setBlock(pos, Block.air);
         }

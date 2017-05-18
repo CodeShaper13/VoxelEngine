@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
-using VoxelEngine.Util;
+using VoxelEngine.Render;
 
 namespace VoxelEngine.Containers {
 
@@ -20,10 +20,6 @@ namespace VoxelEngine.Containers {
             this.player = player;
 
             this.gameObject.SetActive(true);
-
-            //for (int i = 0; i < this.slots.Length; i++) {
-            //    this.slots[i].setContents(data.items[i]);
-            //}
 
             return this;
         }
@@ -46,17 +42,15 @@ namespace VoxelEngine.Containers {
 
             // Set slot text
             for (int i = 0; i < this.data.items.Length; i++) {
-                //Debug.Log(i);
                 stack = this.data.items[i];
                 if (stack != null) {
-                    //Debug.Log(stack.count);
                 }
                 this.slots[i].slotText.text = (stack == null || stack.count == 1 ? string.Empty : stack.count.ToString());
             }
         
             Transform trans;
             for (int i = 0; i < this.data.items.Length; i++) {
-                stack = this.data.items[i];// this.slots[i].getContents();
+                stack = this.data.items[i];
                 if (stack != null) {
                     trans = this.slots[i].transform;
                     RenderHelper.renderStack(stack, trans.position + -trans.forward);
@@ -139,43 +133,5 @@ namespace VoxelEngine.Containers {
                 }
             }
         }
-
-        /*
-        /// <summary>
-        /// Adds the passed stack to the container, returning any we couldn't add.
-        /// </summary>
-        public ItemStack addItemStack(ItemStack stack) {
-            if(stack == null) {
-                return null;
-            }
-
-            //Slot slot;
-            // First try to fill up any slots that already have items
-            for (int i = 0; i < this.data.items.Length; i++) {
-                //slot = this.slots[i];
-                ItemStack contents = this.data.items[i];// slot.getContents();
-                if (contents == null || (!contents.equals(stack)) || contents.count >= ItemStack.MAX_SIZE) {
-                    continue;
-                }
-                // Stacks are equal and slot is not full
-                stack = contents.merge(stack);
-                //slot.updateSlotText();
-
-                if (stack == null) {
-                    return null;
-                }
-            }
-
-            // If we still have stuff to deposite, add it to an empty slot
-            for (int i = 0; i < this.data.items.Length; i++) {
-                //slot = this.slots[i];
-                if (this.data.items[i] == null) {
-                    this.data.items[i] = stack;
-                    return null;
-                }
-            }
-            return stack;
-        }
-        */
     }
 }

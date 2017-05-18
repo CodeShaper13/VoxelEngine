@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.Profiling;
-using VoxelEngine.Blocks;
+﻿using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
@@ -31,47 +29,19 @@ namespace Assets.VoxelEngine.Render {
             this.south = world.getChunk(new ChunkPos(x, y, z - 1));
         }
 
-        public bool check() {
+        /// <summary>
+        /// Returns true is all the adjacent chunks are loaded.
+        /// </summary>
+        public bool allChunksLoaded() {
             return this.east == null || this.west == null || this.up == null || this.down == null || this.north == null || this.south == null;
         }
 
         public Block getBlock(int x, int y, int z) {
             this.getChunk(x, y, z);
-            Profiler.BeginSample("Ternary");
             x += x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0;
             y += y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0;
             z += z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            Profiler.EndSample();
             return this.cached.getBlock(x, y, z);
-            /*
-            if (x < 0) {
-                x += Chunk.SIZE;
-                return this.cachedChunks[2].getBlock(x, y, z);
-            }
-            else if (x >= Chunk.SIZE) {
-                x -= Chunk.SIZE;
-                return this.cachedChunks[1].getBlock(x, y, z);
-            }
-            else if (y < 0) {
-                y += Chunk.SIZE;
-                return this.cachedChunks[4].getBlock(x, y, z);
-            }
-            else if (y >= Chunk.SIZE) {
-                y -= Chunk.SIZE;
-                return this.cachedChunks[3].getBlock(x, y, z);
-            }
-            else if (z < 0) {
-                z += Chunk.SIZE;
-                return this.cachedChunks[6].getBlock(x, y, z);
-            }
-            else if (z >= Chunk.SIZE) {
-                z -= Chunk.SIZE;
-                return this.cachedChunks[5].getBlock(x, y, z);
-            }
-            else {
-                return this.cachedChunks[0].getBlock(x, y, z);
-            }
-            */
         }
 
         public int getLight(int x, int y, int z) {

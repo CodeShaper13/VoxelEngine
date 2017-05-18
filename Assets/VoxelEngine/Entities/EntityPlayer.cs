@@ -7,7 +7,6 @@ using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities.Player;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
-using UnityStandardAssets.Characters.FirstPerson;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Generation;
 using VoxelEngine.GUI;
@@ -25,13 +24,15 @@ namespace VoxelEngine.Entities {
         public Slider hungerSlider;
         public Transform handTransfrom;
 
-        public FirstPersonController fpc;
-        private BreakBlockEffect blockBreakEffect;
-        public Transform mainCamera;
-        private ItemStack lastHeldItem;
-        private ChunkLoaderBase chunkLoader;
         public BlockPos posLookingAt;
         public ContainerHotbar containerHotbar;
+        public Transform mainCamera;
+
+        private PlayerMover playerMover;
+        private BreakBlockEffect blockBreakEffect;
+        private ChunkLoaderBase chunkLoader;
+        private bool onGroundLastUpdate;
+        private float lastGroundedY;
 
         // State
         public float hunger;
@@ -45,7 +46,6 @@ namespace VoxelEngine.Entities {
             base.onConstruct();
 
             this.mainCamera = Camera.main.transform;
-            this.fpc = this.GetComponent<FirstPersonController>();
 
             this.dataHotbar = new ContainerData(9, 1);
             this.dataInventory = new ContainerData(5, 5);
@@ -55,6 +55,7 @@ namespace VoxelEngine.Entities {
             this.containerHotbar = ContainerManager.containerHotbar;
             this.containerHotbar.onOpen(this.dataHotbar, this);
 
+            this.playerMover = new PlayerMover(this);
             this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
 
             this.setMaxHealth(100);
@@ -90,6 +91,8 @@ namespace VoxelEngine.Entities {
 
             this.chunkLoader.updateChunkLoader();
 
+            this.doFallDamage();
+
             /*
             // Update hunger
             this.hunger -= Time.deltaTime * 0.25f;
@@ -105,14 +108,11 @@ namespace VoxelEngine.Entities {
             */
         }
 
-        public override void setHealth(int amount) {
-            base.setHealth(amount);
-            this.heartEffect.startAnimation(this.health, amount);
-        }
-
         public override bool damage(int amount, string message) {
             this.damageEffect.startEffect();
+            int oldHealth = this.health;
             this.setHealth(this.health - amount);
+            this.heartEffect.startAnimation(oldHealth, this.health);
             if (this.health <= 0) {
                 // Player has died
                 this.contManager.closeContainer(this);
@@ -121,10 +121,9 @@ namespace VoxelEngine.Entities {
                 this.scatterContainerContents(this.world, this.dataInventory);
 
                 Main.hideMouse(false);
-                this.fpc.enabled = false;
-                Main m = Main.singleton;
-                
-                m.openGuiScreen(GuiManager.respawn);
+                //this.fpc.enabled = false;
+
+                Main.singleton.openGuiScreen(GuiManager.respawn);
                 GuiManager.respawn.deathMessageText.text = message;
                 return true;
             }
@@ -143,6 +142,8 @@ namespace VoxelEngine.Entities {
             tag.Add(new NbtFloat("hunger", this.hunger));
             tag.Add(new NbtFloat("hungerTimer", this.hunger));
             tag.Add(new NbtInt("selectedHotbarIndex", this.containerHotbar.index));
+            tag.Add(new NbtByte("grounded", (byte)(this.onGroundLastUpdate ? 1 : 0)));
+            tag.Add(new NbtFloat("lastY", this.lastGroundedY));
             //TODO jump
             return tag;
         }
@@ -155,9 +156,14 @@ namespace VoxelEngine.Entities {
             this.hunger = tag.Get<NbtFloat>("hunger").FloatValue;
             this.hungerDamageTimer = tag.Get<NbtFloat>("hungerTimer").FloatValue;
             this.containerHotbar.index = tag.Get<NbtInt>("selectedHotbarIndex").IntValue;
+            this.onGroundLastUpdate = tag.Get<NbtByte>("grounded").ByteValue == 1;
+            this.lastGroundedY = tag.Get<NbtFloat>("lastY").FloatValue;
         }
 
         public ItemStack tryPickupStack(ItemStack stack) {
+            if (this.health <= 0) {
+                return stack;
+            }
             return this.dataInventory.addItemStack(this.dataHotbar.addItemStack(stack));
         }
 
@@ -166,8 +172,9 @@ namespace VoxelEngine.Entities {
         }
         
         public void handleInput() {
-            bool isShiftDown = Input.GetKey(KeyCode.LeftShift);
+            this.playerMover.updateMover();
 
+            bool isShiftDown = Input.GetKey(KeyCode.LeftShift);
             ItemStack heldStack = this.containerHotbar.getHeldItem();
 
             // Find out what the player is looking at.
@@ -186,8 +193,7 @@ namespace VoxelEngine.Entities {
                             }
                         }
                     }
-                }
-                else if (playerHit.hitEntity()) {
+                } else if (playerHit.hitEntity()) {
                     if (Input.GetMouseButtonDown(0)) {
                         // Player is hitting an entity
                         int damage = 1;
@@ -201,8 +207,7 @@ namespace VoxelEngine.Entities {
                         playerHit.entity.onEntityInteract(this);
                     }
                 }
-            }
-            else {
+            } else {
                 // We are clicking on the air
                 if (Input.GetMouseButtonDown(1) && heldStack != null) {
                     this.containerHotbar.setHeldItem(heldStack.item.onRightClick(this.world, this, heldStack, playerHit));
@@ -226,11 +231,9 @@ namespace VoxelEngine.Entities {
                 }
             }
 
-            /*
             if(Input.GetKeyDown(KeyCode.Y)) {
-                this.damage(30, "Test");
+                this.damage(30, "Debug Y");
             }
-            */
 
             if (Input.GetKeyDown(KeyCode.Q)) {
                 ItemStack toDrop = null;
@@ -288,19 +291,24 @@ namespace VoxelEngine.Entities {
         /// Configures a first time player, setting the starting inventory and the default health.
         /// </summary>
         public void setupFirstTimePlayer() {
-            this.dataHotbar.items[0] = new ItemStack(Block.rail, 0, 25);
-            this.dataHotbar.items[1] = new ItemStack(Block.ladder, 0, 12);
-            this.dataHotbar.items[2] = new ItemStack(Block.mushroom, 0, 16);
-            this.dataHotbar.items[3] = new ItemStack(Item.bucket, 0, 16);
+            this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 25);
+            this.dataHotbar.items[1] = new ItemStack(Block.plankSlab, 0, 12);
+            this.dataHotbar.items[2] = new ItemStack(Block.ironOre, 0, 16);
+            this.dataHotbar.items[3] = new ItemStack(Block.rubyOre, 0, 16);
             this.dataHotbar.items[4] = new ItemStack(Item.corn, 0, 1);
             this.dataHotbar.items[5] = new ItemStack(Item.skull, 0, 25);
-            this.dataHotbar.items[6] = new ItemStack(Item.carrot, 0, 1);
-            this.dataHotbar.items[7] = new ItemStack(Item.bone, 0, 1);
+            this.dataHotbar.items[6] = new ItemStack(Item.coal, 0, 1);
+            this.dataHotbar.items[7] = new ItemStack(Item.ruby, 0, 1);
             this.dataHotbar.items[8] = new ItemStack(Item.flesh, 0, 1);
+
+            /*
+            this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
+            this.dataHotbar.items[1] = new ItemStack(Item.shovel);
+            this.dataHotbar.items[2] = new ItemStack(Item.axe);
+            */
 
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";
-            this.hunger = 75;
         }
 
         /// <summary>
@@ -340,10 +348,12 @@ namespace VoxelEngine.Entities {
         /// Drops an item, via 'q' or closing a container.
         /// </summary>
         public void dropItem(ItemStack stack) {
-            EntityItem e = this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2), Quaternion.Euler(0, this.transform.eulerAngles.y, 0));
-            e.rBody.AddForce(this.transform.forward * 2.5f, ForceMode.Impulse);
+            this.world.spawnItem(stack, this.transform.position + (Vector3.up / 2), Quaternion.Euler(0, this.transform.eulerAngles.y, 0), this.transform.forward * 2.5f);
         }
 
+        /// <summary>
+        /// Reduces one from the currently held item, updating the hud and setting the slot to null if the count falls below 1.
+        /// </summary>
         public void reduceHeldStackByOne() {
             this.containerHotbar.setHeldItem(this.containerHotbar.getHeldItem().safeDeduction());
         }
@@ -352,13 +362,13 @@ namespace VoxelEngine.Entities {
         /// Scatters all the contents of a container, used when the player dies.
         /// </summary>
         private void scatterContainerContents(World world, ContainerData containerData) {
-            float f = 0.5f;
+            float f = 1.5f;
             ItemStack[] items = containerData.getRawItemArray();
             for (int i = 0; i < items.Length; i++) {
-                Vector3 offset = new Vector3(Random.Range(-f, f), Random.Range(-f, f), Random.Range(-f, f));
+                Vector3 randomForce = new Vector3(Random.Range(-f, f), Random.Range(0, f), Random.Range(-f, f));
                 ItemStack stack = items[i];
                 if (stack != null) {
-                    this.world.spawnItem(items[i], this.transform.position + offset, Quaternion.Euler(0, Random.Range(0, 360), 0));
+                    this.world.spawnItem(items[i], this.transform.position, Quaternion.Euler(0, Random.Range(0, 360), 0), randomForce);
                     items[i] = null;
                 }
             }
@@ -366,6 +376,27 @@ namespace VoxelEngine.Entities {
 
         public float getReach() {
             return 3f;
+        }
+
+        /// <summary>
+        /// Updates the players falling state, applying damage if needed.
+        /// </summary>
+        private void doFallDamage() {
+            bool onGround = this.playerMover.isGrounded();
+
+            if (onGround && !this.onGroundLastUpdate) {
+                // We hit the ground from falling
+                float dif = this.lastGroundedY - this.transform.position.y;
+                if (dif > 4) {
+                    this.damage(Mathf.RoundToInt(dif) * 3, "Fell to far!");
+                }
+            }
+
+            if (onGround) {
+                this.lastGroundedY = this.transform.position.y;
+            }
+
+            this.onGroundLastUpdate = onGround;
         }
     }
 }

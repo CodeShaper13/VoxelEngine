@@ -6,6 +6,7 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Blocks {
 
     public class BlockOre : Block {
+
         private Item droppedItem;
         private int textureY;
 
@@ -13,16 +14,15 @@ namespace VoxelEngine.Blocks {
             this.droppedItem = drop;
             this.textureY = textureY;
             this.setType(EnumBlockType.STONE);
-            this.setStatesUsed(5);
+            this.setStatesUsed(3);
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             ItemStack stack;
             if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
                 stack = new ItemStack(this.droppedItem);
-            }
-            else {
-                stack = new ItemStack(Item.pebble);
+            } else {
+                return null; // stack = new ItemStack(Item.pebble);
             }
             return new ItemStack[] { stack };
         }

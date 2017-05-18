@@ -19,9 +19,7 @@ namespace VoxelEngine.Render {
         /// Returns the color coresponding to a brightness
         /// </summary>
         public Color getColorFromBrightness(int lightLevel) {
-            int x = lightLevel;
-            int y = lightLevel;
-            return this.cachedColors[(x * 16) + y];
+            return this.cachedColors[lightLevel];
         }
     }
 }

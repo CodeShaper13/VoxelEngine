@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
@@ -32,12 +31,16 @@ namespace VoxelEngine.Util {
             this.z = z;
         }
 
-        // Converts the block pos to a chunk pos, multiplying everything by 16
+        /// <summary>
+        /// Converts the block pos to a chunk pos, multiplying everything by Chunk.SIZE
+        /// </summary>
         public ChunkPos toChunkPos() {
             return new ChunkPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);
         }
 
-        // Returns a new block pos moved in the passes direction
+        /// <summary>
+        /// Returns a new block pos moved in the passes direction.
+        /// </summary>
         public BlockPos move(Direction dir) {
             return new BlockPos(this.x + dir.direction.x, this.y + dir.direction.y, this.z + dir.direction.z);
         }
@@ -60,6 +63,10 @@ namespace VoxelEngine.Util {
             }
         }
 
+        public BlockPos add(int x, int y, int z) {
+            return new BlockPos(this.x + x, this.y + y, this.z + z);
+        }
+
         public static BlockPos operator +(BlockPos b, BlockPos b1) {
             return new BlockPos(b.x + b1.x, b.y + b1.y, b.z + b1.z);
         }
@@ -76,7 +83,9 @@ namespace VoxelEngine.Util {
             return new BlockPos(b.x / i, b.y / i, b.z / i);
         }
 
-        // Adds 1 to all of the axes that are not 0
+        /// <summary>
+        /// Adds 1 to all of the axes that are not 0.
+        /// </summary>
         public static BlockPos operator ++(BlockPos p) {
             return new BlockPos(
                 p.x + (p.x != 0 ? 1 : 0),
@@ -84,7 +93,9 @@ namespace VoxelEngine.Util {
                 p.z + (p.z != 0 ? 1 : 0));
         }
 
-        // Subtracts 1 from all of the axes that are not 0
+        /// <summary>
+        /// Subtracts 1 from all of the axes that are not 0.
+        /// </summary>
         public static BlockPos operator --(BlockPos p) {
             return new BlockPos(
                 p.x - (p.x != 0 ? 1 : 0),
@@ -116,18 +127,5 @@ namespace VoxelEngine.Util {
             return pos;
             */
         }
-
-        /*
-        private static float moveWithinBlock(float point, float normal, bool adjacent = false) {
-            if ((point - (int)point) == 0.5f || (point - (int)point) == -0.5f) {
-                if (adjacent) {
-                    point += (normal / 2);
-                } else {
-                    point -= (normal / 2);
-                }
-            }
-            return point;
-        }
-        */
     }
 }

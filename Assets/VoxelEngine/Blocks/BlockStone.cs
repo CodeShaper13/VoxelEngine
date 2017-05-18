@@ -9,7 +9,7 @@ namespace VoxelEngine.Blocks {
 
         public BlockStone(int id) : base(id) {
             this.setType(EnumBlockType.STONE);
-            this.setStatesUsed(4);
+            this.setStatesUsed(1);
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
@@ -19,7 +19,7 @@ namespace VoxelEngine.Blocks {
         public override string getName(int meta) {
             switch (meta) {
                 case 0:
-                    return "Stone 0";
+                    return "Stone";
                 case 1:
                     return "Stone 1";
                 case 2:
@@ -33,13 +33,13 @@ namespace VoxelEngine.Blocks {
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
-            ItemStack stack;
+            ItemStack stack = null;
             if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
                 stack = new ItemStack(this.asItem(), meta);
             }
-            else {
-                stack = new ItemStack(Item.pebble);
-            }
+            //else {
+            //    stack = new ItemStack(Item.pebble);
+            //}
             return new ItemStack[] { stack };
         }
     }

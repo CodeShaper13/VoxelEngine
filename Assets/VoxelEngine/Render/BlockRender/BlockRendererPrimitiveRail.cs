@@ -13,7 +13,7 @@ namespace VoxelEngine.Render.BlockRender {
                 new Vector3(x + 0.5f, y - f, z + 0.5f),
                 new Vector3(x + 0.5f, y - f, z - 0.5f),
                 new Vector3(x - 0.5f, y - f, z - 0.5f),
-                b.getUVs(meta, Direction.UP, this.uvArray),
+                b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
                 0);
         }
     }

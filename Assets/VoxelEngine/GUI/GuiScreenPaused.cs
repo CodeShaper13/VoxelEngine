@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 using VoxelEngine.Level;
 
@@ -37,6 +38,11 @@ namespace VoxelEngine.GUI {
 
         public void callbackHelp() {
             throw new NotImplementedException();
+        }
+
+        public void callbackResetMap() {
+            Directory.Delete("saves/World_1", true);
+            Main.singleton.createNewWorld();
         }
 
         public override GuiScreen getEscapeCallback() {

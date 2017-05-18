@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
-using VoxelEngine.Render;
+using VoxelEngine.Util;
 
-namespace VoxelEngine.Util {
+namespace VoxelEngine.Render {
 
     public static class RenderHelper {
 

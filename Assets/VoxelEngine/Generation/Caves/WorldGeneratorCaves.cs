@@ -60,26 +60,24 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public void debugDisplay() {
-            //for(int i = 0; i < this.mineshaftList.Count; i++) {
-            //    this.mineshaftList[i].debugDisplay();
-            //}
+            for(int i = 0; i < this.mineshaftList.Count; i++) {
+                this.mineshaftList[i].debugDisplay();
+            }
         }
 
         public override void generateChunk(Chunk chunk) {
             this.rnd = new System.Random(this.seed + chunk.chunkPos.GetHashCode());
 
+            /*
             bool inCrackChunk = chunk.chunkPos.y % 2 != 0;
-            byte closerToOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2));
-            byte fartherFromOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2 + (chunk.chunkPos.y < 0 ? -1 : 1)));
-            Block block;
-            byte meta;
-
-            float noise;
+            int closerToOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2));
+            int fartherFromOrgin = this.stoneLayers.getStone(Mathf.FloorToInt(chunk.chunkPos.y / 2 + (chunk.chunkPos.y < 0 ? -1 : 1)));
 
             //Iterate through all blocks in the chunk, setting them to the correct stone
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
+                        // Removed layered stone because of expensive noise lookup and lack of textures
                         meta = (chunk.chunkPos.y < 0 && inCrackChunk) ? fartherFromOrgin : closerToOrgin;
 
                         noise = Noise.Generate(chunk.pos.x + x, chunk.pos.y, chunk.pos.z + z);
@@ -96,31 +94,59 @@ namespace VoxelEngine.Generation.Caves {
                             block = Block.stone;
                         }
 
-                        chunk.setBlock(x, y, z, block);
-                        chunk.setMeta(x, y, z, 0 /*meta*/);
+                        chunk.setBlock(x, y, z, Block.stone);
                     }
                 }
             }
+            */
 
-            //chunk.setBlock(rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), Block.uraniumOre);
+            for(int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+                chunk.blocks[i] = Block.stone;
+            }
+            chunk.isDirty = true;
 
-            this.generateRubyPatch(chunk, rnd.Next(0, Chunk.SIZE - 2), rnd.Next(0, Chunk.SIZE - 2), rnd.Next(0, Chunk.SIZE - 2), rnd);
+            // Ores.
+            this.generateOrePatch(chunk, 2, Block.gravel, 7, rnd);
 
-            foreach (StructureMineshaft m in this.mineshaftList) {
-                foreach(PieceBase p in m.pieces) {
-                    if(chunk.chunkBounds.Intersects(p.pieceBounds)) {
-                        p.carvePiece(chunk, rnd);
+            for (int i = 0; i < 3; i++) {
+                this.generateOrePatch(chunk, 2, Block.coalOre, 6, rnd);
+                this.generateOrePatch(chunk, 2, Block.dirt, 7, rnd);
+            }
+
+            this.generateOrePatch(chunk, 2, Block.ironOre, 4, rnd);
+            this.generateOrePatch(chunk, 1, Block.rubyOre, 3, rnd);
+
+            StructureMineshaft shaft;
+            PieceBase piece;
+            for(int i = 0; i < this.mineshaftList.Count; i++) {
+                shaft = this.mineshaftList[i];
+                for(int j = 0; j < shaft.pieces.Count; j++) {
+                    piece = shaft.pieces[j];
+                    if(chunk.chunkBounds.Intersects(piece.pieceBounds)) {
+                        piece.carvePiece(chunk, rnd);
                     }
                 }
             }
         }
 
-        private void generateRubyPatch(Chunk c, int x, int y, int z, System.Random rnd) {
-            for(int i = 0; i < 3; i++) {
-                for(int j = 0; j < 3; j++) {
-                    for(int k = 0; k < 3; k++) {
-                        if(rnd.Next(0, 20) > 7) {
-                            c.setBlock(x + i, y + j, z + k, Block.rubyOre);
+        /// <summary>
+        /// Generates and places a random patch of ore.
+        /// </summary>
+        private void generateOrePatch(Chunk c, int size, Block block, int chance, System.Random rnd) {
+            int x = rnd.Next(0, Chunk.SIZE);
+            int y = rnd.Next(0, Chunk.SIZE);
+            int z = rnd.Next(0, Chunk.SIZE);
+            int x1, y1, z1;
+            for (int i = -size; i <= size; i++) {
+                for(int j = -size; j <= size; j++) {
+                    for(int k = -size; k <= size; k++) {
+                        if(rnd.Next(0, 10) < chance) {
+                            x1 = x + i;
+                            y1 = y + j;
+                            z1 = z + k;
+                            if(x1 >= 0 && y1 >= 0 && z1 >= 0 && x1 < Chunk.SIZE && y1 < Chunk.SIZE && z1 < Chunk.SIZE) {
+                                c.setBlock(x1, y1, z1, block);
+                            }
                         }
                     }
                 }

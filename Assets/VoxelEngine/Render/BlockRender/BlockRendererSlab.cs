@@ -14,7 +14,7 @@ namespace VoxelEngine.Render.BlockRender {
                     v.x == 0 ? 0.5f : 0.25f,
                     v.y == 0 ? 0.5f : 0.25f,
                     v.z == 0 ? 0.5f : 0.25f);
-                meshData.addBox(new Vector3(x + (v.x / 4), y + (v.y / 4), z + (v.z / 4)), size, b, meta, this.uvArray);
+                meshData.addBox(new Vector3(x + (v.x / 4), y + (v.y / 4), z + (v.z / 4)), size, b, meta, this.preAllocatedUvArray);
             }
         }
     }

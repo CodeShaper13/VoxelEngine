@@ -32,9 +32,6 @@ namespace VoxelEngine.Util {
         /// <summary>
         /// Mirrors uvs on the x axis.
         /// </summary>
-        /// <param name="uvs"></param>
-        /// <param name=""></param>
-        /// <returns></returns>
         public static Vector2[] mirrorUvsX(Vector2[] uvs) {
             // Bottom
             Vector2 temp = uvs[0];
@@ -46,6 +43,32 @@ namespace VoxelEngine.Util {
             uvs[1] = uvs[2];
             uvs[2] = temp;
 
+            return uvs;
+        }
+
+        /// <summary>
+        /// Makes the faces uvs align with pixel, cropping to the middle.
+        /// </summary>
+        public static Vector2[] cropUVs(Vector2[] uvs, Vector2 faceRadius) {
+            Vector2 uv0 = uvs[0];
+            Vector2 uv1 = uvs[1];
+            Vector2 uv2 = uvs[2];
+            Vector2 uv3 = uvs[3];
+
+            float clipX = (16 - (faceRadius.x * 32)) * TexturePos.PIXEL_SIZE;
+            float clipY = (16 - (faceRadius.y * 32)) * TexturePos.PIXEL_SIZE;
+            uvs[0] = new Vector2(
+                uv0.x + clipX,
+                uv0.y + clipY);
+            uvs[1] = new Vector2(
+                uv1.x + clipX,
+                uv1.y - clipY);
+            uvs[2] = new Vector2(
+                uv2.x - clipX,
+                uv2.y - clipY);
+            uvs[3] = new Vector2(
+                uv3.x - clipX,
+                uv3.y + clipY);
             return uvs;
         }
     }

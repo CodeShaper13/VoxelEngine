@@ -95,13 +95,13 @@ namespace VoxelEngine.Render.Items {
         private bool func(Texture2D textureAtlas, int x, int y, int shiftX, int shiftY, ref Vector2[] pixelUvs) {
             Color c = textureAtlas.GetPixel(x + shiftX, y + shiftY);
             if(c.a == 0) { // Transparent pixel.
-                float px = x * TexturePos.ITEM_PIXEL_SIZE;
-                float py = y * TexturePos.ITEM_PIXEL_SIZE;
+                float px = x * TexturePos.PIXEL_SIZE;
+                float py = y * TexturePos.PIXEL_SIZE;
                 
                 pixelUvs[0] = new Vector2(px, py);
-                pixelUvs[1] = new Vector2(px, py + TexturePos.ITEM_PIXEL_SIZE);
-                pixelUvs[2] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py + TexturePos.ITEM_PIXEL_SIZE);
-                pixelUvs[3] = new Vector2(px + TexturePos.ITEM_PIXEL_SIZE, py);
+                pixelUvs[1] = new Vector2(px, py + TexturePos.PIXEL_SIZE);
+                pixelUvs[2] = new Vector2(px + TexturePos.PIXEL_SIZE, py + TexturePos.PIXEL_SIZE);
+                pixelUvs[3] = new Vector2(px + TexturePos.PIXEL_SIZE, py);
                 
                 return true;
             }

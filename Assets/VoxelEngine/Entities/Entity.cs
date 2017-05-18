@@ -1,4 +1,5 @@
 ﻿using fNbt;
+using System;
 using UnityEngine;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
@@ -99,11 +100,13 @@ namespace VoxelEngine.Entities {
         public virtual void onEntityUpdate() { }
 
         /// <summary>
-        /// Allows entities to detect when there health changes.  Used by the player to update hud
+        /// Sets an entities held, clamping it between 0 and their max.
         /// </summary>
         public virtual void setHealth(int amount) {
             if (amount > this.maxHealth) {
                 amount = this.maxHealth;
+            } else if(amount < 0) {
+                amount = 0;
             }
             this.health = amount;
         }

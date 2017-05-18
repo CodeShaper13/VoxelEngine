@@ -15,7 +15,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z - f),
                     new Vector3(x - 0.5f, y + 0.5f, z - f),
                     new Vector3(x - 0.5f, y - 0.5f, z - f),
-                    b.getUVs(meta, Direction.NORTH, this.uvArray),
+                    b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
                     0);
             } else if (meta == 3) {
                 meshData.addQuad(
@@ -23,7 +23,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - f, y + 0.5f, z - 0.5f),
                     new Vector3(x - f, y + 0.5f, z + 0.5f),
                     new Vector3(x - f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.EAST, this.uvArray),
+                    b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
                     0);
             } else if (meta == 0) {
                 meshData.addQuad(
@@ -31,7 +31,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + 0.5f, z + f),
                     new Vector3(x + 0.5f, y + 0.5f, z + f),
                     new Vector3(x + 0.5f, y - 0.5f, z + f),
-                    b.getUVs(meta, Direction.SOUTH, this.uvArray),
+                    b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
                     0);
             } else {
                 meshData.addQuad(
@@ -39,7 +39,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + f, y + 0.5f, z + 0.5f),
                     new Vector3(x + f, y + 0.5f, z - 0.5f),
                     new Vector3(x + f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.WEST, this.uvArray),
+                    b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
                     0);
             }
         }

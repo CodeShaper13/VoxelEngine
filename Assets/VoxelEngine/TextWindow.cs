@@ -26,7 +26,7 @@ namespace VoxelEngine {
         public void openWindow() {
             this.isOpen = true;
             this.root.gameObject.SetActive(true);
-            Main.singleton.player.fpc.allowInput = false;
+            //Main.singleton.player.fpc.allowInput = false;
             Main.hideMouse(false);
         }
 
@@ -34,7 +34,7 @@ namespace VoxelEngine {
             this.isOpen = false;
             this.clearInputLine();
             this.root.gameObject.SetActive(false);
-            Main.singleton.player.fpc.allowInput = true;
+            //Main.singleton.player.fpc.allowInput = true;
             Main.hideMouse(true);
         }
 

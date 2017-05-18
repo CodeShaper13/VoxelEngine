@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using VoxelEngine.Items;
-using VoxelEngine.Level;
 using VoxelEngine.Render.BlockRender;
 
 namespace VoxelEngine.Render {
@@ -20,6 +19,7 @@ namespace VoxelEngine.Render {
         public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
         public static BlockRenderer SLAB = new BlockRendererSlab();
         public static BlockRenderer FLUID = new BlockRendererFluid();
+        public static BlockRenderer BED = new BlockRendererBed();
 
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;

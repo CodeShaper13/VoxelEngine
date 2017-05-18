@@ -18,7 +18,17 @@ namespace VoxelEngine.Util {
         /// Rotates a vector around a pivot and returns it.
         /// </summary>
         public static Vector3 rotateVecAround(Vector3 point, Vector3 pivot, Quaternion angle) {
+            if(angle == Quaternion.identity) {
+                return point;
+            }
             return angle * (point - pivot) + pivot;
+        }
+
+        /// <summary>
+        /// Converts the passed pixel length to world space.  Used in block models.
+        /// </summary>
+        public static float pixelToWorld(float f) {
+            return (1f / 32f) * f;
         }
     }
 }

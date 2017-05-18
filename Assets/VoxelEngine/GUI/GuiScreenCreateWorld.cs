@@ -30,7 +30,7 @@ namespace VoxelEngine.GUI {
 
         public void createWorldCallback() {
             string s = this.fieldSeed.text;
-            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), this.typeIndex, false));
+            Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), this.typeIndex, true));
         }
 
         public void toggleWorldTypeCallback() {

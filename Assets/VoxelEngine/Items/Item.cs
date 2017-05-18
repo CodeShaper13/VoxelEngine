@@ -16,10 +16,10 @@ namespace VoxelEngine.Items {
         public static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
 
         public static Item pebble = new ItemThrowable(256).setName("Throwing Rock").setTexture(1, 0);
-        public static Item coal = new Item(257).setName("Coal Lump").setTexture(0, 0);
-        public static Item bronzeBar = new Item(258).setName("Bronze Bar").setTexture(0, 1);
+        public static Item coal = new Item(257).setName("Coal Lump").setTexture(1, 0);
+        public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 1);
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
-        public static Item goldBar = new Item(260).setName("Gold Bar").setTexture(0, 3);
+        public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 3);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
         public static Item pickaxe = new ItemTool(262, 1.25f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(2, 0);
         public static Item shovel = new ItemTool(263, 1.25f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(3, 0);
@@ -122,7 +122,7 @@ namespace VoxelEngine.Items {
 
         public Mesh getPreRenderedMesh(int meta) {
             if(meta >= this.preRenderedMeshes.Length) {
-                Debug.Log("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta);
+                Debug.LogWarning("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta + "  Using placeholder mesh!");
                 return Block.placeholder.asItem().getPreRenderedMesh(0);
             } else {
                 return this.preRenderedMeshes[meta];

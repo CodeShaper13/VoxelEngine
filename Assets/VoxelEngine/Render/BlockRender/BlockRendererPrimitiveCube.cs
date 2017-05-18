@@ -19,7 +19,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.NORTH, this.uvArray),
+                    b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
                     Direction.NORTH_ID);
             }
             // East
@@ -29,7 +29,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.EAST, this.uvArray),
+                    b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
                     Direction.EAST_ID);
             }
             // South
@@ -39,7 +39,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.SOUTH, this.uvArray),
+                    b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
                     Direction.SOUTH_ID);
             }
             // West
@@ -49,7 +49,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.WEST, this.uvArray),
+                    b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
                     Direction.WEST_ID);
             }
             // Up
@@ -59,7 +59,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.UP, this.uvArray),
+                    b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
                     Direction.UP_ID);
             }
             // Down
@@ -69,7 +69,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.DOWN, this.uvArray),
+                    b.getUVs(meta, Direction.DOWN, this.preAllocatedUvArray),
                     Direction.DOWN_ID);
             }
         }

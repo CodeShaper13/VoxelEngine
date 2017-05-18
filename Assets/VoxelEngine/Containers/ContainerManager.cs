@@ -62,7 +62,7 @@ namespace VoxelEngine.Containers {
         /// Opens and initializes a container.
         /// </summary>
         public void openContainer(EntityPlayer player, Container container, ContainerData containerData) {
-            player.fpc.allowInput = false;
+            //player.fpc.allowInput = false;
 
             if (container == ContainerManager.containerInventory) {
                 this.contRight = container.onOpen(containerData, player);
@@ -80,7 +80,7 @@ namespace VoxelEngine.Containers {
         /// </summary>
         public void closeContainer(EntityPlayer player) {
             if(this.isContainerOpen()) {
-                player.fpc.allowInput = true;
+                //player.fpc.allowInput = true;
                 if (this.heldStack != null) {
                     player.dropItem(this.heldStack);
                     this.heldStack = null;

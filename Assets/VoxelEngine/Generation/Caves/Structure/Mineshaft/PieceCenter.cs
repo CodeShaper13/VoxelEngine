@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
@@ -19,12 +17,12 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public PieceCenter(NbtCompound tag) : base(tag) {
             this.topFloor = tag.Get<NbtInt>("topFloor").IntValue;
             this.bottomFloor = tag.Get<NbtInt>("bottomFloor").IntValue;
-            this.useFartherEntrance = tag.Get<NbtInt>("ueas").ByteValue == 1;
+            this.useFartherEntrance = tag.Get<NbtByte>("useFarEntrance").ByteValue == 1;
         }
 
-        public PieceCenter(BlockPos center, List<PieceBase> pieces, int piecesFromStart, System.Random rnd) : base(center) {            
+        public PieceCenter(StructureMineshaft shaft, BlockPos center) : base(shaft, center) {                  
             // Get random floors
-            if(rnd.Next(2) == 1) {
+            if(this.shaft.rnd.Next(2) == 1) {
                 this.topFloor = 0;
                 this.bottomFloor = 1;
             } else {
@@ -32,46 +30,51 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 this.bottomFloor = 0;
             }
 
-            // Pick entrance to use
-            this.useFartherEntrance = rnd.Next(2) == 0;
+            // Pick entrance to use.
+            this.useFartherEntrance = this.shaft.rnd.Next(2) == 0;
 
             this.calculateBounds();
-            pieces.Add(this);
+            this.shaft.pieces.Add(this);
 
             BlockPos shaftOrgin = new BlockPos(this.orgin.x - 8, this.orgin.y, this.orgin.z);
-            pieces.Add(new PieceSmallShaft(shaftOrgin, 9));
-            pieces.Add(new PieceSmallShaft(shaftOrgin + new BlockPos(0, 9, 0), 6));
-            pieces.Add(new PieceSmallShaft(shaftOrgin + new BlockPos(0, -6, 0), 6));
 
-            pieces.Add(new PieceBedroom(shaftOrgin + new BlockPos(0, 9, 0)));
+            // Add starting rooms above and below.
+            this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin, 9, false));
+            this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, 9, 0), 6, false));
+            this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, -6, 0), 6, true));
 
-            new PieceHallway(new BlockPos(this.orgin.x - 5, this.orgin.y + 1, this.orgin.z - 8), Direction.WEST, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.orgin.x + 5, this.orgin.y + 1, this.orgin.z + (this.useFartherEntrance ? 0 : -8)), Direction.EAST, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.orgin.x, this.orgin.y + 1, this.orgin.z + 5), Direction.NORTH, pieces, piecesFromStart, rnd);
-            new PieceHallway(new BlockPos(this.orgin.x, this.orgin.y + 1, this.orgin.z - 15), Direction.SOUTH, pieces, piecesFromStart, rnd);
+            this.shaft.pieces.Add(new PieceBedroom(this.shaft, shaftOrgin + new BlockPos(0, 9, 0)));
+            this.shaft.pieces.Add(new PieceBedroom(this.shaft, shaftOrgin + new BlockPos(0, -6, 0)));
+
+            // Add hallways.
+            new PieceHallway(this.shaft, this.orgin + new BlockPos(-5, 1, -8), Direction.WEST, 0);
+            new PieceHallway(this.shaft, this.orgin + new BlockPos(5, 1, this.useFartherEntrance ? 0 : -8), Direction.EAST, 0);
+            new PieceHallway(this.shaft, this.orgin + new BlockPos(0, 1, 5), Direction.NORTH, 0);
+            new PieceHallway(this.shaft, this.orgin + new BlockPos(0, 1, -15), Direction.SOUTH, 0);
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos p1 = this.orgin - new BlockPos(4, -1, 14);
-            BlockPos p2 = this.orgin + new BlockPos(4, 6, 4);
-            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
-            Block b;
+            BlockPos p1 = this.getPosMin();
+            BlockPos p2 = this.getPosMax();
+            int offsetX, offsetY, offsetZ;
+            Block block;
             byte meta;
-            for (int i = p1.x; i <= p2.x; i++) {
-                for (int j = p1.y; j <= p2.y; j++) {
-                    for (int k = p1.z; k <= p2.z; k++) {
-                        if(chunk.isInChunk(i, j, k)) {
-                            b = Block.air;
+            for (int x = p1.x; x <= p2.x; x++) {
+                for (int y = p1.y; y <= p2.y; y++) {
+                    for (int z = p1.z; z <= p2.z; z++) {
+                        if(chunk.isInChunk(x, y, z)) {
+                            block = null;
                             meta = 0;
-                            chunkCoordX = i - chunk.pos.x;
-                            chunkCoordY = j - chunk.pos.y;
-                            chunkCoordZ = k - chunk.pos.z;
-                            offsetX = i - this.orgin.x;
-                            offsetY = j - this.orgin.y;
-                            offsetZ = k - this.orgin.z;
+                            offsetX = x - this.orgin.x;
+                            offsetY = y - this.orgin.y;
+                            offsetZ = z - this.orgin.z;
 
+                            // Floor
+                            if(offsetY == 0) {
+                                block = this.rndGravel();
+                            }
                             // Columns
-                            if(offsetY < 5 && (
+                            else if(offsetY < 5 && (
                                 (offsetX == 3 && offsetZ == 3) ||
                                 (offsetX == -3 && offsetZ == 3) ||
                                 (offsetX == 3 && offsetZ == -4) ||
@@ -80,26 +83,29 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 (offsetX == -3 && offsetZ == -11) ||
                                 (offsetX == 3 && offsetZ == -13) ||
                                 (offsetX == -3 && offsetZ == -13))) {
-                                    b = Block.wood;
+                                    block = Block.wood;
                                     meta = 1;
                             }
-                            //Crosspiece
+                            // Crosspiece lower
                             else if(offsetY == 5 && Mathf.Abs(offsetX) < 5 && (
                                 offsetZ == 3 || offsetZ == -4 || offsetZ == -11 || offsetZ ==-13)) {
-                                    b = Block.wood;
+                                    block = Block.wood;
                                     meta = 0;
                             }
-                            else if(offsetX == 0 && offsetY == 0 && offsetZ == 0) {
-                                b = Block.grass;
-                            } else {
-                                b = Block.air;
+                            // Higher
+                            else if (offsetY == 6 && Mathf.Abs(offsetX) == 3) {
+                                block = Block.wood;
+                                meta = 2;
+                            }
+                            // Random chest
+                            else if(offsetZ == -12 && offsetY == 1 && (offsetX == 3 || offsetX == -3) && rnd.Next(0, 1) == 0) {
+                                RandomChest.MINESHAFT_START_ROOM.makeChest(chunk.world, x, y, z, offsetX > 0 ? Direction.EAST : Direction.WEST, rnd);
+                            }
+                            else {
+                                block = Block.air;
                             }
 
-                            //b = j == -1 ? Block.wood : Block.air;
-                            if(b != null) {
-                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, b);
-                                chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
-                            }
+                            this.setState(chunk, x, y, z, block, meta);
                         }
                     }
                 }
@@ -108,9 +114,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         // TODO change
         public override void calculateBounds() {
-            this.pieceBounds = new Bounds(
-                new Vector3(this.orgin.x, this.orgin.y + 4, this.orgin.z - 5),
-                new Vector3(8, 5, 18));
+            this.setPieceSize(0, 6, 4, 4, 4, 14);
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -118,7 +122,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             NbtHelper.writeDirectBlockPos(tag, this.orgin, "center");
             tag.Add(new NbtInt("topFloor", this.topFloor));
             tag.Add(new NbtInt("bottomFloor", this.bottomFloor));
-            tag.Add(new NbtByte("ueas", this.useFartherEntrance ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("useFarEntrance", this.useFartherEntrance ? (byte)1 : (byte)0));
             return tag;
         }
 

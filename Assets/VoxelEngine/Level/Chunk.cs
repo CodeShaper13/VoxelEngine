@@ -5,7 +5,6 @@ using fNbt;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
 using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
@@ -62,7 +61,7 @@ namespace VoxelEngine.Level {
             this.chunkPos = instructions.chunkPos;
             this.setReadOnly(instructions.isReadOnly);
             float radius = (float)Chunk.SIZE / 2;
-            this.chunkBounds = new Bounds(new Vector3(this.pos.x + radius, this.pos.y + radius, this.pos.z + radius), new Vector3(Chunk.SIZE * 0.9f, Chunk.SIZE * 0.9f, Chunk.SIZE * 0.9f));
+            this.chunkBounds = new Bounds(new Vector3(this.pos.x + radius, this.pos.y + radius, this.pos.z + radius), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
         }
 
         private void Update() {
@@ -152,9 +151,10 @@ namespace VoxelEngine.Level {
         /// Returns the light level at (x, y, z).
         /// </summary>
         public int getLight(int x, int y, int z) {
-#if (MAX_LIGHT)
-            return 15;
-#endif
+            #if (MAX_LIGHT)
+                return 15;
+            #endif
+
             return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
@@ -195,8 +195,8 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void renderChunk() {
             CachedRegion cachedRegion = new CachedRegion(this.world, this);
-            if(cachedRegion.check()) {
-                //Debug.Log("Waiting..."); // Waiting for the lazy chunk loading to finish...
+            if(cachedRegion.allChunksLoaded()) {
+                // Waiting for the lazy chunk loading to finish...
                 return;
             }
 
@@ -205,7 +205,7 @@ namespace VoxelEngine.Level {
             MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
             meshData.useRenderDataForCol = true;
 
-            Block b, neighborBlock;
+            Block currentBlock, neighborBlock;
             bool cachedIsSolid;
             bool[] renderFace = new bool[6];
             Block[] surroundingBlocks = new Block[6];
@@ -216,54 +216,50 @@ namespace VoxelEngine.Level {
             for (x = 0; x < Chunk.SIZE; x++) {
                 for (y = 0; y < Chunk.SIZE; y++) {
                     for (z = 0; z < Chunk.SIZE; z++) {
-                        b = this.getBlock(x, y, z);
-                        if(b.renderer != null && b.renderer.bakeIntoChunks) {
+                        currentBlock = this.getBlock(x, y, z);
+                        if(currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
 
-                            Profiler.BeginSample("Looking up data");
+                            //Profiler.BeginSample("Looking up data");
                             // Find the surrounding blocks and faces to cull.
                             facesCulled = 0;
 
                             for (i = 0; i < 6; i++) {
-                                Profiler.BeginSample("Direction Stuff");
-
+                                //Profiler.BeginSample("Direction Stuff");
                                 dirPos = Direction.all[i].direction;
                                 x1 = x + dirPos.x;
                                 y1 = y + dirPos.y;
                                 z1 = z + dirPos.z;
-
-                                Profiler.EndSample();
-                                Profiler.BeginSample("Lookup Neighbor");
+                                //Profiler.EndSample();
+                                
+                                //Profiler.BeginSample("Lookup Neighbor");
                                 if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
                                     neighborBlock = cachedRegion.getBlock(x1, y1, z1);
                                 } else {
                                     neighborBlock = this.getBlock(x1, y1, z1);
                                 }
-                                Profiler.EndSample();
+                                //Profiler.EndSample();
 
-                                Profiler.BeginSample("Lookup other data");                           
-
+                                //Profiler.BeginSample("Lookup other data");
                                 cachedIsSolid = neighborBlock.isSolid;
                                 renderFace[i] = !cachedIsSolid;
-                                if(b.renderer.lookupAdjacentBlocks) {
+                                if(currentBlock.renderer.lookupAdjacentBlocks) {
                                     surroundingBlocks[i] = neighborBlock;
                                 }
                                 if (cachedIsSolid) {
                                     facesCulled++;
-                                }
-                                
-                                Profiler.EndSample();
+                                }                                
+                                //Profiler.EndSample();
                             }
-                            Profiler.EndSample();
+                            //Profiler.EndSample();
 
                             if(facesCulled != 6) {
                                 meta = this.getMeta(x, y, z);
 
-                                Profiler.BeginSample("Lookup Light");
                                 // Populate the meshData with light levels.
                                 meshData.lightLevels[0] = this.getLight(x, y, z);
 
                                 
-                                if(b.renderer.lookupAdjacentLight == true) {
+                                if(currentBlock.renderer.lookupAdjacentLight == true) {
                                     for (i = 0; i < 6; i++) {
                                         dirPos = Direction.all[i].direction;
                                         x1 = x + dirPos.x;
@@ -277,39 +273,8 @@ namespace VoxelEngine.Level {
                                         }
                                     }
                                 }
-                                
 
-                                /*
-                                for (i = 0; i < 6; i++) {
-                                    dir = Direction.all[i];
-
-                                    x1 = x + dir.direction.x;
-                                    y1 = y + dir.direction.y;
-                                    z1 = z + dir.direction.z;
-
-                                    if(b.renderer.lookupAdjacentLight) {
-                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
-                                            meshData.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
-                                        }
-                                        else {
-                                            meshData.lightLevels[i + 1] = this.getLight(x1, y1, z1);
-                                        }
-                                    }
-
-                                    if(b.renderer.lookupAdjacentBlocks) {
-                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
-                                            neighborBlock = cachedRegion.getBlock(x1, y1, z1);
-                                        } else {
-                                            neighborBlock = this.getBlock(x1, y1, z1);
-                                        }
-                                        surroundingBlocks[i] = neighborBlock;
-                                    }
-                                }
-                                */
-
-                                Profiler.EndSample();
-
-                                b.renderer.renderBlock(b, meta, meshData, x, y, z, renderFace, surroundingBlocks);
+                                currentBlock.renderer.renderBlock(currentBlock, meta, meshData, x, y, z, renderFace, surroundingBlocks);
                             }
                         }
                     }
