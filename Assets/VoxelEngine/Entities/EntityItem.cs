@@ -98,6 +98,9 @@ namespace VoxelEngine.Entities {
         }
 
         public void setStack(ItemStack stack) {
+            if(stack == null) {
+                Debug.Log("!!!");
+            }
             this.stack = stack;
             float scale = this.stack.item.id <= 255 ? 0.35f : 0.5f;
             this.transform.localScale = new Vector3(scale, scale, scale);

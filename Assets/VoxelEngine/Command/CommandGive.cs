@@ -46,8 +46,8 @@ namespace VoxelEngine.Command {
                         }
                         if(count < 0) {
                             count = 1;
-                        } else if(count > ItemStack.MAX_SIZE) {
-                            count = ItemStack.MAX_SIZE;
+                        } else if(count > item.maxStackSize) {
+                            count = item.maxStackSize;
                         }
                     }
                 }

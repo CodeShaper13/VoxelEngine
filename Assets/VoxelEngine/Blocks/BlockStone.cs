@@ -35,12 +35,9 @@ namespace VoxelEngine.Blocks {
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             ItemStack stack = null;
             if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
-                stack = new ItemStack(this.asItem(), meta);
+                return new ItemStack[] { new ItemStack(this.asItem(), meta) };
             }
-            //else {
-            //    stack = new ItemStack(Item.pebble);
-            //}
-            return new ItemStack[] { stack };
+            return null;
         }
     }
 }

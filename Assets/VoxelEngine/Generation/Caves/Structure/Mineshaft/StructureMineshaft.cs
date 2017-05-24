@@ -66,10 +66,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         p = new PieceSmallShaft(compound);
                         break;
                     case 8:
-                        p = new PieceBedroom(compound);
+                        p = new PieceOrginBedroom(compound);
                         break;
                     case 9:
-                        p = new PieceSmallStoreRoom(compound);
+                        p = new PieceOrginStorage(compound);
                         break;
                 }
 

@@ -3,6 +3,7 @@
     public class BlockAir : Block {
 
         public BlockAir(byte id) : base(id) {
+            this.setName("Air");
             this.setStatesUsed(0);
             this.setTransparent();
             this.setReplaceable();

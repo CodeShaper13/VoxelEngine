@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
@@ -21,10 +22,10 @@ namespace VoxelEngine.Items {
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
         public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 3);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
-        public static Item pickaxe = new ItemTool(262, 1.25f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(2, 0);
-        public static Item shovel = new ItemTool(263, 1.25f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(3, 0);
-        public static Item axe = new ItemTool(264, 1.25f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe");
-        public static Item knife = new ItemSword(265, 2).setName("Hunting Knife").setTexture(4, 0);
+        public static Item pickaxe = new ItemTool(262, 2f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(2, 0);
+        public static Item shovel = new ItemTool(263, 2f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(3, 0);
+        public static Item axe = new ItemTool(264, 2f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(5, 0);
+        public static Item knife = new ItemSword(265, 2).setName("Knife").setTexture(4, 0);
         public static Item pistol; // 266
         public static Item shotgun; // 267
         public static Item rifle; // 268
@@ -56,16 +57,15 @@ namespace VoxelEngine.Items {
         public TexturePos texturePos;
         public IRenderItem itemRenderer;
         public Mesh[] preRenderedMeshes;
+        public int maxStackSize = ItemStack.MAX_SIZE;
 
         public Item(int id) {
-            this.id = id;
-
-            if (Item.ITEM_LIST[this.id] != null) {
-                Debug.Log("ERROR!  Two items may not have the same id " + this.id);
-            } else {
-                Item.ITEM_LIST[this.id] = this;
+            if (Item.ITEM_LIST[id] != null) {
+                throw new Exception("Two items may not have the same id of " + id);
             }
 
+            this.id = id;
+            Item.ITEM_LIST[this.id] = this;
             this.setRenderer(Item.RENDER_BILLBOARD);
         }
 
@@ -129,6 +129,7 @@ namespace VoxelEngine.Items {
             }
         }        
 
+
         public Item setName(string name) {
             this.name = name;
             return this;
@@ -143,6 +144,15 @@ namespace VoxelEngine.Items {
             this.texturePos = new TexturePos(x, y);
             return this;
         }
+
+        public Item setMaxStackSize(int size) {
+            if(size > ItemStack.MAX_SIZE) {
+                throw new Exception("An item's maxStackSize can not be greater than the global limit!");
+            }
+            this.maxStackSize = size;
+            return this;
+        }
+
 
         /// <summary>
         /// Creates item versions of all the blocks.

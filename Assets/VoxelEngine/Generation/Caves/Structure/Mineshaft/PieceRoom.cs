@@ -6,6 +6,7 @@ using VoxelEngine.Blocks;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
+    // Unused as of now.
     public class PieceRoom : PieceBase {
 
         // 0 = X, 1 = 0

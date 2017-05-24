@@ -17,7 +17,7 @@ namespace VoxelEngine.Testing {
             byte i = 0;
             i |= 1 << 2;
             for (int j = 0; j < 8; j++) {
-                Debug.Log("Slot: " + ((i >> j) & 1));
+                Debug.Log("Slot " + j + " = " + ((i >> j) & 1));
             }
         }
     }

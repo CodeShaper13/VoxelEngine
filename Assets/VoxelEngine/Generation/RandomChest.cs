@@ -12,18 +12,24 @@ namespace VoxelEngine.Generation {
 
     public class RandomChest {
 
-        public static RandomChest MINESHAFT_SHAFT = new RandomChest(4, 8, new RandomStack(1, Block.rail, 2, 7));
-        public static RandomChest SPAWN_CHEST = new RandomChest(8, 10,
-            new RandomStack(2, Item.coal, 5, 8),
-            new RandomStack(2, Block.torch, 6, 12),
-            new RandomStack(2, Item.pebble, 5, 8),
-            new RandomStack(1, Item.bronzeBar, 1, 2),
-            new RandomStack(4, Block.wood, 3, 7)
-            );
-        public static RandomChest MINESHAFT_BEDRROM_CHEST = new RandomChest(0, 4, new RandomStack(1, Block.torch, 2, 5));
-        public static RandomChest MINESHAFT_STOREROOM = new RandomChest(0, 4, new RandomStack(1, Block.torch, 2, 5));
-        public static RandomChest MINESHAFT_START_ROOM = new RandomChest(1, 4, new RandomStack(1, Block.torch, 2, 5));
-
+        /// <summary> The chest in the bedroom part of the center room. </summary>
+        public static RandomChest MINESHAFT_BEDRROM_CHEST = new RandomChest(3, 5,
+            new RandomStack(2, Item.carrot, 2, 5),
+            new RandomStack(2, Item.rawFish, 1, 3),
+            new RandomStack(3, Item.bone, 1, 3),
+            new RandomStack(1, Item.skull, 1, 3));
+        /// <summary> The chest in the storeroom part of the center room. </summary>
+        public static RandomChest MINESHAFT_STOREROOM = new RandomChest(2, 5,
+            new RandomStack(3, Block.torch, 5, 15),
+            new RandomStack(1, Item.pickaxe, 1, 1),
+            new RandomStack(1, Item.axe, 1, 1),
+            new RandomStack(1, Item.shovel, 1, 1),
+            new RandomStack(1, Item.magnifyingGlass, 1, 1),
+            new RandomStack(4, Item.bone, 1, 3));
+        public static RandomChest MINESHAFT_START_ROOM = new RandomChest(1, 4,
+            new RandomStack(1, Block.torch, 12, 16),
+            new RandomStack(1, Block.wood, 2, 5, 1));
+        public static RandomChest MINESHAFT_SHAFT = new RandomChest(1, 4, new RandomStack(1, Block.torch, 2, 5));
 
         private RandomStack[] randomStacks;
         private int minStackCount;

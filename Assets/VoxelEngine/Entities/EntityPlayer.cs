@@ -291,21 +291,21 @@ namespace VoxelEngine.Entities {
         /// Configures a first time player, setting the starting inventory and the default health.
         /// </summary>
         public void setupFirstTimePlayer() {
-            this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 25);
-            this.dataHotbar.items[1] = new ItemStack(Block.plankSlab, 0, 12);
-            this.dataHotbar.items[2] = new ItemStack(Block.ironOre, 0, 16);
-            this.dataHotbar.items[3] = new ItemStack(Block.rubyOre, 0, 16);
-            this.dataHotbar.items[4] = new ItemStack(Item.corn, 0, 1);
-            this.dataHotbar.items[5] = new ItemStack(Item.skull, 0, 25);
-            this.dataHotbar.items[6] = new ItemStack(Item.coal, 0, 1);
-            this.dataHotbar.items[7] = new ItemStack(Item.ruby, 0, 1);
-            this.dataHotbar.items[8] = new ItemStack(Item.flesh, 0, 1);
-
-            /*
-            this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
-            this.dataHotbar.items[1] = new ItemStack(Item.shovel);
-            this.dataHotbar.items[2] = new ItemStack(Item.axe);
-            */
+            if(false) {
+                this.dataHotbar.items[0] = new ItemStack(Item.pickaxe, 0, 25);
+                this.dataHotbar.items[1] = new ItemStack(Item.axe, 0, 12);
+                this.dataHotbar.items[2] = new ItemStack(Item.shovel, 0, 16);
+                this.dataHotbar.items[3] = new ItemStack(Block.rubyOre, 0, 16);
+                this.dataHotbar.items[4] = new ItemStack(Item.corn, 0, 1);
+                this.dataHotbar.items[5] = new ItemStack(Item.skull, 0, 25);
+                this.dataHotbar.items[6] = new ItemStack(Item.coal, 0, 1);
+                this.dataHotbar.items[7] = new ItemStack(Item.ruby, 0, 1);
+                this.dataHotbar.items[8] = new ItemStack(Item.flesh, 0, 1);
+            } else {
+                this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
+                this.dataHotbar.items[1] = new ItemStack(Item.shovel);
+                this.dataHotbar.items[2] = new ItemStack(Item.axe);
+            }
 
             this.health = 100;
             this.heartEffect.healthText.text = this.health + "%";

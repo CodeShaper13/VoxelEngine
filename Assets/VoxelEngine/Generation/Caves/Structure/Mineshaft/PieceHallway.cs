@@ -14,6 +14,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         private BlockPos end;
         private Direction pointing;
 
+        public bool successfullyGenerated;
+
         public PieceHallway(NbtCompound tag) : base(tag) {
             this.end = NbtHelper.readDirectBlockPos(tag, "end");
             this.pointing = Direction.all[tag.Get<NbtInt>("pointing").IntValue];
@@ -27,6 +29,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
             piecesFromCenter++;
             if(this.func(piecesFromCenter)) {
+                this.successfullyGenerated = true;
+
                 if (piecesFromCenter <= 1) {
                     // If we are still close to the start, always go straight, so we arent wrapping back around the middle.
                     new PieceHallway(this.shaft, this.end + this.pointing.direction, this.pointing, piecesFromCenter);
@@ -116,10 +120,12 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 distanceToSupport++;
                 if (distanceToSupport == 3 && rnd.Next(4) == 0) {
                     x = pos.x - chunk.pos.x;
-                    y = pos.y + 4 - chunk.pos.y;
+                    y = pos.y + 3 - chunk.pos.y;
                     z = pos.z - chunk.pos.z;
                     if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                        this.setStateIfInChunk(chunk, pos.x, pos.y + 3, pos.z, Block.torch, BlockTorch.getMetaFromDirection(this.pointing));
+                        if(chunk.isInChunk(x, y, z)) {
+                            this.addTorch(chunk, x, y, z, this.pointing);
+                        }
                     }
                 }
                 if (distanceToSupport == 4) {
@@ -139,14 +145,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     distanceToSupport = -4;
                 }
                 // Rail
-                if (rnd.Next(0, 10) != 10) {
+                if (rnd.Next(0, 10) != 0) {
                     this.setStateIfInChunk(chunk, pos.x, pos.y, pos.z, Block.rail, axis == 0 ? 0 : 1);
                 }
 
                 // Gravel
-                this.func(pos, chunk);
-                this.func(pos + rightDir, chunk);
-                this.func(pos + leftDir, chunk);
+                this.func02(pos, chunk);
+                this.func02(pos + rightDir, chunk);
+                this.func02(pos + leftDir, chunk);
 
                 pos += this.pointing.direction;
 
@@ -175,7 +181,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return Color.blue;
         }
 
-        private void func(BlockPos pos, Chunk chunk) {
+        private void func02(BlockPos pos, Chunk chunk) {
             if(this.rndGravel() != null) {
                 this.setStateIfInChunk(chunk, pos.x, pos.y - 1, pos.z, Block.gravel, 0);
             }

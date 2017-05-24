@@ -152,7 +152,7 @@ namespace VoxelEngine.Level {
         /// </summary>
         public int getLight(int x, int y, int z) {
             #if (MAX_LIGHT)
-                return 15;
+                return 12;
             #endif
 
             return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];

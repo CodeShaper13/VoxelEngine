@@ -6,11 +6,6 @@ namespace VoxelEngine.Containers {
 
     public class Slot : MonoBehaviour, IPointerClickHandler {
 
-        //TODO max count for slot?
-        //TODO Maybe an enum?  Wood, stone...
-        public int allowedItemTypes;
-
-
         /// <summary> The slot index within the container that this coresponds to. </summary>
         public int index;
         /// <summary> Reference to the container that this slot belongs to. </summary>

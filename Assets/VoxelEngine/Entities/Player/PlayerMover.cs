@@ -1,7 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using VoxelEngine.Blocks;
-using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities.Player {
 
@@ -21,6 +19,10 @@ namespace VoxelEngine.Entities.Player {
 
         private float verticalRotation;
         private float verticalVelocity;
+        /// <summary>
+        /// If true, the player was running when they left the ground.
+        /// </summary>
+        private bool flag;
 
         public PlayerMover(EntityPlayer player) {
             this.player = player;
@@ -41,10 +43,11 @@ namespace VoxelEngine.Entities.Player {
 
             // Jump/fall.
             if (verticalVelocity > 0) {
-                verticalVelocity -= 12 * Time.deltaTime;
+                verticalVelocity -= 15 * Time.deltaTime;
             }
 
             if (Input.GetKeyDown(KeyCode.Space) && characterController.isGrounded) {
+                this.flag = this.isRunKeyDown();
                 verticalVelocity = 15; // Jump speed
             }
 
@@ -58,13 +61,22 @@ namespace VoxelEngine.Entities.Player {
         /// <summary>
         /// Returns the players movement speed.
         /// </summary>
-        /// <returns></returns>
         private float getMoveSpeed() {
-            if(Input.GetKey(KeyCode.LeftShift) && this.characterController.isGrounded) {
-                return PlayerMover.runSpeed;
+            if(this.characterController.isGrounded) {
+                if (this.isRunKeyDown()) {
+                    return PlayerMover.runSpeed;
+                }
             } else {
-                return PlayerMover.walkSpeed;
+                if(this.flag) {
+                    return PlayerMover.runSpeed;
+                }
             }
+
+            return PlayerMover.walkSpeed;
+        }
+
+        private bool isRunKeyDown() {
+            return Input.GetKey(KeyCode.LeftShift);
         }
 
         /// <summary>

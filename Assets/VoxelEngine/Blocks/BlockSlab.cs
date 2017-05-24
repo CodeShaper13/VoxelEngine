@@ -40,6 +40,10 @@ namespace VoxelEngine.Blocks {
             return new ItemStack [] { new ItemStack(this.asItem(), 0, BlockSlab.isFull(meta) ? 2 : 1) };
         }
 
+        public override TexturePos getTexturePos(Direction direction, int meta) {
+            return this.baseBlock.getTexturePos(direction, 0);
+        }
+
         public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
             uvArray = this.baseBlock.getUVs(meta, direction, uvArray);
 
@@ -67,7 +71,6 @@ namespace VoxelEngine.Blocks {
                     }
                 }                
             }
-
             return uvArray;
         }
 

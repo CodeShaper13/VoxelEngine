@@ -2,6 +2,7 @@
 using System;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
 
@@ -16,9 +17,12 @@ namespace VoxelEngine.Containers {
         public int count;
 
         public ItemStack(Item item, int meta = 0, int count = 1) {
+            if (item == null) {
+                throw new Exception("Type ItemStack can not be constructed with a null reference for item paremater!");
+            }
             this.item = item;
             this.meta = meta;
-            this.count = count;
+            this.count = MathHelper.clamp(count, 0, item.maxStackSize);
         }
 
         public ItemStack(Block block, int meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
@@ -54,14 +58,13 @@ namespace VoxelEngine.Containers {
 
             int combinedTotal = this.count + otherStack.count;
 
-            if (combinedTotal <= ItemStack.MAX_SIZE) {
+            if (combinedTotal <= this.item.maxStackSize) {
                 this.count = combinedTotal;
                 return null; //there is nothing left in the old stack
-            }
-            else {
+            } else {
                 //there will be some leftovers, find out how many
-                int freeSpace = ItemStack.MAX_SIZE - this.count;
-                this.count = ItemStack.MAX_SIZE;
+                int freeSpace = this.item.maxStackSize - this.count;
+                this.count = this.item.maxStackSize;
                 otherStack.count -= freeSpace;
                 if(otherStack.count <= 0) {
                     return null;

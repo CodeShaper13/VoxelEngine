@@ -18,13 +18,15 @@ namespace VoxelEngine.Blocks {
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
-            ItemStack stack;
             if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
-                stack = new ItemStack(this.droppedItem);
+                if (this.droppedItem == null) {
+                    return new ItemStack[] { new ItemStack(this) };
+                } else {
+                    return new ItemStack[] { new ItemStack(this.droppedItem) };
+                }
             } else {
-                return null; // stack = new ItemStack(Item.pebble);
+                return null;
             }
-            return new ItemStack[] { stack };
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {

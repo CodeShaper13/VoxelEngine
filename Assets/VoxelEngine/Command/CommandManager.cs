@@ -9,6 +9,7 @@
                 new CommandHelp(),
                 new CommandGive(),
                 new CommandTp(),
+                new CommandSpawnpoint(),
             };
         }
 

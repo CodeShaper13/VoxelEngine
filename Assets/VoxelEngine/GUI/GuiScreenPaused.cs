@@ -18,17 +18,8 @@ namespace VoxelEngine.GUI {
             World world = Main.singleton.worldObj;
             world.saveEntireWorld(exitWorld);
             if (exitWorld) {
-                Main main = Main.singleton;
-                main.player.cleanupPlayerObj();
-                GameObject.Destroy(main.player.gameObject);
-                GameObject.Destroy(world.gameObject);
+                this.deleteWorldObjects();
                 this.openGuiScreen(GuiManager.title); //Saves us needing a new field since we dont use base.escapeFallback
-                main.worldObj = null;
-                main.player = null;
-                main.isPaused = false;
-                Time.timeScale = 1;
-                main.showDebugText = false;
-                main.isDeveloperMode = false;
             }
         }
 
@@ -41,12 +32,26 @@ namespace VoxelEngine.GUI {
         }
 
         public void callbackResetMap() {
+            this.deleteWorldObjects();
             Directory.Delete("saves/World_1", true);
             Main.singleton.createNewWorld();
         }
 
         public override GuiScreen getEscapeCallback() {
             return null;
+        }
+
+        private void deleteWorldObjects() {
+            Main main = Main.singleton;
+            main.player.cleanupPlayerObj();
+            GameObject.Destroy(main.player.gameObject);
+            GameObject.Destroy(main.worldObj.gameObject);
+            main.worldObj = null;
+            main.player = null;
+            main.isPaused = false;
+            Time.timeScale = 1;
+            main.showDebugText = false;
+            main.isDeveloperMode = false;
         }
     }
 }

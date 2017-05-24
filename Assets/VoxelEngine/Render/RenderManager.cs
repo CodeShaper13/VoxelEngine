@@ -16,7 +16,7 @@ namespace VoxelEngine.Render {
         public static BlockRenderer LANTERN = new BlockRendererMesh(References.list.lanternPrefab).setRenderInWorld(false);
         public static BlockRenderer TORCH = new BlockRendererTorch();
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).useRandomMirror().setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
-        public static BlockRenderer CHEST = new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
+        public static BlockRenderer CHEST = new BlockRendererChest(); // new BlockRendererMesh(References.list.chestPrefab).setRenderInWorld(false);
         public static BlockRenderer SLAB = new BlockRendererSlab();
         public static BlockRenderer FLUID = new BlockRendererFluid();
         public static BlockRenderer BED = new BlockRendererBed();

@@ -43,8 +43,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, 9, 0), 6, false));
             this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, -6, 0), 6, true));
 
-            this.shaft.pieces.Add(new PieceBedroom(this.shaft, shaftOrgin + new BlockPos(0, 9, 0)));
-            this.shaft.pieces.Add(new PieceBedroom(this.shaft, shaftOrgin + new BlockPos(0, -6, 0)));
+            this.func(shaftOrgin + new BlockPos(0, 9, 0));
+            this.func(shaftOrgin + new BlockPos(0, -6, 0));
 
             // Add hallways.
             new PieceHallway(this.shaft, this.orgin + new BlockPos(-5, 1, -8), Direction.WEST, 0);
@@ -99,7 +99,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             }
                             // Random chest
                             else if(offsetZ == -12 && offsetY == 1 && (offsetX == 3 || offsetX == -3) && rnd.Next(0, 1) == 0) {
-                                RandomChest.MINESHAFT_START_ROOM.makeChest(chunk.world, x, y, z, offsetX > 0 ? Direction.EAST : Direction.WEST, rnd);
+                                RandomChest.MINESHAFT_START_ROOM.makeChest(chunk.world, x, y, z, offsetX > 0 ? Direction.WEST : Direction.EAST, rnd);
                             }
                             else {
                                 block = Block.air;
@@ -112,7 +112,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
         }
 
-        // TODO change
         public override void calculateBounds() {
             this.setPieceSize(0, 6, 4, 4, 4, 14);
         }
@@ -132,6 +131,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override Color getPieceColor() {
             return Color.white;
+        }
+
+        private void func(BlockPos pos) {
+            if(this.shaft.rnd.Next(0, 2) == 0) {
+                this.shaft.pieces.Add(new PieceOrginStorage(this.shaft, pos));
+            } else {
+                this.shaft.pieces.Add(new PieceOrginBedroom(this.shaft, pos));
+            }
         }
     }
 }

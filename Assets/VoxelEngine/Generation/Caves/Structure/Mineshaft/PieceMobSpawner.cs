@@ -14,24 +14,27 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public bool westGate;
 
         public PieceMobSpawner(NbtCompound tag) : base(tag) {
-            this.northGate = tag.Get<NbtByte>("ng").ByteValue == 1;
-            this.eastGate = tag.Get<NbtByte>("eg").ByteValue == 1;
-            this.southGate = tag.Get<NbtByte>("sg").ByteValue == 1;
-            this.westGate = tag.Get<NbtByte>("wg").ByteValue == 1;
+            this.northGate = tag.Get<NbtByte>("nGateg").ByteValue == 1;
+            this.eastGate = tag.Get<NbtByte>("eGateg").ByteValue == 1;
+            this.southGate = tag.Get<NbtByte>("sGateg").ByteValue == 1;
+            this.westGate = tag.Get<NbtByte>("wGateg").ByteValue == 1;
         }
 
         public PieceMobSpawner(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
             : base(shaft, hallwayPoint + (hallwayDir.direction * 4)) {
 
-            this.northGate = true; // rnd.Next(2) == 0;
-            this.eastGate = true; //rnd.Next(2) == 0;
-            this.southGate = true; // rnd.Next(2) == 0;
-            this.westGate = true; // rnd.Next(2) == 0;
-
             piecesFromCenter += 1;
             if (this.func(piecesFromCenter)) {
-                this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 5, piecesFromCenter);
+                int i = this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 4, piecesFromCenter);
+                this.northGate = this.func02(i, hallwayDir, Direction.NORTH);
+                this.eastGate = this.func02(i, hallwayDir, Direction.EAST);
+                this.southGate = this.func02(i, hallwayDir, Direction.SOUTH);
+                this.westGate = this.func02(i, hallwayDir, Direction.WEST);
             }
+        }
+
+        private bool func02(int b, Direction hallwayDir, Direction dir) {
+            return BitHelper.getBit(b, dir.directionId - 1) == 1 || hallwayDir.getOpposite() == dir;
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
@@ -54,31 +57,31 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             absZ = Mathf.Abs(offsetZ);
 
                             // Gates
-                            if(offsetY <= 4) {
+                            if(offsetY <= 3) {
                                 if (offsetZ == 4 && absX <= 2) {
                                     if(this.northGate) {
-                                        block = this.rndGate(rnd);
+                                        block = this.randomGateBlock(rnd);
                                     } else {
                                         block = Block.air;
                                     }
                                 }
                                 if(offsetX == 4 && absZ <= 2) {
                                     if (this.eastGate) {
-                                        block = this.rndGate(rnd);
+                                        block = this.randomGateBlock(rnd);
                                     } else {
                                         block = Block.air;
                                     }
                                 }
-                                if (offsetZ == -4 && absZ <= 2) {
+                                if (offsetZ == -4 && absX <= 2) {
                                     if (this.southGate) {
-                                        block = this.rndGate(rnd);
+                                        block = this.randomGateBlock(rnd);
                                     } else {
                                         block = Block.air;
                                     }
                                 }
-                                if (offsetX == -4 && absX <= 2) {
+                                if (offsetX == -4 && absZ <= 2) {
                                     if (this.westGate) {
-                                        block = this.rndGate(rnd);
+                                        block = this.randomGateBlock(rnd);
                                     } else {
                                         block = Block.air;
                                     }
@@ -86,7 +89,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             }
 
                             // Floor
-                            if(offsetY == 0) {
+                            if(offsetY == -1) {
+                                block = this.rndGravel();
                                 block = rnd.Next(0, 3) == 0 ? Block.gravel : null;
                             }
                             else if(absX < 4 && absZ < 4) {
@@ -116,14 +120,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-            tag.Add(new NbtByte("ng", this.northGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("eg", this.eastGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("sg", this.southGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("wg", this.westGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("nGate", this.northGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("eGateg", this.eastGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("sGateg", this.southGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("wGateg", this.westGate ? (byte)1 : (byte)0));
             return tag;
         }
 
-        private Block rndGate(System.Random rnd) {
+        private Block randomGateBlock(System.Random rnd) {
             if (rnd.Next(5) != 0) {
                 return Block.fence;
             } else {

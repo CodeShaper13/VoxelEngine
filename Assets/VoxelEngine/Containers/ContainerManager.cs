@@ -35,7 +35,7 @@ namespace VoxelEngine.Containers {
             RenderManager.instance.hudCamera.bindToHudCamera(ContainerManager.containerHotbar.GetComponent<Canvas>());
 
             ContainerManager.containerInventory = this.buildContainer("Inventory", 5, 5, true);
-            ContainerManager.containerChest = this.buildContainer("Chest", 2, 2);
+            ContainerManager.containerChest = this.buildContainer("Chest", 3, 3);
 
             this.heldText = References.list.containerHeldText.transform;
             this.heldTextName = this.heldText.transform.GetChild(0).GetComponent<Text>();
@@ -170,6 +170,7 @@ namespace VoxelEngine.Containers {
                     slotObj.transform.SetParent(canvas.transform);
                     slotObj.transform.localPosition = new Vector3((xOffset - x * slotSize) + orgin.x, (yOffset - y * slotSize) + orgin.y);
                     Slot slot = slotObj.GetComponent<Slot>();
+                    //Debug.Log(index);
                     slot.container = container;
                     slot.index = index;
                     container.slots[index] = slot;

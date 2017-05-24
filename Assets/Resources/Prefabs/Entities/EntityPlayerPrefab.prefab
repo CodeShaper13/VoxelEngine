@@ -429,7 +429,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: ee6474f1453c1c74996e38357bcc387f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c623e819bec203b409978eb5761a6b54, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -727,8 +727,6 @@ MonoBehaviour:
   handTransfrom: {fileID: 4070688384909928}
   containerHotbar: {fileID: 0}
   mainCamera: {fileID: 0}
-  f1: 12
-  f2: 15
   hunger: 0
 --- !u!124 &12471660
 Behaviour:
@@ -819,7 +817,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 2090948}
-  m_PlaneDistance: 0.3
+  m_PlaneDistance: 0.1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0

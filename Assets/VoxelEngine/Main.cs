@@ -20,7 +20,7 @@ namespace VoxelEngine {
         [HideInInspector]
         public bool isDeveloperMode;
         [HideInInspector]
-        public bool showDebugText = true;
+        public bool showDebugText = false;
         [HideInInspector]
         public bool isPaused;
 
@@ -60,7 +60,7 @@ namespace VoxelEngine {
 
             //this.openGuiScreen(GuiManager.title);
 
-            this.createNewWorld(false);
+            this.createNewWorld(true); // When false, the world is not saved.
         }
 
         private void Update() {

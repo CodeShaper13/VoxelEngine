@@ -90,6 +90,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return BlockPos.fromVec(this.pieceBounds.max);
         }
 
+        /// <summary>
+        /// Standard gravel odds, 1 in 3 is gravel, rest is null.
+        /// </summary>
         public Block rndGravel() {
             return this.shaft.rnd.Next(0, 3) == 0 ? Block.gravel : null;
         }
@@ -134,34 +137,42 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
         
         /// <summary>
-        /// Generates a hallway with a chance to fail.
+        /// Generates a hallway with a chance to fail, returning true if one was made.
         /// </summary>
-        protected void generateSingleHallway(BlockPos pos, Direction direction, int piecesFromCenter) {
+        protected bool generateSingleHallway(BlockPos pos, Direction direction, int piecesFromCenter) {
             if (this.shaft.rnd.Next(0, 6) > 1) { // 2 in 5 fail.
-                new PieceHallway(this.shaft, pos, direction, piecesFromCenter);
+                return (new PieceHallway(this.shaft, pos, direction, piecesFromCenter)).successfullyGenerated;
+            } else {
+                return false;
             }
         }
 
-        protected void generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos orgin, int offsetRadius, int piecesFromCenter) {
-            this.generateHallwaysAroundPoint(ignoreDirection, orgin, offsetRadius, offsetRadius, offsetRadius, offsetRadius, piecesFromCenter);
+        protected int generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos orgin, int offsetRadius, int piecesFromCenter) {
+            return this.generateHallwaysAroundPoint(ignoreDirection, orgin, offsetRadius, offsetRadius, offsetRadius, offsetRadius, piecesFromCenter);
         }
 
         /// <summary>
-        /// Generates hallways around a centeral point.
+        /// Generates hallways around a centeral point, returning the directions that hallways generated in the form of a bit mask where 1 = generated in order of NESW.
         /// </summary>
-        protected void generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos floorPoint, int posX, int posZ, int negX, int negZ, int piecesFromCenter) {
-            if (ignoreDirection != Direction.EAST) {
-                this.generateSingleHallway(new BlockPos(floorPoint.x + posX, floorPoint.y, floorPoint.z), Direction.EAST, piecesFromCenter);
+        protected int generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos floorPoint, int posX, int posZ, int negX, int negZ, int piecesFromCenter) {
+            int bits = 0;
+            if (ignoreDirection != Direction.EAST && this.generateSingleHallway(new BlockPos(floorPoint.x + posX, floorPoint.y, floorPoint.z), Direction.EAST, piecesFromCenter)) {
+                bits |= 1;
             }
-            if (ignoreDirection != Direction.WEST) {
-                this.generateSingleHallway(new BlockPos(floorPoint.x - negX, floorPoint.y, floorPoint.z), Direction.WEST, piecesFromCenter);
+            if (ignoreDirection != Direction.WEST && this.generateSingleHallway(new BlockPos(floorPoint.x - negX, floorPoint.y, floorPoint.z), Direction.WEST, piecesFromCenter)) {
+                bits |= 2;
             }
-            if (ignoreDirection != Direction.NORTH) {
-                this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z + posZ), Direction.NORTH, piecesFromCenter);
+            if (ignoreDirection != Direction.NORTH && this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z + posZ), Direction.NORTH, piecesFromCenter)) {
+                bits |= 4;
             }
-            if (ignoreDirection != Direction.SOUTH) {
-                this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z - negZ), Direction.SOUTH, piecesFromCenter);
+            if (ignoreDirection != Direction.SOUTH && this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z - negZ), Direction.SOUTH, piecesFromCenter)) {
+                bits |= 8;
             }
+            return bits;
+        }
+
+        protected void addTorch(Chunk chunk, int worldX, int worldY, int worldZ, Direction direction) {
+            chunk.world.setBlock(worldX, worldY, worldZ, Block.torch, BlockTorch.getMetaFromDirection(direction), false);
         }
     }
 }

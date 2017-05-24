@@ -234,11 +234,13 @@ namespace VoxelEngine.Level {
                 //this.func(new BlockPos(x, y, z), newBlock.emittedLight);
                 //this.updateLighting(x, y, z, newBlock, oldBlock);
 
+                /*
                 if(newBlock.emittedLight != 0) {
                     timeFuncCalled = 0;
                     this.lightRegionForBlock(x, y, z, newBlock.emittedLight);
-                    Debug.Log(timeFuncCalled);
+                    //Debug.Log(timeFuncCalled);
                 }
+                */
             }
         }
 
@@ -390,13 +392,12 @@ namespace VoxelEngine.Level {
         /// Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
         /// </summary>
         public void breakBlock(BlockPos pos, ItemTool brokenWith) {
-            Block block = this.getBlock(pos);
-            ItemStack[] stacks = block.getDrops(this, pos, this.getMeta(pos), brokenWith);
-            if(stacks != null) {
-                foreach (ItemStack stack in stacks) {
+            ItemStack[] dropList = this.getBlock(pos).getDrops(this, pos, this.getMeta(pos), brokenWith);
+            if(dropList != null) {
+                for(int i = 0; i < dropList.Length; i++) {
                     float f = 0.5f;
                     Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
-                    this.spawnItem(stack, pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0), Vector3.zero);
+                    this.spawnItem(dropList[i], pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0), Vector3.zero);
                 }
             }
             this.setBlock(pos, Block.air);

@@ -10,6 +10,7 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Entities.Player {
 
     public class BreakBlockEffect : MonoBehaviour {
+
         private float mineTimer = 0.0f;
         private bool isTerminated = true;
 

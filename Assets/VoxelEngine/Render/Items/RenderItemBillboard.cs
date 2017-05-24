@@ -15,7 +15,7 @@ namespace VoxelEngine.Render.Items {
             // Add the front and back.
             float zOffset = halfPixelSize;
             meshBuilder.addQuad(
-                new Vector3(0.5f, -0.5f, zOffset), // Bottom right
+                new Vector3(0.5f, -0.5f, zOffset),  // Bottom right
                 new Vector3(0.5f, 0.5f, zOffset),   // Top right
                 new Vector3(-0.5f, 0.5f, zOffset),  // Top left
                 new Vector3(-0.5f, -0.5f, zOffset), // Bottom left
@@ -38,7 +38,7 @@ namespace VoxelEngine.Render.Items {
 
             for(int x = 1; x < 32; x++) {
                 for(int y = 1; y < 32; y++) {
-                    if(atlas.GetPixel(pixelStartX + x, pixelStartY + y).a != 0) { // Solid pixel.
+                    if(!(atlas.GetPixel(pixelStartX + x, pixelStartY + y).a == 0)) { // Solid pixel.
                         pixelOrginX = (x - 15) * (halfPixelSize * 2) - halfPixelSize;
                         pixelOrginY = (y - 15) * (halfPixelSize * 2) - halfPixelSize;
 

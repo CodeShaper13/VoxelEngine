@@ -22,7 +22,7 @@ namespace VoxelEngine.Blocks {
             if(!world.getBlock(pos.move(Direction.UP)).isSolid) {
                 TileEntityChest chest = ((TileEntityChest)world.getTileEntity(pos));
                 player.contManager.openContainer(player, ContainerManager.containerChest, chest.chestData);
-                chest.chestOpen.setOpen(true);
+                //chest.chestOpen.setOpen(true);
                 return true;
             }
             return false;
@@ -30,14 +30,13 @@ namespace VoxelEngine.Blocks {
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDir, Vector3 angle) {
             if (Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
-                if(angle.x < 0) {
+                if(angle.x > 0) {
                     return 1; // East
                 } else {
                     return 3; // West
                 }
-            }
-            else { // Z axis
-                if (angle.z < 0) {
+            } else { // Z axis
+                if (angle.z > 0) {
                     return 0; // North
                 } else {
                     return 2; // South
@@ -68,6 +67,18 @@ namespace VoxelEngine.Blocks {
             }
             else {
                 return 0;
+            }
+        }
+
+        public override TexturePos getTexturePos(Direction direction, int meta) {
+            if(direction == Direction.UP || direction == Direction.DOWN) {
+                return new TexturePos(7, 5);
+            } else if((direction.directionId - 1) == meta) { // Front    North.id = 1
+                return new TexturePos(6, 4);
+            } else if((direction.directionId - 3) == meta) { // Back
+                return new TexturePos(7, 4);
+            } else { // Side
+                return new TexturePos(8, 4);
             }
         }
     }

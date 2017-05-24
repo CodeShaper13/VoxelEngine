@@ -1,49 +1,30 @@
 ﻿using fNbt;
 using System;
-using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
 
-    public class PieceBedroom : PieceBase {
+    public class PieceOrginBedroom : PieceOrginBase {
 
-        private bool left;
-        private bool right;
         private int length;
-        /// <summary> 0 = stone, 1 = planks </summary>
-        private int floorType;
 
-        public PieceBedroom(NbtCompound tag) : base(tag) {
-            this.right = tag.Get<NbtByte>("right").ByteValue == 1 ? true : false;
-            this.left = tag.Get<NbtByte>("left").ByteValue == 1 ? true : false;
-            this.length = tag.Get<NbtInt>("left").IntValue;
-            this.floorType = tag.Get<NbtInt>("floorType").IntValue;
+        public PieceOrginBedroom(NbtCompound tag) : base(tag) {
+            this.length = tag.Get<NbtInt>("length").IntValue;
         }
 
-        public PieceBedroom(StructureMineshaft shaft, BlockPos shaftCenter) : base(shaft, new BlockPos(shaftCenter.x + 4, shaftCenter.y, shaftCenter.z)) {
-            int i = this.shaft.rnd.Next(0, 5);
-            if(i < 2) {
-                this.right = true;
-            } else if(i == 2) {
-                this.right = true;
-                this.left = true;
-            } else if(i > 2) {
-                this.left = true;
-            }
-
+        public PieceOrginBedroom(StructureMineshaft shaft, BlockPos shaftCenter) : base(shaft, shaftCenter) {
             this.length = 7 + (this.shaft.rnd.Next(0, 3) * 2);
-            this.floorType = this.shaft.rnd.Next(0, 4) == 0 ? 1 : 0;
 
             this.calculateBounds();
         }
 
         public override void calculateBounds() {
-            this.setPieceSize(1, 4, this.length, 0, 3, 3);
+            this.setPieceSize(0, 4, this.length, 0, this.left ? 3 : 2, this.right ? 3 : 2);
         }
 
-        public override void carvePiece(Chunk chunk, System.Random rnd) {
+        public override void carvePiece(Chunk chunk, Random rnd) {
             BlockPos p1 = this.getPosMin();
             BlockPos p2 = this.getPosMax();
             int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
@@ -92,8 +73,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                             }                 
                             // Torch
                             else if (offsetX == this.length && offsetY == 3 && offsetZ == 0 && rnd.Next(0, 15) != 0) {
-                                block = Block.torch;
-                                meta = 2; // East
+                                this.addTorch(chunk, x, y, z, Direction.EAST);
                             }
 
                             if (block != null) {
@@ -106,8 +86,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
             }
         }
 
-        public override Color getPieceColor() {
-            return Color.cyan;
+        public override NbtCompound writeToNbt(NbtCompound tag) {
+            base.writeToNbt(tag);
+            tag.Add(new NbtInt("length", this.length));
+            return tag;
         }
 
         public override byte getPieceId() {

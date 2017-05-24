@@ -50,8 +50,17 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                                 b = Block.wood;
                                 meta = 1;
                             }
+                            // Bottom floor, if it's there
+                            else if (this.isBottom && offsetY == 0) {
+                                if (Random.Range(0, 2) == 0) {
+                                    b = Block.stone;
+                                }
+                                else {
+                                    b = Block.gravel;
+                                }
+                            }
                             // Ladder
-                            else if(offsetX == -3 && offsetZ == 3 && offsetY != 0) {
+                            else if(offsetX == -3 && offsetZ == 3) {
                                 b = Block.ladder;
                                 meta = 0;
                             }
@@ -75,14 +84,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                                 int absZ = Mathf.Abs(offsetZ);
                                 if (((absX == 2 && absZ < 2) || (absZ == 2 && absX < 2)) && rnd.Next(10) != 0) {
                                     b = Block.fence;
-                                }
-                            }
-                            // Bottom floor, if it's there
-                            else if(this.isBottom && offsetY == 0) {
-                                if(Random.Range(0, 2) == 0) {
-                                    b = Block.stone;
-                                } else {
-                                    b = Block.gravel;
                                 }
                             }
 

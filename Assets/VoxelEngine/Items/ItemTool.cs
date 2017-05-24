@@ -12,6 +12,8 @@ namespace VoxelEngine.Items {
             this.time = time;
             this.toolType = toolType;
             this.effectiveOn = effectiveOn;
+
+            this.setMaxStackSize(1);
         }
     }
 }

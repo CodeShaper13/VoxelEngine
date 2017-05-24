@@ -123,9 +123,9 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Adds a rotated box of quads.  Note, adjacent lighting is not used on quads.
+        /// Adds a rotated box of quads.
         /// </summary>
-        //TODO make lighting work in the cases of fences and stuff
+        //TODO lighting
         public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, Vector2[] allocatedUvArray) {
             // Top points.
             Vector3 ppp = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, boxRadius.z), Vector3.zero, rotation);
@@ -138,18 +138,32 @@ namespace VoxelEngine.Render {
             Vector3 nnp = pos + MathHelper.rotateVecAround(new Vector3(-boxRadius.x, -boxRadius.y, boxRadius.z), Vector3.zero, rotation);
             Vector3 nnn = pos + MathHelper.rotateVecAround(new Vector3(-boxRadius.x, -boxRadius.y, -boxRadius.z), Vector3.zero, rotation);
 
+            Vector3 boxOffset = pos - MathHelper.roundVector3(pos);
+
             // Top face.
-            this.addQuad(npp, ppp, ppn, npn, UvHelper.cropUVs(block.getUVs(meta, Direction.UP, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.x)), Direction.UP_ID);
+            this.addQuad(npp, ppp, ppn, npn,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.UP, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.x)),
+                Direction.UP_ID);
             // Bottom face.
-            this.addQuad(nnn, pnn, pnp, nnp, UvHelper.cropUVs(block.getUVs(meta, Direction.DOWN, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.z)), Direction.DOWN_ID);            
+            this.addQuad(nnn, pnn, pnp, nnp,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.DOWN, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.z)),
+                Direction.DOWN_ID);            
             // +X face.
-            this.addQuad(pnn, ppn, ppp, pnp, UvHelper.cropUVs(block.getUVs(meta, Direction.EAST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)), Direction.EAST_ID);
+            this.addQuad(pnn, ppn, ppp, pnp,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.EAST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
+                Direction.EAST_ID);
             // +Z face.
-            this.addQuad(pnp, ppp, npp, nnp, UvHelper.cropUVs(block.getUVs(meta, Direction.NORTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)), Direction.NORTH_ID);            
+            this.addQuad(pnp, ppp, npp, nnp,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.NORTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
+                Direction.NORTH_ID);            
             // -X face.
-            this.addQuad(nnp, npp, npn, nnn, UvHelper.cropUVs(block.getUVs(meta, Direction.WEST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)), Direction.WEST_ID);
+            this.addQuad(nnp, npp, npn, nnn,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.WEST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
+                Direction.WEST_ID);
             // -Z face.
-            this.addQuad(nnn, npn, ppn, pnn, UvHelper.cropUVs(block.getUVs(meta, Direction.SOUTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)), Direction.SOUTH_ID);
+            this.addQuad(nnn, npn, ppn, pnn,
+                UvHelper.cropUVs(block.getUVs(meta, Direction.SOUTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
+                Direction.SOUTH_ID);
         }
 
         /// <summary>
