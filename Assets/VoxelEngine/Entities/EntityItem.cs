@@ -3,6 +3,7 @@ using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Render;
 
+
 namespace VoxelEngine.Entities {
 
     public class EntityItem : Entity, ICollecting {
@@ -83,7 +84,7 @@ namespace VoxelEngine.Entities {
             if(this.timeAlive > 0) {
                 return stack;
             }
-            if(this.stack.equals(stack)) {
+            if(this.stack.Equals(stack)) {
                 // Stacks are the same, we might be able to merge.
                 ItemStack leftover = this.stack.merge(stack);
                 this.calculateMesh(false);

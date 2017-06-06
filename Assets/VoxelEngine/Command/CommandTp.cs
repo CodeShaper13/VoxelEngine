@@ -13,9 +13,7 @@ namespace VoxelEngine.Command {
             if(args.Length != 3) {
                 throw new WrongSyntaxException();
             } else {
-                int x;
-                int y;
-                int z;
+                int x, y, z;
 
                 if (Int32.TryParse(args[0], out x) &&
                     Int32.TryParse(args[1], out y) &&

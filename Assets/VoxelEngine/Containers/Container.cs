@@ -45,7 +45,7 @@ namespace VoxelEngine.Containers {
                 stack = this.data.items[i];
                 if (stack != null) {
                 }
-                this.slots[i].slotText.text = (stack == null || stack.count == 1 ? string.Empty : stack.count.ToString());
+                this.slots[i].setSlotText(stack == null || stack.count == 1 ? string.Empty : stack.count.ToString());
             }
         
             Transform trans;
@@ -80,7 +80,7 @@ namespace VoxelEngine.Containers {
                     }
                     else if (heldStack != null && slotContents != null) {
                         // Both hand and slot have stuff.
-                        if (heldStack.equals(slotContents)) {
+                        if (heldStack.Equals(slotContents)) {
                             // Combine, leaving leftover in hand.
                             cm.setHeldStack(slotContents.merge(heldStack));
                             this.data.items[i] = slotContents;
@@ -109,7 +109,7 @@ namespace VoxelEngine.Containers {
                             this.data.items[i] = temp;
                             heldStack = heldStack.safeDeduction();
                         }
-                        else if (slotContents.equals(heldStack) && slotContents.count < slotContents.item.maxStackSize) {
+                        else if (slotContents.Equals(heldStack) && slotContents.count < slotContents.item.maxStackSize) {
                             // The held type is the same as the slot, and it's not full
                             this.data.items[i] = slotContents.safeDeduction();
                             heldStack.count += 1;

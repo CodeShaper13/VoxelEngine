@@ -3,12 +3,16 @@ using UnityEngine.UI;
 
 namespace VoxelEngine {
 
+    /// <summary>
+    /// The command window.
+    /// </summary>
     public class TextWindow {
 
         public bool isOpen;
 
         /// <summary> The parent of all the chat log objects. </summary>
         private Transform root;
+        /// <summary> The number of lines to text in the log. </summary>
         private int textLines;
         private InputField inputField;
         private Text outputField;
@@ -26,7 +30,6 @@ namespace VoxelEngine {
         public void openWindow() {
             this.isOpen = true;
             this.root.gameObject.SetActive(true);
-            //Main.singleton.player.fpc.allowInput = false;
             Main.hideMouse(false);
         }
 
@@ -34,10 +37,12 @@ namespace VoxelEngine {
             this.isOpen = false;
             this.clearInputLine();
             this.root.gameObject.SetActive(false);
-            //Main.singleton.player.fpc.allowInput = true;
             Main.hideMouse(true);
         }
 
+        /// <summary>
+        /// Called when the enter key is pressed.
+        /// </summary>
         public void onEnter(string text) {
             Main.singleton.commandManager.tryRunCommand(text);
             this.clearInputLine();

@@ -118,14 +118,13 @@ namespace VoxelEngine.Render {
             this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y));
         }
 
-        public void addBox(Vector3 pos, Vector3 size, Block block, int meta, Vector2[] allocatedUvArray) {
-            this.addBox(pos, size, Quaternion.identity, block, meta, allocatedUvArray);
+        public void addBox(Vector3 pos, Vector3 boxRadius, Block block, int meta, Vector2[] allocatedUvArray) {
+            this.addBox(pos, boxRadius, Quaternion.identity, block, meta, allocatedUvArray);
         }
 
         /// <summary>
-        /// Adds a rotated box of quads.
+        /// Adds a rotated box of quads.  Warning, rotated boxes that extend to the edge of their voxel or past may have lighting errors!
         /// </summary>
-        //TODO lighting
         public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, Vector2[] allocatedUvArray) {
             // Top points.
             Vector3 ppp = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, boxRadius.z), Vector3.zero, rotation);
@@ -140,30 +139,30 @@ namespace VoxelEngine.Render {
 
             Vector3 boxOffset = pos - MathHelper.roundVector3(pos);
 
-            // Top face.
+            // +Y face.
             this.addQuad(npp, ppp, ppn, npn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.UP, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.x)),
-                Direction.UP_ID);
-            // Bottom face.
+                boxRadius.y >= 0.5f ? Direction.UP_ID : 0);
+            // -Y face.
             this.addQuad(nnn, pnn, pnp, nnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.DOWN, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.z)),
-                Direction.DOWN_ID);            
+                boxRadius.y <= -0.5f ? Direction.DOWN_ID : 0);            
             // +X face.
             this.addQuad(pnn, ppn, ppp, pnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.EAST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                Direction.EAST_ID);
+                boxRadius.x >= 0.5f ? Direction.EAST_ID : 0);
             // +Z face.
             this.addQuad(pnp, ppp, npp, nnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.NORTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                Direction.NORTH_ID);            
+                boxRadius.z >= 0.5f ? Direction.NORTH_ID : 0);            
             // -X face.
             this.addQuad(nnp, npp, npn, nnn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.WEST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                Direction.WEST_ID);
+                boxRadius.x <= -0.5f ? Direction.WEST_ID : 0);
             // -Z face.
             this.addQuad(nnn, npn, ppn, pnn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.SOUTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                Direction.SOUTH_ID);
+                boxRadius.z <= -0.5f ? Direction.SOUTH_ID : 0);
         }
 
         /// <summary>

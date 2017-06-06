@@ -96,10 +96,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             else if(absX < 4 && absZ < 4) {
                                 block = Block.air;
                             }
-                
-                            if(block != null) {
-                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, block);
-                            }
+
+                            this.setState(chunk, x, y, z, block, 0);
                         }
                     }
                 }

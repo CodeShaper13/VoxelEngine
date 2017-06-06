@@ -31,8 +31,14 @@ namespace VoxelEngine.Util {
             this.z = z;
         }
 
+        public BlockPos(Vector3 vector) {
+            this.x = Mathf.RoundToInt(vector.x);
+            this.y = Mathf.RoundToInt(vector.y);
+            this.z = Mathf.RoundToInt(vector.z);
+        }
+
         /// <summary>
-        /// Converts the block pos to a chunk pos, multiplying everything by Chunk.SIZE
+        /// Converts the block pos to a chunk pos, multiplying everything by Chunk.SIZE.
         /// </summary>
         public ChunkPos toChunkPos() {
             return new ChunkPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);
@@ -63,8 +69,14 @@ namespace VoxelEngine.Util {
             }
         }
 
+        /// <summary>
+        /// Adds the passed values to the block pos.
+        /// </summary>
         public BlockPos add(int x, int y, int z) {
-            return new BlockPos(this.x + x, this.y + y, this.z + z);
+            this.x += x;
+            this.y += y;
+            this.z += z;
+            return this;
         }
 
         public static BlockPos operator +(BlockPos b, BlockPos b1) {
@@ -103,12 +115,11 @@ namespace VoxelEngine.Util {
                 p.z - (p.z != 0 ? 1 : 0));
         }
 
+        /// <summary>
+        /// Coverts the BlockPos to a Vector3
+        /// </summary>
         public Vector3 toVector() {
             return new Vector3(this.x, this.y, this.z);
-        }
-
-        public static BlockPos fromVec(Vector3 vector) {
-            return new BlockPos(Mathf.RoundToInt(vector.x), Mathf.RoundToInt(vector.y), Mathf.RoundToInt(vector.z));
         }
 
         public static BlockPos fromRaycastHit(RaycastHit hit) {

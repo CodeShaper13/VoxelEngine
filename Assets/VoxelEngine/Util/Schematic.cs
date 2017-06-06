@@ -6,7 +6,11 @@ using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
 
-    public class Schematic : IBlockHolder {
+    // WARNING!!! Untested and may be broken!
+    /// <summary>
+    /// A rectangular selection of blocks that can be extracted from the world and saved.
+    /// </summary>
+    public class Schematic {
 
         public string schematicName;
         public Block[] blocks;
@@ -102,7 +106,7 @@ namespace VoxelEngine.Util {
         }
 
         public void readFromNbt(NbtCompound tag) {
-            // sizeX, sizeY and sizeZ are set in ctor
+            // sizeX, sizeY and sizeZ are set in constructor.
             this.schematicName = tag.Get<NbtString>("name").StringValue;
             byte[] blockBytes = tag.Get<NbtByteArray>("blocks").ByteArrayValue;
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {

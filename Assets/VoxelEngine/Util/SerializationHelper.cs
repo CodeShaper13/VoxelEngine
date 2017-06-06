@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace VoxelEngine.Util {
 
+    // Unused
     public static class SerializationHelper {
 
         public static void serialize(object obj, string path) {

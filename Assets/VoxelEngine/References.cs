@@ -4,7 +4,8 @@ namespace VoxelEngine {
 
     public class References : MonoBehaviour {
 
-        public static References list; //Singleton
+        /// <summary> Singleton reference to the list. </summary>
+        public static References list;
 
         // Materials.
         public Material blockMaterial;
@@ -39,6 +40,9 @@ namespace VoxelEngine {
         public GameObject torchPrefab;
         public GameObject mushroomPrefab;
 
+        /// <summary>
+        /// Called from Main.Awake().
+        /// </summary>
         public void loadResources() {
             this.blockMaterial = Resources.Load<Material>("Materials/BlockMaterial");
             this.itemMaterial = Resources.Load<Material>("Materials/ItemMaterial");

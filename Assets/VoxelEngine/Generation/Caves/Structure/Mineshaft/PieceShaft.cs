@@ -87,13 +87,13 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
             int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
-            Block b;
+            Block block;
             int meta = 0;
             for (int x = p1.x; x <= p2.x; x++) {
                 for (int y = p1.y; y <= p2.y; y++) {
                     for (int z = p1.z; z <= p2.z; z++) {
                         if(chunk.isInChunk(x, y, z)) {
-                            b = Block.air;
+                            block = Block.air;
                             meta = 0;
                             chunkCoordX = x - chunk.pos.x;
                             chunkCoordY = y - chunk.pos.y;
@@ -105,45 +105,45 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             // Random gravel on ground
                             if (this.specialFlag == -1 && offsetY == -1) {
                                 if(rnd.Next(4) == 0) {
-                                    b = Block.gravel;
+                                    block = Block.gravel;
                                 } else {
-                                    b = null;
+                                    block = null;
                                 }
                             }
                             // Top room code block
                             else if (this.specialFlag == 1 && offsetY > 6) {
                                 if(offsetY == 13) {
                                     if ((Mathf.Abs(offsetX) < 3 || Mathf.Abs(offsetZ) < 3) && rnd.Next(3) > 0) {
-                                        b = null;
+                                        block = null;
                                     }
                                 } else if(offsetY == 12) {
                                     if(Mathf.Abs(offsetZ) == 4 || Mathf.Abs(offsetX) == 4) {
                                         if(rnd.Next(2) == 0) {
-                                            b = null;
+                                            block = null;
                                         }
                                     }
                                 } else if(offsetY == 11) {
                                     if(Mathf.Abs(offsetX) < 4 && offsetZ == 0) {
-                                        b = Block.wood;
+                                        block = Block.wood;
                                         meta = 0;
                                     }
                                 } else if(offsetY == 10) {
                                     if(Mathf.Abs(offsetX) == 2 && (Mathf.Abs(offsetZ) <= 4)) {
-                                        b = Block.wood;
+                                        block = Block.wood;
                                         meta = 2;
                                     }
                                 } else { // 9, 8
                                     int xAbs = Mathf.Abs(offsetX);
                                     int zAbs = Mathf.Abs(offsetZ);
                                     if (xAbs == 2 && zAbs == 4) {
-                                        b = Block.wood;
+                                        block = Block.wood;
                                         meta = 1;
                                     } else if(offsetY == 7) {
                                         if(xAbs == 3 && zAbs <= 2 && rnd.Next(10) != 0) {
-                                            b = Block.fence;
+                                            block = Block.fence;
                                         } else if(xAbs == 3 && zAbs == 4 && rnd.Next(25) == 0) {
                                             RandomChest.MINESHAFT_SHAFT.makeChest(chunk.world, x, y, z, z > this.orgin.z ? Direction.SOUTH : Direction.NORTH, rnd);
-                                            b = null;
+                                            block = null;
                                         }
                                     }
                                 }
@@ -151,30 +151,25 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             // Torch
                             else if (x == torchPos.x && z == torchPos.z && offsetY == 9) {
                                 this.addTorch(chunk, x, y, z, torchDir);
-                                b = null;
+                                block = null;
                             }
                             // Railing
                             else if (offsetY == 7 || (offsetY == 0 && this.specialFlag != -1)) {
                                 int xAbs = Mathf.Abs(offsetX);
                                 int zAbs = Mathf.Abs(offsetZ);
                                 if (((xAbs == 3 && zAbs < 3) || (zAbs == 3 && xAbs < 3)) && rnd.Next(20) != 0) {
-                                    b = Block.fence;
+                                    block = Block.fence;
                                 }
                             }
                             // Floor
                             else if(offsetY == -1 || offsetY == 6) {
                                 if(Mathf.Abs(offsetX) > 2 || Mathf.Abs(offsetZ) > 2) {
-                                    b = Block.wood;
+                                    block = Block.wood;
                                     meta = 1;
                                 }
                             }
 
-                            if (b != null) {
-                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, b);
-                                if (meta != 0) {
-                                    chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
-                                }
-                            }
+                            this.setState(chunk, x, y, z, block, meta);
                         }
                     }
                 }

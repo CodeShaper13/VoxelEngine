@@ -3,7 +3,6 @@
     public struct TexturePos {
 
         public const float BLOCK_SIZE = 0.0625f;
-        /// <summary> Size of an item tile, 32x32 pixel section. </summary>
         public const float ITEM_SIZE = 0.0625f;
         /// <summary> Size of a single pixel </summary>
         public const float PIXEL_SIZE = ITEM_SIZE / 32;

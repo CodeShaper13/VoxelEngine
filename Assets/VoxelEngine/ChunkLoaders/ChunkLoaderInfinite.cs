@@ -7,7 +7,7 @@ namespace VoxelEngine.ChunkLoaders {
 
     public class ChunkLoaderInfinite : ChunkLoaderBase {
 
-        public ChunkLoaderInfinite(World world, EntityPlayer player) : base(world, player, 4) {}
+        public ChunkLoaderInfinite(World world, EntityPlayer player) : base(world, player, 2) {}
 
         protected override bool isOutOfBounds(ChunkPos occupiedChunkPos, Chunk chunk) {
             if (this.toFar(occupiedChunkPos.x, chunk.chunkPos.x) ||

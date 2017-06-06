@@ -1,4 +1,5 @@
 ﻿using fNbt;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VoxelEngine.Blocks;
@@ -83,11 +84,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public BlockPos getPosMin() {
-            return BlockPos.fromVec(this.pieceBounds.min);
+            return new BlockPos(this.pieceBounds.min);
         }
 
         public BlockPos getPosMax() {
-            return BlockPos.fromVec(this.pieceBounds.max);
+            return new BlockPos(this.pieceBounds.max);
         }
 
         /// <summary>
@@ -118,7 +119,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         /// <summary>
-        /// Sets the passed block and meta at the passed coords, if it's in the passed chunk.
+        /// Same as setState() but with a safety check that the location is withing the passed chunk.
+        /// If it is out of bounds nothing happens.
         /// </summary>
         protected void setStateIfInChunk(Chunk chunk, int x, int y, int z, Block block, int meta) {
             if (chunk.isInChunk(x, y, z)) {
@@ -126,13 +128,19 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
         }
 
+        /// <summary>
+        /// Sets the passed block and meta at the passed coords in the passed chunk.
+        /// </summary>
         protected void setState(Chunk chunk, int x, int y, int z, Block block, int meta) {
             if(block != null) {
-                int i = x - chunk.pos.x;
-                int j = y - chunk.pos.y;
-                int k = z - chunk.pos.z;
-                chunk.setBlock(i, j, k, block);
-                chunk.setMeta(i, j, k, meta);
+                if(block is BlockTileEntity) {
+                    throw new Exception("Trying to place a TileEntity via Chunk.setBlock() from PieceBase.setState().  This will throw the game out of sync!");
+                }
+                int localX = x - chunk.pos.x;
+                int localY = y - chunk.pos.y;
+                int localZ = z - chunk.pos.z;
+                chunk.setBlock(localX, localY, localZ, block);
+                chunk.setMeta(localX, localY, localZ, meta);
             }
         }
         
@@ -172,7 +180,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         protected void addTorch(Chunk chunk, int worldX, int worldY, int worldZ, Direction direction) {
-            chunk.world.setBlock(worldX, worldY, worldZ, Block.torch, BlockTorch.getMetaFromDirection(direction), false);
+            chunk.world.setBlock(worldX, worldY, worldZ, Block.torch, BlockTorch.getMetaFromDirection(direction), false, false);
         }
     }
 }

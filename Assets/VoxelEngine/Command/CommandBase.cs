@@ -5,6 +5,7 @@ namespace VoxelEngine.Command {
 
     public abstract class CommandBase {
 
+        /// <summary> The name that's typed into the command line. </summary>
         public string commandName;
         /// <summary> A string that shows the command syntax. </summary>
         public string syntax;
@@ -23,6 +24,7 @@ namespace VoxelEngine.Command {
             Main.singleton.textWindow.logMessage(message);
         }
 
+        // Unused.
         public virtual string[] getTabOptions() {
             return new string[0];
         }

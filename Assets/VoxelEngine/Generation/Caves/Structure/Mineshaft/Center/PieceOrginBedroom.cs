@@ -74,12 +74,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                             // Torch
                             else if (offsetX == this.length && offsetY == 3 && offsetZ == 0 && rnd.Next(0, 15) != 0) {
                                 this.addTorch(chunk, x, y, z, Direction.EAST);
+                                block = null;
                             }
 
-                            if (block != null) {
-                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, block);
-                                chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
-                            }
+                            this.setState(chunk, x, y, z, block, meta);
                         }
                     }
                 }

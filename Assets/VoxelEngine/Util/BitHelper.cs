@@ -6,18 +6,18 @@
     public static class BitHelper {
 
         /// <summary>
-        /// Returns bit from i at position bitNumber.
+        /// Returns bit from integer at position bitNumber.
         /// </summary>
-        public static int getBit(int i, int bitNumber) {
-            return ((i >> bitNumber) & 1);
+        public static int getBit(int integer, int bitNumber) {
+            return ((integer >> bitNumber) & 1);
         }
 
         /// <summary>
-        /// Sets bit at position bitNumber to value (defualts to 1).
+        /// Sets bit at position bitNumber to value (defualts to 1/true).
         /// </summary>
-        public static int setBit(int i, int bitNumber, int value = 1) {
-            i |= value << bitNumber;
-            return i;
+        public static int setBit(int integer, int bitNumber, int value = 1) {
+            integer |= value << bitNumber;
+            return integer;
         }
     }
 }

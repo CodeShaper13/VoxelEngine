@@ -291,8 +291,8 @@ namespace VoxelEngine.Entities {
         /// Configures a first time player, setting the starting inventory and the default health.
         /// </summary>
         public void setupFirstTimePlayer() {
-            if(false) {
-                this.dataHotbar.items[0] = new ItemStack(Item.pickaxe, 0, 25);
+            if(true) {
+                this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 25);
                 this.dataHotbar.items[1] = new ItemStack(Item.axe, 0, 12);
                 this.dataHotbar.items[2] = new ItemStack(Item.shovel, 0, 16);
                 this.dataHotbar.items[3] = new ItemStack(Block.rubyOre, 0, 16);

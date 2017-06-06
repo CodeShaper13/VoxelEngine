@@ -11,6 +11,7 @@ using VoxelEngine.TileEntity;
 using VoxelEngine.Generation.Caves;
 using System;
 using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Entities.Registry;
 
 namespace VoxelEngine.Level {
 
@@ -69,19 +70,19 @@ namespace VoxelEngine.Level {
         }
 
         public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
-            Entity entity = this.func_01(prefab, true);
+            Entity entity = this.instantiateEntityPrefab(prefab, true);
             entity.readFromNbt(tag);
             return entity;
         }
 
         public Entity spawnEntity(GameObject prefab, Vector3 position, Quaternion rotation) {
-            Entity entity = this.func_01(prefab, true);
+            Entity entity = this.instantiateEntityPrefab(prefab, true);
             entity.transform.position = position;
             entity.transform.rotation = rotation;
             return entity;
         }
 
-        private Entity func_01(GameObject prefab, bool placeInWrapper) {
+        private Entity instantiateEntityPrefab(GameObject prefab, bool placeInWrapper) {
             GameObject gameObject = GameObject.Instantiate(prefab);
             if(placeInWrapper) {
                 gameObject.transform.parent = this.entityWrapper;
@@ -93,7 +94,7 @@ namespace VoxelEngine.Level {
         }
 
         public EntityPlayer spawnPlayer(GameObject prefab) {
-            EntityPlayer player = (EntityPlayer)this.func_01(prefab, false);
+            EntityPlayer player = (EntityPlayer)this.instantiateEntityPrefab(prefab, false);
             player.name = "Player";
             if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
                 // No player file was found.
@@ -113,7 +114,7 @@ namespace VoxelEngine.Level {
         }
 
         public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation, Vector3 force) {
-            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item.prefab, position, rotation);
+            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item.getPrefab(), position, rotation);
             entityItem.setStack(stack);
             entityItem.rBody.AddForce(force, ForceMode.Impulse);
 
@@ -131,8 +132,19 @@ namespace VoxelEngine.Level {
             if (!this.nbtIOHelper.readChunk(chunk)) {
                 this.generator.generateChunk(chunk);
 
-                // Simulate lighting updates.
-                // TODO
+                // Calculate lighting for the newly generated chunk.
+                int emittedLight;
+                for(int x = 0; x < Chunk.SIZE; x++) {
+                    for(int y = 0; y < Chunk.SIZE; y++) {
+                        for(int z = 0; z < Chunk.SIZE; z++) {
+                            emittedLight = chunk.getBlock(x, y, z).emittedLight;
+                            if(emittedLight > 0) {
+                                this.updateLighting(emittedLight, chunk.pos.x + x, chunk.pos.y + y, chunk.pos.z + z);
+                                Debug.Log("!");
+                            }
+                        }
+                    }
+                }
 
                 chunk.isDirty = true; // New chunks need to be baked.
             }
@@ -186,14 +198,14 @@ namespace VoxelEngine.Level {
         /// <summary>
         /// Sets a block.  Using a meta of -1 will not change the meta
         /// </summary>
-        public void setBlock(BlockPos pos, Block block, int meta = -1, bool updateNeighbors = true) {
-            this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors);
+        public void setBlock(BlockPos pos, Block block, int meta = -1, bool updateNeighbors = true, bool updateLighting = true) {
+            this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors, updateLighting);
         }
 
         /// <summary>
         /// Sets a block.  Using a meta of -1 will not change the meta
         /// </summary>
-        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true) {
+        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 // Position of the setBlock event within the chunk
@@ -209,7 +221,7 @@ namespace VoxelEngine.Level {
 
                 chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
 
-                // Set meta if it's specified.  255 means don't change
+                // Set meta if it's specified.  -1 means don't change.
                 int meta1 = (newMeta == -1 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta);
                 if(newMeta != 255) {
                     chunk.setMeta(localChunkX, localChunkY, localChunkZ, newMeta);
@@ -218,29 +230,28 @@ namespace VoxelEngine.Level {
 
                 // Update surrounding blocks
                 if (updateNeighbors) {
-                    foreach (Direction dir in Direction.all) {
+                    Direction dir;
+                    for(int i = 0; i < 6; i++) {
+                        dir = Direction.all[i];
                         BlockPos shiftedPos = pos.move(dir);
                         this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, this.getMeta(shiftedPos), dir.getOpposite());
                     }
-                    this.dirtyChunkIfEqual(x - chunk.pos.x, 0, new BlockPos(x - 1, y, z));
-                    this.dirtyChunkIfEqual(x - chunk.pos.x, Chunk.SIZE - 1, new BlockPos(x + 1, y, z));
-                    this.dirtyChunkIfEqual(y - chunk.pos.y, 0, new BlockPos(x, y - 1, z));
-                    this.dirtyChunkIfEqual(y - chunk.pos.y, Chunk.SIZE - 1, new BlockPos(x, y + 1, z));
-                    this.dirtyChunkIfEqual(z - chunk.pos.z, 0, new BlockPos(x, y, z - 1));
-                    this.dirtyChunkIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, new BlockPos(x, y, z + 1));
+                    this.dirtyChunkIfEqual(x - chunk.pos.x, 0,              x - 1, y, z);
+                    this.dirtyChunkIfEqual(x - chunk.pos.x, Chunk.SIZE - 1, x + 1, y, z);
+                    this.dirtyChunkIfEqual(y - chunk.pos.y, 0,              x, y - 1, z);
+                    this.dirtyChunkIfEqual(y - chunk.pos.y, Chunk.SIZE - 1, x, y + 1, z);
+                    this.dirtyChunkIfEqual(z - chunk.pos.z, 0,              x, y, z - 1);
+                    this.dirtyChunkIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, x, y, z + 1);
                 }
 
                 // Update lighting.
-                //this.func(new BlockPos(x, y, z), newBlock.emittedLight);
-                //this.updateLighting(x, y, z, newBlock, oldBlock);
-
-                /*
-                if(newBlock.emittedLight != 0) {
-                    timeFuncCalled = 0;
-                    this.lightRegionForBlock(x, y, z, newBlock.emittedLight);
-                    //Debug.Log(timeFuncCalled);
+                if(updateLighting) {
+                    int j = chunk.getLight(localChunkX, localChunkY, localChunkZ);
+                    if ((newBlock.isSolid && oldBlock.isSolid) || (!newBlock.isSolid && newBlock.emittedLight == j)) {
+                        return;
+                    }
+                    this.updateLighting(newBlock.emittedLight, x, y, z);
                 }
-                */
             }
         }
 
@@ -262,6 +273,13 @@ namespace VoxelEngine.Level {
                 return chunk.getLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z);
             } else {
                 return 0;
+            }
+        }
+
+        private void setLight(int x, int y, int z, int level) {
+            Chunk chunk = this.getChunk(x, y, z);
+            if (chunk != null) {
+                chunk.setLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, level);
             }
         }
 
@@ -303,91 +321,6 @@ namespace VoxelEngine.Level {
             }
         }
 
-        private void updateLighting(int x, int y, int z, Block oldBlock, Block newblock) {
-            // Find the radius to update
-            int radius = 0;
-            int voxelLevel = this.getLight(x, y, z);
-
-            if (newblock.emittedLight == 0) {
-                if (voxelLevel == 0) {
-                    return; // No lighting updates to do.
-                } else { // Light greater than 0.
-                    radius = voxelLevel;
-                }
-            } else if(newblock.emittedLight > 0 || oldBlock.emittedLight > 0) { // The new or old block emitts light.
-                radius = voxelLevel;
-            } else if(newblock.emittedLight == 0) {
-                radius = Mathf.Max(
-                    this.getLight(x + 1, y, z),
-                    this.getLight(x - 1, y, z),
-                    this.getLight(x, y + 1, z),
-                    this.getLight(x, y - 1, z),
-                    this.getLight(x, y, z + 1),
-                    this.getLight(x, y, z - 1)); // Largest adjacent value.
-            }
-
-            // 1. Find every edge voxel that needs updating
-
-            // 2. Update every edge voxel
-
-            // 3. Make every inside square one less that the outside ones
-
-            // 4. Caculate light for every square within the region
-        }
-
-        private void setLight(int x, int y, int z, int level) {
-            Chunk chunk = this.getChunk(x, y, z);
-            if (chunk != null) {
-                chunk.setLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, level);
-            }
-        }
-
-        private static int timeFuncCalled;
-
-        /// <summary>
-        /// Moves out from passes pos, lighting the area with the emmit light from the block.
-        /// </summary>
-        private void lightRegionForBlock(int x, int y, int z, int lightLevel) {
-            timeFuncCalled++;
-
-            // Return if the new light is less than 0.
-            if(lightLevel <= 0) {
-                return;
-            }
-
-            Chunk chunk = this.getChunk(x, y, z);
-
-            // Return if the chunk is not loaded.
-            if (chunk == null) {
-                return;
-            }
-
-            int localizedX = x - chunk.pos.x;
-            int localizedY = y - chunk.pos.y;
-            int localizedZ = z - chunk.pos.z;
-
-            // Return if the block is solid, it can't have light and light can't spread through it.
-            if (chunk.getBlock(localizedX, localizedY, localizedZ).isSolid) {
-                return;
-            }
-
-            int oldLight = chunk.getLight(localizedX, localizedY, localizedZ);
-
-            if(oldLight >= lightLevel) {
-                return; // The block's light is greater than the new one, we shouldn't change it or keep spreading
-            } else {
-                chunk.setLight(localizedX, localizedY, localizedZ, lightLevel);
-            }
-
-            lightLevel -= 1;
-            this.lightRegionForBlock(x + 1, y, z, lightLevel);
-            this.lightRegionForBlock(x - 1, y, z, lightLevel);
-            this.lightRegionForBlock(x, y + 1, z, lightLevel);
-            this.lightRegionForBlock(x, y - 1, z, lightLevel);
-            this.lightRegionForBlock(x, y, z + 1, lightLevel);
-            this.lightRegionForBlock(x, y, z - 1, lightLevel);
-        }
-
         /// <summary>
         /// Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
         /// </summary>
@@ -403,9 +336,9 @@ namespace VoxelEngine.Level {
             this.setBlock(pos, Block.air);
         }
 
-        private void dirtyChunkIfEqual(int value1, int value2, BlockPos worldChunkPos) {
+        private void dirtyChunkIfEqual(int value1, int value2, int x, int y, int z) {
             if (value1 == value2) {
-                Chunk chunk = getChunk(worldChunkPos);
+                Chunk chunk = getChunk(x, y, z);
                 if (chunk != null) {
                     chunk.isDirty = true;
                 }
@@ -428,7 +361,7 @@ namespace VoxelEngine.Level {
         }
 
         /// <summary>
-        /// Saves the passde chunk to disk.
+        /// Saves the passed chunk to disk.
         /// </summary>
         private void saveChunk(Chunk chunk, bool deleteEntities) {
             NbtCompound tag = new NbtCompound("chunk");
@@ -438,6 +371,114 @@ namespace VoxelEngine.Level {
             this.nbtIOHelper.writeChunkToDisk(chunk, tag);
             //    chunk.isModified = false;
             //}
+        }
+
+        private void updateLighting(int newLight, int startX, int startY, int startZ) {
+            Queue<LightRemovalNode> removalQueue = new Queue<LightRemovalNode>();
+            Queue<BlockPos> queue = new Queue<BlockPos>();
+            int x, y, z;
+
+            removalQueue.Enqueue(new LightRemovalNode(startX, startY, startZ, this.getLight(startX, startY, startZ)));
+            this.setLight(startX, startY, startZ, 0);
+
+            while (removalQueue.Count > 0) {
+                LightRemovalNode node = removalQueue.Dequeue();
+                x = node.x;
+                y = node.y;
+                z = node.z;
+
+                int neighborLevel = this.getLight(x - 1, y, z);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x - 1, y, z, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x - 1, y, z, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x - 1, y, z));
+                }
+
+                neighborLevel = this.getLight(x + 1, y, z);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x + 1, y, z, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x + 1, y, z, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x + 1, y, z));
+                }
+
+                neighborLevel = this.getLight(x, y - 1, z);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x, y - 1, z, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x, y - 1, z, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x, y - 1, z));
+                }
+
+                neighborLevel = this.getLight(x, y + 1, z);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x, y + 1, z, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x, y + 1, z, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x, y + 1, z));
+                }
+
+                neighborLevel = this.getLight(x, y, z - 1);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x, y, z - 1, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x, y, z - 1, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x, y, z - 1));
+                }
+
+                neighborLevel = this.getLight(x, y, z + 1);
+                if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
+                    this.setLight(x, y, z + 1, 0);
+                    removalQueue.Enqueue(new LightRemovalNode(x, y, z + 1, neighborLevel));
+                }
+                else if (neighborLevel >= node.lightLevel) {
+                    queue.Enqueue(new BlockPos(x, y, z + 1));
+                }
+            }
+
+            this.setLight(startX, startY, startZ, newLight);
+
+            queue.Enqueue(new BlockPos(startX, startY, startZ));
+
+            while (queue.Count > 0) {
+                BlockPos pos1 = queue.Dequeue();
+                x = pos1.x;
+                y = pos1.y;
+                z = pos1.z;
+
+                int lightLevel = this.getLight(x, y, z);
+
+                if (!this.getBlock(x - 1, y, z).isSolid && this.getLight(x - 1, y, z) + 2 <= lightLevel) {
+                    this.setLight(x - 1, y, z, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x - 1, y, z));
+                }
+                if (!this.getBlock(x + 1, y, z).isSolid && this.getLight(x + 1, y, z) + 2 <= lightLevel) {
+                    this.setLight(x + 1, y, z, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x + 1, y, z));
+                }
+                if (!this.getBlock(x, y - 1, z).isSolid && this.getLight(x, y - 1, z) + 2 <= lightLevel) {
+                    this.setLight(x, y - 1, z, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x, y - 1, z));
+                }
+                if (!this.getBlock(x, y + 1, z).isSolid && this.getLight(x, y + 1, z) + 2 <= lightLevel) {
+                    this.setLight(x, y + 1, z, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x, y + 1, z));
+                }
+                if (!this.getBlock(x, y, z - 1).isSolid && this.getLight(x, y, z - 1) + 2 <= lightLevel) {
+                    this.setLight(x, y, z - 1, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x, y, z - 1));
+                }
+                if (!this.getBlock(x, y, z + 1).isSolid && this.getLight(x, y, z + 1) + 2 <= lightLevel) {
+                    this.setLight(x, y, z + 1, lightLevel - 1);
+                    queue.Enqueue(new BlockPos(x, y, z + 1));
+                }
+            }
         }
     }
 }

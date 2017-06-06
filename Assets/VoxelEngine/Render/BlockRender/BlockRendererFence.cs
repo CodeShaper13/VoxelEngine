@@ -4,7 +4,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockRendererPrimitiveFence : BlockRendererPrimitive {
+    public class BlockRendererFence : BlockRendererPrimitive {
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             // Post

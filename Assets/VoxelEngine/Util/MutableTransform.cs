@@ -3,7 +3,7 @@
 namespace VoxelEngine.Util {
 
     /// <summary>
-    /// A struct with a combine objects position, rotation and scale.
+    /// A struct with a combined position, rotation and scale for a GameObject.
     /// </summary>
     public struct MutableTransform {
 
@@ -22,7 +22,6 @@ namespace VoxelEngine.Util {
         /// <summary>
         /// Converts the MutableTransform to a Matrix4x4 and returns it.
         /// </summary>
-        /// <returns></returns>
         public Matrix4x4 toMatrix4x4() {
             return Matrix4x4.TRS(this.position, this.rotation, this.scale);
         }

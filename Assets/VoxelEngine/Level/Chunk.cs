@@ -1,4 +1,4 @@
-﻿#define MAX_LIGHT
+﻿//#define MAX_LIGHT
 
 using Assets.VoxelEngine.Render;
 using fNbt;
@@ -8,6 +8,7 @@ using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
+using VoxelEngine.Entities.Registry;
 using VoxelEngine.Render;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
@@ -281,7 +282,7 @@ namespace VoxelEngine.Level {
                 }
             }
 
-            // Set light uvs for tile entities.
+            // Set light uvs for tile entities that don't bake into the chunk.
             Material[] materials;
             Color lightColor;
             foreach (TileEntityBase te in this.tileEntityDict.Values) {

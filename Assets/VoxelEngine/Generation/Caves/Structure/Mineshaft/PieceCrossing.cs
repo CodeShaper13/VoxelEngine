@@ -81,10 +81,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 block = this.rndGravel();
                             }
 
-                            if (block != null) {
-                                chunk.setBlock(chunkCoordX, chunkCoordY, chunkCoordZ, block);
-                                chunk.setMeta(chunkCoordX, chunkCoordY, chunkCoordZ, meta);
-                            }
+                            this.setState(chunk, x, y, z, block, meta);
                         }
                     }
                 }

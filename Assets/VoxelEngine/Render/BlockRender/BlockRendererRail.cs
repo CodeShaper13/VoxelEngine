@@ -4,7 +4,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockRendererPrimitiveRail : BlockRendererPrimitive {
+    public class BlockRendererRail : BlockRendererPrimitive {
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             float f = 0.425f;

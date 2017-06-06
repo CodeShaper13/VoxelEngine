@@ -1,30 +1,37 @@
 ﻿using UnityEngine;
 using UnityEngine.Profiling;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Testing {
 
     public class ArrayVsBits : MonoBehaviour {
 
         public void Start() {
+            Profiler.BeginSample("Func inlined bit");
             for (int i = 0; i < 1000; i++) {
-                this.func1();
+                this.func3();
             }
+            Profiler.EndSample();
+
+
+            Profiler.BeginSample("Func array");
             for (int i = 0; i < 1000; i++) {
                 this.func2();
             }
+            Profiler.EndSample();
         }
 
-        private void func1() {
-            int x, y, z, i;
-            int flags = 0;
+        private void func3() {
+            int x, y, z, i, j;
+            int flag = 0;
             for (x = 0; x < 15; x++) {
                 for (y = 0; y < 15; y++) {
                     for (z = 0; z < 15; z++) {
-                        Profiler.BeginSample("Inner loop");
                         for (i = 0; i < 6; i++) {
-                            flags = flags >> i;
+                            flag |= 1 << i;
+                            j = ((flag >> i) & 1);
                         }
-                        Profiler.EndSample();
+                        this.passFunc2(flag);
                     }
                 }
             }
@@ -36,14 +43,21 @@ namespace VoxelEngine.Testing {
             for(x = 0; x < 15; x++) {
                 for (y = 0; y < 15; y++) {
                     for (z = 0; z < 15; z++) {
-                        Profiler.BeginSample("Inner loop");
                         for(i = 0; i < 6; i++) {
                             flags[i] = !flags[i];
                         }
-                        Profiler.EndSample();
+                        this.passFunc1(flags);
                     }
                 }
             }
+        }
+
+        private void passFunc1(bool[] f) {
+
+        }
+
+        private void passFunc2(int flag) {
+
         }
     }
 }

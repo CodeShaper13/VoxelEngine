@@ -9,7 +9,7 @@ namespace VoxelEngine.Util {
     public static class UvHelper {
 
         /// <summary>
-        /// Rotates the uvs by rotation and returns them.  Only use multiples of 90, no negatives and dont exceed 270 degrees.
+        /// Rotates the uvs by rotation and returns them.  Only use multiples of 90, no negatives and don't exceed 270 degrees.
         /// </summary>
         public static Vector2[] rotateUVs(Vector2[] uvs, int degrees) {
             degrees /= 90;

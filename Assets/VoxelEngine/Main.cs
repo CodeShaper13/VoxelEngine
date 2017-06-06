@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using VoxelEngine.Command;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
+using VoxelEngine.Entities.Registry;
 using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Level;
@@ -60,7 +61,7 @@ namespace VoxelEngine {
 
             //this.openGuiScreen(GuiManager.title);
 
-            this.createNewWorld(true); // When false, the world is not saved.
+            this.createNewWorld(false); // When false, the world is not saved.
         }
 
         private void Update() {
@@ -192,7 +193,7 @@ namespace VoxelEngine {
                 this.currentGui.setVisible(false);
             }
             this.currentGui = null;
-            this.player = this.worldObj.spawnPlayer(EntityRegistry.player.prefab);
+            this.player = this.worldObj.spawnPlayer(EntityRegistry.player.getPrefab());
             Main.hideMouse(true);
         }
 

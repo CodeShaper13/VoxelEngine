@@ -2,6 +2,9 @@
 
 namespace VoxelEngine.Util {
 
+    /// <summary>
+    /// Helper class for drawing debug lines and boxes
+    /// </summary>
     public static class DebugDrawer {
 
         public static void box(Vector3 center, Vector3 size, Color color, float duration = 0) {

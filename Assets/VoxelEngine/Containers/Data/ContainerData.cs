@@ -44,7 +44,7 @@ namespace VoxelEngine.Containers.Data {
             for (int i = 0; i < this.items.Length; i++) {
                 //slot = this.slots[i];
                 ItemStack contents = this.items[i];
-                if (contents == null || (!contents.equals(stack)) || contents.count >= contents.item.maxStackSize) {
+                if (contents == null || (!contents.Equals(stack)) || contents.count >= contents.item.maxStackSize) {
                     continue;
                 }
                 // Stacks are equal and slot is not full

@@ -4,7 +4,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockRendererPrimitiveLadder : BlockRendererPrimitive {
+    public class BlockRendererLadder : BlockRendererPrimitive {
 
         private const float f = 0.45f;
 

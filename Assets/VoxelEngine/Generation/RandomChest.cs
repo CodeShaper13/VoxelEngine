@@ -53,7 +53,7 @@ namespace VoxelEngine.Generation {
         /// Places a random chest in the world, block and contents.
         /// </summary>
         public void makeChest(World world, int x, int y, int z, Direction chestDirection, System.Random rnd) {
-            world.setBlock(x, y, z, Block.chest, BlockChest.getMetaFromDirection(chestDirection));
+            world.setBlock(x, y, z, Block.chest, BlockChest.getMetaFromDirection(chestDirection), false, false);
             ContainerData data = ((TileEntityChest)world.getTileEntity(x, y, z)).chestData;
 
             int stacksToAdd = rnd.Next(this.minStackCount, this.maxStackCount + 1);

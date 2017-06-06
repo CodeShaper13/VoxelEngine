@@ -38,6 +38,9 @@ namespace VoxelEngine.Util {
             return new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));
         }
 
+        /// <summary>
+        /// Clamps an integer between two values.
+        /// </summary>
         public static int clamp(int value, int min, int max) {
             if(value < min) {
                 return min;

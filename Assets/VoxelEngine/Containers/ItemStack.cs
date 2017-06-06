@@ -1,12 +1,12 @@
 ﻿using fNbt;
 using System;
+using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
 
-    [Serializable]
     public class ItemStack {
 
         /// <summary> The maximum size of a stack.  Used by both EntityItem and containers to know how large a stack can be. </summary>
@@ -42,17 +42,21 @@ namespace VoxelEngine.Containers {
         }
 
         /// <summary>
-        /// Returns true if the stacks share id and meta
+        /// Lets us use the == operator to check is there contents are equal.
         /// </summary>
-        public bool equals(ItemStack stack) {
-            return this.item.id == stack.item.id && this.meta == stack.meta;
+        public override bool Equals(object obj) {
+            if(obj is ItemStack) {
+                ItemStack stack = (ItemStack)obj;
+                return this.item.id == stack.item.id && this.meta == stack.meta;
+            }
+            return false;
         }
 
         /// <summary>
         /// Merges two stacks together, returning any left over or null if there is none left.
         /// </summary>
         public ItemStack merge(ItemStack otherStack) {
-            if (!this.equals(otherStack)) {
+            if (!(this.Equals(otherStack))) {
                 return otherStack;
             }
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
+using VoxelEngine.Entities.Registry;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
@@ -16,7 +17,7 @@ namespace VoxelEngine.Items {
                 stack = null;
             }
 
-            Entity entity = world.spawnEntity(EntityRegistry.throwable.prefab, player.mainCamera.position + player.mainCamera.forward, player.mainCamera.rotation);
+            Entity entity = world.spawnEntity(EntityRegistry.throwable.getPrefab(), player.mainCamera.position + player.mainCamera.forward, player.mainCamera.rotation);
             entity.gameObject.GetComponent<Rigidbody>().AddForce(player.mainCamera.forward * 20, ForceMode.Impulse);
 
             return stack;
