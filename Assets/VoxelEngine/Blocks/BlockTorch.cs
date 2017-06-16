@@ -12,7 +12,7 @@ namespace VoxelEngine.Blocks {
 
         public BlockTorch(int id) : base(id) {
             this.setRenderer(RenderManager.TORCH);
-            this.setEmittedLight(12);
+            this.setEmittedLight(15);
             this.setTransparent();
             this.setType(EnumBlockType.WOOD);
             this.setTexture(3, 2);

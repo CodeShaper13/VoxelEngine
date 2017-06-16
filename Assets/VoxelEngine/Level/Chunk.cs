@@ -1,4 +1,4 @@
-﻿//#define MAX_LIGHT
+﻿#define MAX_LIGHT
 
 using Assets.VoxelEngine.Render;
 using fNbt;
@@ -20,25 +20,25 @@ namespace VoxelEngine.Level {
         public const int SIZE = 15;
         public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
 
-        private MeshFilter filter;
+        public MeshFilter filter;
         private MeshCollider blockCollider;
         private MeshCollider triggerCollider;
         public World world;
 
         public Block[] blocks;
         public byte[] metaData;
-        /// <summary> First 4 bits are block light, last 4 are sky light </summary>
+        /// <summary> First 4 bits are block light, last 4 are sky light. </summary>
         public byte[] lightLevel;
         /// <summary> Holds all the TileEntities in the chunk.  BlockPos is in world coordinates. </summary>
         public Dictionary<BlockPos, TileEntityBase> tileEntityDict; //TODO replace with a faster collection type
-        public BlockPos pos;
+        public BlockPos worldPos;
         public ChunkPos chunkPos;
         public Bounds chunkBounds;
         /// <summary> If true, the chunk has been changed and needs it's mesh to be rebaked. </summary>
         public bool isDirty;
-        /// <summary> If true, the population world gen phase has been done. </summary>
-        public bool isPopulated;
-        /// <summary> If true, the chunk should not be rendered and is ment to read from only </summary>
+        /// <summary> If true, the population world gen phase and lighting has been done. </summary>
+        public bool hasDoneGen2;
+        /// <summary> If true, the chunk should not be rendered and is meant to read from only.  Gen Phase 2 will still edit theses? </summary>
         public bool isReadOnly;
 
         public void Awake() {
@@ -58,11 +58,11 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void initChunk(World w, NewChunkInstructions instructions) {
             this.world = w;
-            this.pos = instructions.chunkPos.toBlockPos();
+            this.worldPos = instructions.chunkPos.toBlockPos();
             this.chunkPos = instructions.chunkPos;
-            this.setReadOnly(instructions.isReadOnly);
+            this.isReadOnly = instructions.isReadOnly;
             float radius = (float)Chunk.SIZE / 2;
-            this.chunkBounds = new Bounds(new Vector3(this.pos.x + radius, this.pos.y + radius, this.pos.z + radius), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
+            this.chunkBounds = new Bounds(new Vector3(this.worldPos.x + radius, this.worldPos.y + radius, this.worldPos.z + radius), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
         }
 
         private void Update() {
@@ -70,7 +70,7 @@ namespace VoxelEngine.Level {
                 this.renderChunk();
             }
 
-            //DebugDrawer.bounds(this.chunkBounds, this.isReadOnly ? Color.red : Color.green);
+            //DebugDrawer.bounds(this.chunkBounds, this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
         }
 
         public void FixedUpdate() {
@@ -81,7 +81,7 @@ namespace VoxelEngine.Level {
                     x = UnityEngine.Random.Range(0, Chunk.SIZE);
                     y = UnityEngine.Random.Range(0, Chunk.SIZE);
                     z = UnityEngine.Random.Range(0, Chunk.SIZE);
-                    this.getBlock(x, y, z).onRandomTick(this.world, x + this.pos.x, y + this.pos.y, z + this.pos.z, this.getMeta(x, y, z), i);
+                    this.getBlock(x, y, z).onRandomTick(this.world, x + this.worldPos.x, y + this.worldPos.y, z + this.worldPos.z, this.getMeta(x, y, z), i);
                 }
                 /*
                 int i = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
@@ -112,16 +112,11 @@ namespace VoxelEngine.Level {
         public void resetChunk() {
             this.tileEntityDict.Clear();
             this.isDirty = false;
-            this.isPopulated = false;
+            this.hasDoneGen2 = false;
             this.isReadOnly = false;
             Array.Clear(this.blocks, 0, this.blocks.Length);
             Array.Clear(this.metaData, 0, this.metaData.Length);
             Array.Clear(this.lightLevel, 0, this.lightLevel.Length);
-        }
-
-        public void setReadOnly(bool flag) {
-            this.isReadOnly = flag;
-            this.gameObject.name = "Chunk" + this.chunkPos + (flag ? "(READ ONLY)" : string.Empty);
         }
 
         public Block getBlock(int x, int y, int z) {
@@ -155,8 +150,7 @@ namespace VoxelEngine.Level {
             #if (MAX_LIGHT)
                 return 12;
             #endif
-
-            return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+            //return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
         /// <summary>
@@ -171,9 +165,9 @@ namespace VoxelEngine.Level {
         /// Checks if the passes world coordinates are within the chunk.
         /// </summary>
         public bool isInChunk(int worldX, int worldY, int worldZ) {
-            int inChunkX = worldX - this.pos.x;
-            int inChunkY = worldY - this.pos.y;
-            int inChunkZ = worldZ - this.pos.z;
+            int inChunkX = worldX - this.worldPos.x;
+            int inChunkY = worldY - this.worldPos.y;
+            int inChunkZ = worldZ - this.worldPos.z;
             return (
                 inChunkX >= 0 && inChunkX < Chunk.SIZE &&
                 inChunkY >= 0 && inChunkY < Chunk.SIZE &&
@@ -184,8 +178,8 @@ namespace VoxelEngine.Level {
         /// Checks if the passed world x and z are in the chunk.
         /// </summary>
         public bool isInChunkIgnoreY(int worldX, int worldZ) {
-            int inChunkX = worldX - this.pos.x;
-            int inChunkZ = worldZ - this.pos.z;
+            int inChunkX = worldX - this.worldPos.x;
+            int inChunkZ = worldZ - this.worldPos.z;
             return (
                 inChunkX >= 0 && inChunkX < Chunk.SIZE &&
                 inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
@@ -196,7 +190,7 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void renderChunk() {
             CachedRegion cachedRegion = new CachedRegion(this.world, this);
-            if(cachedRegion.allChunksLoaded()) {
+            if(!cachedRegion.allChunksLoaded()) {
                 // Waiting for the lazy chunk loading to finish...
                 return;
             }
@@ -287,9 +281,9 @@ namespace VoxelEngine.Level {
             Color lightColor;
             foreach (TileEntityBase te in this.tileEntityDict.Values) {
                 if(te is TileEntityGameObject) {
-                    x = te.posX - this.pos.x;
-                    y = te.posY - this.pos.y;
-                    z = te.posZ - this.pos.z;
+                    x = te.posX - this.worldPos.x;
+                    y = te.posY - this.worldPos.y;
+                    z = te.posZ - this.worldPos.z;
                     materials = ((TileEntityGameObject)te).modelMaterials;
                     lightColor = RenderManager.instance.lightHelper.getColorFromBrightness(this.getLight(x, y, z));
                     for (i = 0; i < materials.Length; i++) {
@@ -305,7 +299,7 @@ namespace VoxelEngine.Level {
         }
 
         public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {
-            tag.Add(new NbtByte("isPopulated", this.isPopulated ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("hasDoneGen2", this.hasDoneGen2 ? (byte)1 : (byte)0));
             byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
                 blockBytes[i] = (byte)this.blocks[i].id;
@@ -349,7 +343,7 @@ namespace VoxelEngine.Level {
         }
 
         public void readFromNbt(NbtCompound tag) {
-            this.isPopulated = tag.Get<NbtByte>("isPopulated").ByteValue == 1 ? true : false;
+            this.hasDoneGen2 = tag.Get<NbtByte>("hasDoneGen2").ByteValue == 1 ? true : false;
             byte[] blockBytes = tag.Get<NbtByteArray>("blocks").ByteArrayValue;
             for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
                 this.blocks[i] = Block.getBlockFromId(blockBytes[i]);
@@ -357,7 +351,7 @@ namespace VoxelEngine.Level {
             this.metaData = tag.Get<NbtByteArray>("meta").ByteArrayValue;
             this.lightLevel = tag.Get<NbtByteArray>("light").ByteArrayValue;
 
-            //Populate the tile entity dictionary
+            // Populate the tile entity dictionary.
             foreach(NbtCompound compound in tag.Get<NbtList>("tileEntities")) {
                 BlockPos pos = new BlockPos(compound.Get<NbtInt>("x").IntValue, compound.Get<NbtInt>("y").IntValue, compound.Get<NbtInt>("z").IntValue);
                 TileEntityBase te = TileEntityBase.getTileEntityFromId(this.world, pos, compound);
@@ -365,7 +359,7 @@ namespace VoxelEngine.Level {
                 this.world.addTileEntity(pos, te);
             }
             
-            //spawn the entities that were saved in the chunk back into the world
+            // Spawn the entities that were saved in the chunk back into the world.
             foreach(NbtCompound compound in tag.Get<NbtList>("entities")) {
                 int id = compound.Get<NbtInt>("id").IntValue;
                 GameObject prefab = EntityRegistry.getEntityPrefabFromId(id);

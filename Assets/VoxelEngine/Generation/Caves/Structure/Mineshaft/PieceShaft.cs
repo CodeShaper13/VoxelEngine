@@ -86,7 +86,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             BlockPos p2 = this.getPosMax();
             Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
             BlockPos torchPos = this.orgin + (torchDir.direction * 4);
-            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
+            int offsetX, offsetY, offsetZ;
             Block block;
             int meta = 0;
             for (int x = p1.x; x <= p2.x; x++) {
@@ -95,9 +95,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         if(chunk.isInChunk(x, y, z)) {
                             block = Block.air;
                             meta = 0;
-                            chunkCoordX = x - chunk.pos.x;
-                            chunkCoordY = y - chunk.pos.y;
-                            chunkCoordZ = z - chunk.pos.z;
                             offsetX = x - this.orgin.x;
                             offsetY = y - this.orgin.y;
                             offsetZ = z - this.orgin.z;

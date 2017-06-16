@@ -65,20 +65,7 @@ namespace VoxelEngine.Entities {
         private new void Start() {
             base.Start();
 
-            switch (WorldType.getFromId(this.world.worldData.worldType).chunkLoaderType) {
-                case ChunkLoaderBase.LOCKED_Y:
-                    this.chunkLoader = new ChunkLoaderLockedY(this.world, this);
-                    break;
-                case ChunkLoaderBase.INFINITE:
-                    this.chunkLoader = new ChunkLoaderInfinite(this.world, this);
-                    break;
-                case ChunkLoaderBase.REGION_DEBUG:
-                    this.chunkLoader = new ChunkLoaderRegionDebug(this.world, this);
-                    break;
-                default:
-                    print("ERROR! No chunk loader could be set!");
-                    break;
-            }
+            this.chunkLoader = this.world.generator.getChunkLoader(this);
         }
 
         public override void onEntityUpdate() {
@@ -141,7 +128,7 @@ namespace VoxelEngine.Entities {
             tag.Add(this.dataInventory.writeToNbt(new NbtCompound("inventory")));
             tag.Add(new NbtFloat("hunger", this.hunger));
             tag.Add(new NbtFloat("hungerTimer", this.hunger));
-            tag.Add(new NbtInt("selectedHotbarIndex", this.containerHotbar.index));
+            tag.Add(new NbtInt("selectedHotbarIndex", this.containerHotbar.getIndex()));
             tag.Add(new NbtByte("grounded", (byte)(this.onGroundLastUpdate ? 1 : 0)));
             tag.Add(new NbtFloat("lastY", this.lastGroundedY));
             //TODO jump
@@ -155,7 +142,7 @@ namespace VoxelEngine.Entities {
             this.dataInventory.readFromNbt(tag.Get<NbtCompound>("inventory"));
             this.hunger = tag.Get<NbtFloat>("hunger").FloatValue;
             this.hungerDamageTimer = tag.Get<NbtFloat>("hungerTimer").FloatValue;
-            this.containerHotbar.index = tag.Get<NbtInt>("selectedHotbarIndex").IntValue;
+            this.containerHotbar.setIndex(tag.Get<NbtInt>("selectedHotbarIndex").IntValue);
             this.onGroundLastUpdate = tag.Get<NbtByte>("grounded").ByteValue == 1;
             this.lastGroundedY = tag.Get<NbtFloat>("lastY").FloatValue;
         }
@@ -218,15 +205,15 @@ namespace VoxelEngine.Entities {
             for (int i = 0; i < 9; i++) {
                 if(Input.GetKeyDown((KeyCode)(i + 49))) {
                     if(isShiftDown) {
-                        if (this.containerHotbar.index != i) {
+                        if (this.containerHotbar.getIndex() != i) {
                             ItemStack tempIndex = this.containerHotbar.getHeldItem();
                             this.containerHotbar.setHeldItem(this.dataHotbar.getStack(i, 0));
-                            this.dataHotbar.setStack(this.containerHotbar.index, 0, tempIndex);
+                            this.dataHotbar.setStack(this.containerHotbar.getIndex(), 0, tempIndex);
 
                             this.containerHotbar.updateHudItemName();
                         }
                     } else {
-                        this.containerHotbar.setSelected(i);
+                        this.containerHotbar.setSelected(i, true);
                     }
                 }
             }
@@ -316,7 +303,8 @@ namespace VoxelEngine.Entities {
         /// </summary>
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
-            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach());
+            // Ignore IslandMesh, layer 11.
+            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach(), ~((1 << 2) | (1 << 11)));
 
             if(rayHit) {
                 // We are looking at something

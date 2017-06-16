@@ -13,6 +13,7 @@ namespace VoxelEngine.Blocks {
             this.setTexture(0, 13);
             this.setTransparent();
             this.setRenderer(RenderManager.RAIL);
+            this.setRenderer(RenderManager.M_TEST);
             this.setContainerTransfrom(new MutableTransform(Vector3.zero, Quaternion.Euler(-90, 0, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
 

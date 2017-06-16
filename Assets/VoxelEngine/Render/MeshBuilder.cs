@@ -142,27 +142,27 @@ namespace VoxelEngine.Render {
             // +Y face.
             this.addQuad(npp, ppp, ppn, npn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.UP, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.x)),
-                boxRadius.y >= 0.5f ? Direction.UP_ID : 0);
+                boxRadius.y >= 0.5f ? LightHelper.UP : LightHelper.SELF);
             // -Y face.
             this.addQuad(nnn, pnn, pnp, nnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.DOWN, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.z)),
-                boxRadius.y <= -0.5f ? Direction.DOWN_ID : 0);            
+                boxRadius.y <= -0.5f ? LightHelper.DOWN : LightHelper.SELF);            
             // +X face.
             this.addQuad(pnn, ppn, ppp, pnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.EAST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                boxRadius.x >= 0.5f ? Direction.EAST_ID : 0);
+                boxRadius.x >= 0.5f ? LightHelper.EAST : LightHelper.SELF);
             // +Z face.
             this.addQuad(pnp, ppp, npp, nnp,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.NORTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                boxRadius.z >= 0.5f ? Direction.NORTH_ID : 0);            
+                boxRadius.z >= 0.5f ? LightHelper.NORTH : LightHelper.SELF);            
             // -X face.
             this.addQuad(nnp, npp, npn, nnn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.WEST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                boxRadius.x <= -0.5f ? Direction.WEST_ID : 0);
+                boxRadius.x <= -0.5f ? LightHelper.WEST : LightHelper.SELF);
             // -Z face.
             this.addQuad(nnn, npn, ppn, pnn,
                 UvHelper.cropUVs(block.getUVs(meta, Direction.SOUTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                boxRadius.z <= -0.5f ? Direction.SOUTH_ID : 0);
+                boxRadius.z <= -0.5f ? LightHelper.SOUTH : LightHelper.SELF);
         }
 
         /// <summary>
@@ -240,7 +240,6 @@ namespace VoxelEngine.Render {
             mesh.SetTriangles(this.triangles, 0);
             mesh.SetUVs(0, this.uv);
             mesh.uv2 = this.lightUvs.ToArray();
-            mesh.RecalculateNormals();
             return mesh;
         }
 

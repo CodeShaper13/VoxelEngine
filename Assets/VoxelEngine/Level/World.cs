@@ -40,7 +40,7 @@ namespace VoxelEngine.Level {
                 if(this.generator.generateLevelData()) {
                     this.nbtIOHelper.writeGenerationData(this.generator);
                 }
-                this.worldData.spawnPos = this.generator.getSpawnPoint();
+                this.worldData.spawnPos = this.generator.getSpawnPoint(this);
 
                 if (this.worldData.writeToDisk) {
                     // Save the world data right away so we don't have a folder with chunks that is
@@ -57,16 +57,11 @@ namespace VoxelEngine.Level {
         }
 
         private void Update() {
+            /*
             if(this.generator is WorldGeneratorCaves) {
                 ((WorldGeneratorCaves)this.generator).debugDisplay();
             }
-        }
-
-        private Transform createWrapper(string name) {
-            Transform t = new GameObject().transform;
-            t.parent = this.transform;
-            t.name = name;
-            return t;
+            */
         }
 
         public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
@@ -82,24 +77,13 @@ namespace VoxelEngine.Level {
             return entity;
         }
 
-        private Entity instantiateEntityPrefab(GameObject prefab, bool placeInWrapper) {
-            GameObject gameObject = GameObject.Instantiate(prefab);
-            if(placeInWrapper) {
-                gameObject.transform.parent = this.entityWrapper;
-            }
-            Entity entity = gameObject.GetComponent<Entity>();
-            entity.world = this;
-            this.entityList.Add(entity);
-            return entity;
-        }
-
         public EntityPlayer spawnPlayer(GameObject prefab) {
             EntityPlayer player = (EntityPlayer)this.instantiateEntityPrefab(prefab, false);
             player.name = "Player";
             if(!this.nbtIOHelper.readPlayerFromDisk(player)) {
                 // No player file was found.
                 player.transform.position = this.worldData.spawnPos;
-                player.transform.rotation = Quaternion.identity;
+                player.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
                 player.setupFirstTimePlayer();
             }
             return player;
@@ -129,26 +113,67 @@ namespace VoxelEngine.Level {
 
             this.loadedChunks.Add(instructions.chunkPos, chunk);
 
-            if (!this.nbtIOHelper.readChunk(chunk)) {
+            if (!this.nbtIOHelper.readChunkFromDisk(chunk)) {
                 this.generator.generateChunk(chunk);
 
-                // Calculate lighting for the newly generated chunk.
-                int emittedLight;
-                for(int x = 0; x < Chunk.SIZE; x++) {
-                    for(int y = 0; y < Chunk.SIZE; y++) {
-                        for(int z = 0; z < Chunk.SIZE; z++) {
-                            emittedLight = chunk.getBlock(x, y, z).emittedLight;
-                            if(emittedLight > 0) {
-                                this.updateLighting(emittedLight, chunk.pos.x + x, chunk.pos.y + y, chunk.pos.z + z);
-                                Debug.Log("!");
-                            }
-                        }
-                    }
-                }
+                this.func1(chunk);
 
                 chunk.isDirty = true; // New chunks need to be baked.
             }
             return chunk;
+        }
+
+        /// <summary>
+        /// Returns true if all the adjacent chunks are loaded.
+        /// </summary>
+        private bool allAdjacentLoaded(ChunkPos chunkPos) {
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (this.getChunk(new ChunkPos(chunkPos.x + x, chunkPos.y + y, chunkPos.z + z)) == null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Lights the passed chunk.
+        /// </summary>
+        private void lightChunk(Chunk chunk) {
+            int emittedLight;
+            for (int x = 0; x < Chunk.SIZE; x++) {
+                for (int y = 0; y < Chunk.SIZE; y++) {
+                    for (int z = 0; z < Chunk.SIZE; z++) {
+                        emittedLight = chunk.getBlock(x, y, z).emittedLight;
+                        if (emittedLight > 0) {
+                            this.updateLighting(emittedLight, chunk.worldPos.x + x, chunk.worldPos.y + y, chunk.worldPos.z + z);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void func1(Chunk chunk) {
+            Chunk adjacentChunk;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (!(x == 0 && y == 0 && z == 0)) { // The middle chunk.
+                            adjacentChunk = this.getChunk(new ChunkPos(chunk.chunkPos.x + x, chunk.chunkPos.y + y, chunk.chunkPos.z + z));
+                            if (adjacentChunk != null && !adjacentChunk.hasDoneGen2) {
+                                if(this.allAdjacentLoaded(adjacentChunk.chunkPos)) {
+                                    this.generator.populateChunk(adjacentChunk);
+                                    this.lightChunk(adjacentChunk);
+                                    adjacentChunk.hasDoneGen2 = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void unloadChunk(Chunk chunk) {
@@ -188,7 +213,7 @@ namespace VoxelEngine.Level {
         public Block getBlock(int x, int y, int z) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
-                return chunk.getBlock(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z);
+                return chunk.getBlock(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z);
             }
             else {
                 return Block.air;
@@ -209,9 +234,9 @@ namespace VoxelEngine.Level {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 // Position of the setBlock event within the chunk
-                int localChunkX = x - chunk.pos.x;
-                int localChunkY = y - chunk.pos.y;
-                int localChunkZ = z - chunk.pos.z;
+                int localChunkX = x - chunk.worldPos.x;
+                int localChunkY = y - chunk.worldPos.y;
+                int localChunkZ = z - chunk.worldPos.z;
 
                 BlockPos pos = new BlockPos(x, y, z);
 
@@ -236,20 +261,16 @@ namespace VoxelEngine.Level {
                         BlockPos shiftedPos = pos.move(dir);
                         this.getBlock(shiftedPos).onNeighborChange(this, shiftedPos, this.getMeta(shiftedPos), dir.getOpposite());
                     }
-                    this.dirtyChunkIfEqual(x - chunk.pos.x, 0,              x - 1, y, z);
-                    this.dirtyChunkIfEqual(x - chunk.pos.x, Chunk.SIZE - 1, x + 1, y, z);
-                    this.dirtyChunkIfEqual(y - chunk.pos.y, 0,              x, y - 1, z);
-                    this.dirtyChunkIfEqual(y - chunk.pos.y, Chunk.SIZE - 1, x, y + 1, z);
-                    this.dirtyChunkIfEqual(z - chunk.pos.z, 0,              x, y, z - 1);
-                    this.dirtyChunkIfEqual(z - chunk.pos.z, Chunk.SIZE - 1, x, y, z + 1);
+                    this.dirtyChunkIfEqual(x - chunk.worldPos.x, 0,              x - 1, y, z);
+                    this.dirtyChunkIfEqual(x - chunk.worldPos.x, Chunk.SIZE - 1, x + 1, y, z);
+                    this.dirtyChunkIfEqual(y - chunk.worldPos.y, 0,              x, y - 1, z);
+                    this.dirtyChunkIfEqual(y - chunk.worldPos.y, Chunk.SIZE - 1, x, y + 1, z);
+                    this.dirtyChunkIfEqual(z - chunk.worldPos.z, 0,              x, y, z - 1);
+                    this.dirtyChunkIfEqual(z - chunk.worldPos.z, Chunk.SIZE - 1, x, y, z + 1);
                 }
 
                 // Update lighting.
                 if(updateLighting) {
-                    int j = chunk.getLight(localChunkX, localChunkY, localChunkZ);
-                    if ((newBlock.isSolid && oldBlock.isSolid) || (!newBlock.isSolid && newBlock.emittedLight == j)) {
-                        return;
-                    }
                     this.updateLighting(newBlock.emittedLight, x, y, z);
                 }
             }
@@ -261,7 +282,7 @@ namespace VoxelEngine.Level {
 
         public int getMeta(int x, int y, int z) {
             Chunk chunk = this.getChunk(x, y, z);
-            return chunk != null ? chunk.getMeta(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z) : 0;
+            return chunk != null ? chunk.getMeta(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z) : 0;
         }
 
         /// <summary>
@@ -270,7 +291,7 @@ namespace VoxelEngine.Level {
         public int getLight(int x, int y, int z) {
             Chunk chunk = this.getChunk(x, y, z);
             if(chunk != null) {
-                return chunk.getLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z);
+                return chunk.getLight(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z);
             } else {
                 return 0;
             }
@@ -279,7 +300,7 @@ namespace VoxelEngine.Level {
         private void setLight(int x, int y, int z, int level) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
-                chunk.setLight(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, level);
+                chunk.setLight(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z, level);
             }
         }
 
@@ -305,6 +326,7 @@ namespace VoxelEngine.Level {
             Chunk chunk = this.getChunk(pos);
             if(chunk != null) {
                 if(chunk.tileEntityDict.ContainsKey(pos)) {
+                    Debug.Log(chunk.tileEntityDict[pos]);
                     throw new Exception("Error!  A second TileEntity was added to the same location!");
                 }
                 this.getChunk(pos).tileEntityDict.Add(pos, tileEntity);
@@ -479,6 +501,24 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x, y, z + 1));
                 }
             }
+        }
+
+        private Transform createWrapper(string name) {
+            Transform trans = new GameObject().transform;
+            trans.parent = this.transform;
+            trans.name = name;
+            return trans;
+        }
+
+        private Entity instantiateEntityPrefab(GameObject prefab, bool placeInWrapper) {
+            GameObject gameObject = GameObject.Instantiate(prefab);
+            if (placeInWrapper) {
+                gameObject.transform.parent = this.entityWrapper;
+            }
+            Entity entity = gameObject.GetComponent<Entity>();
+            entity.world = this;
+            this.entityList.Add(entity);
+            return entity;
         }
     }
 }

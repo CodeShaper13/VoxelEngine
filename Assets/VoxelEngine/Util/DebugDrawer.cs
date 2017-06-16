@@ -33,7 +33,7 @@ namespace VoxelEngine.Util {
 
         public static void bounds(Bounds bounds, Color color, Color? crossLineColor = null, float duration = 0) {
             if(crossLineColor != null) {
-                Debug.DrawLine(bounds.min, bounds.max, Color.green, duration);
+                Debug.DrawLine(bounds.min, bounds.max, (Color)crossLineColor, duration);
             }
             DebugDrawer.box(bounds.center, bounds.extents, color, duration);
         }

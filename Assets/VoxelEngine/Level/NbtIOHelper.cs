@@ -3,7 +3,6 @@ using VoxelEngine.Util;
 using fNbt;
 using VoxelEngine.Entities;
 using VoxelEngine.Generation;
-using UnityEngine;
 
 namespace VoxelEngine.Level {
 
@@ -50,8 +49,10 @@ namespace VoxelEngine.Level {
             file.SaveToFile(this.getChunkFileName(chunk.chunkPos), NbtCompression.None);
         }
 
-        // Returns true if the chunk was found
-        public bool readChunk(Chunk chunk) {
+        /// <summary>
+        /// Tries to read the passed chunk from the disk, returning true if it was found.
+        /// </summary>
+        public bool readChunkFromDisk(Chunk chunk) {
             string saveFile = this.getChunkFileName(chunk.chunkPos);
 
             if (File.Exists(saveFile)) {
@@ -72,7 +73,9 @@ namespace VoxelEngine.Level {
             file.SaveToFile(this.playerFileName, NbtCompression.None);
         }
 
-        // Returns true if we found a player file
+        /// <summary>
+        /// Tries to read the player data from the disk, returning true if it was found.
+        /// </summary>
         public bool readPlayerFromDisk(EntityPlayer player) {
             if (File.Exists(this.playerFileName)) {
                 NbtFile file = new NbtFile();
@@ -92,7 +95,9 @@ namespace VoxelEngine.Level {
             file.SaveToFile(this.generationDataFileName, NbtCompression.None);
         }
 
-        // Returns true if we found a generation data file
+        /// <summary>
+        /// Tries to read the world data from the disk, returning true if it was found.
+        /// </summary>
         public bool readGenerationData(WorldGeneratorBase generator) {
             if (File.Exists(this.generationDataFileName)) {
                 NbtFile file = new NbtFile();

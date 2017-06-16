@@ -8,6 +8,7 @@ using VoxelEngine.Entities;
 using VoxelEngine.Entities.Registry;
 using VoxelEngine.Generation;
 using VoxelEngine.GUI;
+using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
@@ -49,6 +50,7 @@ namespace VoxelEngine {
 
             this.textWindow = new TextWindow(this.textWindowRoot);
             new EntityRegistry().registerEntities();
+            Item.initBlockItems();
             new RenderManager();
 
             this.commandManager = new CommandManager();
@@ -59,9 +61,11 @@ namespace VoxelEngine {
         private void Start() {
             this.containerManager = new ContainerManager();
 
-            //this.openGuiScreen(GuiManager.title);
-
-            this.createNewWorld(false); // When false, the world is not saved.
+            if(true) { // Debug instant load
+                this.createNewWorld(false); // When false, the world is not saved.
+            } else {
+                this.openGuiScreen(GuiManager.title);
+            }
         }
 
         private void Update() {
@@ -130,7 +134,7 @@ namespace VoxelEngine {
 
         public void createNewWorld(bool flag = true) {
             string name = "World_1";
-            Main.singleton.generateWorld(new WorldData(name, 2346347 /*new System.Random().Next()*/, WorldType.CAVE_1.id, flag));
+            Main.singleton.generateWorld(new WorldData(name, 2346347 /*new System.Random().Next()*/, WorldType.CAVE.id, flag));
         }
 
         /// <summary>

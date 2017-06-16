@@ -6,6 +6,10 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererFluid : BlockRendererPrimitive {
 
+        public BlockRendererFluid() {
+            this.lookupAdjacentBlocks = true;
+        }
+
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             meshData.useRenderDataForCol = false;
 
@@ -17,7 +21,7 @@ namespace VoxelEngine.Render.BlockRender {
             }
 
             // Adjusts top based on if a matching fluid is above.
-            float topHeight = (surroundingBlocks[4] == b) ? 0.5f : 0.35f;
+            float topHeight = (surroundingBlocks[Direction.UP_ID - 1] == b) ? 0.5f : 0.35f;
 
             // North
             if (renderFace[0]) {
@@ -27,7 +31,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
-                    NORTH);
+                    LightHelper.NORTH);
             }
             // East
             if (renderFace[1]) {
@@ -37,7 +41,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
-                    EAST);
+                    LightHelper.EAST);
             }
             // South
             if (renderFace[2]) {
@@ -47,7 +51,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
-                    SOUTH);
+                    LightHelper.SOUTH);
             }
             // West
             if (renderFace[3]) {
@@ -57,7 +61,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
-                    WEST);
+                    LightHelper.WEST);
             }
             // Up
             if (renderFace[4]) {
@@ -67,7 +71,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z - 0.5f),
                     b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
-                    UP);
+                    LightHelper.UP);
             }
             // Down
             if (renderFace[5]) {
@@ -77,7 +81,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.DOWN, this.preAllocatedUvArray),
-                    DOWN);
+                    LightHelper.DOWN);
             }
 
             meshData.useRenderDataForCol = true;

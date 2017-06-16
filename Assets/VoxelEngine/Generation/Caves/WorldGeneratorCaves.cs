@@ -5,6 +5,10 @@ using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using fNbt;
 using VoxelEngine.Generation.Caves.Structure.Mineshaft;
+using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Entities;
+using System;
+using UnityEngine.Profiling;
 
 namespace VoxelEngine.Generation.Caves {
 
@@ -20,6 +24,8 @@ namespace VoxelEngine.Generation.Caves {
             this.stoneLayers = new StoneLayers(seed);
 
             this.mineshaftList = new List<StructureMineshaft>();
+
+            this.setFogDistance(0.06f);
         }
 
         public override bool generateLevelData() {
@@ -28,7 +34,11 @@ namespace VoxelEngine.Generation.Caves {
             return true;
         }
 
-        public override Vector3 getSpawnPoint() {
+        public override ChunkLoaderBase getChunkLoader(EntityPlayer player) {
+            return new ChunkLoaderInfinite(player.world, player);
+        }
+
+        public override Vector3 getSpawnPoint(World world) {
             return new Vector3(0, 3, 0);
         }
 
@@ -100,10 +110,9 @@ namespace VoxelEngine.Generation.Caves {
             }
             */
 
-            for(int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
                 chunk.blocks[i] = Block.stone;
             }
-            chunk.isDirty = true;
 
             // Ores.
             this.generateOrePatch(chunk, 2, Block.gravel, 7, rnd);
@@ -115,6 +124,7 @@ namespace VoxelEngine.Generation.Caves {
 
             this.generateOrePatch(chunk, 2, Block.ironOre, 4, rnd);
             this.generateOrePatch(chunk, 1, Block.rubyOre, 3, rnd);
+            Profiler.EndSample();
 
             StructureMineshaft shaft;
             PieceBase piece;
@@ -127,6 +137,8 @@ namespace VoxelEngine.Generation.Caves {
                     }
                 }
             }
+
+            chunk.isDirty = true;
         }
 
         /// <summary>

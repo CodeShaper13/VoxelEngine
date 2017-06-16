@@ -1,6 +1,9 @@
-﻿using SimplexNoise;
+﻿using System;
+using SimplexNoise;
 using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Entities;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Generation {
@@ -25,16 +28,20 @@ namespace VoxelEngine.Generation {
 
         }
 
-        public override Vector3 getSpawnPoint() {
+        public override Vector3 getSpawnPoint(World world) {
             return new Vector3(0, 70, 0);
         }
 
         public override void generateChunk(Chunk chunk) {
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
-                    chunk = generateColumn(chunk, x + chunk.pos.x, z + chunk.pos.z);
+                    chunk = generateColumn(chunk, x + chunk.worldPos.x, z + chunk.worldPos.z);
                 }
             }
+        }
+
+        public override ChunkLoaderBase getChunkLoader(EntityPlayer player) {
+            return new ChunkLoaderLockedY(player.world, player);
         }
 
         public override void populateChunk(Chunk chunk) {
@@ -82,7 +89,7 @@ namespace VoxelEngine.Generation {
             int dirtHeight = stoneHeight + Mathf.FloorToInt(dirtBaseHeight);
             dirtHeight += this.getNoise(x, 100, z, dirtNoise, Mathf.FloorToInt(dirtNoiseHeight));
 
-            for (int y = chunk.pos.y; y < (chunk.pos.y + Chunk.SIZE); y++) {
+            for (int y = chunk.worldPos.y; y < (chunk.worldPos.y + Chunk.SIZE); y++) {
                 Block b = Block.air;
                 //int caveChance = GetNoise(x, y, z, caveFrequency, 100);
                 if (y <= stoneHeight) {
@@ -100,15 +107,15 @@ namespace VoxelEngine.Generation {
                 else {
                     b = Block.air;
                 }
-                chunk.setBlock(x - chunk.pos.x, y - chunk.pos.y, z - chunk.pos.z, b);
+                chunk.setBlock(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z, b);
             }
             return chunk;
         }
 
         public void setBlock(int x, int y, int z, Block block, Chunk chunk, bool replaceBlocks = false) {
-            x -= chunk.pos.x;
-            y -= chunk.pos.y;
-            z -= chunk.pos.z;
+            x -= chunk.worldPos.x;
+            y -= chunk.worldPos.y;
+            z -= chunk.worldPos.z;
             chunk.setBlock(x, y, z, block);
         }
 

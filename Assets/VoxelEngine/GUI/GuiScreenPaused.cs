@@ -14,7 +14,7 @@ namespace VoxelEngine.GUI {
             Main.singleton.resumeGame();
         }
 
-        public void saveCallback(bool exitWorld) {
+        public void callbackSave(bool exitWorld) {
             World world = Main.singleton.worldObj;
             world.saveEntireWorld(exitWorld);
             if (exitWorld) {
@@ -31,7 +31,11 @@ namespace VoxelEngine.GUI {
             throw new NotImplementedException();
         }
 
+        // Unused.
         public void callbackResetMap() {
+            //this.openGuiScreen(GuiManager.title);
+            //return;
+
             this.deleteWorldObjects();
             Directory.Delete("saves/World_1", true);
             Main.singleton.createNewWorld();
@@ -41,6 +45,9 @@ namespace VoxelEngine.GUI {
             return null;
         }
 
+        /// <summary>
+        /// Destroys all the GameObjects that make up the world.
+        /// </summary>
         private void deleteWorldObjects() {
             Main main = Main.singleton;
             main.player.cleanupPlayerObj();

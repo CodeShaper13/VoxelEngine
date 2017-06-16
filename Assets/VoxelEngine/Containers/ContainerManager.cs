@@ -71,7 +71,6 @@ namespace VoxelEngine.Containers {
                 this.contLeft = container.onOpen(containerData, player);
             }
 
-            
             Main.hideMouse(false);
         }
 
@@ -144,7 +143,7 @@ namespace VoxelEngine.Containers {
 
                 this.heldTextName.transform.localPosition = this.hudCamera.orthoCamera.ScreenToViewportPoint(Input.mousePosition);
 
-                RenderHelper.renderStack(this.heldStack, mousePosition);
+                RenderHelper.renderStack(this.heldStack, mousePosition, Quaternion.identity);
             }
         }
 

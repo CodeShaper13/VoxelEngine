@@ -39,6 +39,7 @@ namespace VoxelEngine {
         public GameObject lanternPrefab;
         public GameObject torchPrefab;
         public GameObject mushroomPrefab;
+        public GameObject mirrorTestPrefab;
 
         /// <summary>
         /// Called from Main.Awake().
@@ -59,6 +60,7 @@ namespace VoxelEngine {
             this.lanternPrefab = Resources.Load<GameObject>("Prefabs/Blocks/LanternPrefab");
             this.torchPrefab = Resources.Load<GameObject>("Prefabs/Blocks/TorchPrefab");
             this.mushroomPrefab = Resources.Load<GameObject>("Prefabs/Blocks/MushroomPrefab");
+            this.mirrorTestPrefab = Resources.Load<GameObject>("Prefabs/Blocks/MirrorTestPrefab");
 
             References.list = this;
         }

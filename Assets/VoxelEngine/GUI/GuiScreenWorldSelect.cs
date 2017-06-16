@@ -21,6 +21,8 @@ namespace VoxelEngine.GUI {
         private string[] worldFolderNames;
         private PlayWorldButton selectedWorld;
 
+        public GameObject test; 
+
         private void Awake() {
             this.cachedWorlds = new List<WorldData>();
 
@@ -58,6 +60,7 @@ namespace VoxelEngine.GUI {
                 rt.transform.localScale = Vector3.one;
                 y -= 130;
             }
+
             this.worldTileWrapperObj.sizeDelta = new Vector2(this.worldTileWrapperObj.sizeDelta.x, (i * 130) + 10);
         }
 

@@ -27,7 +27,7 @@ namespace VoxelEngine.ChunkLoaders {
                         this.buildQueue.Enqueue(instructions);
                     }
                 } else {
-                    chunk.setReadOnly(isReadOnly);
+                    chunk.isReadOnly = isReadOnly;
                 }
             }
         }

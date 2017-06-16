@@ -165,11 +165,5 @@ namespace VoxelEngine.Items {
                 }
             }
         }
-
-        /// <summary>
-        /// Creates item versions of all the blocks.
-        /// </summary>
-
-
     }
 }

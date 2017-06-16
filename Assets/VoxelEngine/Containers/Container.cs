@@ -27,11 +27,10 @@ namespace VoxelEngine.Containers {
         /// <summary>
         /// Called when the container is closed for any reason.
         /// </summary>
-        public virtual void onClose() {
-            //TODO we need a reference to the tile entity that this belongs to, to the te knows when the container is closed
-            //for (int i = 0; i < this.slots.Length; i++) {
-            //    this.data.items[i] = this.slots[i].getContents();
-            //}
+        public virtual void onClose() { }
+
+        public virtual void renderSlotStack(ItemStack stack, Vector3 position, int slotIndex) {
+            RenderHelper.renderStack(stack, position, Quaternion.identity);
         }
 
         /// <summary>
@@ -49,15 +48,18 @@ namespace VoxelEngine.Containers {
             }
         
             Transform trans;
-            for (int i = 0; i < this.data.items.Length; i++) {
-                stack = this.data.items[i];
+            for (int slotIndex = 0; slotIndex < this.data.items.Length; slotIndex++) {
+                stack = this.data.items[slotIndex];
                 if (stack != null) {
-                    trans = this.slots[i].transform;
-                    RenderHelper.renderStack(stack, trans.position + -trans.forward);
+                    trans = this.slots[slotIndex].transform;
+                    this.renderSlotStack(stack, trans.position + -trans.forward, slotIndex);
                 }
             }
         }
 
+        /// <summary>
+        /// Called by a slot game object when it is clicked on.
+        /// </summary>
         public void onSlotClick(int i, bool leftBtn, bool rightBtn, bool middleBtn) {
             ContainerManager cm = Main.singleton.containerManager;
             ItemStack heldStack = cm.heldStack;
@@ -92,8 +94,7 @@ namespace VoxelEngine.Containers {
                             cm.setHeldStack(temp);
                         }
                     }
-                }
-                else if (rightBtn) {
+                } else if (rightBtn) {
                     if (heldStack == null && slotContents != null) {
                         ItemStack temp = new ItemStack(slotContents);
                         temp.count = 1;
@@ -115,8 +116,7 @@ namespace VoxelEngine.Containers {
                             heldStack.count += 1;
                         }
                     }
-                }
-                else if (middleBtn) {
+                } else if (middleBtn) {
                     if (heldStack == null && slotContents != null && slotContents.count > 1) {
                         // Pick up half.
                         int quantity = slotContents.count / 2;

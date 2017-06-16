@@ -8,7 +8,6 @@ namespace VoxelEngine.Render.BlockRender {
 
         public BlockRendererPrimitiveCube() {
             this.lookupAdjacentLight = true;
-            this.lookupAdjacentBlocks = false;
         }
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
@@ -20,7 +19,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
-                    Direction.NORTH_ID);
+                    LightHelper.NORTH);
             }
             // East
             if (renderFace[1]) {
@@ -30,7 +29,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
-                    Direction.EAST_ID);
+                    LightHelper.EAST);
             }
             // South
             if (renderFace[2]) {
@@ -40,7 +39,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
-                    Direction.SOUTH_ID);
+                    LightHelper.SOUTH);
             }
             // West
             if (renderFace[3]) {
@@ -50,7 +49,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
-                    Direction.WEST_ID);
+                    LightHelper.WEST);
             }
             // Up
             if (renderFace[4]) {
@@ -60,7 +59,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
-                    Direction.UP_ID);
+                    LightHelper.UP);
             }
             // Down
             if (renderFace[5]) {
@@ -70,7 +69,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     b.getUVs(meta, Direction.DOWN, this.preAllocatedUvArray),
-                    Direction.DOWN_ID);
+                    LightHelper.DOWN);
             }
         }
     }

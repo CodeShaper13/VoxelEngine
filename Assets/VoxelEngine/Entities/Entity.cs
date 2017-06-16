@@ -69,7 +69,7 @@ namespace VoxelEngine.Entities {
                     Mathf.RoundToInt(this.transform.position.z));
                 Color lightColor = RenderManager.instance.lightHelper.getColorFromBrightness(lightLevel);
 
-                // Update the lighting on the entity
+                // Update the lighting on the entity's model.
                 if (this.entityMaterial != null) { // Player's don't need renderering and don't have their material set.
                     this.entityMaterial.SetColor(36, lightColor); // 36 is the serialized form of _LightColor.
                 }
@@ -77,9 +77,9 @@ namespace VoxelEngine.Entities {
                 // Update shadow.
                 if(this.shadowTransform != null) {
                     RaycastHit hit;
-                    // Ignore Entities and EntityItems, layers 9 and 10.
-                    if (Physics.Raycast(this.transform.position, Vector3.down, out hit, 100, ~((1 << 9) | (1 << 10)))) {
-                        this.shadowTransform.transform.position = hit.point + new Vector3(0, 0.0001f, 0);
+                    // Ignore Entities, EntityItems and IslandMesh, layers 9, 10 and 11.
+                    if (Physics.Raycast(this.transform.position, Vector3.down, out hit, 20, ~((1 << 9) | (1 << 10) | (1 << 11)))) {
+                        this.shadowTransform.position = hit.point + new Vector3(0, 0.0001f, 0);
                         this.shadowMaterial.SetColor(Shader.PropertyToID("_LightColor"), lightColor);
                         if(!this.shadowTransform.gameObject.activeSelf) {
                             this.shadowTransform.gameObject.SetActive(true);

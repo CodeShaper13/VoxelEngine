@@ -8,13 +8,14 @@ namespace VoxelEngine.Render {
     public static class RenderHelper {
 
         /// <summary>
-        /// Renders an item stack on the screen
+        /// Renders an ItemStack on the screen
         /// </summary>
-        public static void renderStack(ItemStack stack, Vector3 pos, int layer = 8) {
+        public static void renderStack(ItemStack stack, Vector3 position, Quaternion rotation) {
             Item item = stack.item;
             MutableTransform mutableTransform = item.getContainerTransfrom();
-            mutableTransform.position += pos;
-            Graphics.DrawMesh(item.getPreRenderedMesh(stack.meta), mutableTransform.toMatrix4x4(), RenderManager.getMaterial(item.id), layer, null, 0, null, false, false);
+            mutableTransform.position += position;
+            mutableTransform.rotation *= rotation;
+            Graphics.DrawMesh(item.getPreRenderedMesh(stack.meta), mutableTransform.toMatrix4x4(), RenderManager.getMaterial(item.id), 8, null, 0, null, false, false);
         }
     }
 }

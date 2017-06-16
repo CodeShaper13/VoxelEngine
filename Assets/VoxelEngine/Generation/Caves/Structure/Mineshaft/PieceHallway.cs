@@ -98,9 +98,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             for (i = Mathf.Min(pos1.x, pos2.x); i <= i1; i++) {
                 for (j = Mathf.Min(pos1.y, pos2.y); j <= j1; j++) {
                     for (k = Mathf.Min(pos1.z, pos2.z); k <= k1; k++) {
-                        x = i - chunk.pos.x;
-                        y = j - chunk.pos.y;
-                        z = k - chunk.pos.z;
+                        x = i - chunk.worldPos.x;
+                        y = j - chunk.worldPos.y;
+                        z = k - chunk.worldPos.z;
                         if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
                             chunk.setBlock(x, y, z, Block.air);
                         }
@@ -118,17 +118,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             BlockPos leftDir = this.pointing.getCounterClockwise().direction;
             do {
                 distanceToSupport++;
-                if (distanceToSupport == 3 && rnd.Next(4) == 0) {
-                    x = pos.x - chunk.pos.x;
-                    y = pos.y + 3 - chunk.pos.y;
-                    z = pos.z - chunk.pos.z;
-                    if (x >= 0 && x < Chunk.SIZE && y >= 0 && y < Chunk.SIZE && z >= 0 && z < Chunk.SIZE) {
-                        if(chunk.isInChunk(x, y, z)) {
-                            this.addTorch(chunk, x, y, z, this.pointing);
-                        }
+                if (distanceToSupport == 3) {
+                    if(chunk.isInChunk(pos.x, pos.y + 3, pos.z) && rnd.Next(0, 3) == 0) {
+                        this.addTorch(chunk, pos.x, pos.y + 3, pos.z, this.pointing);
                     }
-                }
-                if (distanceToSupport == 4) {
+                } else if (distanceToSupport == 4) {
                     // Top middle
                     this.setStateIfInChunk(chunk, pos.x, pos.y + 3, pos.z, Block.wood, perpAxis);
 

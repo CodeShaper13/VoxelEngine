@@ -136,9 +136,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 if(block is BlockTileEntity) {
                     throw new Exception("Trying to place a TileEntity via Chunk.setBlock() from PieceBase.setState().  This will throw the game out of sync!");
                 }
-                int localX = x - chunk.pos.x;
-                int localY = y - chunk.pos.y;
-                int localZ = z - chunk.pos.z;
+                int localX = x - chunk.worldPos.x;
+                int localY = y - chunk.worldPos.y;
+                int localZ = z - chunk.worldPos.z;
                 chunk.setBlock(localX, localY, localZ, block);
                 chunk.setMeta(localX, localY, localZ, meta);
             }

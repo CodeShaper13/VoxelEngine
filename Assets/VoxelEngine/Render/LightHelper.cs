@@ -1,8 +1,18 @@
 ﻿using UnityEngine;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render {
 
     public class LightHelper {
+
+        // Constants for light sample directions.
+        public const int SELF = Direction.NONE_ID;
+        public const int NORTH = Direction.NORTH_ID;
+        public const int EAST = Direction.EAST_ID;
+        public const int SOUTH = Direction.SOUTH_ID;
+        public const int WEST = Direction.WEST_ID;
+        public const int UP = Direction.UP_ID;
+        public const int DOWN = Direction.DOWN_ID;
 
         /// <summary> The size of a pixel on the color sheet </summary>
         public const float PIXEL_SIZE = 0.0625f;

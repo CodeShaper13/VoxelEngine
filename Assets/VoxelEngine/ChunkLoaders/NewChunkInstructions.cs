@@ -14,6 +14,9 @@ namespace VoxelEngine.ChunkLoaders {
             this.isReadOnly = isReadOnly;
         }
 
+        /// <summary>
+        /// Returns the position for the new chunk in world space.
+        /// </summary>
         public Vector3 toChunkVector() {
             return new Vector3(this.chunkPos.x * Chunk.SIZE, this.chunkPos.y * Chunk.SIZE, this.chunkPos.z * Chunk.SIZE);
         }

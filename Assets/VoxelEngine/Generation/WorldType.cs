@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Entities;
 using VoxelEngine.Generation.Caves;
-using VoxelEngine.Generation.CellularAutomaton;
+using VoxelEngine.Generation.Island;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Generation {
@@ -9,34 +11,32 @@ namespace VoxelEngine.Generation {
     public class WorldType {
         public static List<WorldType> typeList = new List<WorldType>();
 
-        public static WorldType HILLS = new WorldType("Hills", ChunkLoaderBase.LOCKED_Y);
-        public static WorldType FLAT = new WorldType("Flat", ChunkLoaderBase.LOCKED_Y);
-        public static WorldType CAVE_1 = new WorldType("Caves", ChunkLoaderBase.INFINITE);
-        public static WorldType CAVE_2 = new WorldType("Cellular Automata", ChunkLoaderBase.REGION_DEBUG);
+        public static WorldType HILLS = new WorldType("Hills");
+        public static WorldType FLAT = new WorldType("Flat");
+        public static WorldType CAVE = new WorldType("Caves");
+        public static WorldType ISLAND = new WorldType("Island");
 
         public int id;
         public string name;
-        public int chunkLoaderType;
-        public WorldType generatorType;
 
-        public WorldType(string name, int chunkLoaderType) {
+        public WorldType(string name) {
             this.id = WorldType.typeList.Count;
             this.name = name;
-            this.chunkLoaderType = chunkLoaderType;
             WorldType.typeList.Add(this);
         }
 
         public WorldGeneratorBase getGenerator(World world, int seed) {
-            if(this == WorldType.HILLS) {
-                return new WorldGeneratorHills(world, seed);
-            } else if(this == WorldType.FLAT) {
-                return new WorldGeneratorFlat(world, seed);
-            } else if(this == WorldType.CAVE_1) {
-                return new WorldGeneratorCaves(world, seed);
-            } else if(this == WorldType.CAVE_2) {
-                return new WorldGeneratorCellularAutomaton(world, seed);
+            switch(this.id) {
+                case 0:
+                    return new WorldGeneratorHills(world, seed);
+                case 1:
+                    return new WorldGeneratorFlat(world, seed);
+                case 2:
+                    return new WorldGeneratorCaves(world, seed);
+                case 3:
+                    return new WorldGeneratorIsland(world, seed);
             }
-            return new WorldGeneratorFlat(world, seed);
+            return null;
         }
 
         public static WorldType getFromId(int worldType) {

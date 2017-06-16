@@ -44,7 +44,7 @@ namespace VoxelEngine.Blocks {
         public static Block brick = new Block(25).setName("Brick").setTexture(5, 1).setType(EnumBlockType.STONE);
         public static Block brickSlab = new BlockSlab(26, Block.brick);
         public static Block brickStair; // 27
-        public static Block wood = new BlockWood(28).setName("Log");
+        public static Block wood = new BlockWood(28).setName("Log").setMineTime(2);
         public static Block leaves = new Block(29).setName("Leaves").setTexture(0, 1).setTransparent();
         public static Block cobblestone = new Block(30).setName("Cobblestone").setTexture(5, 2).setType(EnumBlockType.STONE);
         public static Block roof = new Block(31).setName("Roof").setType(EnumBlockType.WOOD).setTexture(5, 3);

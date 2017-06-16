@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
@@ -13,7 +14,7 @@ namespace VoxelEngine.Render.BlockRender {
         private Bounds[] colliderArray;
 
         private Vector3 offsetVector;
-        private bool randomMirror;
+        private Quaternion modelRotation;
         private bool useMeshForCollision = true;
 
         public BlockRendererMesh(GameObject prefab) {
@@ -30,7 +31,7 @@ namespace VoxelEngine.Render.BlockRender {
                 Debug.Log("ERROR!  No MeshFilter components could be found on the Prefab!");
             } else if (meshes.Count == 1) {
                 Mesh m = meshes[0];
-                this.cachedMeshVerts = m.vertices;
+                this.correctVerticeRotations(m.vertices);
                 this.cachedMeshTris = m.triangles;
                 this.cachedMeshUVs = m.uv;
             } else {
@@ -47,7 +48,7 @@ namespace VoxelEngine.Render.BlockRender {
                     triList.AddRange(m.triangles);
                     uvList.AddRange(m.uv);
                 }
-                this.cachedMeshVerts = vertList.ToArray();
+                this.correctVerticeRotations(vertList.ToArray());
                 this.cachedMeshTris = triList.ToArray();
                 this.cachedMeshUVs = uvList.ToArray();
             }
@@ -55,10 +56,7 @@ namespace VoxelEngine.Render.BlockRender {
 
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             int i;
-            Vector3 v;
-            // Broken, triangles normals are messed up when we scale model by -1
-            //Vector3 sv = (this.flag ? this.pseudoRandomScale(new BlockPos(x, y, z).GetHashCode()) : Vector3.one);
-            //Vector3 sv = Vector3.one;
+            Vector3 vertice;
 
             // Add the colliders
             if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
@@ -71,9 +69,8 @@ namespace VoxelEngine.Render.BlockRender {
             // Add vertices
             int vertStart = meshData.getVerticeCount();
             for(i = 0; i < this.cachedMeshVerts.Length; i++) {
-                v = this.cachedMeshVerts[i];
-                //meshData.addVertex(new Vector3((v.x * sv.x) + x + this.shiftVec.x, (v.y * sv.y) + y + this.shiftVec.y, (v.z * sv.z) + z + this.shiftVec.z));
-                meshData.addVertex(new Vector3(v.x + x + this.offsetVector.x, v.y + y + this.offsetVector.y, v.z + z + this.offsetVector.z));
+                vertice = this.cachedMeshVerts[i];
+                meshData.addVertex(new Vector3(vertice.x + x + this.offsetVector.x, vertice.y + y + this.offsetVector.y, vertice.z + z + this.offsetVector.z));
             }
 
             // Add triangles
@@ -84,25 +81,9 @@ namespace VoxelEngine.Render.BlockRender {
             // Add UVs
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
                 meshData.addUv(this.cachedMeshUVs[i]);
-            }
+            }            
 
             meshData.useRenderDataForCol = true;
-        }
-
-        /// <summary>
-        /// Returns a random scale to flip the block based on its position hash.
-        /// </summary>
-        private Vector3 pseudoRandomScale(int hash) {
-            int b = hash & 3; //Only use the first 2 bits
-            if(b == 0) {
-                return new Vector3(1, 1, 1);
-            } else if(b == 1) {
-                return new Vector3(-1, 1, 1);
-            } else if(b == 2) {
-                return new Vector3(1, 1, -1);
-            } else {
-                return new Vector3(-1, 1, -1);
-            }
         }
 
         private void extractMesh(Transform t, List<Mesh> meshes, List<Vector3> offsets) {
@@ -113,8 +94,21 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public BlockRendererMesh useRandomMirror() {
-            this.randomMirror = true;
+        /// <summary>
+        /// Corrects the vertices rotation by rotating them -90 degrees because of Blender.
+        /// </summary>
+        private void correctVerticeRotations(Vector3[] verts) {
+            this.cachedMeshVerts = new Vector3[verts.Length];
+            Quaternion q = Quaternion.Euler(-90, 0, 0);
+            Vector3 v;
+            for (int i = 0; i < verts.Length; i++) {
+                v = verts[i];
+                this.cachedMeshVerts[i] = MathHelper.rotateVecAround(v, Vector3.zero, q);
+            }
+        }
+
+        public BlockRendererMesh setRotation(Quaternion rot) {
+            this.modelRotation = rot;
             return this;
         }
 

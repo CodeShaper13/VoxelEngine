@@ -38,9 +38,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                         if (chunk.isInChunk(i, j, k)) {
                             b = Block.air;
                             meta = 0;
-                            chunkCoordX = i - chunk.pos.x;
-                            chunkCoordY = j - chunk.pos.y;
-                            chunkCoordZ = k - chunk.pos.z;
+                            chunkCoordX = i - chunk.worldPos.x;
+                            chunkCoordY = j - chunk.worldPos.y;
+                            chunkCoordZ = k - chunk.worldPos.z;
                             offsetX = i - this.orgin.x;
                             offsetY = j - this.orgin.y;
                             offsetZ = k - this.orgin.z;

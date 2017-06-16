@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
@@ -137,6 +138,13 @@ namespace VoxelEngine.Util {
                 BlockPos.moveWithinBlock(hit.point.z + (hit.normal.z / 4) * f, hit.normal.z, adjacent)));
             return pos;
             */
+        }
+
+        /// <summary>
+        /// Returns a random position within a chunk.
+        /// </summary>
+        public static BlockPos rndInChunk(System.Random rnd) {
+            return new BlockPos(rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE));
         }
     }
 }

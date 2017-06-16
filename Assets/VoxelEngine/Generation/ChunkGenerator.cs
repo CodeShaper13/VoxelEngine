@@ -222,11 +222,6 @@ namespace VoxelEngine.Generation {
             return new BlockPos(Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE), Random.Range(0, Chunk.SIZE));
         }
 
-        public void populateChunk(Chunk c) {
-            c.isPopulated = true;
-            c.isDirty = true;
-        }
-
         public float GetNoise(int x, int y, int z, float scale) {
             return (Noise.Generate(x * scale, y * scale, z * scale));
         }

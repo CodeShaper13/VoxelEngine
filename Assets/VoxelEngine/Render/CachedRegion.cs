@@ -4,6 +4,9 @@ using VoxelEngine.Util;
 
 namespace Assets.VoxelEngine.Render {
 
+    /// <summary>
+    /// Used in Chunk mesh baking for faster block, meta and light lookup.
+    /// </summary>
     public class CachedRegion {
 
         private Chunk up;
@@ -33,7 +36,7 @@ namespace Assets.VoxelEngine.Render {
         /// Returns true is all the adjacent chunks are loaded.
         /// </summary>
         public bool allChunksLoaded() {
-            return this.east == null || this.west == null || this.up == null || this.down == null || this.north == null || this.south == null;
+            return this.east != null && this.west != null && this.up != null && this.down != null && this.north != null && this.south != null;
         }
 
         public Block getBlock(int x, int y, int z) {
@@ -54,27 +57,21 @@ namespace Assets.VoxelEngine.Render {
 
         private void getChunk(int x, int y, int z) {
             if (x < 0) {
-                //x += Chunk.SIZE;
                 this.cached = this.west;
             }
             else if (x >= Chunk.SIZE) {
-                //x -= Chunk.SIZE;
                 this.cached = this.east;
             }
             else if (y < 0) {
-                //y += Chunk.SIZE;
                 this.cached = this.down;
             }
             else if (y >= Chunk.SIZE) {
-                //y -= Chunk.SIZE;
                 this.cached = this.up;
             }
             else if (z < 0) {
-                //z += Chunk.SIZE;
                 this.cached = this.south;
             }
             else { // (z >= Chunk.SIZE)
-                //z -= Chunk.SIZE;
                 this.cached = this.north;
             }
         }

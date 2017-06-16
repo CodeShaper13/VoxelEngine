@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.ChunkLoaders;
+using VoxelEngine.Entities;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Generation.CellularAutomaton {
@@ -16,7 +18,7 @@ namespace VoxelEngine.Generation.CellularAutomaton {
             this.caveGenerator.generateMap(false);
         }
 
-        public override Vector3 getSpawnPoint() {
+        public override Vector3 getSpawnPoint(World world) {
             return new Vector3(8, 25, 13);
         }
 
@@ -24,13 +26,17 @@ namespace VoxelEngine.Generation.CellularAutomaton {
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
-                        int x1 = chunk.pos.x + x;
-                        int y1 = chunk.pos.y + y;
-                        int z1 = chunk.pos.z + z;
+                        int x1 = chunk.worldPos.x + x;
+                        int y1 = chunk.worldPos.y + y;
+                        int z1 = chunk.worldPos.z + z;
                         chunk.setBlock(x, y, z, this.caveGenerator.map[x1][y1][z1] == 1 ? Block.stone : Block.air);                            
                     }
                 }
             }
+        }
+
+        public override ChunkLoaderBase getChunkLoader(EntityPlayer player) {
+            return new ChunkLoaderInfinite(player.world, player);
         }
     }
 }

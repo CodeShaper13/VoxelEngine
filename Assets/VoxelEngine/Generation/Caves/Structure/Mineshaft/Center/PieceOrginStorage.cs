@@ -28,7 +28,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
         public override void carvePiece(Chunk chunk, System.Random rnd) {
             BlockPos p1 = this.getPosMin();
             BlockPos p2 = this.getPosMax();
-            int chunkCoordX, chunkCoordY, chunkCoordZ, offsetX, offsetY, offsetZ;
+            int offsetX, offsetY, offsetZ;
             Block block;
             int meta;
             for (int x = p1.x; x <= p2.x; x++) {
@@ -37,9 +37,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                         if (chunk.isInChunk(x, y, z)) {
                             block = Block.air;
                             meta = 0;
-                            chunkCoordX = x - chunk.pos.x;
-                            chunkCoordY = y - chunk.pos.y;
-                            chunkCoordZ = z - chunk.pos.z;
                             offsetX = x - this.orgin.x;
                             offsetY = y - this.orgin.y;
                             offsetZ = z - this.orgin.z;

@@ -6,6 +6,11 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererFence : BlockRendererPrimitive {
 
+        public BlockRendererFence() {
+            this.lookupAdjacentLight = true;
+            this.lookupAdjacentBlocks = true;
+        }
+
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             // Post
             float postRadius = MathHelper.pixelToWorld(6);
