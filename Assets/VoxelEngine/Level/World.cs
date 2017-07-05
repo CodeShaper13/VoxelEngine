@@ -57,11 +57,9 @@ namespace VoxelEngine.Level {
         }
 
         private void Update() {
-            /*
             if(this.generator is WorldGeneratorCaves) {
                 ((WorldGeneratorCaves)this.generator).debugDisplay();
             }
-            */
         }
 
         public Entity spawnEntity(GameObject prefab, NbtCompound tag) {

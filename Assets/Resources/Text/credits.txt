@@ -1,0 +1,10 @@
+Created by:
+	Pj Didelot
+
+With technology by:
+	Unity
+	paint.net
+	Blender
+
+And a special thanks to:
+	Fragmer @ https://github.com/fragmer

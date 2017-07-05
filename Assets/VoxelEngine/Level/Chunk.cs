@@ -1,4 +1,4 @@
-﻿#define MAX_LIGHT
+﻿//#define MAX_LIGHT
 
 using Assets.VoxelEngine.Render;
 using fNbt;
@@ -150,7 +150,7 @@ namespace VoxelEngine.Level {
             #if (MAX_LIGHT)
                 return 12;
             #endif
-            //return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+            return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
         /// <summary>

@@ -21,9 +21,14 @@ namespace VoxelEngine.Entities.Player {
         private float verticalVelocity;
         private bool runningWhenLeftGround;
 
+        private AudioSource soundSource;
+        private float footstepTimer;
+
         public PlayerMover(EntityPlayer player) {
             this.player = player;
             this.characterController = this.player.GetComponent<CharacterController>();
+
+            this.soundSource = this.player.GetComponent<AudioSource>();
         }
 
         public void updateMover() {            
@@ -53,6 +58,27 @@ namespace VoxelEngine.Entities.Player {
             speed = this.player.transform.rotation * speed;
 
             characterController.Move(speed * Time.deltaTime);
+
+            if(this.footstepTimer > 0) {
+                this.footstepTimer -= Time.deltaTime;
+            }
+
+            if(this.isGrounded() && this.footstepTimer <= 0) {
+                this.soundSource.PlayOneShot(this.getRndFootstep());
+                this.footstepTimer = this.isRunKeyDown() ? 0.4f : 0.6f;
+            }
+        }
+
+        private AudioClip getRndFootstep() {
+            switch(Random.Range(0, 3)) {
+                case 0:
+                    return SoundManager.singleton.footstep1;
+                case 1:
+                    return SoundManager.singleton.footstep1;
+                case 2:
+                    return SoundManager.singleton.footstep1;
+            }
+            return null;
         }
 
         private float getUpDownSpeed() {
