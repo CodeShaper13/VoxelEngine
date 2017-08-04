@@ -20,9 +20,5 @@ namespace VoxelEngine.Entities {
             }
             this.world.killEntity(this);
         }
-
-        public override int getEntityId() {
-            return 3;
-        }
     }
 }

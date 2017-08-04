@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace VoxelEngine.Entities.Registry {
 
@@ -11,16 +12,16 @@ namespace VoxelEngine.Entities.Registry {
         public static RegisteredEntity throwable;
 
         public EntityRegistry() {
-            EntityRegistry.cachedRegistries = new RegisteredEntity[256];
+            EntityRegistry.cachedRegistries = new RegisteredEntity[64];
         }
 
         /// <summary>
         /// Called from Main.Awake to register all the entites.
         /// </summary>
         public void registerEntities() {
-            EntityRegistry.player = new RegisteredEntity("EntityPlayerPrefab");
-            EntityRegistry.item = new RegisteredEntity("EntityItemPrefab");
-            EntityRegistry.throwable = new RegisteredEntity("EntityThrowablePrefab");
+            EntityRegistry.player = new RegisteredEntity(1, "EntityPlayerPrefab");
+            EntityRegistry.item = new RegisteredEntity(2, "EntityItemPrefab");
+            EntityRegistry.throwable = new RegisteredEntity(3, "EntityThrowablePrefab");
         }
 
         /// <summary>
@@ -33,6 +34,21 @@ namespace VoxelEngine.Entities.Registry {
             } else {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Returns the id of the passed entity, or -1 on error.
+        /// </summary>
+        public static int getIdFromEntity(Entity entity) {
+            Type t = entity.GetType();
+            RegisteredEntity re;
+            for (int i = 0; i < EntityRegistry.cachedRegistries.Length; i++) {
+                re = EntityRegistry.cachedRegistries[i];
+                if(t == re.getType()) {
+                    return re.getId();
+                }
+            }
+            return -1;
         }
     }
 }

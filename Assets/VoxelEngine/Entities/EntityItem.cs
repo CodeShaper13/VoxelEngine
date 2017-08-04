@@ -30,7 +30,7 @@ namespace VoxelEngine.Entities {
             base.Start();
         }
 
-        public override void onEntityUpdate() {
+        protected override void onEntityUpdate() {
             base.onEntityUpdate();
 
             this.transform.Rotate(0, Time.deltaTime * 25, 0);
@@ -61,10 +61,6 @@ namespace VoxelEngine.Entities {
 
         public override string getMagnifyingText() {
             return "An item, bumping into it will let you pick it up.";
-        }
-
-        public override int getEntityId() {
-            return 2;
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -100,7 +96,7 @@ namespace VoxelEngine.Entities {
 
         public void setStack(ItemStack stack) {
             if(stack == null) {
-                Debug.Log("!!!");
+                Debug.Log("Can't set EntityItem.stack to null!");
             }
             this.stack = stack;
             float scale = this.stack.item.id <= 255 ? 0.35f : 0.5f;

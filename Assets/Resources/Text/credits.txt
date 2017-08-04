@@ -7,4 +7,11 @@ With technology by:
 	Blender
 
 And a special thanks to:
-	Fragmer @ https://github.com/fragmer
+	fnbt by Fragmer @ https://github.com/fragmer
+
+	And all the programmers around the world for creating things that inspire me to create.
+
+Fonts:
+	http://www.dafont.com/time-to-get-a-watch.font
+	http://www.abstractfonts.com/font/5208
+	

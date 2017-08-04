@@ -2,6 +2,9 @@
 
 namespace VoxelEngine.GUI {
 
+    /// <summary>
+    /// NOTE!  When adding a new gui be sure to update the list!
+    /// </summary>
     public class GuiManager : MonoBehaviour {
 
         public static GuiScreen title;
@@ -14,6 +17,12 @@ namespace VoxelEngine.GUI {
         public static GuiScreenRenameWorld renameWorld;
         public static GuiScreenDeleteWorld deleteWorld;
         public static GuiScreenRespawn respawn;
+
+        /// <summary>
+        /// The gui that is currently open.
+        /// </summary>
+        [HideInInspector]
+        public static GuiScreen currentGui;
 
         // References to game objects
         public GameObject titleObject;

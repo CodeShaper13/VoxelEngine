@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Command;
@@ -34,9 +33,6 @@ namespace VoxelEngine {
         public Text textDebug;
         public Transform textWindowRoot;
 
-        [HideInInspector]
-        public GuiScreen currentGui;
-
         public TextWindow textWindow;
         public CommandManager commandManager;
         public ContainerManager containerManager;
@@ -61,10 +57,10 @@ namespace VoxelEngine {
         private void Start() {
             this.containerManager = new ContainerManager();
 
-            if(true) { // Debug instant load
+            if(0 == 1) { // Debug instant load
                 this.createNewWorld(false); // When false, the world is not saved.
             } else {
-                this.openGuiScreen(GuiManager.title);
+                GuiManager.title.open();
             }
         }
 
@@ -87,7 +83,7 @@ namespace VoxelEngine {
                     }
                 }
                 if(Input.GetKeyDown(KeyCode.Slash)) {
-                    if(!this.containerManager.isContainerOpen() && this.currentGui == null && !this.textWindow.isOpen) {
+                    if(!this.containerManager.isContainerOpen() && GuiManager.currentGui == null && !this.textWindow.isOpen) {
                         this.textWindow.openWindow();
                     }
                 }
@@ -98,8 +94,8 @@ namespace VoxelEngine {
                     else if (this.containerManager.isContainerOpen()) {
                         this.containerManager.closeContainer(this.player);
                     }
-                    else if(this.currentGui != null) {
-                        this.currentGui.onEscape();
+                    else if(GuiManager.currentGui != null) {
+                        GuiManager.currentGui.onEscape();
                     }
                     else if(!this.isPaused) {
                         this.pauseGame();
@@ -127,7 +123,10 @@ namespace VoxelEngine {
             } else {
                 // Menu screens.
                 if (Input.GetKeyDown(KeyCode.Escape)) {
-                    this.openGuiScreen(this.currentGui.getEscapeCallback());
+                    GuiScreen fallback = GuiManager.currentGui.getEscapeCallback();
+                    if(fallback != null) { // Title screen returns null, can't go back any more!
+                        fallback.open();
+                    }
                 }
             }
         }
@@ -142,32 +141,21 @@ namespace VoxelEngine {
         /// </summary>
         public void pauseGame() {
             this.isPaused = true;
-            //this.player.fpc.enabled = false;
             Main.hideMouse(false);
             Time.timeScale = 0;
-            this.openGuiScreen(GuiManager.paused);
+            GuiManager.paused.open();
+            SoundManager.setUsePlayer(false);
         }
 
         /// <summary>
         /// Resumes the game.
         /// </summary>
         public void resumeGame() {
-            this.currentGui = null;
+            GuiManager.currentGui = null;
             this.isPaused = false;
-            //this.player.fpc.enabled = true;
             Main.hideMouse(true);
             Time.timeScale = 1;
-        }
-
-        [Obsolete("Use GuiScreen.openGuiScreen instead")]
-        public void openGuiScreen(GuiScreen screen) {
-            if (this.currentGui != null) {
-                //Only the pause screen will not trigger this, as there is no screen before it
-                this.currentGui.setVisible(false);
-            }
-
-            this.currentGui = screen;
-            this.currentGui.setVisible(true);
+            SoundManager.setUsePlayer(true);
         }
 
         /// <summary>
@@ -193,10 +181,10 @@ namespace VoxelEngine {
             this.worldObj = GameObject.Instantiate(References.list.worldPrefab).GetComponent<World>();
             this.worldObj.initWorld(data);
 
-            if(this.currentGui != null) {
-                this.currentGui.setVisible(false);
+            if(GuiManager.currentGui != null) {
+                GuiManager.currentGui.setVisible(false);
             }
-            this.currentGui = null;
+            GuiManager.currentGui = null;
             this.player = this.worldObj.spawnPlayer(EntityRegistry.player.getPrefab());
             Main.hideMouse(true);
         }
@@ -204,7 +192,6 @@ namespace VoxelEngine {
         /// <summary>
         /// Toggles the mouse visibility.  True means it is hidden and can't move.
         /// </summary>
-        /// <param name="flag"></param>
         public static void hideMouse(bool flag) {
             Cursor.visible = !flag;
             Cursor.lockState = flag ? CursorLockMode.Locked : CursorLockMode.None;

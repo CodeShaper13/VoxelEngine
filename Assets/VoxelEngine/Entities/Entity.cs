@@ -1,6 +1,6 @@
 ﻿using fNbt;
-using System;
 using UnityEngine;
+using VoxelEngine.Entities.Registry;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
@@ -35,7 +35,7 @@ namespace VoxelEngine.Entities {
             this.setHealth(this.maxHealth);
 
             // Get a reference to the Entity's material, unless they are the player who doesnt have one.
-            if (this.getEntityId() != Main.singleton.player.getEntityId()) {
+            if (!(this is EntityPlayer)) {
                 this.entityMaterial = this.GetComponent<Renderer>().material;
             }
 
@@ -97,7 +97,7 @@ namespace VoxelEngine.Entities {
         /// </summary>
         protected virtual void onConstruct() { }
 
-        public virtual void onEntityUpdate() { }
+        protected virtual void onEntityUpdate() { }
 
         /// <summary>
         /// Sets an entities held, clamping it between 0 and their max.
@@ -114,7 +114,6 @@ namespace VoxelEngine.Entities {
         /// <summary>
         /// Called when another Entity collides with this one.
         /// </summary>
-        /// <param name="otherEntity"></param>
         public virtual void onEntityCollision(Entity otherEntity) { }
 
         /// <summary>
@@ -139,7 +138,7 @@ namespace VoxelEngine.Entities {
         }
 
         public virtual NbtCompound writeToNbt(NbtCompound tag) {
-            tag.Add(new NbtInt("id", this.getEntityId()));
+            tag.Add(new NbtInt("id", EntityRegistry.getIdFromEntity(this)));
             tag.Add(new NbtInt("health", this.health));
 
             tag.Add(NbtHelper.writeVector3("position", this.transform.position));
@@ -158,8 +157,6 @@ namespace VoxelEngine.Entities {
             this.rBody.velocity = NbtHelper.readVector3(tag.Get<NbtCompound>("velocity"));
             this.rBody.angularVelocity = NbtHelper.readVector3(tag.Get<NbtCompound>("angularVelocity"));
         }
-
-        public abstract int getEntityId();
 
         /// <summary>
         /// Sets the entities max health.  To be used in the constructor.

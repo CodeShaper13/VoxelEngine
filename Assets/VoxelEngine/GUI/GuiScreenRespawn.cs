@@ -11,8 +11,10 @@ namespace VoxelEngine.GUI {
             this.respawnPlayer();
         }
 
-        public void respawnButtonCallback() {
+        public void CALLBACK_respawn() {
             this.respawnPlayer();
+
+            this.playClickSound();
         }
 
         private void respawnPlayer() {

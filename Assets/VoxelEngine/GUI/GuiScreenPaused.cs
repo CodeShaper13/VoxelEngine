@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 using VoxelEngine.Level;
 
@@ -8,31 +7,24 @@ namespace VoxelEngine.GUI {
     public class GuiScreenPaused : GuiScreen {
 
         public override void onEscape() {
-            // Dont call base, as it will try to open another gui
-
+            // Dont call base, as it will try to open another gui.
             this.setVisible(false);
             Main.singleton.resumeGame();
         }
 
-        public void callbackSave(bool exitWorld) {
+        public void CALLBACK_save(bool exitWorld) {
+            this.playClickSound();
+
             World world = Main.singleton.worldObj;
             world.saveEntireWorld(exitWorld);
             if (exitWorld) {
                 this.deleteWorldObjects();
-                this.openGuiScreen(GuiManager.title); //Saves us needing a new field since we dont use base.escapeFallback
+                GuiManager.title.open();
             }
         }
 
-        public void callbackOptions() {
-            this.openGuiScreen(GuiManager.options);
-        }
-
-        public void callbackHelp() {
-            throw new NotImplementedException();
-        }
-
-        // Unused.
-        public void callbackResetMap() {
+        public void CALLBACK_resetMap() {
+            this.playClickSound();
             //this.openGuiScreen(GuiManager.title);
             //return;
 

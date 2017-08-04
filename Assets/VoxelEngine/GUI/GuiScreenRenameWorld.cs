@@ -24,14 +24,16 @@ namespace VoxelEngine.GUI {
             this.field.text = this.worldData.worldName;
         }
 
-        public void renameWorldCallback() {
+        public void CALLBACK_renameWorld() {
             string newName = this.field.text;
             Directory.Move("saves/" + this.worldData.worldName, "saves/" + newName);
             this.worldData.worldName = newName;
-            this.openGuiScreen(GuiManager.worldSelect);
+            GuiManager.worldSelect.open();
+
+            this.playClickSound();
         }
 
-        public void characterChangeCallback() {
+        public void CALLBACK_characterChange() {
             this.field.text = Regex.Replace(this.field.text, GuiScreenCreateWorld.regexWorldName, "");
             bool validName = true;
             foreach(WorldData d in this.cachedWorlds) {

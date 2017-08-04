@@ -63,22 +63,17 @@ namespace VoxelEngine.Entities.Player {
                 this.footstepTimer -= Time.deltaTime;
             }
 
-            if(this.isGrounded() && this.footstepTimer <= 0) {
+            if(this.isGrounded() && this.footstepTimer <= 0 && (forwardSpeed != 0 || sideSpeed != 0)) {
                 this.soundSource.PlayOneShot(this.getRndFootstep());
-                this.footstepTimer = this.isRunKeyDown() ? 0.4f : 0.6f;
+                this.footstepTimer = this.isRunKeyDown() ? 0.3f : 0.5f;
             }
         }
 
+        /// <summary>
+        /// Returns the footstep sound for the player.
+        /// </summary>
         private AudioClip getRndFootstep() {
-            switch(Random.Range(0, 3)) {
-                case 0:
-                    return SoundManager.singleton.footstep1;
-                case 1:
-                    return SoundManager.singleton.footstep1;
-                case 2:
-                    return SoundManager.singleton.footstep1;
-            }
-            return null;
+            return SoundManager.singleton.footstep;
         }
 
         private float getUpDownSpeed() {

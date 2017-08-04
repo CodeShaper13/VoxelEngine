@@ -2,15 +2,15 @@
 
     public class GuiScreenOptions : GuiScreen {
 
-        public void okCallback() {
+        public void CALLBACK_ok() {
             // Save options...
-
+            this.playClickSound();
             this.onEscape();
         }
 
-        public void cancelCallback() {
+        public void CALLBACK_cancel() {
             // Revert to previous options
-
+            this.playClickSound();
             this.onEscape();
         }
 

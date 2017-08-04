@@ -8,6 +8,7 @@ using VoxelEngine.Level;
 namespace VoxelEngine.GUI {
 
     public class GuiScreenCreateWorld : GuiScreen {
+
         public static string regexWorldName = @"[^a-zA-Z0-9_!]";
 
         public InputField fieldName;
@@ -28,20 +29,24 @@ namespace VoxelEngine.GUI {
             this.fieldSeed.text = string.Empty;
         }
 
-        public void createWorldCallback() {
+        public void CALLBACK_createWorld() {
             string s = this.fieldSeed.text;
             Main.singleton.generateWorld(new WorldData(fieldName.text, s.Length > 0 ? int.Parse(s) : (int)DateTime.Now.ToBinary(), this.typeIndex, true));
+
+            this.playClickSound();
         }
 
-        public void toggleWorldTypeCallback() {
+        public void CALLBACK_toggleWorldType() {
             this.typeIndex += 1;
             if(this.typeIndex >= WorldType.typeList.Count) {
                 this.typeIndex = 0;
             }
             this.func_01();
+
+            this.playClickSound();
         }
 
-        public void characterChangeCallback() {
+        public void CALLBACK_characterChange() {
             this.fieldName.text = Regex.Replace(this.fieldName.text, GuiScreenCreateWorld.regexWorldName, "");
             bool validName = true;
             foreach (WorldData d in this.cachedWorlds) {
@@ -52,6 +57,8 @@ namespace VoxelEngine.GUI {
             }
             this.buttonCreate.interactable = validName;
             this.text.text = validName ? string.Empty : "Pick a unique world name";
+
+            this.playClickSound();
         }
 
         private void func_01() {

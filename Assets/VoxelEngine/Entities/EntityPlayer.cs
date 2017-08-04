@@ -8,7 +8,6 @@ using VoxelEngine.Entities.Player;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
 using VoxelEngine.ChunkLoaders;
-using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Level;
 using VoxelEngine.GUI.Effect;
@@ -68,7 +67,7 @@ namespace VoxelEngine.Entities {
             this.chunkLoader = this.world.generator.getChunkLoader(this);
         }
 
-        public override void onEntityUpdate() {
+        protected override void onEntityUpdate() {
             // If the player is dead, don't update them.
             if (this.health <= 0) {
                 return;
@@ -108,17 +107,12 @@ namespace VoxelEngine.Entities {
                 this.scatterContainerContents(this.world, this.dataInventory);
 
                 Main.hideMouse(false);
-                //this.fpc.enabled = false;
 
-                Main.singleton.openGuiScreen(GuiManager.respawn);
+                GuiManager.respawn.open();
                 GuiManager.respawn.deathMessageText.text = message;
                 return true;
             }
             return false;
-        }
-
-        public override int getEntityId() {
-            return 1;
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {

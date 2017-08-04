@@ -71,24 +71,32 @@ namespace VoxelEngine.GUI {
             this.toggleButtons(false);
         }
 
-        public void newWorldCallback() {
-            this.openGuiScreen(GuiManager.createWorld);
+        public void CALLBACK_newWorld() {
+            GuiManager.createWorld.open();
             GuiManager.createWorld.cachedWorlds = this.cachedWorlds;
+
+            this.playClickSound();
         }
 
-        public void loadCallback() {
+        public void CALLBACK_loadWorld() {
             WorldData data = this.cachedWorlds[this.selectedWorld.index];
             Main.singleton.generateWorld(data);
+
+            this.playClickSound();
         }
 
-        public void deleteWorldCallback() {
-            this.openGuiScreen(GuiManager.deleteWorld);
+        public void CALLBACK_deleteWorld() {
+            GuiManager.deleteWorld.open();
             GuiManager.deleteWorld.worldData = this.cachedWorlds[this.selectedWorld.index];
+
+            this.playClickSound();
         }
 
-        public void renameWorldCallback() {
-            this.openGuiScreen(GuiManager.renameWorld);
+        public void CALLBACK_renameWorld() {
+            GuiManager.renameWorld.open();
             GuiManager.renameWorld.init(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
+
+            this.playClickSound();
         }
 
         /// <summary>
@@ -103,6 +111,8 @@ namespace VoxelEngine.GUI {
             this.selectedWorld = obj;
             this.selectedWorld.background.color = new Color(0, 0, 0, 0.5f);
             this.toggleButtons(true);
+
+            this.playClickSound();
         }
 
         /// <summary>

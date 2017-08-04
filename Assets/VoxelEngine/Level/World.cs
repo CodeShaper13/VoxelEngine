@@ -52,8 +52,6 @@ namespace VoxelEngine.Level {
             this.chunkWrapper = this.createWrapper("CHUNKS");
             this.entityWrapper = this.createWrapper("ENTITIES");
             this.tileEntityWrapper = this.createWrapper("TILE_ENTITIES");
-
-            //Main.singleton.onWorldLoadFinish();
         }
 
         private void Update() {
@@ -62,6 +60,9 @@ namespace VoxelEngine.Level {
             }
         }
 
+        /// <summary>
+        /// Spawns an entity into the world, loading its state from nbt and returns it.
+        /// </summary>
         public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
             Entity entity = this.instantiateEntityPrefab(prefab, true);
             entity.readFromNbt(tag);
@@ -84,6 +85,9 @@ namespace VoxelEngine.Level {
                 player.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
                 player.setupFirstTimePlayer();
             }
+
+            SoundManager.setPlayerListenerRef(player.mainCamera.GetComponent<AudioListener>());
+
             return player;
         }
 
@@ -212,8 +216,7 @@ namespace VoxelEngine.Level {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 return chunk.getBlock(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z);
-            }
-            else {
+            } else {
                 return Block.air;
             }
         }
@@ -396,7 +399,7 @@ namespace VoxelEngine.Level {
         private void updateLighting(int newLight, int startX, int startY, int startZ) {
             Queue<LightRemovalNode> removalQueue = new Queue<LightRemovalNode>();
             Queue<BlockPos> queue = new Queue<BlockPos>();
-            int x, y, z;
+            int x, y, z, neighborLevel;
 
             removalQueue.Enqueue(new LightRemovalNode(startX, startY, startZ, this.getLight(startX, startY, startZ)));
             this.setLight(startX, startY, startZ, 0);
@@ -407,7 +410,8 @@ namespace VoxelEngine.Level {
                 y = node.y;
                 z = node.z;
 
-                int neighborLevel = this.getLight(x - 1, y, z);
+                // -X
+                neighborLevel = this.getLight(x - 1, y, z);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x - 1, y, z, 0);
                     removalQueue.Enqueue(new LightRemovalNode(x - 1, y, z, neighborLevel));
@@ -416,6 +420,7 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x - 1, y, z));
                 }
 
+                // +X
                 neighborLevel = this.getLight(x + 1, y, z);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x + 1, y, z, 0);
@@ -425,6 +430,7 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x + 1, y, z));
                 }
 
+                // -Y
                 neighborLevel = this.getLight(x, y - 1, z);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x, y - 1, z, 0);
@@ -434,6 +440,7 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x, y - 1, z));
                 }
 
+                // +Y
                 neighborLevel = this.getLight(x, y + 1, z);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x, y + 1, z, 0);
@@ -443,6 +450,7 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x, y + 1, z));
                 }
 
+                // -Z
                 neighborLevel = this.getLight(x, y, z - 1);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x, y, z - 1, 0);
@@ -452,6 +460,7 @@ namespace VoxelEngine.Level {
                     queue.Enqueue(new BlockPos(x, y, z - 1));
                 }
 
+                // +Z
                 neighborLevel = this.getLight(x, y, z + 1);
                 if (neighborLevel != 0 && neighborLevel < node.lightLevel) {
                     this.setLight(x, y, z + 1, 0);

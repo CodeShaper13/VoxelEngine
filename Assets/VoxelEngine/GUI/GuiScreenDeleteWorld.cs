@@ -14,17 +14,21 @@ namespace VoxelEngine.GUI {
             this.errorText.gameObject.SetActive(false);
         }
 
-        public void deleteWorldCallback() {
+        public void CALLBACK_deleteWorld() {
             try {
                 Directory.Delete("saves/" + this.worldData.worldName, true);
-                this.openGuiScreen(GuiManager.worldSelect);
+                GuiManager.worldSelect.open();
             } catch (Exception e) {
                 this.errorText.gameObject.SetActive(true);
             }
+
+            this.playClickSound();
         }
 
-        public void callbackCancel() {
-            this.openGuiScreen(GuiManager.worldSelect);
+        public void CALLBACK_cancel() {
+            GuiManager.worldSelect.open();
+
+            this.playClickSound();
         }
 
         public override GuiScreen getEscapeCallback() {

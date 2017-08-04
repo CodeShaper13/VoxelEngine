@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace VoxelEngine.GUI {
 
+    // Unused
     public class GuiScreenWaiting : GuiScreen {
 
         private List<string> tipList;
