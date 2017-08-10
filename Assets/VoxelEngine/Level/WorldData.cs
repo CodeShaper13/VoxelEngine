@@ -11,6 +11,7 @@ namespace VoxelEngine.Level {
         public Vector3 spawnPos;
         public int worldType;
         public DateTime lastLoaded;
+        /// <summary> If true, the world will not be writen to the disk.  Used in debugging. </summary>
         public bool writeToDisk;
 
         public WorldData(string worldName) {

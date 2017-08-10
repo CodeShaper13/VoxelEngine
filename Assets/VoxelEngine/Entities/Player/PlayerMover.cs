@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities.Player {
 
@@ -111,9 +112,9 @@ namespace VoxelEngine.Entities.Player {
         private bool isOnLadder() {
             // Coppied from Minecraft...
             Bounds playerBounds = new Bounds(this.player.transform.position, new Vector3(0.5f, 2, 0.5f));
-            int mX = (int)Mathf.Floor(playerBounds.min.x);
-            int mY = (int)Mathf.Floor(playerBounds.min.y);
-            int mZ = (int)Mathf.Floor(playerBounds.min.z);
+            int mX = MathHelper.floor(playerBounds.min.x);
+            int mY = MathHelper.floor(playerBounds.min.y);
+            int mZ = MathHelper.floor(playerBounds.min.z);
             for (int y = mY; y < playerBounds.max.y; y++) {
                 for (int x = mX; x < playerBounds.max.x; x++) {
                     for (int z = mZ; z < playerBounds.max.z; z++) {

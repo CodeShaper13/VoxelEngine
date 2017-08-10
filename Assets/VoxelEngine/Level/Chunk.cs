@@ -41,7 +41,7 @@ namespace VoxelEngine.Level {
         /// <summary> If true, the chunk should not be rendered and is meant to read from only.  Gen Phase 2 will still edit theses? </summary>
         public bool isReadOnly;
 
-        public void Awake() {
+        private void Awake() {
             this.filter = this.GetComponent<MeshFilter>();
             MeshCollider[] colliders = this.GetComponents<MeshCollider>();
             this.blockCollider = colliders[0];
@@ -63,6 +63,7 @@ namespace VoxelEngine.Level {
             this.isReadOnly = instructions.isReadOnly;
             float radius = (float)Chunk.SIZE / 2;
             this.chunkBounds = new Bounds(new Vector3(this.worldPos.x + radius, this.worldPos.y + radius, this.worldPos.z + radius), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
+            this.name = "Chunk" + this.chunkPos.ToString();
         }
 
         private void Update() {
@@ -70,10 +71,12 @@ namespace VoxelEngine.Level {
                 this.renderChunk();
             }
 
-            //DebugDrawer.bounds(this.chunkBounds, this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
+            if(Main.isDeveloperMode) {
+                DebugDrawer.bounds(new Bounds(this.chunkBounds.center, this.chunkBounds.size * 0.9f), this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
+            }
         }
 
-        public void FixedUpdate() {
+        private void FixedUpdate() {
             if(!this.isReadOnly) {
                 // Randomly tick blocks.
                 int x, y, z;
@@ -120,9 +123,6 @@ namespace VoxelEngine.Level {
         }
 
         public Block getBlock(int x, int y, int z) {
-            if((x < 0 || y < 0 || z < 0 || x >= Chunk.SIZE || y >= Chunk.SIZE || z >= Chunk.SIZE)) {
-                Debug.Log(x + ", " + y + ", " + z);
-            }
             return this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
         }
 
@@ -143,9 +143,6 @@ namespace VoxelEngine.Level {
             this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)meta;
         }
 
-        /// <summary>
-        /// Returns the light level at (x, y, z).
-        /// </summary>
         public int getLight(int x, int y, int z) {
             #if (MAX_LIGHT)
                 return 12;
@@ -175,17 +172,6 @@ namespace VoxelEngine.Level {
         }
 
         /// <summary>
-        /// Checks if the passed world x and z are in the chunk.
-        /// </summary>
-        public bool isInChunkIgnoreY(int worldX, int worldZ) {
-            int inChunkX = worldX - this.worldPos.x;
-            int inChunkZ = worldZ - this.worldPos.z;
-            return (
-                inChunkX >= 0 && inChunkX < Chunk.SIZE &&
-                inChunkZ >= 0 && inChunkZ < Chunk.SIZE);
-        }
-
-        /// <summary>
         /// Bakes the block meshes and light levels into the chunk.
         /// </summary>
         public void renderChunk() {
@@ -197,8 +183,8 @@ namespace VoxelEngine.Level {
 
             this.isDirty = false;
 
-            MeshBuilder meshData = RenderManager.instance.getMeshBuilder();
-            meshData.useRenderDataForCol = true;
+            MeshBuilder meshBuilder = RenderManager.instance.getMeshBuilder();
+            meshBuilder.useRenderDataForCol = true;
 
             Block currentBlock, neighborBlock;
             bool cachedIsSolid;
@@ -215,6 +201,7 @@ namespace VoxelEngine.Level {
                         if(currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
 
                             //Profiler.BeginSample("Looking up data");
+
                             // Find the surrounding blocks and faces to cull.
                             facesCulled = 0;
 
@@ -247,13 +234,14 @@ namespace VoxelEngine.Level {
                             }
                             //Profiler.EndSample();
 
+                            // If at least one face is visible, render the block.
                             if(facesCulled != 6) {
                                 meta = this.getMeta(x, y, z);
 
                                 // Populate the meshData with light levels.
-                                meshData.lightLevels[0] = this.getLight(x, y, z);
-
+                                meshBuilder.lightLevels[0] = this.getLight(x, y, z);
                                 
+                                // If the renderer requests it, pass the light levels into the meshBuilder
                                 if(currentBlock.renderer.lookupAdjacentLight == true) {
                                     for (i = 0; i < 6; i++) {
                                         dirPos = Direction.all[i].direction;
@@ -261,22 +249,24 @@ namespace VoxelEngine.Level {
                                         y1 = y + dirPos.y;
                                         z1 = z + dirPos.z;
 
+                                        // Get the surrounding light levels.
                                         if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
-                                            meshData.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
+                                            meshBuilder.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
                                         } else {
-                                            meshData.lightLevels[i + 1] = this.getLight(x1, y1, z1);
+                                            meshBuilder.lightLevels[i + 1] = this.getLight(x1, y1, z1);
                                         }
                                     }
                                 }
 
-                                currentBlock.renderer.renderBlock(currentBlock, meta, meshData, x, y, z, renderFace, surroundingBlocks);
+                                // Render the block.
+                                currentBlock.renderer.renderBlock(currentBlock, meta, meshBuilder, x, y, z, renderFace, surroundingBlocks);
                             }
                         }
                     }
                 }
             }
 
-            // Set light uvs for tile entities that don't bake into the chunk.
+            // Set light UVs for tile entities that don't bake into the chunk.
             Material[] materials;
             Color lightColor;
             foreach (TileEntityBase te in this.tileEntityDict.Values) {
@@ -292,10 +282,10 @@ namespace VoxelEngine.Level {
                 }
             }
 
-            this.filter.mesh = meshData.toMesh();
-            this.blockCollider.sharedMesh = meshData.getColliderMesh();
+            this.filter.mesh = meshBuilder.toMesh();
+            this.blockCollider.sharedMesh = meshBuilder.getColliderMesh();
 
-            meshData.cleanup();
+            meshBuilder.cleanup();
         }
 
         public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {

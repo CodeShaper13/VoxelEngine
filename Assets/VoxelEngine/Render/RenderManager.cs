@@ -25,13 +25,13 @@ namespace VoxelEngine.Render {
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
         public LightHelper lightHelper;
-        private MeshBuilder reusableMeshData;
+        private MeshBuilder reusableMeshBuilder;
 
         public RenderManager() {
             RenderManager.instance = this;
 
             this.lightHelper = new LightHelper(References.list.lightColorSheet);
-            this.reusableMeshData = new MeshBuilder();
+            this.reusableMeshBuilder = new MeshBuilder();
 
             this.preRenderItems();
         }
@@ -40,8 +40,8 @@ namespace VoxelEngine.Render {
         /// Returns a ready to use meshBuilder.
         /// </summary>
         public MeshBuilder getMeshBuilder() {
-            this.reusableMeshData.cleanup();
-            return this.reusableMeshData;
+            this.reusableMeshBuilder.cleanup();
+            return this.reusableMeshBuilder;
         }
 
         /// <summary>

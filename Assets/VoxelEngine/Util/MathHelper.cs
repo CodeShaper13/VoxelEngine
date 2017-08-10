@@ -49,5 +49,13 @@ namespace VoxelEngine.Util {
             }
             return value;
         }
+
+        /// <summary>
+        /// Faster version of Mathf.floor
+        /// </summary>
+        public static int floor(float value) {
+            int i = (int)value;
+            return value < i ? i - 1 : i;
+        }
     }
 }

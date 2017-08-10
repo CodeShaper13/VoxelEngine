@@ -124,7 +124,6 @@ namespace VoxelEngine.Generation.Caves {
 
             this.generateOrePatch(chunk, 2, Block.ironOre, 4, rnd);
             this.generateOrePatch(chunk, 1, Block.rubyOre, 3, rnd);
-            Profiler.EndSample();
 
             StructureMineshaft shaft;
             PieceBase piece;

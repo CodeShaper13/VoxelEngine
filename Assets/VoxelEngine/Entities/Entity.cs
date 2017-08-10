@@ -14,7 +14,9 @@ namespace VoxelEngine.Entities {
         private int maxHealth;
 
         // References
+        [HideInInspector]
         public World world;
+        [HideInInspector]
         public Rigidbody rBody;
         protected Material entityMaterial;
 
@@ -159,12 +161,15 @@ namespace VoxelEngine.Entities {
         }
 
         /// <summary>
-        /// Sets the entities max health.  To be used in the constructor.
+        /// Sets the entities max health.  Call from onConstruct.
         /// </summary>
         public void setMaxHealth(int max) {
             this.maxHealth = max;
         }
 
+        /// <summary>
+        /// Call from onConstruct to set the shadow size and darkness of the entity.
+        /// </summary>
         public void setShadow(float size, float darkness) {
             this.shadowSize = size;
             this.shadowDarkness = darkness;

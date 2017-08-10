@@ -50,7 +50,7 @@ namespace VoxelEngine.GUI {
             main.isPaused = false;
             Time.timeScale = 1;
             main.showDebugText = false;
-            main.isDeveloperMode = false;
+            Main.isDeveloperMode = false;
         }
     }
 }

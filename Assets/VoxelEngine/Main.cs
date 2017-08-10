@@ -17,9 +17,8 @@ namespace VoxelEngine {
     public class Main : MonoBehaviour {
 
         public static Main singleton;
+        public static bool isDeveloperMode = false;
 
-        [HideInInspector]
-        public bool isDeveloperMode;
         [HideInInspector]
         public bool showDebugText = false;
         [HideInInspector]
@@ -57,7 +56,7 @@ namespace VoxelEngine {
         private void Start() {
             this.containerManager = new ContainerManager();
 
-            if(0 == 1) { // Debug instant load
+            if(1 == 1) { // Debug instant load
                 this.createNewWorld(false); // When false, the world is not saved.
             } else {
                 GuiManager.title.open();
@@ -69,8 +68,8 @@ namespace VoxelEngine {
                 // Playing the game.
 
                 if (Input.GetKeyDown(KeyCode.F1)) {
-                    this.isDeveloperMode = !this.isDeveloperMode;
-                    this.textWindow.logMessage("Developer Mode is now " + (this.isDeveloperMode ? "ON" : "OFF"));
+                    Main.isDeveloperMode = !Main.isDeveloperMode;
+                    this.textWindow.logMessage("Developer Mode is now " + (Main.isDeveloperMode ? "ON" : "OFF"));
                 }
                 if (Input.GetKeyDown(KeyCode.F2)) {
                     ScreenshotHelper.captureScreenshot();
@@ -185,7 +184,7 @@ namespace VoxelEngine {
                 GuiManager.currentGui.setVisible(false);
             }
             GuiManager.currentGui = null;
-            this.player = this.worldObj.spawnPlayer(EntityRegistry.player.getPrefab());
+            this.player = this.worldObj.spawnPlayer();
             Main.hideMouse(true);
         }
 

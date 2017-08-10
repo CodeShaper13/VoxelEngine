@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Blocks;
+﻿using System.Runtime.CompilerServices;
+using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
@@ -15,14 +16,11 @@ namespace Assets.VoxelEngine.Render {
         private Chunk east;
         private Chunk west;
         private Chunk south;
-        private Chunk cached;
 
         public CachedRegion(World world, Chunk chunk) {
             int x = chunk.chunkPos.x;
             int y = chunk.chunkPos.y;
             int z = chunk.chunkPos.z;
-
-            this.cached = chunk;
 
             this.east = world.getChunk(new ChunkPos(x + 1, y, z));
             this.west = world.getChunk(new ChunkPos(x - 1, y, z));
@@ -40,39 +38,32 @@ namespace Assets.VoxelEngine.Render {
         }
 
         public Block getBlock(int x, int y, int z) {
-            this.getChunk(x, y, z);
-            x += x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            y += y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            z += z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            return this.cached.getBlock(x, y, z);
+            int x1 = x + (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int y1 = y + (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int z1 = z + (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            return this.getChunk(x, y, z).getBlock(x1, y1, z1);
         }
 
         public int getLight(int x, int y, int z) {
-            this.getChunk(x, y, z);
-            x += x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            y += y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            z += z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0;
-            return this.cached.getLight(x, y, z);
+            int x1 = x + (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int y1 = y + (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int z1 = z + (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            return this.getChunk(x, y, z).getLight(x1, y1, z1);
         }
 
-        private void getChunk(int x, int y, int z) {
+        private Chunk getChunk(int x, int y, int z) {
             if (x < 0) {
-                this.cached = this.west;
-            }
-            else if (x >= Chunk.SIZE) {
-                this.cached = this.east;
-            }
-            else if (y < 0) {
-                this.cached = this.down;
-            }
-            else if (y >= Chunk.SIZE) {
-                this.cached = this.up;
-            }
-            else if (z < 0) {
-                this.cached = this.south;
-            }
-            else { // (z >= Chunk.SIZE)
-                this.cached = this.north;
+                return this.west;
+            } else if (x >= Chunk.SIZE) {
+                return this.east;
+            } else if (y < 0) {
+                return this.down;
+            } else if (y >= Chunk.SIZE) {
+                return this.up;
+            } else if (z < 0) {
+                return this.south;
+            } else { // (z >= Chunk.SIZE)
+                return this.north;
             }
         }
     }

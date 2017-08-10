@@ -1,4 +1,4 @@
-﻿namespace VoxelEngine.Level {
+﻿namespace VoxelEngine.Level.Light {
 
     /// <summary>
     /// Used in calculating lighting.

@@ -23,7 +23,6 @@ Shader "VoxelEngine/Block" {
 		Lighting Off
 
 		Pass{
-			//Cull Off
 			ZWrite On
 			Blend SrcAlpha OneMinusSrcAlpha
 

@@ -4,6 +4,7 @@ namespace VoxelEngine.Util {
 
     /// <summary>
     /// When attached to a camera, this disables the fog for rendering.
+    /// Used on the HUD camera.
     /// </summary>
     public class FogHidder : MonoBehaviour {
 
