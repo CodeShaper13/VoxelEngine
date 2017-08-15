@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace VoxelEngine {
@@ -31,6 +32,10 @@ namespace VoxelEngine {
             this.isOpen = true;
             this.root.gameObject.SetActive(true);
             Main.hideMouse(false);
+
+            // Make the input field selected.
+            EventSystem.current.SetSelectedGameObject(inputField.gameObject, null);
+            inputField.OnPointerClick(new PointerEventData(EventSystem.current));
         }
 
         public void closeWindow() {
@@ -64,6 +69,9 @@ namespace VoxelEngine {
             this.outputField.text += (message + '\n');
         }
 
+        /// <summary>
+        /// Makes the input line blank, or "".
+        /// </summary>
         private void clearInputLine() {
             this.inputField.text = string.Empty;
         }

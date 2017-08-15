@@ -4,72 +4,66 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockRendererPrimitiveCube : BlockRendererPrimitive {
+    public sealed /* Stops me from screwing up and extending this instead of BlockRendererPrimitive */ class BlockRendererPrimitiveCube : BlockRendererPrimitive {
 
         public BlockRendererPrimitiveCube() {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             // North
             if (renderFace[0]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
-                    LightHelper.NORTH);
+                    Direction.NORTH);
             }
             // East
             if (renderFace[1]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
-                    LightHelper.EAST);
+                    Direction.EAST);
             }
             // South
             if (renderFace[2]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
-                    LightHelper.SOUTH);
+                    Direction.SOUTH);
             }
             // West
             if (renderFace[3]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
-                    LightHelper.WEST);
+                    Direction.WEST);
             }
             // Up
             if (renderFace[4]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
-                    LightHelper.UP);
+                    Direction.UP);
             }
             // Down
             if (renderFace[5]) {
-                meshData.addQuad(
+                meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.DOWN, this.preAllocatedUvArray),
-                    LightHelper.DOWN);
+                    Direction.DOWN);
             }
         }
     }

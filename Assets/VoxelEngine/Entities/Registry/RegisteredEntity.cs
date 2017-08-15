@@ -21,11 +21,11 @@ namespace VoxelEngine.Entities.Registry {
                 throw new Exception("Entity Prefab with name " + prefabName + " could not be found!");
             }
             this.id = id;
-            if (EntityRegistry.cachedRegistries[this.id] != null) {
+            if (EntityRegistry.getRegisteredEntityFromId(this.id) != null) {
                 throw new Exception("Two entities have the same id of " + this.id + "!");
             }
             this.type = this.prefab.GetComponent<Entity>().GetType();
-            EntityRegistry.cachedRegistries[this.id] = this;
+            EntityRegistry.addToRegistry(this);
         }
 
         public GameObject getPrefab() {

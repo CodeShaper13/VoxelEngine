@@ -4,18 +4,32 @@ using VoxelEngine.Items;
 
 namespace VoxelEngine.Render.Items {
 
+    // TODO cull faces on flat block
     public class RenderItemBlock : IRenderItem {
 
-        private static bool[] TRUE_ARRAY = new bool[6] {true, true, true, true, true, true};
-        private static Block[] AIR_ARRAY = new Block[6] {Block.air, Block.air, Block.air, Block.air, Block.air, Block.air};
-        private static int[] MAX_LIGHT_LEVELS = new int[7] {15, 15, 15, 15, 15, 15, 15};
+        private bool[] cullFlatArray;
+        private Block[] airArray;
+        private int[] maxLightLevels;
 
-        public Mesh renderItem(RenderManager rm, Item item, int meta) {
+        public RenderItemBlock() {
+            this.cullFlatArray = new bool[6] { true, true, true, false, true, false };
+            this.airArray = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
+        }
+
+        public Mesh renderItemFlat(Item item, int meta) {
+            return this.renderBlock(item, meta, this.cullFlatArray);
+        }
+
+        public Mesh renderItem3d(Item item, int meta) {
+            return this.renderBlock(item, meta, RenderManager.TRUE_ARRAY);
+        }
+
+        public Mesh renderBlock(Item item, int meta, bool[] cullArray) {
             Block block = Block.BLOCK_LIST[item.id];
-            MeshBuilder meshBuilder = rm.getMeshBuilder();
-            meshBuilder.lightLevels = RenderItemBlock.MAX_LIGHT_LEVELS;
-            block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderItemBlock.TRUE_ARRAY, RenderItemBlock.AIR_ARRAY);
-            return meshBuilder.toMesh();
+            MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
+            meshBuilder.setMaxLight();
+            block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, cullArray, this.airArray);
+            return meshBuilder.getGraphicMesh();
         }
     }
 }

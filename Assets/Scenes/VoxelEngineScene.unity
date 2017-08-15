@@ -238,6 +238,11 @@ Prefab:
       propertyPath: dm
       value: 
       objectReference: {fileID: 2100000, guid: 5c0253bd379e35f4eb1d06a7d696fcf7, type: 2}
+    - target: {fileID: 114163939041654166, guid: 5da602b22dd14fe49b6a146be7f14acf,
+        type: 2}
+      propertyPath: m_Text
+      value: Clever Hands
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5da602b22dd14fe49b6a146be7f14acf, type: 2}
   m_IsPrefabParent: 0
@@ -309,6 +314,34 @@ Prefab:
         type: 2}
       propertyPath: m_ClearFlags
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1757263505999224, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740820058420212, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1806070980996256, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1241035034860362, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1814913926632752, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1750077516116734, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 1932445284588028, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c67998d48e6469d438a69fd360ad0c49, type: 2}

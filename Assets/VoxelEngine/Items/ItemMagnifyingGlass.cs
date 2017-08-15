@@ -1,6 +1,7 @@
 ﻿using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
+using VoxelEngine.ObjData;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Items {
@@ -15,9 +16,8 @@ namespace VoxelEngine.Items {
             string s = null;
             if (hit.unityRaycastHit.distance <= player.getReach()) {
                 if (hit.hitState != null) {
-                    s = hit.hitState.block.getMagnifyingText(hit.hitState.meta);
-                }
-                else if (hit.entity != null) {
+                    s = ObjectData.getInfo(hit.hitState.block);
+                } else if (hit.entity != null) {
                     s = hit.entity.getMagnifyingText();
                 }
                 if (s != null) {

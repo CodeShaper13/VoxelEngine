@@ -65,14 +65,14 @@ namespace VoxelEngine.Level {
         /// <summary>
         /// Spawns an entity into the world, loading its state from nbt and returns it.
         /// </summary>
-        public Entity spawnEntity(GameObject prefab, NbtCompound tag) {
-            Entity entity = this.instantiateEntityPrefab(prefab, true);
+        public Entity spawnEntity(RegisteredEntity registeredEntity, NbtCompound tag) {
+            Entity entity = this.instantiateEntityPrefab(registeredEntity.getPrefab(), true);
             entity.readFromNbt(tag);
             return entity;
         }
 
-        public Entity spawnEntity(GameObject prefab, Vector3 position, Quaternion rotation) {
-            Entity entity = this.instantiateEntityPrefab(prefab, true);
+        public Entity spawnEntity(RegisteredEntity registeredEntity, Vector3 position, Quaternion rotation) {
+            Entity entity = this.instantiateEntityPrefab(registeredEntity.getPrefab(), true);
             entity.transform.position = position;
             entity.transform.rotation = rotation;
             return entity;
@@ -108,7 +108,7 @@ namespace VoxelEngine.Level {
         /// Spawns a dropped item into the world.
         /// </summary>
         public EntityItem spawnItem(ItemStack stack, Vector3 position, Quaternion rotation, Vector3 force) {
-            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item.getPrefab(), position, rotation);
+            EntityItem entityItem = (EntityItem)this.spawnEntity(EntityRegistry.item, position, rotation);
             entityItem.setStack(stack);
             entityItem.rBody.AddForce(force, ForceMode.Impulse);
 
@@ -164,7 +164,7 @@ namespace VoxelEngine.Level {
 
         public Chunk getChunk(ChunkPos pos) {
             Chunk chunk = null;
-            loadedChunks.TryGetValue(pos, out chunk);
+            this.loadedChunks.TryGetValue(pos, out chunk);
             return chunk;
         }
 
@@ -317,7 +317,7 @@ namespace VoxelEngine.Level {
                 for(int i = 0; i < dropList.Length; i++) {
                     float f = 0.5f;
                     Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
-                    this.spawnItem(dropList[i], pos.toVector() + offset, Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0), Vector3.zero);
+                    this.spawnItem(dropList[i], pos.toVector() + offset, EntityItem.randomRotation(), Vector3.zero);
                 }
             }
             this.setBlock(pos, Block.air);
@@ -527,6 +527,7 @@ namespace VoxelEngine.Level {
             Entity entity = gameObject.GetComponent<Entity>();
             entity.world = this;
             this.entityList.Add(entity);
+            entity.onConstruct();
             return entity;
         }
 

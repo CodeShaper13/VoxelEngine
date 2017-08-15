@@ -108,7 +108,7 @@ namespace VoxelEngine.Containers {
                             ItemStack temp = new ItemStack(heldStack);
                             temp.count = 1;
                             this.data.items[i] = temp;
-                            heldStack = heldStack.safeDeduction();
+                            cm.setHeldStack(heldStack.safeDeduction());
                         }
                         else if (slotContents.Equals(heldStack) && slotContents.count < slotContents.item.maxStackSize) {
                             // The held type is the same as the slot, and it's not full

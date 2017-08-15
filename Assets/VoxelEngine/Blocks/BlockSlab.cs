@@ -44,10 +44,8 @@ namespace VoxelEngine.Blocks {
             return this.baseBlock.getTexturePos(direction, 0);
         }
 
-        public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
-            uvArray = this.baseBlock.getUVs(meta, direction, uvArray);
-
-            // Adjust the uvs for the not full side of a slab.
+        /*
+          // Adjust the uvs for the not full side of a slab.
             if(!BlockSlab.isFull(meta)) {
                 if(direction.axis != BlockSlab.getDirectionFromMeta(meta).axis) {
                     if(meta == 0) { // North.
@@ -72,6 +70,14 @@ namespace VoxelEngine.Blocks {
                 }                
             }
             return uvArray;
+        */
+
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            if(!BlockSlab.isFull(meta)) {
+                UvHelper.cropUVs(uvs, faceRadius);
+                UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
+            }
+            return uvs;
         }
 
         public static bool isFull(int meta) {
@@ -83,7 +89,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public static int getMetaFromDirection(Direction direction) {
-            return direction.directionId - 1;
+            return direction.index - 1;
         }
     }
 }

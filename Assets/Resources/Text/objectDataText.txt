@@ -1,0 +1,3 @@
+1=A basic building block that can be found just about anywhere.
+5=Coal ore, it can be used to heat things up.
+10=???

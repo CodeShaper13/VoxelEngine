@@ -7,6 +7,8 @@ namespace VoxelEngine.Render {
 
     public class MeshBuilder {
 
+        private const int UNITY_MAX_VERT = 65536;
+
         private List<Vector3> vertices;
         private List<int> triangles;
         private List<Vector2> uv;
@@ -19,21 +21,26 @@ namespace VoxelEngine.Render {
         private int internalLightUvCount;
 
         private int[] cachedColliderPoints;
+        private Vector2[] allocatedUvArray;
 
         public bool useRenderDataForCol;
 
         public MeshBuilder() {
-            this.vertices = new List<Vector3>(65536);
-            this.triangles = new List<int>(65536);
-            this.uv = new List<Vector2>(65536);
-            this.colVertices = new List<Vector3>(65536);
-            this.colTriangles = new List<int>(65536);
-            this.lightUvs = new List<Vector2>(65536);
+            this.vertices = new List<Vector3>(UNITY_MAX_VERT);
+            this.triangles = new List<int>(UNITY_MAX_VERT);
+            this.uv = new List<Vector2>(UNITY_MAX_VERT);
+            this.colVertices = new List<Vector3>(UNITY_MAX_VERT);
+            this.colTriangles = new List<int>(UNITY_MAX_VERT);
+            this.lightUvs = new List<Vector2>(UNITY_MAX_VERT);
             this.lightLevels = new int[7];
             this.cachedColliderPoints = new int[36];
+            this.allocatedUvArray = new Vector2[4];
             this.useRenderDataForCol = true;
         }
 
+        /// <summary>
+        /// Adds a single geometry vertex and the collider vertex if useRenderDataForCol is enabled.
+        /// </summary>
         public void addVertex(Vector3 vertex) {
             this.vertices.Add(vertex);
             if (this.useRenderDataForCol) {
@@ -41,6 +48,9 @@ namespace VoxelEngine.Render {
             }
         }
 
+        /// <summary>
+        /// Adds a single geometry triangle and the collider triangle if useRenderDataForCol is enabled.
+        /// </summary>
         public void addTriangle(int triangle) {
             this.triangles.Add(triangle);
             if (this.useRenderDataForCol) {
@@ -48,27 +58,30 @@ namespace VoxelEngine.Render {
             }
         }
 
-        public void addUv(Vector2 uv) {
+        /// <summary>
+        /// Adds a single texture UV coordinate and a light map UV coordinate.
+        /// </summary>
+        public void addUv(Vector2 uv, int lightSampleDirection) {
             this.uv.Add(uv);
 
-            float x = LightHelper.PIXEL_SIZE * this.lightLevels[0];
-            float y = LightHelper.PIXEL_SIZE * this.lightLevels[0];
-            Vector2 v = Vector2.zero;
-            switch(this.internalLightUvCount) {
-                case 0: v = new Vector2(x, y); break;
-                case 1: v = new Vector2(x, y + LightHelper.PIXEL_SIZE); break;
-                case 2: v = new Vector2(x + LightHelper.PIXEL_SIZE, y); break;
+            float i = LightHelper.PIXEL_SIZE * lightSampleDirection;
+            Vector2 v;
+            switch (this.internalLightUvCount) {
+                case 0: v = new Vector2(i, i); break;
+                case 1: v = new Vector2(i, i + LightHelper.PIXEL_SIZE); break;
+                default: v = new Vector2(i + LightHelper.PIXEL_SIZE, i); break;
             }
             this.lightUvs.Add(v);
 
+            // Cycle through the internal counter.
             this.internalLightUvCount += 1;
-            if(this.internalLightUvCount == 3) {
+            if (this.internalLightUvCount == 3) {
                 this.internalLightUvCount = 0;
             }
         }
 
         /// <summary>
-        /// Adds a quad to the mesh
+        /// Adds a quad to the mesh using the passed light sample direction.
         /// </summary>
         public void addQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector2[] uvs, int lightSampleDirection) {
             // Add the 4 corner vertices.
@@ -77,7 +90,7 @@ namespace VoxelEngine.Render {
             this.vertices.Add(v3);
             this.vertices.Add(v4);
 
-            if(this.useRenderDataForCol) {
+            if (this.useRenderDataForCol) {
                 this.colVertices.Add(v1);
                 this.colVertices.Add(v2);
                 this.colVertices.Add(v3);
@@ -105,27 +118,40 @@ namespace VoxelEngine.Render {
             }
 
             // Add the uvs.
-            for(i = 0; i < uvs.Length; i++) {
+            for (i = 0; i < uvs.Length; i++) {
                 this.uv.Add(uvs[i]);
             }
 
             // Add light mapping.
-            float x = LightHelper.PIXEL_SIZE * this.lightLevels[lightSampleDirection];
-            float y = LightHelper.PIXEL_SIZE * this.lightLevels[lightSampleDirection];
-            this.lightUvs.Add(new Vector2(x, y));
-            this.lightUvs.Add(new Vector2(x, y + LightHelper.PIXEL_SIZE));
-            this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y + LightHelper.PIXEL_SIZE));
-            this.lightUvs.Add(new Vector2(x + LightHelper.PIXEL_SIZE, y));
+            float f = LightHelper.PIXEL_SIZE * this.lightLevels[lightSampleDirection];
+            this.lightUvs.Add(new Vector2(f, f));
+            this.lightUvs.Add(new Vector2(f, f + LightHelper.PIXEL_SIZE));
+            this.lightUvs.Add(new Vector2(f + LightHelper.PIXEL_SIZE, f + LightHelper.PIXEL_SIZE));
+            this.lightUvs.Add(new Vector2(f + LightHelper.PIXEL_SIZE, f));
         }
 
-        public void addBox(Vector3 pos, Vector3 boxRadius, Block block, int meta, Vector2[] allocatedUvArray) {
-            this.addBox(pos, boxRadius, Quaternion.identity, block, meta, allocatedUvArray);
+        /// <summary>
+        /// Adds a one sided plane.  Warning, block.applyUvAlterations are called with Vector3.zero for faceRadius and faceOffset.
+        /// </summary>
+        public void addPlane(Block block, int meta, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Direction direction) {
+            this.addQuad(v1, v2, v3, v4,
+                block.applyUvAlterations(
+                    this.generateUVsFromTP(block.getTexturePos(direction, meta)),
+                    meta,
+                    direction,
+                    Vector2.zero, // TODO
+                    Vector2.zero), // TODO  Unable to compute?
+                direction.index);
+        }
+        
+        public void addBox(Vector3 pos, Vector3 boxRadius, Block block, int meta, bool[] renderFace) {
+            this.addBox(pos, boxRadius, Quaternion.identity, block, meta, renderFace);
         }
 
         /// <summary>
         /// Adds a rotated box of quads.  Warning, rotated boxes that extend to the edge of their voxel or past may have lighting errors!
         /// </summary>
-        public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, Vector2[] allocatedUvArray) {
+        public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, bool[] renderFace) {
             // Top points.
             Vector3 ppp = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, boxRadius.z), Vector3.zero, rotation);
             Vector3 ppn = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, -boxRadius.z), Vector3.zero, rotation);
@@ -139,34 +165,76 @@ namespace VoxelEngine.Render {
 
             Vector3 boxOffset = pos - MathHelper.roundVector3(pos);
 
-            // +Y face.
-            this.addQuad(npp, ppp, ppn, npn,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.UP, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.x)),
-                boxRadius.y >= 0.5f ? LightHelper.UP : LightHelper.SELF);
-            // -Y face.
-            this.addQuad(nnn, pnn, pnp, nnp,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.DOWN, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.z)),
-                boxRadius.y <= -0.5f ? LightHelper.DOWN : LightHelper.SELF);            
-            // +X face.
-            this.addQuad(pnn, ppn, ppp, pnp,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.EAST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                boxRadius.x >= 0.5f ? LightHelper.EAST : LightHelper.SELF);
-            // +Z face.
-            this.addQuad(pnp, ppp, npp, nnp,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.NORTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                boxRadius.z >= 0.5f ? LightHelper.NORTH : LightHelper.SELF);            
-            // -X face.
-            this.addQuad(nnp, npp, npn, nnn,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.WEST, allocatedUvArray), new Vector2(boxRadius.z, boxRadius.y)),
-                boxRadius.x <= -0.5f ? LightHelper.WEST : LightHelper.SELF);
-            // -Z face.
-            this.addQuad(nnn, npn, ppn, pnn,
-                UvHelper.cropUVs(block.getUVs(meta, Direction.SOUTH, allocatedUvArray), new Vector2(boxRadius.x, boxRadius.y)),
-                boxRadius.z <= -0.5f ? LightHelper.SOUTH : LightHelper.SELF);
+            // +Z/North face.
+            if (renderFace[0]) {
+                this.addQuad(pnp, ppp, npp, nnp,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.NORTH, meta)),
+                        meta,
+                        Direction.NORTH,
+                        new Vector2(boxRadius.x, boxRadius.y),
+                        new Vector2(boxOffset.x, boxOffset.y)),
+                    boxRadius.z >= 0.5f ? LightHelper.NORTH : LightHelper.SELF);
+            }
+            // +X/East face.
+            if (renderFace[1]) {
+                this.addQuad(pnn, ppn, ppp, pnp,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.EAST, meta)),
+                        meta,
+                        Direction.EAST,
+                        new Vector2(boxRadius.z, boxRadius.y),
+                        new Vector2(boxOffset.z, boxOffset.y)),
+                    boxRadius.x >= 0.5f ? LightHelper.EAST : LightHelper.SELF);
+            }
+            // -Z/South face.
+            if (renderFace[2]) {
+                this.addQuad(nnn, npn, ppn, pnn,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.SOUTH, meta)),
+                        meta,
+                        Direction.SOUTH,
+                        new Vector2(boxRadius.x, boxRadius.y),
+                        new Vector2(boxOffset.x, boxOffset.y)),
+                    boxRadius.z <= -0.5f ? LightHelper.SOUTH : LightHelper.SELF);
+            }
+            // -X/West face.
+            if (renderFace[3]) {
+                this.addQuad(nnp, npp, npn, nnn,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.WEST, meta)),
+                        meta,
+                        Direction.WEST,
+                        new Vector2(boxRadius.z, boxRadius.y),
+                        new Vector2(boxOffset.z, boxOffset.y)),
+                    boxRadius.x <= -0.5f ? LightHelper.WEST : LightHelper.SELF);
+            }
+            // +Y/Up face.
+            if (renderFace[4]) {
+                this.addQuad(npp, ppp, ppn, npn,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.UP, meta)),
+                        meta,
+                        Direction.UP,
+                        new Vector2(boxRadius.z, boxRadius.x),
+                        new Vector2(boxOffset.z, boxOffset.x)),
+                    boxRadius.y >= 0.5f ? LightHelper.UP : LightHelper.SELF);
+            }
+            // -Y/Down face.
+            if (renderFace[5]) {
+                this.addQuad(nnn, pnn, pnp, nnp,
+                    block.applyUvAlterations(
+                        this.generateUVsFromTP(block.getTexturePos(Direction.DOWN, meta)),
+                        meta,
+                        Direction.DOWN,
+                        new Vector2(boxRadius.x, boxRadius.z),
+                        new Vector2(boxOffset.x, boxOffset.z)),
+                    boxRadius.y <= -0.5f ? LightHelper.DOWN : LightHelper.SELF);
+            }
         }
 
         /// <summary>
-        /// Adds a collider to the mesh in the form of a Bonds.  X, Y and Z are the blocks orgin.
+        /// Adds a collider to the mesh in the form of a Bounds.  X, Y and Z are the block's orgin.
         /// </summary>
         public void addColliderBox(Bounds b, float x, float y, float z) {
             int i = this.colVertices.Count - 1;
@@ -187,7 +255,7 @@ namespace VoxelEngine.Render {
             this.cachedColliderPoints[3] = i + 1;
             this.cachedColliderPoints[4] = i + 2;
             this.cachedColliderPoints[5] = i + 6;
-            
+
             // -Z
             this.cachedColliderPoints[6] = i + 2;
             this.cachedColliderPoints[7] = i + 3;
@@ -195,7 +263,7 @@ namespace VoxelEngine.Render {
             this.cachedColliderPoints[9] = i + 7;
             this.cachedColliderPoints[10] = i + 6;
             this.cachedColliderPoints[11] = i + 2;
-            
+
             // +X
             this.cachedColliderPoints[12] = i + 3;
             this.cachedColliderPoints[13] = i + 4;
@@ -203,7 +271,7 @@ namespace VoxelEngine.Render {
             this.cachedColliderPoints[15] = i + 8;
             this.cachedColliderPoints[16] = i + 7;
             this.cachedColliderPoints[17] = i + 3;
-            
+
             // +Z
             this.cachedColliderPoints[18] = i + 4;
             this.cachedColliderPoints[19] = i + 1;
@@ -234,7 +302,7 @@ namespace VoxelEngine.Render {
         /// <summary>
         /// Converts the MeshData to a Mesh for rendering
         /// </summary>
-        public Mesh toMesh() {
+        public Mesh getGraphicMesh() {
             Mesh mesh = new Mesh();
             mesh.SetVertices(this.vertices);
             mesh.SetTriangles(this.triangles, 0);
@@ -269,10 +337,33 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Returns the number of vertices in the MeshBuilder
+        /// Returns the number of vertices in the MeshBuilder.
         /// </summary>
         public int getVerticeCount() {
             return this.vertices.Count;
+        }
+
+        /// <summary>
+        /// Fills the light lookup table with max light of 15.  Used by blocks and items in the hud.
+        /// </summary>
+        public void setMaxLight() {
+            this.lightLevels[0] = 15;
+            this.lightLevels[1] = 15;
+            this.lightLevels[2] = 15;
+            this.lightLevels[3] = 15;
+            this.lightLevels[4] = 15;
+            this.lightLevels[5] = 15;
+            this.lightLevels[6] = 15;
+        }
+
+        public Vector2[] generateUVsFromTP(TexturePos tilePos) {
+            float x = TexturePos.BLOCK_SIZE * tilePos.x;
+            float y = TexturePos.BLOCK_SIZE * tilePos.y;
+            this.allocatedUvArray[0] = new Vector2(x, y);
+            this.allocatedUvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
+            this.allocatedUvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
+            this.allocatedUvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
+            return this.allocatedUvArray;
         }
     }
 }

@@ -80,7 +80,7 @@ namespace VoxelEngine.Render.BlockRender {
 
             // Add UVs
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
-                meshData.addUv(this.cachedMeshUVs[i]);
+                meshData.addUv(this.cachedMeshUVs[i], LightHelper.SELF);
             }            
 
             meshData.useRenderDataForCol = true;

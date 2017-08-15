@@ -14,7 +14,7 @@ using VoxelEngine.GUI.Effect;
 
 namespace VoxelEngine.Entities {
 
-    public class EntityPlayer : Entity, ICollecting {
+    public class EntityPlayer : EntityLiving, ICollecting {
 
         // References
         public FadeText magnifyingText;
@@ -41,7 +41,7 @@ namespace VoxelEngine.Entities {
 
         public ContainerManager contManager;
 
-        protected override void onConstruct() {
+        public override void onConstruct() {
             base.onConstruct();
 
             this.mainCamera = Camera.main.transform;
@@ -59,39 +59,17 @@ namespace VoxelEngine.Entities {
 
             this.setMaxHealth(100);
             this.setShadow(0.75f, 0.6f);
-        }
-
-        private new void Start() {
-            base.Start();
-
+        
             this.chunkLoader = this.world.generator.getChunkLoader(this);
         }
 
         protected override void onEntityUpdate() {
-            // If the player is dead, don't update them.
-            if (this.health <= 0) {
-                return;
+            // Only update the player if they are alive.
+            if (this.health > 0) {
+                this.chunkLoader.updateChunkLoader();
+
+                this.doFallDamage();
             }
-
-            base.onEntityUpdate();
-
-            this.chunkLoader.updateChunkLoader();
-
-            this.doFallDamage();
-
-            /*
-            // Update hunger
-            this.hunger -= Time.deltaTime * 0.25f;
-            this.hungerSlider.value = this.hunger;
-            if(this.hunger <= 0f) {
-                this.hunger = 0f;
-                this.hungerDamageTimer -= Time.deltaTime;
-                if(this.hungerDamageTimer <= -2f) {
-                    this.damage(1, "You forget to eat!");
-                    this.hungerDamageTimer = 0f;
-                }
-            }
-            */
         }
 
         public override bool damage(int amount, string message) {
@@ -175,13 +153,13 @@ namespace VoxelEngine.Entities {
                         }
                     }
                 } else if (playerHit.hitEntity()) {
-                    if (Input.GetMouseButtonDown(0)) {
+                    if (playerHit.entity is EntityLiving && Input.GetMouseButtonDown(0)) {
                         // Player is hitting an entity
                         int damage = 1;
                         if (heldStack != null && heldStack.item is ItemSword) {
                             damage = ((ItemSword)heldStack.item).damageAmount;
                         }
-                        playerHit.entity.damage(damage, "Player");
+                        ((EntityLiving)playerHit.entity).damage(damage, "Player");
                     }
                     if (Input.GetMouseButtonDown(1)) {
                         // Player is right clicking on an entity
@@ -273,15 +251,15 @@ namespace VoxelEngine.Entities {
         /// </summary>
         public void setupFirstTimePlayer() {
             if(true) {
-                this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 25);
-                this.dataHotbar.items[1] = new ItemStack(Item.axe, 0, 12);
-                this.dataHotbar.items[2] = new ItemStack(Item.shovel, 0, 16);
-                this.dataHotbar.items[3] = new ItemStack(Block.rubyOre, 0, 16);
-                this.dataHotbar.items[4] = new ItemStack(Item.corn, 0, 1);
-                this.dataHotbar.items[5] = new ItemStack(Item.skull, 0, 25);
-                this.dataHotbar.items[6] = new ItemStack(Item.coal, 0, 1);
-                this.dataHotbar.items[7] = new ItemStack(Item.ruby, 0, 1);
-                this.dataHotbar.items[8] = new ItemStack(Item.flesh, 0, 1);
+                this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 32);
+                this.dataHotbar.items[1] = new ItemStack(Block.plankSlab, 0, 32);
+                this.dataHotbar.items[2] = new ItemStack(Block.plank, 0, 32);
+                this.dataHotbar.items[3] = new ItemStack(Item.axe, 0, 1);
+                this.dataHotbar.items[4] = new ItemStack(Block.roofWooden, 0, 32);
+                this.dataHotbar.items[5] = new ItemStack(Block.brick, 0, 25);
+                this.dataHotbar.items[6] = new ItemStack(Block.cobblestone, 0, 32);
+                this.dataHotbar.items[7] = new ItemStack(Block.cobblestoneSlab, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.cobblestoneStairs, 0, 32);
             } else {
                 this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
                 this.dataHotbar.items[1] = new ItemStack(Item.shovel);
@@ -344,20 +322,18 @@ namespace VoxelEngine.Entities {
         /// Scatters all the contents of a container, used when the player dies.
         /// </summary>
         private void scatterContainerContents(World world, ContainerData containerData) {
-            float f = 1.5f;
             ItemStack[] items = containerData.getRawItemArray();
             for (int i = 0; i < items.Length; i++) {
-                Vector3 randomForce = new Vector3(Random.Range(-f, f), Random.Range(0, f), Random.Range(-f, f));
                 ItemStack stack = items[i];
                 if (stack != null) {
-                    this.world.spawnItem(items[i], this.transform.position, Quaternion.Euler(0, Random.Range(0, 360), 0), randomForce);
+                    this.world.spawnItem(items[i], this.transform.position, EntityItem.randomRotation(), EntityItem.randomForce(1.5f));
                     items[i] = null;
                 }
             }
         }
 
         public float getReach() {
-            return 3f;
+            return 4f;
         }
 
         /// <summary>

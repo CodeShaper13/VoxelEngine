@@ -183,7 +183,7 @@ namespace VoxelEngine.Level {
 
             this.isDirty = false;
 
-            MeshBuilder meshBuilder = RenderManager.instance.getMeshBuilder();
+            MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
             meshBuilder.useRenderDataForCol = true;
 
             Block currentBlock, neighborBlock;
@@ -282,10 +282,8 @@ namespace VoxelEngine.Level {
                 }
             }
 
-            this.filter.mesh = meshBuilder.toMesh();
+            this.filter.mesh = meshBuilder.getGraphicMesh();
             this.blockCollider.sharedMesh = meshBuilder.getColliderMesh();
-
-            meshBuilder.cleanup();
         }
 
         public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {
@@ -352,9 +350,9 @@ namespace VoxelEngine.Level {
             // Spawn the entities that were saved in the chunk back into the world.
             foreach(NbtCompound compound in tag.Get<NbtList>("entities")) {
                 int id = compound.Get<NbtInt>("id").IntValue;
-                GameObject prefab = EntityRegistry.getEntityPrefabFromId(id);
-                if(prefab != null) {
-                    this.world.spawnEntity(prefab, compound);
+                RegisteredEntity re = EntityRegistry.getRegisteredEntityFromId(id);
+                if (re != null) {
+                    this.world.spawnEntity(re, compound);
                 } else {
                     print("Error!  Entity with an unknown ID of " + id + " was found!  Ignoring!");
                 }

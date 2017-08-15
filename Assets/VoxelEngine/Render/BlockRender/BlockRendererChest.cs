@@ -6,6 +6,10 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererChest : BlockRendererPrimitive {
 
+        public BlockRendererChest() {
+            this.lookupAdjacentLight = true;
+        }
+
         public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             float f = MathHelper.pixelToWorld(14);
             meshData.addBox(
@@ -13,7 +17,7 @@ namespace VoxelEngine.Render.BlockRender {
                 new Vector3(f, f, f),
                 Block.chest,
                 meta,
-                this.preAllocatedUvArray);
+                RenderManager.TRUE_ARRAY);
         }
     }
 }

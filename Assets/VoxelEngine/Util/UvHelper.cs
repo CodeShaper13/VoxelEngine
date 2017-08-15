@@ -50,7 +50,7 @@ namespace VoxelEngine.Util {
         /// Makes the faces uvs align with pixel, cropping to the middle.
         /// </summary>
         public static Vector2[] cropUVs(Vector2[] uvs, Vector2 faceRadius) {
-            if(faceRadius.x != 0.5f || faceRadius.y != 0.5f) {
+            if(faceRadius.x < 0.5f || faceRadius.y < 0.5f) { // Only crop if the face is less than a full 1x1 plane.
                 Vector2 uv0 = uvs[0];
                 Vector2 uv1 = uvs[1];
                 Vector2 uv2 = uvs[2];
@@ -71,7 +71,30 @@ namespace VoxelEngine.Util {
                     uv3.x - clipX,
                     uv3.y + clipY);
             }
+            return uvs;
+        }
 
+        public static Vector2[] smartShiftUVs(Vector2[] uvs, Vector2 faceRadius, Vector2 faceOffset) {
+            if (faceRadius.x < 0.5f || faceRadius.y < 0.5f) {
+                Vector2 pixelOffset = faceOffset * 32;
+
+                Vector2 uv0 = uvs[0];
+                Vector2 uv1 = uvs[1];
+                Vector2 uv2 = uvs[2];
+                Vector2 uv3 = uvs[3];
+                uvs[0] = new Vector2(
+                    uv0.x + pixelOffset.x * TexturePos.PIXEL_SIZE,
+                    uv0.y + pixelOffset.y * TexturePos.PIXEL_SIZE);
+                uvs[1] = new Vector2(
+                    uv1.x + pixelOffset.x * TexturePos.PIXEL_SIZE,
+                    uv1.y + pixelOffset.y * TexturePos.PIXEL_SIZE);
+                uvs[2] = new Vector2(
+                    uv2.x + pixelOffset.x * TexturePos.PIXEL_SIZE,
+                    uv2.y + pixelOffset.y * TexturePos.PIXEL_SIZE);
+                uvs[3] = new Vector2(
+                    uv3.x + pixelOffset.x * TexturePos.PIXEL_SIZE,
+                    uv3.y + pixelOffset.y * TexturePos.PIXEL_SIZE);
+            }
             return uvs;
         }
     }

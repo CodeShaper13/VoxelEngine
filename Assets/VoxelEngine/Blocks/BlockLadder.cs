@@ -37,7 +37,7 @@ namespace VoxelEngine.Blocks {
 
         public static int getMetaFromDirection(Direction dir) {
             if (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
-                return (byte)(dir.directionId - 1);
+                return (byte)(dir.index - 1);
             } else {
                 return 0;
             }

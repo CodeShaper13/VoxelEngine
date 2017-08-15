@@ -19,7 +19,7 @@ namespace VoxelEngine.Render.BlockRender {
                 new Vector3(postRadius, MathHelper.pixelToWorld(16), postRadius),
                 Block.fence,
                 0,
-                this.preAllocatedUvArray);
+                RenderManager.TRUE_ARRAY);
 
             // Cross pieces
             this.addCrossPiece(surroundingBlocks[0], meshData, x, y, z, 0,      0.25f);
@@ -36,7 +36,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(xAxis != 0 ? 0.25f : f, MathHelper.pixelToWorld(6), zAxis != 0 ? 0.25f : f),
                     Block.fence,
                     1,
-                    this.preAllocatedUvArray);
+                    RenderManager.TRUE_ARRAY);
             }
         }
     }

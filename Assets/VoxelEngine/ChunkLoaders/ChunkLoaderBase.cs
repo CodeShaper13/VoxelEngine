@@ -109,9 +109,9 @@ namespace VoxelEngine.ChunkLoaders {
         /// </summary>
         private ChunkPos getOccupiedChunkPos(Vector3 playerPos) {
             return new ChunkPos(
-                Mathf.FloorToInt(playerPos.x / Chunk.SIZE),
-                Mathf.FloorToInt(playerPos.y / Chunk.SIZE),
-                Mathf.FloorToInt(playerPos.z / Chunk.SIZE));
+                MathHelper.floor(playerPos.x / Chunk.SIZE),
+                MathHelper.floor(playerPos.y / Chunk.SIZE),
+                MathHelper.floor(playerPos.z / Chunk.SIZE));
         }
 
         /// <summary>

@@ -9,10 +9,6 @@ namespace VoxelEngine.Entities {
 
     public abstract class Entity : MonoBehaviour {
 
-        // State
-        public int health;
-        private int maxHealth;
-
         // References
         [HideInInspector]
         public World world;
@@ -25,16 +21,15 @@ namespace VoxelEngine.Entities {
         private Transform shadowTransform;
         private Material shadowMaterial;
 
-        // Don't override, use Entity.onConstruct
+        // Don't override!!!  Use Entity.onConstruct().
         private void Awake() {
             this.tag = "Entity";
             this.rBody = this.GetComponent<Rigidbody>();
-
-            this.onConstruct();
         }
 
+        // Don't override!!!  Use Entity.onPostConstrcut().
         protected void Start() {
-            this.setHealth(this.maxHealth);
+            this.onPostConstruct();
 
             // Get a reference to the Entity's material, unless they are the player who doesnt have one.
             if (!(this is EntityPlayer)) {
@@ -54,13 +49,13 @@ namespace VoxelEngine.Entities {
             }
         }        
 
-        // Don't override, use Entity.onEntityCollision().
+        // Don't override!!!  Use Entity.onEntityCollision().
         private void OnCollisionEnter(Collision collision) {
             Entity otherEntity = collision.gameObject.GetComponent<Entity>();
             this.onEntityCollision(otherEntity);
         }
 
-        // Don't override, use Entity.onEntityUpdate().
+        // Don't override!!!  Use Entity.onEntityUpdate().
         private void Update() {
             if(!Main.singleton.isPaused) {
                 this.onEntityUpdate();
@@ -94,24 +89,11 @@ namespace VoxelEngine.Entities {
             }
         }
 
-        /// <summary>
-        /// This should be used as a constructor for the entity and is equivalent to Awake()
-        /// </summary>
-        protected virtual void onConstruct() { }
+        public virtual void onConstruct() { }
+
+        protected virtual void onPostConstruct() { }
 
         protected virtual void onEntityUpdate() { }
-
-        /// <summary>
-        /// Sets an entities held, clamping it between 0 and their max.
-        /// </summary>
-        public virtual void setHealth(int amount) {
-            if (amount > this.maxHealth) {
-                amount = this.maxHealth;
-            } else if(amount < 0) {
-                amount = 0;
-            }
-            this.health = amount;
-        }
 
         /// <summary>
         /// Called when another Entity collides with this one.
@@ -123,25 +105,12 @@ namespace VoxelEngine.Entities {
         /// </summary>
         public virtual void onEntityInteract(EntityPlayer player) { }
 
-        /// <summary>
-        /// Returns true if the entity was killed by this damage.
-        /// </summary>
-        public virtual bool damage(int amount, string message) {
-            this.setHealth(this.health - amount);
-            if (this.health <= 0) {
-                this.world.killEntity(this);
-                return true;
-            }
-            return false;
-        }
-
         public virtual string getMagnifyingText() {
             return "Entity.Unknown";
         }
 
         public virtual NbtCompound writeToNbt(NbtCompound tag) {
             tag.Add(new NbtInt("id", EntityRegistry.getIdFromEntity(this)));
-            tag.Add(new NbtInt("health", this.health));
 
             tag.Add(NbtHelper.writeVector3("position", this.transform.position));
             tag.Add(NbtHelper.writeVector3("rotation", this.transform.eulerAngles));
@@ -152,19 +121,10 @@ namespace VoxelEngine.Entities {
         }
 
         public virtual void readFromNbt(NbtCompound tag) {
-            this.health = tag.Get<NbtInt>("health").IntValue;
-
             this.transform.position = NbtHelper.readVector3(tag.Get<NbtCompound>("position"));
             this.transform.eulerAngles = NbtHelper.readVector3(tag.Get<NbtCompound>("rotation"));
             this.rBody.velocity = NbtHelper.readVector3(tag.Get<NbtCompound>("velocity"));
             this.rBody.angularVelocity = NbtHelper.readVector3(tag.Get<NbtCompound>("angularVelocity"));
-        }
-
-        /// <summary>
-        /// Sets the entities max health.  Call from onConstruct.
-        /// </summary>
-        public void setMaxHealth(int max) {
-            this.maxHealth = max;
         }
 
         /// <summary>

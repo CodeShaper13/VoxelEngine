@@ -163,7 +163,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
             NbtHelper.writeDirectBlockPos(tag, this.end, "end");
-            tag.Add(new NbtInt("pointing", this.pointing.directionId - 1));
+            tag.Add(new NbtInt("pointing", this.pointing.index - 1));
             return tag;
         }
 

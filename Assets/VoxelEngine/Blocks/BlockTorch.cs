@@ -54,9 +54,14 @@ namespace VoxelEngine.Blocks {
             return new TexturePos(8, i);
         }
 
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            UvHelper.cropUVs(uvs, faceRadius);
+            return uvs;
+        }
+
         public static int getMetaFromDirection(Direction dir) {
             if(dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
-                return dir.directionId;
+                return dir.index;
             } else {
                 return 0;
             }

@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using VoxelEngine.Containers.Data;
 using VoxelEngine.Entities;
 using VoxelEngine.Render;
-using VoxelEngine.Util;
 
 namespace VoxelEngine.Containers {
 

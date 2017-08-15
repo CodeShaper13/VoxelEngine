@@ -13,7 +13,6 @@ namespace VoxelEngine.Blocks {
             this.setTexture(0, 13);
             this.setTransparent();
             this.setRenderer(RenderManager.RAIL);
-            //this.setRenderer(RenderManager.M_TEST);
             this.setContainerTransfrom(new MutableTransform(Vector3.zero, Quaternion.Euler(-90, 0, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
 
@@ -49,28 +48,22 @@ namespace VoxelEngine.Blocks {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 
-        public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
-            bool flag = meta >= 2 && meta <= 5;
-            float x = TexturePos.BLOCK_SIZE * (flag ? 1f : 0f);
-            float y = TexturePos.BLOCK_SIZE * 13;
+        public override TexturePos getTexturePos(Direction direction, int meta) {
+            return new TexturePos((meta >= 2 && meta <= 5) ? 1 : 0, 13);
+        }
 
-            uvArray[0] = new Vector2(x, y);
-            uvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
-            uvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
-            uvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
-
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
             if(meta == 0) {
-                return  UvHelper.rotateUVs(uvArray, 90);
+                return UvHelper.rotateUVs(uvs, 90);
             }
-
-            return uvArray;
+            return uvs;
         }
 
         private int getMetaForTurn(World world, BlockPos pos, int inMeta) {
             foreach (Direction dir in Direction.yPlane) {
                 if (world.getBlock(pos.move(dir)) == Block.rail && world.getBlock(pos.move(dir.getClockwise())) == Block.rail) {
-                    Debug.Log(dir.directionId + 1);
-                    return dir.directionId + 1;
+                    Debug.Log(dir.index + 1);
+                    return dir.index + 1;
                 }
             }
             return inMeta;

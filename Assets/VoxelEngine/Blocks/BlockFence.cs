@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Render;
+﻿using UnityEngine;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -22,6 +23,11 @@ namespace VoxelEngine.Blocks {
             } else {
                 return new TexturePos(8, 3);
             }
+        }
+
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            UvHelper.cropUVs(uvs, faceRadius);
+            return uvs;
         }
     }
 }

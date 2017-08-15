@@ -1,6 +1,5 @@
 ﻿using fNbt;
 using System;
-using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Items;
 using VoxelEngine.Util;
@@ -9,7 +8,7 @@ namespace VoxelEngine.Containers {
 
     public class ItemStack {
 
-        /// <summary> The maximum size of a stack.  Used by both EntityItem and containers to know how large a stack can be. </summary>
+        /// <summary> The maximum size of a stack. </summary>
         public const int MAX_SIZE = 32;
 
         public Item item;
@@ -22,7 +21,8 @@ namespace VoxelEngine.Containers {
             }
             this.item = item;
             this.meta = meta;
-            this.count = MathHelper.clamp(count, 0, item.maxStackSize);
+            // Size of negative one gives the stack the max stack size of it's item.
+            this.count = this.count == -1 ? this.item.maxStackSize : MathHelper.clamp(count, 0, this.item.maxStackSize);
         }
 
         public ItemStack(Block block, int meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
@@ -42,7 +42,7 @@ namespace VoxelEngine.Containers {
         }
 
         /// <summary>
-        /// Lets us use the == operator to check is there contents are equal.
+        /// Lets us use the == operator to check is the contents are equal.
         /// </summary>
         public override bool Equals(object obj) {
             if(obj is ItemStack) {

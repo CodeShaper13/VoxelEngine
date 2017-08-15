@@ -27,7 +27,7 @@ namespace VoxelEngine.Containers {
         }
 
         public override void renderSlotStack(ItemStack stack, Vector3 position, int slotIndex) {
-            RenderHelper.renderStack(stack, position, (slotIndex == this.index && this.stackYRot > 0) ? Quaternion.Euler(0, this.stackYRot * 360f, 0) : Quaternion.identity);
+            RenderHelper.renderStack(stack, position, /*(slotIndex == this.index && this.stackYRot > 0) ? Quaternion.Euler(0, this.stackYRot * 360f, 0) :*/ Quaternion.identity);
         }
 
         /// <summary>

@@ -1,12 +1,7 @@
-﻿// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
-
-// Unlit alpha-cutout shader.
-// - no lighting
-// - no lightmap support
-// - no per-material color
-
-Shader "VoxelEngine/Block" {
-	Properties{
+﻿Shader "VoxelEngine/Block"
+{
+	Properties
+	{
 		_MainTex("Base (RGB) Trans (A)", 2D) = "white" {}
 		
 		// Added:
@@ -16,13 +11,15 @@ Shader "VoxelEngine/Block" {
 		_Cutoff("Alpha cutoff", Range(0,1)) = 0.5
 	}
 	
-	SubShader{
-		Tags{ "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" }
+	SubShader
+	{
+		Tags { "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" }
 		LOD 100
 
 		Lighting Off
 
-		Pass{
+		Pass
+		{
 			ZWrite On
 			Blend SrcAlpha OneMinusSrcAlpha
 

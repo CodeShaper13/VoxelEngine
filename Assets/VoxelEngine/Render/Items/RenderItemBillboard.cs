@@ -6,8 +6,23 @@ namespace VoxelEngine.Render.Items {
 
     public class RenderItemBillboard : IRenderItem {
 
-        public Mesh renderItem(RenderManager rm, Item item, int meta) {
-            MeshBuilder meshBuilder = rm.getMeshBuilder();
+        public Mesh renderItemFlat(Item item, int meta) {
+            MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
+            meshBuilder.lightLevels[0] = 15;
+
+            meshBuilder.addQuad(
+                new Vector3(-0.5f, -0.5f, 0),
+                new Vector3(-0.5f, 0.5f, 0),
+                new Vector3(0.5f, 0.5f, 0),
+                new Vector3(0.5f, -0.5f, 0),
+                this.getUvs(item.getItemTexturePos(meta)),
+                0);
+
+            return meshBuilder.getGraphicMesh();
+        }
+
+        public Mesh renderItem3d(Item item, int meta) {
+            MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
             meshBuilder.lightLevels[0] = 15;
             TexturePos textPos = item.getItemTexturePos(meta);
             float halfPixelSize = 0.015625f;
@@ -19,14 +34,14 @@ namespace VoxelEngine.Render.Items {
                 new Vector3(0.5f, 0.5f, zOffset),   // Top right
                 new Vector3(-0.5f, 0.5f, zOffset),  // Top left
                 new Vector3(-0.5f, -0.5f, zOffset), // Bottom left
-                UvHelper.mirrorUvsX(this.getUvs(item, textPos)),
+                UvHelper.mirrorUvsX(this.getUvs(textPos)),
                 0);
             meshBuilder.addQuad(
                 new Vector3(-0.5f, -0.5f, -zOffset),
                 new Vector3(-0.5f, 0.5f, -zOffset),
                 new Vector3(0.5f, 0.5f, -zOffset),
                 new Vector3(0.5f, -0.5f, -zOffset),
-                this.getUvs(item, textPos),
+                this.getUvs(textPos),
                 0);
 
             // Add the side pixels
@@ -86,7 +101,7 @@ namespace VoxelEngine.Render.Items {
                 }
             }
 
-            return meshBuilder.toMesh();
+            return meshBuilder.getGraphicMesh();
         }
 
         /// <summary>
@@ -105,14 +120,13 @@ namespace VoxelEngine.Render.Items {
                 
                 return true;
             }
-
             return false;
         }
 
         /// <summary>
         /// Returns the uvs for an item's front and back.
         /// </summary>
-        private Vector2[] getUvs(Item item, TexturePos textPos) {
+        private Vector2[] getUvs(TexturePos textPos) {
             float x = TexturePos.ITEM_SIZE * textPos.x;
             float y = TexturePos.ITEM_SIZE * textPos.y;
 

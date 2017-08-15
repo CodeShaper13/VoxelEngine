@@ -32,7 +32,7 @@ namespace VoxelEngine.Util {
         }
 
         /// <summary>
-        /// Rounds all components of the passed vector and returns it.
+        /// Rounds all components of the passed vector to integers and returns it.
         /// </summary>
         public static Vector3 roundVector3(Vector3 pos) {
             return new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));

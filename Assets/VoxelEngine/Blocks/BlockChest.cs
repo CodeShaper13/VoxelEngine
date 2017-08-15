@@ -63,7 +63,7 @@ namespace VoxelEngine.Blocks {
 
         public static byte getMetaFromDirection(Direction dir) {
             if (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
-                return (byte)(dir.directionId - 1);
+                return (byte)(dir.index - 1);
             }
             else {
                 return 0;
@@ -73,13 +73,18 @@ namespace VoxelEngine.Blocks {
         public override TexturePos getTexturePos(Direction direction, int meta) {
             if(direction == Direction.UP || direction == Direction.DOWN) {
                 return new TexturePos(7, 5);
-            } else if((direction.directionId - 1) == meta) { // Front    North.id = 1
+            } else if((direction.index - 1) == meta) { // Front    North.id = 1
                 return new TexturePos(6, 4);
-            } else if((direction.directionId - 3) == meta) { // Back
+            } else if((direction.index - 3) == meta) { // Back
                 return new TexturePos(7, 4);
             } else { // Side
                 return new TexturePos(8, 4);
             }
+        }
+
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            UvHelper.cropUVs(uvs, faceRadius);
+            return uvs;
         }
     }
 }

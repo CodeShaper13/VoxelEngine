@@ -13,26 +13,19 @@ namespace VoxelEngine.Entities {
         private float timeAlive;
         private MeshFilter filter;
 
-        protected override void onConstruct() {
-            base.onConstruct();
-
+        public override void onConstruct() {
             this.filter = this.GetComponent<MeshFilter>();
             this.timeAlive = -2f;
 
-            this.setHealth(10);
             this.setShadow(0.6f, 0.75f);
         }
 
-        protected new void Start() {
+        protected override void onPostConstruct() {
             // Start will interact with the material, so call calculateMesh() first.
             this.calculateMesh(true);
-
-            base.Start();
         }
 
         protected override void onEntityUpdate() {
-            base.onEntityUpdate();
-
             this.transform.Rotate(0, Time.deltaTime * 25, 0);
             this.timeAlive += Time.deltaTime;
 
@@ -130,7 +123,7 @@ namespace VoxelEngine.Entities {
                     modelCount = 1;
                 }
 
-                this.filter.mesh = this.stack.item.getPreRenderedMesh(this.stack.meta);
+                this.filter.mesh = RenderManager.getItemMesh(this.stack.item, this.stack.meta, true);
                 this.filter.mesh.RecalculateNormals();
 
                 if (lookupMaterial) {
@@ -139,5 +132,12 @@ namespace VoxelEngine.Entities {
             }
         }
 
+        public static Quaternion randomRotation() {
+            return Quaternion.Euler(0, Random.Range(0, 359), 0);
+        }
+
+        public static Vector3 randomForce(float range) {
+            return new Vector3(Random.Range(-range, range), Random.Range(0, range), Random.Range(-range, range));
+        }
     }
 }

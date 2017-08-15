@@ -14,8 +14,6 @@ namespace VoxelEngine.Items {
 
         public static Item[] ITEM_LIST = new Item[512];
 
-        public static IRenderItem RENDER_BILLBOARD = new RenderItemBillboard();
-
         public static Item pebble = new ItemThrowable(256).setName("Throwing Rock").setTexture(1, 0);
         public static Item coal = new Item(257).setName("Coal Lump").setTexture(1, 0);
         public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 1);
@@ -56,7 +54,6 @@ namespace VoxelEngine.Items {
         private string name = "null";
         public TexturePos texturePos;
         public IRenderItem itemRenderer;
-        public Mesh[] preRenderedMeshes;
         public int maxStackSize = ItemStack.MAX_SIZE;
 
         public Item(int id) {
@@ -66,7 +63,7 @@ namespace VoxelEngine.Items {
 
             this.id = id;
             Item.ITEM_LIST[this.id] = this;
-            this.setRenderer(Item.RENDER_BILLBOARD);
+            this.setRenderer(RenderManager.ITEM_RENDERER_BILLBOARD);
         }
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace VoxelEngine.Items {
                 handTransfrom.position + mt.position + new Vector3(),
                 handTransfrom.rotation * mt.rotation,
                 mt.scale);
-            Graphics.DrawMesh(this.getPreRenderedMesh(meta), matrix, RenderManager.getMaterial(this.id), 0, null, 0, null, false, false);
+            Graphics.DrawMesh(RenderManager.getItemMesh(this, meta, true), matrix, RenderManager.getMaterial(this.id), 0, null, 0, null, false, false);
         }
 
         /// <summary>
@@ -118,18 +115,8 @@ namespace VoxelEngine.Items {
         /// </summary>
         public virtual MutableTransform getHandTransform() {
             return new MutableTransform(new Vector3(0, 0, 0), Quaternion.Euler(0, -106, -2), new Vector3(0.2f, 0.2f, 0.2f));
-        }
-
-        public Mesh getPreRenderedMesh(int meta) {
-            if(meta >= this.preRenderedMeshes.Length) {
-                Debug.LogWarning("Could not find prerendered mesh for " + this.getName(meta) + ":" + meta + "  Using placeholder mesh!");
-                return Block.placeholder.asItem().getPreRenderedMesh(0);
-            } else {
-                return this.preRenderedMeshes[meta];
-            }
-        }        
-
-
+        }       
+        
         public Item setName(string name) {
             this.name = name;
             return this;
@@ -147,13 +134,12 @@ namespace VoxelEngine.Items {
 
         public Item setMaxStackSize(int size) {
             if(size > ItemStack.MAX_SIZE) {
-                throw new Exception("An item's maxStackSize can not be greater than the global limit!");
+                throw new Exception("An item's maxStackSize can not be greater than the global limit of " + ItemStack.MAX_SIZE + "!");
             }
             this.maxStackSize = size;
             return this;
         }
-
-
+        
         /// <summary>
         /// Creates item versions of all the blocks.
         /// </summary>

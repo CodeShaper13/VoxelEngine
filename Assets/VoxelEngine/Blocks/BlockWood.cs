@@ -33,21 +33,19 @@ namespace VoxelEngine.Blocks {
             return pos;
         }
 
-        public override Vector2[] getUVs(int meta, Direction direction, Vector2[] uvArray) {
-            uvArray = base.getUVs(meta, direction, uvArray);
-
+        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
             // Correct the texture rotation.
             if (meta == 0 && direction.axis == EnumAxis.Z) {
-                return UvHelper.rotateUVs(uvArray, 90);
+                UvHelper.rotateUVs(uvs, 90);
             } else if (meta == 2) {
                 if(direction.axis == EnumAxis.X) {
-                    return UvHelper.rotateUVs(uvArray, 90);
+                    UvHelper.rotateUVs(uvs, 90);
                 } else if(direction.axis == EnumAxis.Y) {
-                    return UvHelper.rotateUVs(uvArray, 90);
+                    UvHelper.rotateUVs(uvs, 90);
                 }
             }
                        
-            return uvArray;
+            return uvs;
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {

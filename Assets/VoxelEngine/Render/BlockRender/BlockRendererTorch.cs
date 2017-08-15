@@ -31,7 +31,7 @@ namespace VoxelEngine.Render.BlockRender {
 
             float r = MathHelper.pixelToWorld(4);
 
-            meshData.addBox(offset, new Vector3(r, MathHelper.pixelToWorld(14), r), rotation, b, meta, this.preAllocatedUvArray);
+            meshData.addBox(offset, new Vector3(r, MathHelper.pixelToWorld(14), r), rotation, b, meta, RenderManager.TRUE_ARRAY);
         }
     }
 }

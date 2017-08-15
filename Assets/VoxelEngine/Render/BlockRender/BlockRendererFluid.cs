@@ -8,80 +8,81 @@ namespace VoxelEngine.Render.BlockRender {
 
         public BlockRendererFluid() {
             this.lookupAdjacentBlocks = true;
+            this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
             meshData.useRenderDataForCol = false;
 
             // Adjust the renderFace array.
             Block b1;
             for(int i= 0; i < 6; i++) {
                 b1 = surroundingBlocks[i];
-                renderFace[i] = (b1 != b || b1.isSolid);
+                renderFace[i] = (b1 != block || b1.isSolid);
             }
 
             // Adjusts top based on if a matching fluid is above.
-            float topHeight = (surroundingBlocks[Direction.UP_ID - 1] == b) ? 0.5f : 0.35f;
+            float topHeight = (surroundingBlocks[Direction.UP_ID - 1] == block) ? 0.5f : 0.35f;
 
             // North
             if (renderFace[0]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.NORTH, this.preAllocatedUvArray),
-                    LightHelper.NORTH);
+                    Direction.NORTH);
             }
             // East
             if (renderFace[1]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.EAST, this.preAllocatedUvArray),
-                    LightHelper.EAST);
+                    Direction.EAST);
             }
             // South
             if (renderFace[2]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.SOUTH, this.preAllocatedUvArray),
-                    LightHelper.SOUTH);
+                    Direction.SOUTH);
             }
             // West
             if (renderFace[3]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
-                    b.getUVs(meta, Direction.WEST, this.preAllocatedUvArray),
-                    LightHelper.WEST);
+                    Direction.WEST);
             }
             // Up
             if (renderFace[4]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x - 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z + 0.5f),
                     new Vector3(x + 0.5f, y + topHeight, z - 0.5f),
                     new Vector3(x - 0.5f, y + topHeight, z - 0.5f),
-                    b.getUVs(meta, Direction.UP, this.preAllocatedUvArray),
-                    LightHelper.UP);
+                    Direction.UP);
             }
             // Down
             if (renderFace[5]) {
-                meshData.addQuad(
+                meshData.addPlane(
+                    block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
-                    b.getUVs(meta, Direction.DOWN, this.preAllocatedUvArray),
-                    LightHelper.DOWN);
+                    Direction.DOWN);
             }
 
             meshData.useRenderDataForCol = true;

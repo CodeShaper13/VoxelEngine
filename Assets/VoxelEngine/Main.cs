@@ -9,6 +9,7 @@ using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.ObjData;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
 
@@ -47,6 +48,7 @@ namespace VoxelEngine {
             new EntityRegistry().registerEntities();
             Item.initBlockItems();
             new RenderManager();
+            //new ObjectData();
 
             this.commandManager = new CommandManager();
 
@@ -203,6 +205,8 @@ namespace VoxelEngine {
             //TODO tab auto complete.
         }
 
+        // TODO fix bug:
+        // This is called whenever the test field loses focus, like when escape is pressed.
         public void callbackTextWindowEnter(string text) {
             this.textWindow.onEnter(text);
         }
