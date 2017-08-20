@@ -175,7 +175,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &989603477
+--- !u!1001 &618742246
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -229,20 +229,6 @@ Prefab:
       propertyPath: containerRightOrgin
       value: 
       objectReference: {fileID: 1006681008}
-    - target: {fileID: 1605429453217060, guid: 5da602b22dd14fe49b6a146be7f14acf, type: 2}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114707821810821134, guid: 5da602b22dd14fe49b6a146be7f14acf,
-        type: 2}
-      propertyPath: dm
-      value: 
-      objectReference: {fileID: 2100000, guid: 5c0253bd379e35f4eb1d06a7d696fcf7, type: 2}
-    - target: {fileID: 114163939041654166, guid: 5da602b22dd14fe49b6a146be7f14acf,
-        type: 2}
-      propertyPath: m_Text
-      value: Clever Hands
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5da602b22dd14fe49b6a146be7f14acf, type: 2}
   m_IsPrefabParent: 0

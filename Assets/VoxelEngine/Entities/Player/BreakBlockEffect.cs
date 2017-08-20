@@ -36,9 +36,9 @@ namespace VoxelEngine.Entities.Player {
                 Block[] surroundingBlocks = new Block[6];
                 for (int i = 0; i < 6; i++) {
                     Direction d = Direction.all[i];
-                    surroundingBlocks[i] = world.getBlock(x + d.direction.x, y + d.direction.y, z + d.direction.z);
+                    surroundingBlocks[i] = world.getBlock(x + d.blockPos.x, y + d.blockPos.y, z + d.blockPos.z);
                 }
-                renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderManager.TRUE_ARRAY, surroundingBlocks);
+                renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, RenderFace.ALL, surroundingBlocks);
                 this.meshFilter.mesh = meshBuilder.getGraphicMesh();
             }
 

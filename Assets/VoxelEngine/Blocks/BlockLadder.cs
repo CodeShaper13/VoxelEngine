@@ -18,13 +18,13 @@ namespace VoxelEngine.Blocks {
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
-            if (neighborDir == Direction.yPlane[meta] && !world.getBlock(pos.move(neighborDir)).isSolid) {
+            if (neighborDir == Direction.horizontal[meta] && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }
 
         public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
-            return (clickedDirNormal.axis == EnumAxis.X || clickedDirNormal.axis == EnumAxis.Z) && !(world.getBlock(pos.move(clickedDirNormal)).isSolid);
+            return (clickedDirNormal.axis == EnumAxis.X || clickedDirNormal.axis == EnumAxis.Z) && (world.getBlock(pos.move(clickedDirNormal.getOpposite())).isSolid);
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
@@ -36,11 +36,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public static int getMetaFromDirection(Direction dir) {
-            if (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
-                return (byte)(dir.index - 1);
-            } else {
-                return 0;
-            }
+            return (dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) ? dir.index - 1 : 0;
         }
     }
 }

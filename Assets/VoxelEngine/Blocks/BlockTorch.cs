@@ -3,6 +3,7 @@ using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
+using VoxelEngine.Render.NewSys;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -15,11 +16,11 @@ namespace VoxelEngine.Blocks {
             this.setEmittedLight(15);
             this.setTransparent();
             this.setType(EnumBlockType.WOOD);
-            this.setTexture(3, 2);
+            this.setTexture(8, 0);
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
-            Direction attached = (meta == 0 ? Direction.DOWN : Direction.yPlane[meta - 1]);
+            Direction attached = (meta == 0 ? Direction.DOWN : Direction.horizontal[meta - 1]);
             if (neighborDir == attached && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
@@ -42,21 +43,14 @@ namespace VoxelEngine.Blocks {
             return new TileEntityTorch(world, x, y, z, meta);
         }
 
-        public override TexturePos getTexturePos(Direction direction, int meta) {
-            int i;
-            if (direction == Direction.UP) {
-                i = 1;
-            } else if (direction == Direction.DOWN) {
-                i = 2;
+        public override UvPlane getUvPlane(int meta, Direction direction) {
+            if(direction == Direction.UP) {
+                return new UvPlane(this.texturePos, 2, 2, 8, 8);
+            } else if(direction == Direction.DOWN) {
+                return new UvPlane(this.texturePos, 2, 12, 8, 8);
             } else {
-                i = 0;
+                return new UvPlane(this.texturePos, 12, 2, 8, 28);
             }
-            return new TexturePos(8, i);
-        }
-
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            UvHelper.cropUVs(uvs, faceRadius);
-            return uvs;
         }
 
         public static int getMetaFromDirection(Direction dir) {

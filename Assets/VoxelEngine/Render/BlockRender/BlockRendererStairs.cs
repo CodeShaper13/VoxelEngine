@@ -10,7 +10,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // Bottom.
             meshBuilder.addBox(new Vector3(x, y - 0.25f, z), new Vector3(0.5f, 0.25f, 0.5f), block, meta, RenderManager.TRUE_ARRAY);
 

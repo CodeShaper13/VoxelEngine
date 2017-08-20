@@ -512,10 +512,10 @@ GameObject:
   - component: {fileID: 114707821810821134}
   - component: {fileID: 114196713289687002}
   - component: {fileID: 114717463223247500}
+  - component: {fileID: 114973232168646844}
   - component: {fileID: 20846638505472890}
   - component: {fileID: 81354766979366770}
   - component: {fileID: 82395887600652582}
-  - component: {fileID: 114973232168646844}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -1291,7 +1291,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1632913873674836
 GameObject:
   m_ObjectHideFlags: 1
@@ -1956,7 +1956,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -3060,7 +3060,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Game Title
+  m_Text: Clever Hands
 --- !u!114 &114172482198932120
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3370,8 +3370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockMaterial: {fileID: 0}
-  itemMaterial: {fileID: 0}
-  itemAtlas: {fileID: 0}
+  textureAtlas: {fileID: 0}
   lightColorSheet: {fileID: 0}
   blockBreakEffect: {fileID: 0}
   worldPrefab: {fileID: 0}
@@ -5346,7 +5345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a95c859b3be23a4a98ca359c1538ff4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDeveloperMode: 0
   showDebugText: 0
   isPaused: 0
   worldObj: {fileID: 0}
@@ -9569,8 +9567,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 412.89996, y: 218}
-  m_SizeDelta: {x: -824.9, y: -436}
+  m_AnchoredPosition: {x: 412.89996, y: 0.25}
+  m_SizeDelta: {x: -825, y: -0.49994}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224817073261335916
 RectTransform:

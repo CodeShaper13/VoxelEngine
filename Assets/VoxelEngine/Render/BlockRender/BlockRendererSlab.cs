@@ -9,7 +9,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             if(BlockSlab.isFull(meta)) {
                 RenderManager.CUBE.renderBlock(b, meta, meshBuilder, x, y, z, renderFace, surroundingBlocks);
             } else {

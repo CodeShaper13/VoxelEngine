@@ -134,5 +134,9 @@ namespace VoxelEngine.Entities {
             this.shadowSize = size;
             this.shadowDarkness = darkness;
         }
+
+        public override string ToString() {
+            return "Entity Info:\n\tGame Object Name: " + this.name + "\n\tPosition: " + this.transform.position;
+        }
     }
 }

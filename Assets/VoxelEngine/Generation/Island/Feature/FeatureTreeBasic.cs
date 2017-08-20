@@ -51,7 +51,7 @@ namespace VoxelEngine.Generation.Island.Feature {
                     }
 
                     if (y != height) {
-                        world.setBlock(pos.x, y, pos.z, Block.wood, 1);
+                        world.setBlock(pos.x, y, pos.z, Block.wood, 1, false, false);
                     }
                 }
             }            

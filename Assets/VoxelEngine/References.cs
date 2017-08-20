@@ -9,10 +9,9 @@ namespace VoxelEngine {
 
         // Materials.
         public Material blockMaterial;
-        public Material itemMaterial;
 
         // Textures.
-        public Texture2D itemAtlas;
+        public Texture2D textureAtlas;
         public Texture2D lightColorSheet;
 
         // Other prefabs.
@@ -46,9 +45,8 @@ namespace VoxelEngine {
         /// </summary>
         public void loadResources() {
             this.blockMaterial = Resources.Load<Material>("Materials/BlockMaterial");
-            this.itemMaterial = Resources.Load<Material>("Materials/ItemMaterial");
 
-            this.itemAtlas = Resources.Load<Texture2D>("Images/itemAtlas");
+            this.textureAtlas = Resources.Load<Texture2D>("Images/textureAtlas");
             this.lightColorSheet = Resources.Load<Texture2D>("Images/light_colors");
 
             this.blockBreakEffect = Resources.Load<GameObject>("Prefabs/BreakBlockEffect");

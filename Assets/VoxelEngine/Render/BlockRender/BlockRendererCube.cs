@@ -4,15 +4,15 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public sealed /* Stops me from screwing up and extending this instead of BlockRendererPrimitive */ class BlockRendererPrimitiveCube : BlockRendererPrimitive {
+    public sealed /* Stops me from screwing up and extending this instead of BlockRendererPrimitive */ class BlockRendererCube : BlockRendererPrimitive {
 
-        public BlockRendererPrimitiveCube() {
+        public BlockRendererCube() {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // North
-            if (renderFace[0]) {
+            if ((renderFace & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
@@ -21,7 +21,7 @@ namespace VoxelEngine.Render.BlockRender {
                     Direction.NORTH);
             }
             // East
-            if (renderFace[1]) {
+            if (((renderFace >> 1) & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
@@ -30,7 +30,7 @@ namespace VoxelEngine.Render.BlockRender {
                     Direction.EAST);
             }
             // South
-            if (renderFace[2]) {
+            if (((renderFace >> 2) & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -39,7 +39,7 @@ namespace VoxelEngine.Render.BlockRender {
                     Direction.SOUTH);
             }
             // West
-            if (renderFace[3]) {
+            if (((renderFace >> 3) & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
@@ -48,16 +48,16 @@ namespace VoxelEngine.Render.BlockRender {
                     Direction.WEST);
             }
             // Up
-            if (renderFace[4]) {
+            if (((renderFace >> 4) & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
+                    new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
-                    new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     Direction.UP);
             }
-            // Down
-            if (renderFace[5]) {
+            // Down //TODO fix!
+            if (((renderFace >> 5) & 1) == 1) {
                 meshBuilder.addPlane(block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),

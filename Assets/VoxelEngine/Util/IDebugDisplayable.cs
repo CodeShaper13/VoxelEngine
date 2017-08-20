@@ -5,6 +5,9 @@
     /// </summary>
     public interface IDebugDisplayable {
 
+        /// <summary>
+        /// Draws debugging lines to represent the object in question.
+        /// </summary>
         void debugDisplay();
     }
 }

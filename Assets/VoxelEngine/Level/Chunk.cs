@@ -1,4 +1,4 @@
-﻿//#define MAX_LIGHT
+﻿#define MAX_LIGHT
 
 using Assets.VoxelEngine.Render;
 using fNbt;
@@ -188,10 +188,10 @@ namespace VoxelEngine.Level {
 
             Block currentBlock, neighborBlock;
             bool cachedIsSolid;
-            bool[] renderFace = new bool[6];
             Block[] surroundingBlocks = new Block[6];
             BlockPos dirPos;
-            int x, y, z, i, facesCulled, meta, x1, y1, z1;
+            int x, y, z, i, facesCulled, x1, y1, z1, renderFace;
+            Direction direction;
 
             // Bake blocks into mesh.
             for (x = 0; x < Chunk.SIZE; x++) {
@@ -200,51 +200,47 @@ namespace VoxelEngine.Level {
                         currentBlock = this.getBlock(x, y, z);
                         if(currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
 
-                            //Profiler.BeginSample("Looking up data");
+                            renderFace = 0;
 
                             // Find the surrounding blocks and faces to cull.
                             facesCulled = 0;
 
                             for (i = 0; i < 6; i++) {
-                                //Profiler.BeginSample("Direction Stuff");
-                                dirPos = Direction.all[i].direction;
+                                direction = Direction.all[i];
+                                dirPos = direction.blockPos;
                                 x1 = x + dirPos.x;
                                 y1 = y + dirPos.y;
                                 z1 = z + dirPos.z;
-                                //Profiler.EndSample();
                                 
-                                //Profiler.BeginSample("Lookup Neighbor");
                                 if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
                                     neighborBlock = cachedRegion.getBlock(x1, y1, z1);
                                 } else {
                                     neighborBlock = this.getBlock(x1, y1, z1);
                                 }
-                                //Profiler.EndSample();
 
-                                //Profiler.BeginSample("Lookup other data");
                                 cachedIsSolid = neighborBlock.isSolid;
-                                renderFace[i] = !cachedIsSolid;
-                                if(currentBlock.renderer.lookupAdjacentBlocks) {
+                                if(!cachedIsSolid) {
+                                    renderFace |= direction.renderMask;
+                                }
+
+                                if (currentBlock.renderer.lookupAdjacentBlocks) {
                                     surroundingBlocks[i] = neighborBlock;
                                 }
+
                                 if (cachedIsSolid) {
                                     facesCulled++;
                                 }                                
-                                //Profiler.EndSample();
                             }
-                            //Profiler.EndSample();
 
                             // If at least one face is visible, render the block.
                             if(facesCulled != 6) {
-                                meta = this.getMeta(x, y, z);
-
                                 // Populate the meshData with light levels.
                                 meshBuilder.lightLevels[0] = this.getLight(x, y, z);
                                 
                                 // If the renderer requests it, pass the light levels into the meshBuilder
                                 if(currentBlock.renderer.lookupAdjacentLight == true) {
                                     for (i = 0; i < 6; i++) {
-                                        dirPos = Direction.all[i].direction;
+                                        dirPos = Direction.all[i].blockPos;
                                         x1 = x + dirPos.x;
                                         y1 = y + dirPos.y;
                                         z1 = z + dirPos.z;
@@ -257,9 +253,8 @@ namespace VoxelEngine.Level {
                                         }
                                     }
                                 }
-
                                 // Render the block.
-                                currentBlock.renderer.renderBlock(currentBlock, meta, meshBuilder, x, y, z, renderFace, surroundingBlocks);
+                                currentBlock.renderer.renderBlock(currentBlock, this.getMeta(x, y, z), meshBuilder, x, y, z, renderFace, surroundingBlocks);
                             }
                         }
                     }

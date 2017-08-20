@@ -15,7 +15,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public PieceRoom(NbtCompound tag) : base(tag) { }
 
         public PieceRoom(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
-            : base(shaft, hallwayPoint + (hallwayDir.direction * 8)) {
+            : base(shaft, hallwayPoint + (hallwayDir.blockPos * 8)) {
 
             piecesFromCenter += 1;
             if (this.func(piecesFromCenter)) {

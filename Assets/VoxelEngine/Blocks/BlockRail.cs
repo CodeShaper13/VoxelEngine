@@ -10,7 +10,6 @@ namespace VoxelEngine.Blocks {
     public class BlockRail : Block {
 
         public BlockRail(byte id) : base(id) {
-            this.setTexture(0, 13);
             this.setTransparent();
             this.setRenderer(RenderManager.RAIL);
             this.setContainerTransfrom(new MutableTransform(Vector3.zero, Quaternion.Euler(-90, 0, 0), new Vector3(0.2f, 0.2f, 0.2f)));
@@ -49,20 +48,16 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
-            return new TexturePos((meta >= 2 && meta <= 5) ? 1 : 0, 13);
-        }
-
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            if(meta == 0) {
-                return UvHelper.rotateUVs(uvs, 90);
+            if(meta >= 2 && meta <= 5) {
+                return new TexturePos(1, 13);
+            } else {
+                return new TexturePos(0, 13, meta == 0 ? 0 : 90);
             }
-            return uvs;
         }
 
         private int getMetaForTurn(World world, BlockPos pos, int inMeta) {
-            foreach (Direction dir in Direction.yPlane) {
+            foreach (Direction dir in Direction.horizontal) {
                 if (world.getBlock(pos.move(dir)) == Block.rail && world.getBlock(pos.move(dir.getClockwise())) == Block.rail) {
-                    Debug.Log(dir.index + 1);
                     return dir.index + 1;
                 }
             }

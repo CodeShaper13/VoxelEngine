@@ -47,7 +47,7 @@ namespace VoxelEngine.Render.Items {
             // Add the side pixels
             int pixelStartX = textPos.x * 32;
             int pixelStartY = textPos.y * 32;
-            Texture2D atlas = References.list.itemAtlas;
+            Texture2D atlas = References.list.textureAtlas;
             Vector2[] pixelUvs = new Vector2[4];
             float pixelOrginX, pixelOrginY;
 

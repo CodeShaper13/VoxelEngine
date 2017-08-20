@@ -27,7 +27,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public PieceShaft(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter, int flag)
-            : base(shaft, hallwayPoint + (hallwayDir.direction * 4)) {
+            : base(shaft, hallwayPoint + (hallwayDir.blockPos * 4)) {
 
             this.calculateBounds();
 
@@ -84,8 +84,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override void carvePiece(Chunk chunk, System.Random rnd) {
             BlockPos p1 = this.getPosMin();
             BlockPos p2 = this.getPosMax();
-            Direction torchDir = Direction.yPlane[rnd.Next(0, 4)];
-            BlockPos torchPos = this.orgin + (torchDir.direction * 4);
+            Direction torchDir = Direction.horizontal[rnd.Next(0, 4)];
+            BlockPos torchPos = this.orgin + (torchDir.blockPos * 4);
             int offsetX, offsetY, offsetZ;
             Block block;
             int meta = 0;

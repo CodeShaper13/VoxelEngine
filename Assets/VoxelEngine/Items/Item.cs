@@ -14,33 +14,33 @@ namespace VoxelEngine.Items {
 
         public static Item[] ITEM_LIST = new Item[512];
 
-        public static Item pebble = new ItemThrowable(256).setName("Throwing Rock").setTexture(1, 0);
-        public static Item coal = new Item(257).setName("Coal Lump").setTexture(1, 0);
-        public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 1);
-        public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 2);
-        public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 3);
+        public static Item pebble = new ItemThrowable(256).setName("Rock").setTexture(11, 2);
+        public static Item coal = new Item(257).setName("Coal Lump").setTexture(12, 0);
+        public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 0);
+        public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 0);
+        public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 0);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
-        public static Item pickaxe = new ItemTool(262, 2f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(2, 0);
-        public static Item shovel = new ItemTool(263, 2f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(3, 0);
-        public static Item axe = new ItemTool(264, 2f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(5, 0);
-        public static Item knife = new ItemSword(265, 2).setName("Knife").setTexture(4, 0);
+        public static Item pickaxe = new ItemTool(262, 2f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(13, 0);
+        public static Item shovel = new ItemTool(263, 2f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(14, 0);
+        public static Item axe = new ItemTool(264, 2f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(15, 0);
+        public static Item knife = new ItemSword(265, 2).setName("Knife").setTexture(0, 0);
         public static Item pistol; // 266
         public static Item shotgun; // 267
         public static Item rifle; // 268
-        public static Item glassShard = new Item(269).setName("Glass Shard").setTexture(1, 1);
-        public static Item flowerItem = new Item(270).setName("Flower").setTexture(1, 3);
-        public static Item bone = new Item(271).setName("Bone").setTexture(0, 6);
-        public static Item skull = new Item(272).setName("Skull").setTexture(1, 6);
-        public static Item rawFish = new Item(273).setName("Raw Fish").setTexture(2, 6);
+        public static Item glassShard = new Item(269).setName("Glass Shard").setTexture(12, 1);
+        public static Item flowerItem = new Item(270).setName("Flower").setTexture(12, 3);
+        public static Item bone = new Item(271).setName("Bone").setTexture(11, 6);
+        public static Item skull = new Item(272).setName("Skull").setTexture(12, 6);
+        public static Item rawFish = new Item(273).setName("Raw Fish").setTexture(13, 6);
         public static Item cookedFish = new ItemFood(274, 10, 1).setName("Cooked Fish").setTexture(0, 0);
-        public static Item corn = new ItemFood(275, 25, 5).setName("Corn").setTexture(2, 3);
-        public static Item flesh = new ItemFood(276, 25, 5).setName("Flesh").setTexture(2, 2);
+        public static Item corn = new ItemFood(275, 25, 5).setName("Corn").setTexture(13, 3);
+        public static Item flesh = new ItemFood(276, 25, 5).setName("Flesh").setTexture(0, 0);
         public static Item mushroom = new ItemFood(277, 25, 5).setName("Mushroom").setTexture(0, 0);
         public static Item stew = new ItemFood(278, 25, 5).setName("Stew").setTexture(0, 0);
-        public static Item carrot = new ItemFood(279, 25, 5).setName("Carrot").setTexture(2, 1);
-        public static Item bucket = new Item(280).setName("Bucket").setTexture(1, 2);
-        public static Item fishingRod = new Item(281).setName("Fishing Pole").setTexture(1, 5);
-        public static Item magnifyingGlass = new ItemMagnifyingGlass(282).setName("Magnifying Glass").setTexture(1, 4);
+        public static Item carrot = new ItemFood(279, 25, 5).setName("Carrot").setTexture(13, 1);
+        public static Item bucket = new Item(280).setName("Bucket").setTexture(12, 2);
+        public static Item fishingRod = new Item(281).setName("Fishing Pole").setTexture(12, 5);
+        public static Item magnifyingGlass = new ItemMagnifyingGlass(282).setName("Magnifying Glass").setTexture(12, 4);
         public static Item minecart;
         public static Item topHat;
         public static Item goggles;

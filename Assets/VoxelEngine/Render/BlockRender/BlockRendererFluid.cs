@@ -11,9 +11,10 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block block, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshData, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             meshData.useRenderDataForCol = false;
 
+            /*
             // Adjust the renderFace array.
             Block b1;
             for(int i= 0; i < 6; i++) {
@@ -84,6 +85,7 @@ namespace VoxelEngine.Render.BlockRender {
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     Direction.DOWN);
             }
+            */
 
             meshData.useRenderDataForCol = true;
         }

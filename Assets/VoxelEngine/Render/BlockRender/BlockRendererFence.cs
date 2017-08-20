@@ -11,7 +11,7 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentBlocks = true;
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // Post
             float postRadius = MathHelper.pixelToWorld(6);
             meshData.addBox(

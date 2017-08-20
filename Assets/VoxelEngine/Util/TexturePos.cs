@@ -9,10 +9,18 @@
 
         public int x;
         public int y;
+        public int rotation;
 
         public TexturePos(int x, int y) {
             this.x = x;
             this.y = y;
+            this.rotation = 0;
+        }
+
+        public TexturePos(int x, int y, int rotation) {
+            this.x = x;
+            this.y = y;
+            this.rotation = rotation;
         }
     }
 }

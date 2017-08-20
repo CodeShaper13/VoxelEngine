@@ -14,7 +14,7 @@ namespace VoxelEngine.Render.BlockRender {
         /// </summary>
         public bool lookupAdjacentBlocks = false;
 
-        public abstract void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks);
+        public abstract void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks);
 
         public BlockRenderer setRenderInWorld(bool flag) {
             this.bakeIntoChunks = flag;

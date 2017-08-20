@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
@@ -26,6 +25,12 @@ namespace VoxelEngine.Util {
         public int y;
         public int z;
 
+        public BlockPos(int i) {
+            this.x = i;
+            this.y = i;
+            this.z = i;
+        }
+
         public BlockPos(int x, int y, int z) {
             this.x = x;
             this.y = y;
@@ -48,8 +53,8 @@ namespace VoxelEngine.Util {
         /// <summary>
         /// Returns a new block pos moved in the passes direction.
         /// </summary>
-        public BlockPos move(Direction dir) {
-            return new BlockPos(this.x + dir.direction.x, this.y + dir.direction.y, this.z + dir.direction.z);
+        public BlockPos move(Direction direction) {
+            return new BlockPos(this.x + direction.blockPos.x, this.y + direction.blockPos.y, this.z + direction.blockPos.z);
         }
 
         public override string ToString() {
@@ -74,10 +79,7 @@ namespace VoxelEngine.Util {
         /// Adds the passed values to the block pos.
         /// </summary>
         public BlockPos add(int x, int y, int z) {
-            this.x += x;
-            this.y += y;
-            this.z += z;
-            return this;
+            return new BlockPos(this.x + x, this.y + y, this.z + z);
         }
 
         public static BlockPos operator +(BlockPos b, BlockPos b1) {
@@ -123,6 +125,13 @@ namespace VoxelEngine.Util {
             return new Vector3(this.x, this.y, this.z);
         }
 
+        /// <summary>
+        /// Rotates a BlockPos around a pivot and returns it.
+        /// </summary>
+        public BlockPos rotateAround(BlockPos pivot, Quaternion angle) { // TODO optimize!
+            return new BlockPos(MathHelper.rotateVecAround(this.toVector(), pivot.toVector(), angle));
+        }
+
         public static BlockPos fromRaycastHit(RaycastHit hit) {
             Vector3 vec = hit.point + ((hit.normal * -1f) / 100);
             return BlockPos.fromVector3(vec);
@@ -148,6 +157,14 @@ namespace VoxelEngine.Util {
             int y = Mathf.RoundToInt(vec.y);
             int z = Mathf.RoundToInt(vec.z);
             return new BlockPos(x, y, z);
+        }
+
+        public Vector3 func() {
+            return new Vector3((this.x / 32f) - 0.5f, (this.y / 32f) - 0.5f, (this.z / 32f) - 0.5f);
+        }
+
+        public bool isZero() {
+            return this.x == 0 && this.y == 0 && this.z == 0;
         }
     }
 }

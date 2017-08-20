@@ -1,37 +1,41 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
-using VoxelEngine.Util;
+﻿using VoxelEngine.Blocks;
 
 namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererTorch : BlockRendererPrimitive {
 
-        private const float ROT = 15.0f;
-        public const float SHIFT = 0.4375f;
+        private const int ROTATION = 15;
+        public const int OFFSET = 12;
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
-            Vector3 offset;
-            Quaternion rotation;
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
+            int offsetX = 0;
+            int offsetZ = 0;
+            int rotX = 0;
+            int rotY = 0;
+            int rotZ = 0;
+
             if (meta == 1) { // North
-                offset = new Vector3(x, y, z + SHIFT);
-                rotation = Quaternion.Euler(-ROT, 0, 0);
+                offsetZ = OFFSET;
+                rotX = -ROTATION;
             } else if (meta == 2) { // East
-                offset = new Vector3(x + SHIFT, y, z);
-                rotation = Quaternion.Euler(0, 0, ROT);
+                offsetX = OFFSET;
+                rotZ = ROTATION;
             } else if (meta == 3) { // South
-                offset = new Vector3(x, y, z - SHIFT);
-                rotation = Quaternion.Euler(ROT, 0, 0);
+                offsetZ = -OFFSET;
+                rotX = ROTATION;
             } else if (meta == 4) { // West
-                offset = new Vector3(x - SHIFT, y, z);
-                rotation = Quaternion.Euler(0, 0, -ROT);
-            } else { // 0, On floor
-                offset = new Vector3(x, y - 0.1f, z);
-                rotation = Quaternion.identity;
+                offsetX = -OFFSET;
+                rotZ = -ROTATION;
             }
 
-            float r = MathHelper.pixelToWorld(4);
-
-            meshData.addBox(offset, new Vector3(r, MathHelper.pixelToWorld(14), r), rotation, b, meta, RenderManager.TRUE_ARRAY);
+            meshBuilder.addCube(
+                block, meta,
+                new CubeComponent(
+                    12, 0, 12,
+                    20, 28, 20,
+                    rotX, rotY, rotZ,
+                    offsetX, 0, offsetZ),
+                renderFace | RenderFace.YU, x, y, z);
         }
     }
 }

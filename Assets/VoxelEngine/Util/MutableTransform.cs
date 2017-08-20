@@ -4,6 +4,7 @@ namespace VoxelEngine.Util {
 
     /// <summary>
     /// A struct with a combined position, rotation and scale for a GameObject.
+    /// Much like Unity's transfrom but not a component.
     /// </summary>
     public struct MutableTransform {
 

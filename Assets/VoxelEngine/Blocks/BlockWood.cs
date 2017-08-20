@@ -2,11 +2,13 @@
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
+using VoxelEngine.Render;
+using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockWood : Block {
+    public class BlockWood : Block, IHasBlockRotation {
 
         public BlockWood(int id) : base(id) {
             this.setStatesUsed(3);
@@ -14,6 +16,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
+            /*
             TexturePos pos = new TexturePos(1, 1);
             if(meta == 0) { // X
                 if (direction == Direction.EAST || direction == Direction.WEST) {
@@ -31,9 +34,16 @@ namespace VoxelEngine.Blocks {
                 pos = new TexturePos(2, 1);
             }
             return pos;
+            */
+            if(direction.axis == EnumAxis.Y) {
+                return new TexturePos(2, 1);
+            } else {
+                return new TexturePos(1, 1);
+            }
         }
 
         public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            /*
             // Correct the texture rotation.
             if (meta == 0 && direction.axis == EnumAxis.Z) {
                 UvHelper.rotateUVs(uvs, 90);
@@ -44,6 +54,7 @@ namespace VoxelEngine.Blocks {
                     UvHelper.rotateUVs(uvs, 90);
                 }
             }
+            */
                        
             return uvs;
         }
@@ -54,6 +65,18 @@ namespace VoxelEngine.Blocks {
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 1, brokenWith);
+        }
+
+        public ComponentRotation getRotation(int meta) {
+            if(meta == 0) { // X
+                return new ComponentRotation(0, 0, 90);
+            }
+            else if(meta == 1) { // Y
+                return new ComponentRotation(0, 0, 0);
+            }
+            else { // Z
+                return new ComponentRotation(90, 0, 0);
+            }
         }
     }
 }

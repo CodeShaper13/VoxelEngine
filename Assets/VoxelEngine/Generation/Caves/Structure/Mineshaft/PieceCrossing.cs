@@ -11,7 +11,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public PieceCrossing(NbtCompound tag) : base(tag) { }
 
         public PieceCrossing(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
-            : base(shaft, hallwayPoint + (hallwayDir.direction * 4)) {
+            : base(shaft, hallwayPoint + (hallwayDir.blockPos * 4)) {
             
             piecesFromCenter += 1;
             if (this.func(piecesFromCenter)) {

@@ -79,7 +79,7 @@ namespace VoxelEngine.Entities {
 
             MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
             meshBuilder.setMaxLight();
-            this.block.renderer.renderBlock(this.block, this.meta, meshBuilder, 0, 0, 0, RenderManager.TRUE_ARRAY, RenderManager.AIR_ARRAY);
+            this.block.renderer.renderBlock(this.block, this.meta, meshBuilder, 0, 0, 0, RenderFace.ALL, RenderManager.AIR_ARRAY);
             this.GetComponent<MeshFilter>().mesh = meshBuilder.getGraphicMesh();
         }
 

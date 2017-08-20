@@ -27,7 +27,7 @@ namespace VoxelEngine.Blocks {
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
             if(direction == Direction.UP || direction == Direction.all[meta].getOpposite()) {
-                return new TexturePos(6, 7);
+                return new TexturePos(6, 6);
             } else {
                 return this.baseBlock.getTexturePos(direction, meta);
             }
@@ -49,6 +49,9 @@ namespace VoxelEngine.Blocks {
         }
 
         public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
+            if(direction == Direction.UP) {
+
+            }
             //UvHelper.cropUVs(uvs, faceRadius);
             //UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
             return uvs;

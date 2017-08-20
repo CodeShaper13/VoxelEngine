@@ -4,31 +4,28 @@ using VoxelEngine.Items;
 
 namespace VoxelEngine.Render.Items {
 
-    // TODO cull faces on flat block
     public class RenderItemBlock : IRenderItem {
 
-        private bool[] cullFlatArray;
         private Block[] airArray;
         private int[] maxLightLevels;
 
         public RenderItemBlock() {
-            this.cullFlatArray = new bool[6] { true, true, true, false, true, false };
             this.airArray = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
         }
 
         public Mesh renderItemFlat(Item item, int meta) {
-            return this.renderBlock(item, meta, this.cullFlatArray);
+            return this.renderBlock(item, meta, RenderFace.N | RenderFace.E | RenderFace.S | RenderFace.U);
         }
 
         public Mesh renderItem3d(Item item, int meta) {
-            return this.renderBlock(item, meta, RenderManager.TRUE_ARRAY);
+            return this.renderBlock(item, meta, RenderFace.ALL);
         }
 
-        public Mesh renderBlock(Item item, int meta, bool[] cullArray) {
+        public Mesh renderBlock(Item item, int meta, int renderFace) {
             Block block = Block.BLOCK_LIST[item.id];
             MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
             meshBuilder.setMaxLight();
-            block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, cullArray, this.airArray);
+            block.renderer.renderBlock(block, meta, meshBuilder, 0, 0, 0, renderFace, this.airArray);
             return meshBuilder.getGraphicMesh();
         }
     }

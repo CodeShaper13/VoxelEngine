@@ -61,6 +61,14 @@ namespace VoxelEngine.Entities {
             this.setShadow(0.75f, 0.6f);
         
             this.chunkLoader = this.world.generator.getChunkLoader(this);
+
+            /*
+            RenderCube cube = new RenderCube(new BlockPos(0, 0, 0), new BlockPos(32, 32, 32));
+            BlockPos npn = new BlockPos(cube.to.x, cube.from.y, cube.to.z);
+            print(npn);
+            print(npn.func());
+            print(npn.func() + new Vector3(2, 4, 8));
+            */    
         }
 
         protected override void onEntityUpdate() {
@@ -252,14 +260,14 @@ namespace VoxelEngine.Entities {
         public void setupFirstTimePlayer() {
             if(true) {
                 this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 32);
-                this.dataHotbar.items[1] = new ItemStack(Block.plankSlab, 0, 32);
-                this.dataHotbar.items[2] = new ItemStack(Block.plank, 0, 32);
+                this.dataHotbar.items[1] = new ItemStack(Block.cobblestone, 0, 32);
+                this.dataHotbar.items[2] = new ItemStack(Block.wire, 0, 32);
                 this.dataHotbar.items[3] = new ItemStack(Item.axe, 0, 1);
-                this.dataHotbar.items[4] = new ItemStack(Block.roofWooden, 0, 32);
-                this.dataHotbar.items[5] = new ItemStack(Block.brick, 0, 25);
-                this.dataHotbar.items[6] = new ItemStack(Block.cobblestone, 0, 32);
-                this.dataHotbar.items[7] = new ItemStack(Block.cobblestoneSlab, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Block.cobblestoneStairs, 0, 32);
+                this.dataHotbar.items[4] = new ItemStack(Block.wood, 0, 32);
+                this.dataHotbar.items[5] = new ItemStack(Block.ladder, 0, 25);
+                this.dataHotbar.items[6] = new ItemStack(Block.logicNot, 0, 32);
+                this.dataHotbar.items[7] = new ItemStack(Item.carrot, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Item.coal, 0, 32);
             } else {
                 this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
                 this.dataHotbar.items[1] = new ItemStack(Item.shovel);

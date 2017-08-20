@@ -195,14 +195,14 @@ namespace VoxelEngine.Level {
         /// <summary>
         /// Sets a block.  Using a meta of -1 will not change the meta.
         /// </summary>
-        public void setBlock(BlockPos pos, Block block, int meta = -1, bool updateNeighbors = true, bool updateLighting = true) {
-            this.setBlock(pos.x, pos.y, pos.z, block, meta, updateNeighbors, updateLighting);
+        public void setBlock(BlockPos pos, Block newblock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true, bool dirtyNeighbors = true) {
+            this.setBlock(pos.x, pos.y, pos.z, newblock, newMeta, updateNeighbors, updateLighting, dirtyNeighbors);
         }
 
         /// <summary>
-        /// Sets a block.  Using a meta of -1 will not change the meta.
+        /// Sets a block.  Passing null for new block will not change the block.  Using a meta of -1 will not change the meta.
         /// </summary>
-        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true) {
+        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true, bool dirtyNeighbors = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 // Position of the setBlock event within the chunk.
@@ -212,18 +212,22 @@ namespace VoxelEngine.Level {
 
                 BlockPos newBlockWorldPos = new BlockPos(x, y, z);
 
-                Block oldBlock = chunk.getBlock(localChunkX, localChunkY, localChunkZ);
-                int oldBlockMeta = chunk.getMeta(localChunkX, localChunkY, localChunkZ);
-                oldBlock.onDestroy(this, newBlockWorldPos, oldBlockMeta);
+                if(newBlock != null) {
+                    Block oldBlock = chunk.getBlock(localChunkX, localChunkY, localChunkZ);
+                    int oldBlockMeta = chunk.getMeta(localChunkX, localChunkY, localChunkZ);
+                    oldBlock.onDestroy(this, newBlockWorldPos, oldBlockMeta);
 
-                chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
+                    chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
+                }
 
                 // Set meta if it's specified.  -1 means don't change.
-                if(newMeta != -1) {
+                if (newMeta != -1) {
                     chunk.setMeta(localChunkX, localChunkY, localChunkZ, newMeta);
                 }
 
-                newBlock.onPlace(this, newBlockWorldPos, (newMeta == -1 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta));
+                if(newBlock != null) {
+                    newBlock.onPlace(this, newBlockWorldPos, (newMeta == -1 ? chunk.getMeta(localChunkX, localChunkY, localChunkZ) : newMeta));
+                }
 
                 // Update surrounding blocks.
                 if (updateNeighbors) {

@@ -6,6 +6,7 @@ using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Render.BlockRender;
+using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -34,7 +35,7 @@ namespace VoxelEngine.Blocks {
         public static Block cobblestoneStairs = new BlockStairs(14, Block.cobblestone);
         public static Block mushroom = new BlockMushroom(15, 4).setName("Mushroom");
         public static Block chest = new BlockChest(16).setName("Chest").setMineTime(2f);
-        public static Block lantern = new BlockLantern(17).setName("Lanturn");
+        // 17
         public static Block torch = new BlockTorch(18).setName("Torch").setMineTime(0.5f);
         public static Block ladder = new BlockLadder(19).setName("Ladder").setMineTime(0.5f).setType(EnumBlockType.WOOD);
         public static Block fence = new BlockFence(20).setName("Fence").setMineTime(1.25f).setType(EnumBlockType.WOOD);
@@ -42,7 +43,7 @@ namespace VoxelEngine.Blocks {
         public static Block plank = new Block(22).setName("Wood Plank").setTexture(5, 0).setType(EnumBlockType.WOOD).setMineTime(0.75f);
         public static Block plankSlab = new BlockSlab(23, Block.plank);
         public static Block plankStairs = new BlockStairs(24, Block.plank);
-        public static Block brick = new Block(25).setName("Brick").setTexture(5, 4).setType(EnumBlockType.STONE).setMineTime(3f);
+        public static Block brick = new Block(25).setName("Brick").setTexture(5, 1).setType(EnumBlockType.STONE).setMineTime(3f);
         public static Block brickSlab = new BlockSlab(26, Block.brick);
         public static Block brickStair = new BlockStairs(27, Block.brick);
         public static Block wood = new BlockWood(28).setName("Log").setMineTime(2);
@@ -50,7 +51,7 @@ namespace VoxelEngine.Blocks {
         // 30
         public static Block roofWooden = new BlockRoof(31, Block.plank);
         //public static Block roofSlab = new BlockSlab(32, Block.roof);
-        //public static Block roodStair = new BlockStairs(33, Block.roof);
+        public static Block bookcase = new BlockBookcase(33).setName("Bookcase");
         public static Block glass = new Block(34).setName("Glass").setTransparent().setTexture(3, 1);
         public static Block rail = new BlockRail(35).setName("Rail").setMineTime(0.15f);
         public static Block door; // 36
@@ -58,6 +59,25 @@ namespace VoxelEngine.Blocks {
         public static Block bed = new BlockBed(38).setName("Bed");
         public static Block cornCrop = new BlockCrop(39, Item.corn, 3, 5, 7).setName("Corn");
         public static Block carrotCrop = new BlockCrop(40, Item.carrot, 2, 4, 3).setName("Carrots");
+        public static Block wire = new BlockWire(43).setName("Wire");
+        public static Block piston;
+        public static Block pistonHead;
+        public static Block lever;
+        public static Block button;
+        public static Block dial;
+        public static Block gauge;
+        public static Block lanternOn = new BlockLantern(50).setName("Lanturn").setTexture(5, 4).setEmittedLight(15);
+        public static Block lanternOff = new BlockLantern(51).setName("Lanturn").setTexture(5, 5);
+        public static Block logicAnd;
+        public static Block logicOr;
+        public static Block logicNot = new BlockLogicNot(54).setName("Logic NOT");
+        public static Block diode;
+        public static Block looker;
+        public static Block updateChecker;
+        public static Block blockPlacer;
+        public static Block blockBreaker;
+        public static Block memorySwitch;
+
 
         [Obsolete("Remember to update the placeholder with the correct block!")]
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(31, 31);
@@ -146,8 +166,22 @@ namespace VoxelEngine.Blocks {
             return this.texturePos;
         }
 
+        [Obsolete("Use getUvPlane() instead!")]
         public virtual Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
             return uvs;
+        }
+
+        public virtual UvPlane getUvPlane(int meta, Direction direction) {
+            TexturePos pos = this.getTexturePos(direction, meta);
+            return new UvPlane(pos, 0, 0, 32, 32);
+        }
+
+        public virtual string getAsDebugText(int meta) {
+            return this.getName(meta) + ":" + meta;
+        }
+
+        public virtual bool acceptsWire(Direction directionOfWire, int meta) {
+            return false;
         }
 
         /// <summary>

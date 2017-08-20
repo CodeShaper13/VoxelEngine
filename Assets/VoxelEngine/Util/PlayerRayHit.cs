@@ -46,7 +46,7 @@ namespace VoxelEngine.Util {
             if(this.hitBlock()) {
                 Vector3 normal = this.unityRaycastHit.normal;
                 foreach (Direction direction in Direction.all) {
-                    if (normal == direction.direction.toVector()) {
+                    if (normal == direction.blockPos.toVector()) {
                         return direction;
                     }
                 }

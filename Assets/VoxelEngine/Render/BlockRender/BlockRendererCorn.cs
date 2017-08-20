@@ -6,7 +6,7 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererCorn : BlockRendererPrimitive {
 
-        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             this.addFace(block, meta, meshBuilder, new Vector3(x - 0.5f, y - 0.5f, z - 0.5f), new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
             this.addFace(block, meta, meshBuilder, new Vector3(x + 0.5f, y - 0.5f, z + 0.5f), new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
             this.addFace(block, meta, meshBuilder, new Vector3(x + 0.5f, y - 0.5f, z - 0.5f), new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));

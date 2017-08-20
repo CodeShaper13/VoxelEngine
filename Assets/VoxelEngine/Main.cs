@@ -165,12 +165,13 @@ namespace VoxelEngine {
         public string getDebugText() {
             StringBuilder s = new StringBuilder();
             s.Append("FPS: " + this.fpsCounter.currentFps);
-            s.Append("\nPlayer Position: " + this.transform.position.ToString());
-            s.Append("\nPlayer Rotation: " + this.transform.eulerAngles.ToString());
+            s.Append("\nPlayer Position: " + this.player.transform.position.ToString());
+            s.Append("\nPlayer Rotation: " + this.player.transform.eulerAngles.ToString());
             BlockPos p = this.player.posLookingAt;
             int meta = this.worldObj.getMeta(p);
-            s.Append("\nLooking At: " + this.worldObj.getBlock(p).getName(meta) + ":" + meta + " " + p.ToString());
-            s.Append("\nLooking at Light: " + this.worldObj.getLight(p.x, p.y, p.z));
+            s.Append("\nLooking At Light: " + this.worldObj.getLight(p.x, p.y, p.z));
+            s.Append("\nLooking At Pos:   " + p.ToString());
+            s.Append("\nLooking At State: " + this.worldObj.getBlock(p).getAsDebugText(meta));
             s.Append("\nPress F3 to toggle debug info");
             return s.ToString();
         }

@@ -1,20 +1,25 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
-using VoxelEngine.Util;
+﻿using VoxelEngine.Blocks;
+using VoxelEngine.Render.NewSys;
 
 namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererRail : BlockRendererPrimitive {
 
-        public override void renderBlock(Block block, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
-            float f = 0.425f;
-            meshData.addPlane(
+        public BlockRendererRail() {
+            this.lookupAdjacentBlocks = true;
+            this.lookupAdjacentLight = true;
+        }
+
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
+            meshBuilder.addCube(
                 block, meta,
-                new Vector3(x - 0.5f, y - f, z + 0.5f),
-                new Vector3(x + 0.5f, y - f, z + 0.5f),
-                new Vector3(x + 0.5f, y - f, z - 0.5f),
-                new Vector3(x - 0.5f, y - f, z - 0.5f),
-                Direction.NONE);
+                new CubeComponent(
+                    0, 1, 0,
+                    32, 1, 32),
+                RenderFace.U,
+                x, y, z);
+
+            return;
         }
     }
 }

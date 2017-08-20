@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using VoxelEngine.Blocks;
 using VoxelEngine.Util;
+using VoxelEngine.Render.NewSys;
 
 namespace VoxelEngine.Render {
 
@@ -64,7 +65,7 @@ namespace VoxelEngine.Render {
         public void addUv(Vector2 uv, int lightSampleDirection) {
             this.uv.Add(uv);
 
-            float i = LightHelper.PIXEL_SIZE * lightSampleDirection;
+            float i = LightHelper.PIXEL_SIZE * this.lightLevels[lightSampleDirection];
             Vector2 v;
             switch (this.internalLightUvCount) {
                 case 0: v = new Vector2(i, i); break;
@@ -134,13 +135,9 @@ namespace VoxelEngine.Render {
         /// Adds a one sided plane.  Warning, block.applyUvAlterations are called with Vector3.zero for faceRadius and faceOffset.
         /// </summary>
         public void addPlane(Block block, int meta, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Direction direction) {
-            this.addQuad(v1, v2, v3, v4,
-                block.applyUvAlterations(
-                    this.generateUVsFromTP(block.getTexturePos(direction, meta)),
-                    meta,
-                    direction,
-                    Vector2.zero, // TODO
-                    Vector2.zero), // TODO  Unable to compute?
+            this.addQuad(
+                v1, v2, v3, v4,
+                block.getUvPlane(meta, direction).getMeshUvs(this.allocatedUvArray),
                 direction.index);
         }
         
@@ -211,7 +208,7 @@ namespace VoxelEngine.Render {
             }
             // +Y/Up face.
             if (renderFace[4]) {
-                this.addQuad(npp, ppp, ppn, npn,
+                this.addQuad(npn, npp, ppp, ppn,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.UP, meta)),
                         meta,
@@ -363,7 +360,111 @@ namespace VoxelEngine.Render {
             this.allocatedUvArray[1] = new Vector2(x, y + TexturePos.BLOCK_SIZE);
             this.allocatedUvArray[2] = new Vector2(x + TexturePos.BLOCK_SIZE, y + TexturePos.BLOCK_SIZE);
             this.allocatedUvArray[3] = new Vector2(x + TexturePos.BLOCK_SIZE, y);
+            if (tilePos.rotation != 0) {
+                UvHelper.rotateUVs(this.allocatedUvArray, tilePos.rotation);
+            }
             return this.allocatedUvArray;
+        }
+
+        public void addCube(Block block, int meta, CubeComponent cube, int renderFace, int worldX, int worldY, int worldZ) {
+            // Lower, uv order
+            BlockPos ppp = cube.from;
+            BlockPos ppn = new BlockPos(cube.from.x, cube.from.y, cube.to.z);
+            BlockPos npn = new BlockPos(cube.to.x, cube.from.y, cube.to.z);
+            BlockPos npp = new BlockPos(cube.to.x, cube.from.y, cube.from.z);
+
+            // Upper
+            BlockPos pnp = new BlockPos(cube.from.x, cube.to.y, cube.from.z);
+            BlockPos pnn = new BlockPos(cube.from.x, cube.to.y, cube.to.z);
+            BlockPos nnn = cube.to;
+            BlockPos nnp = new BlockPos(cube.to.x, cube.to.y, cube.from.z);
+
+            if(!cube.rotation.isZero()) {
+                BlockPos pivot = new BlockPos(16);
+                Quaternion angle = cube.rotation.getAngle();
+                ppp = ppp.rotateAround(pivot, angle);
+                ppn = ppn.rotateAround(pivot, angle);
+                npn = npn.rotateAround(pivot, angle);
+                npp = npp.rotateAround(pivot, angle);
+                pnp = pnp.rotateAround(pivot, angle);
+                pnn = pnn.rotateAround(pivot, angle);
+                nnn = nnn.rotateAround(pivot, angle);
+                nnp = nnp.rotateAround(pivot, angle);
+            }
+
+            if(!cube.offset.isZero()) {
+                ppp += cube.offset;
+                ppn += cube.offset;
+                npn += cube.offset;
+                npp += cube.offset;
+                pnp += cube.offset;
+                pnn += cube.offset;
+                nnn += cube.offset;
+                nnp += cube.offset;
+            }
+
+            Vector3 worldPos = new Vector3(worldX, worldY, worldZ);
+
+            // North +X
+            if ((renderFace & 1) == 1) {
+                this.addQuad(
+                    pnp.func() + worldPos,
+                    ppp.func() + worldPos,
+                    npp.func() + worldPos,
+                    nnp.func() + worldPos,
+                    block.getUvPlane(meta, Direction.NORTH).getMeshUvs(this.allocatedUvArray),
+                    cube.from.x > 32 ? LightHelper.NORTH : LightHelper.SELF);
+            }
+            // East +Z
+            if (((renderFace >> 1) & 1) == 1) {
+                this.addQuad(
+                    pnn.func() + worldPos,
+                    ppn.func() + worldPos,
+                    ppp.func() + worldPos,
+                    pnp.func() + worldPos,
+                    block.getUvPlane(meta, Direction.EAST).getMeshUvs(this.allocatedUvArray),
+                    cube.from.z > 32 ? LightHelper.EAST : LightHelper.SELF);
+            }
+            // South -Z
+            if (((renderFace >> 2) & 1) == 1) {
+                this.addQuad(
+                    nnn.func() + worldPos,
+                    npn.func() + worldPos,
+                    ppn.func() + worldPos,
+                    pnn.func() + worldPos,
+                    block.getUvPlane(meta, Direction.SOUTH).getMeshUvs(this.allocatedUvArray),
+                    cube.to.x < 0 ? LightHelper.SOUTH : LightHelper.SELF);
+            }
+            // West -X
+            if (((renderFace >> 3) & 1) == 1) {
+                this.addQuad(
+                    nnp.func() + worldPos,
+                    npp.func() + worldPos,
+                    npn.func() + worldPos,
+                    nnn.func() + worldPos,
+                    block.getUvPlane(meta, Direction.WEST).getMeshUvs(this.allocatedUvArray),
+                    cube.to.x < 0 ? LightHelper.WEST : LightHelper.SELF);
+            }
+            // Up +Y
+            if (((renderFace >> 4) & 1) == 1) {
+                this.addQuad(
+                    npn.func() + worldPos,
+                    npp.func() + worldPos,
+                    ppp.func() + worldPos,
+                    ppn.func() + worldPos,
+                    block.getUvPlane(meta, Direction.UP).getMeshUvs(this.allocatedUvArray),
+                    cube.from.z > 32 ? LightHelper.UP : LightHelper.SELF);
+            }
+            // Down -Y //TODO fix UVs!
+            if (((renderFace >> 5) & 1) == 1) {
+                this.addQuad(
+                    nnn.func() + worldPos,
+                    pnn.func() + worldPos,
+                    pnp.func() + worldPos,
+                    nnp.func() + worldPos,
+                    block.getUvPlane(meta, Direction.DOWN).getMeshUvs(this.allocatedUvArray),
+                    cube.to.x < 0 ? LightHelper.DOWN : LightHelper.SELF);
+            }
         }
     }
 }

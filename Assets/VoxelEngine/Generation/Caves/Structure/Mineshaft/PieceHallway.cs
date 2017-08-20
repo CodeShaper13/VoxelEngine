@@ -22,7 +22,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public PieceHallway(StructureMineshaft shaft, BlockPos start, Direction hallwayDirection, int piecesFromCenter) : base(shaft, start) {
-            this.end = this.orgin + (hallwayDirection.direction * this.shaft.rnd.Next(PieceHallway.minLength, PieceHallway.minLength + 1) * 8);
+            this.end = this.orgin + (hallwayDirection.blockPos * this.shaft.rnd.Next(PieceHallway.minLength, PieceHallway.minLength + 1) * 8);
             this.pointing = hallwayDirection;
 
             this.calculateBounds();
@@ -33,7 +33,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
                 if (piecesFromCenter <= 1) {
                     // If we are still close to the start, always go straight, so we arent wrapping back around the middle.
-                    new PieceHallway(this.shaft, this.end + this.pointing.direction, this.pointing, piecesFromCenter);
+                    new PieceHallway(this.shaft, this.end + this.pointing.blockPos, this.pointing, piecesFromCenter);
                 }
                 else {
                     int i = this.shaft.rnd.Next(7);
@@ -47,14 +47,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         this.addRoom(piecesFromCenter);
                     }
                     else if (i == 6) { // 6
-                        new PieceHallway(this.shaft, this.end + this.pointing.direction, this.pointing, piecesFromCenter);
+                        new PieceHallway(this.shaft, this.end + this.pointing.blockPos, this.pointing, piecesFromCenter);
                     }
                 }
             }
         }
 
         private void addHallway(Direction hallwayDirection, int piecesFromCenter) {
-            BlockPos pos = this.end + (this.pointing.direction * 3) + (hallwayDirection.getOpposite().direction * this.shaft.rnd.Next(1, 3) * 2);
+            BlockPos pos = this.end + (this.pointing.blockPos * 3) + (hallwayDirection.getOpposite().blockPos * this.shaft.rnd.Next(1, 3) * 2);
             pos.y += this.randomHallwayStep(this.shaft.rnd);
             new PieceHallway(this.shaft, pos, hallwayDirection, piecesFromCenter);
         }
@@ -64,7 +64,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         /// </summary>
         private void addRoom(int piecesFromCenter) {
             int i = this.shaft.rnd.Next(5);
-            BlockPos p = this.end + this.pointing.direction;
+            BlockPos p = this.end + this.pointing.blockPos;
             if(i < 2) { // 0, 1
                 new PieceMobSpawner(this.shaft, p, this.pointing, piecesFromCenter);
             } else if(i == 2) { // 2
@@ -110,12 +110,12 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
             // Add the supports, torch and rails.
             BlockPos pos = this.orgin; // this.start;
-            BlockPos endPoint = this.end + this.pointing.direction;
+            BlockPos endPoint = this.end + this.pointing.blockPos;
             int axis = (int)(this.pointing.axis);
             int perpAxis = (int)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X); // Perpendicular to axis
             int distanceToSupport = 0;
-            BlockPos rightDir = this.pointing.getClockwise().direction;
-            BlockPos leftDir = this.pointing.getCounterClockwise().direction;
+            BlockPos rightDir = this.pointing.getClockwise().blockPos;
+            BlockPos leftDir = this.pointing.getCounterClockwise().blockPos;
             do {
                 distanceToSupport++;
                 if (distanceToSupport == 3) {
@@ -148,7 +148,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 this.func02(pos + rightDir, chunk);
                 this.func02(pos + leftDir, chunk);
 
-                pos += this.pointing.direction;
+                pos += this.pointing.blockPos;
 
             } while (!pos.Equals(endPoint));
         }
@@ -157,7 +157,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             Vector3 pieceCenter = ((this.orgin.toVector() / 2) + (this.end.toVector() / 2));
             this.pieceBounds = new Bounds(
                 pieceCenter + Vector3.up,
-                MathHelper.absVec((this.orgin - this.end).toVector() + (this.pointing.getClockwise().direction.toVector() * 4) + new Vector3(0, 4, 0)));
+                MathHelper.absVec((this.orgin - this.end).toVector() + (this.pointing.getClockwise().blockPos.toVector() * 4) + new Vector3(0, 4, 0)));
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {

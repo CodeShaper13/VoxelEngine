@@ -46,7 +46,7 @@ namespace VoxelEngine.Entities.Registry {
             RegisteredEntity re;
             for (int i = 0; i < EntityRegistry.registry.Length; i++) {
                 re = EntityRegistry.registry[i];
-                if(t == re.getType()) {
+                if(re != null && t == re.getType()) {
                     return re.getId();
                 }
             }

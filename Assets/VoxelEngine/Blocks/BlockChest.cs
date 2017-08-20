@@ -5,6 +5,7 @@ using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
+using VoxelEngine.Render.NewSys;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 
@@ -73,7 +74,7 @@ namespace VoxelEngine.Blocks {
         public override TexturePos getTexturePos(Direction direction, int meta) {
             if(direction == Direction.UP || direction == Direction.DOWN) {
                 return new TexturePos(7, 5);
-            } else if((direction.index - 1) == meta) { // Front    North.id = 1
+            } else if((direction.index - 1) == meta) { // Front
                 return new TexturePos(6, 4);
             } else if((direction.index - 3) == meta) { // Back
                 return new TexturePos(7, 4);
@@ -82,9 +83,8 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            UvHelper.cropUVs(uvs, faceRadius);
-            return uvs;
+        public override UvPlane getUvPlane(int meta, Direction direction) {
+            return new UvPlane(this.getTexturePos(direction, meta), 2, 2, 28, 28);
         }
     }
 }

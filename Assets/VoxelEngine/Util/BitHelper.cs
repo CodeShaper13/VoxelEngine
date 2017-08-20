@@ -13,11 +13,10 @@
         }
 
         /// <summary>
-        /// Sets bit at position bitNumber to value (defualts to 1/true).
+        /// Sets bit at position bitNumber to value (defaults to 1/true).
         /// </summary>
         public static int setBit(int integer, int bitNumber, int value = 1) {
-            integer |= value << bitNumber;
-            return integer;
+            return (integer |= value << bitNumber);
         }
     }
 }

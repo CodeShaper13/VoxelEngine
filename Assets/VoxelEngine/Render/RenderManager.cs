@@ -16,17 +16,18 @@ namespace VoxelEngine.Render {
         public static BlockRenderer BED = new BlockRendererBed();
         public static BlockRenderer CHEST = new BlockRendererChest();
         public static BlockRenderer CROSS = new BlockRendererCorn();
-        public static BlockRenderer CUBE = new BlockRendererPrimitiveCube();
+        public static BlockRenderer CUBE = new BlockRendererCube();
         public static BlockRenderer FENCE = new BlockRendererFence();
         public static BlockRenderer FLUID = new BlockRendererFluid();
         public static BlockRenderer LADDER = new BlockRendererLadder();
-        public static BlockRenderer LANTERN = new BlockRendererMesh(References.list.lanternPrefab).setRenderInWorld(false);
+        public static BlockRenderer LOGIC_PLATE = new BlockRendererLogicPlate();
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer RAIL = new BlockRendererRail();
         public static BlockRenderer ROOF = new BlockRendererRoof();
         public static BlockRenderer SLAB = new BlockRendererSlab();
         public static BlockRenderer STAIR = new BlockRendererStairs();
         public static BlockRenderer TORCH = new BlockRendererTorch();
+        public static BlockRenderer WIRE = new BlockRendererWire();
 
         // Used for dev debugging.
         public static BlockRenderer MIRROR_TEST = new BlockRendererMesh(References.list.mirrorTestPrefab);
@@ -61,7 +62,7 @@ namespace VoxelEngine.Render {
         /// Returns the correct material that corresponds with the block/item id
         /// </summary>
         public static Material getMaterial(int id) {
-            return id < 256 ? References.list.blockMaterial : References.list.itemMaterial;
+            return References.list.blockMaterial;
         }
 
         public static Mesh getItemMesh(Item item, int meta, bool is3d) {

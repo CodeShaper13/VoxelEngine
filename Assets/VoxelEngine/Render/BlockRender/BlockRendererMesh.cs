@@ -54,7 +54,7 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, bool[] renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             int i;
             Vector3 vertice;
 
@@ -107,16 +107,25 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
+        /// <summary>
+        /// Rotates the model by the passed Quaternion.
+        /// </summary>
         public BlockRendererMesh setRotation(Quaternion rot) {
             this.modelRotation = rot;
             return this;
         }
 
+        /// <summary>
+        /// Offsets the model by the passed Vector3.
+        /// </summary>
         public BlockRendererMesh setOffsetVector(Vector3 vec) {
             this.offsetVector = vec;
             return this;
         }
 
+        /// <summary>
+        /// Marks the block to use collider component attached to the prefab as the collider.
+        /// </summary>
         public BlockRendererMesh useColliderComponent() {
             this.useMeshForCollision = false;
             BoxCollider[] bc = this.prefab.GetComponents<BoxCollider>();
