@@ -20,14 +20,22 @@ namespace VoxelEngine.Render.NewSys {
         /// <summary> Uv on the bottom right side. </summary>
         private Vector2 uv3;
 
-        public UvPlane(TexturePos pos, int xStart, int yStart, int xSize, int ySize) {
-            this.texturePos = pos;
+        public UvPlane(TexturePos texturePos, int xStart, int yStart, int xSize, int ySize) {
+            this.texturePos = texturePos;
             xSize -= 1;
             ySize -= 1;
             this.uv0 = new Vector2(xStart, yStart);
             this.uv1 = new Vector2(xStart, yStart + ySize);
             this.uv2 = new Vector2(xStart + xSize, yStart + ySize);
             this.uv3 = new Vector2(xStart + xSize, yStart);
+        }
+
+        public UvPlane(TexturePos texturePos, Vector2 pos1, Vector2 pos2) {
+            this.texturePos = texturePos;
+            this.uv0 = pos1;
+            this.uv1 = new Vector2(pos1.x, pos2.y);
+            this.uv2 = pos2;
+            this.uv3 = new Vector2(pos2.x, pos1.y);
         }
 
         public Vector2[] getMeshUvs(Vector2[] uvs) {

@@ -27,7 +27,7 @@ namespace VoxelEngine.Blocks {
             return BlockSlab.getMetaFromDirection(clickedDirNormal.getOpposite()); 
         }
 
-        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
+        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
             if(heldStack.item.id == this.id && !BlockSlab.isFull(meta) && BlockSlab.getDirectionFromMeta(meta) == clickedFace.getOpposite()) {
                 world.setBlock(pos, this, 6);
                 player.reduceHeldStackByOne();

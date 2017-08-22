@@ -34,7 +34,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         private bool func02(int b, Direction hallwayDir, Direction dir) {
-            return BitHelper.getBit(b, dir.index - 1) == 1 || hallwayDir.getOpposite() == dir;
+            return BitHelper.getBit(b, dir.index - 1) || hallwayDir.getOpposite() == dir;
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {

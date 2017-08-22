@@ -14,10 +14,12 @@ namespace VoxelEngine.Util {
         public Entity entity;
 
         public PlayerRayHit(Block hitBlock, int meta, BlockPos hitPos, RaycastHit unityRaycastHit) : this(unityRaycastHit) {
-            this.hitState = new BlockState(hitBlock, meta, hitPos);
+            this.hitState = new BlockState(hitBlock, meta);
+            this.entity = null;
         }
 
         public PlayerRayHit(Entity entity, RaycastHit unityRaycastHit) : this(unityRaycastHit) {
+            this.hitState = BlockState.NULL_STATE;
             this.entity = entity;
         }
 
@@ -29,7 +31,7 @@ namespace VoxelEngine.Util {
         /// Returns true if the PlayerRayHit struck a block.
         /// </summary>
         public bool hitBlock() {
-            return this.hitState != null;
+            return this.hitState.block != null;
         }
 
         /// <summary>

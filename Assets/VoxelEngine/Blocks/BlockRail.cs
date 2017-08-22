@@ -43,7 +43,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 

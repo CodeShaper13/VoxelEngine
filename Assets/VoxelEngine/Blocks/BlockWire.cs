@@ -21,21 +21,24 @@ namespace VoxelEngine.Blocks {
             if (neighborDir == Direction.DOWN && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
-
-            this.updateWire(world, pos, meta);
         }
 
         public override void onPlace(World world, BlockPos pos, int meta) {
-            this.updateWire(world, pos, meta);
+            this.updateWire(world, pos, meta, true);
+        }
+
+        public override void onDestroy(World world, BlockPos pos, int meta) {
+            this.updateWire(world, pos, meta, false);
         }
 
         // TODO when placing higher connect to lower.
-        private void updateWire(World world, BlockPos pos, int meta) {
+        private void updateWire(World world, BlockPos pos, int meta, bool newBit) {
             int newMeta = meta;
 
             BlockPos posNeighbor;
             BlockPos posUp = new BlockPos();
             BlockPos posDown = new BlockPos();
+            Block block;
             int j, k, flag; // 0 = do nothing, 1 = adjacent,  =2 up.
             Direction direction;
             for(int i = 0; i < 4; i++) {
@@ -44,18 +47,24 @@ namespace VoxelEngine.Blocks {
 
                 // Check for adjacent wires.
                 posNeighbor = pos + direction.blockPos;
-                if (world.getBlock(posNeighbor).acceptsWire(direction, world.getMeta(posNeighbor))) {
-                    newMeta = BitHelper.setBit(newMeta, i * 2);
-                    flag = 1;
+                block = world.getBlock(posNeighbor);
+                if (block.acceptsWire(direction, world.getMeta(posNeighbor))) {
+                    newMeta = BitHelper.setBit(newMeta, i * 2, newBit);
+                    if(block == this) {
+                        flag = 1;
+                    }
                 }
 
                 // Check for above wires.
-                if(world.getBlock(pos.move(Direction.UP)) == Block.air) { // Only connect if nothing is above
+                if(block.isSolid && world.getBlock(pos.move(Direction.UP)) == Block.air) { // Only connect if nothing is above and there is a supporting solid block
                     posUp = posNeighbor.move(Direction.UP);
-                    if(world.getBlock(posUp).acceptsWire(direction, world.getMeta(posUp))) {
-                        newMeta = BitHelper.setBit(newMeta, i * 2);
-                        newMeta = BitHelper.setBit(newMeta, (i * 2) + 1);
-                        flag = 2;
+                    block = world.getBlock(posUp);
+                    if (block.acceptsWire(direction, world.getMeta(posUp))) {
+                        newMeta = BitHelper.setBit(newMeta, i * 2, newBit);
+                        newMeta = BitHelper.setBit(newMeta, (i * 2) + 1, newBit);
+                        if(block == this) {
+                            flag = 2;
+                        }
                     }
                 }
 
@@ -63,11 +72,11 @@ namespace VoxelEngine.Blocks {
                 if (world.getBlock(posNeighbor) == Block.air) { // Only connect if nothing is above
                     posDown = posNeighbor.move(Direction.DOWN);
                     if (world.getBlock(posDown).acceptsWire(direction, world.getMeta(posDown))) {
-                        newMeta = BitHelper.setBit(newMeta, i * 2);
+                        newMeta = BitHelper.setBit(newMeta, i * 2, newBit);
                         // Set down neighbor meta.
                         k = direction.getOpposite().index - 1;
-                        j = BitHelper.setBit(world.getMeta(posDown), k * 2);
-                        j = BitHelper.setBit(j, (k * 2) + 1);
+                        j = BitHelper.setBit(world.getMeta(posDown), k * 2, newBit);
+                        j = BitHelper.setBit(j, (k * 2) + 1, newBit);
                         world.setBlock(posDown, null, j, false, false);
                     }
                 }
@@ -75,7 +84,7 @@ namespace VoxelEngine.Blocks {
                 // Apply the changes to this wire.
                 if (flag != 0) {
                     BlockPos p1 = flag == 1 ? posNeighbor : posUp;
-                    world.setBlock(p1, null, BitHelper.setBit(world.getMeta(p1), ((direction.getOpposite().index - 1) * 2)), false, false);
+                    world.setBlock(p1, null, BitHelper.setBit(world.getMeta(p1), ((direction.getOpposite().index - 1) * 2), newBit), false, false);
                 }
             }
 
@@ -84,36 +93,37 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        /*
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            if (meta == 0) {
-                UvHelper.cropUVs(uvs, faceRadius);
-                UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
-            } else {
-                UvHelper.cropUVs(uvs, faceRadius);
-            }
-            return uvs;
-        }
-        */
-
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 
         public override UvPlane getUvPlane(int meta, Direction direction) {
-            return base.getUvPlane(meta, direction);
+            TexturePos pos = this.getTexturePos(direction, meta);
+            if(direction.axis == EnumAxis.X || direction.axis == EnumAxis.Z) {
+                return new UvPlane(pos, 14, 0, 4, 32);
+            } else {
+                // This must be the top face.
+                return new UvPlane(
+                    pos,
+                    new Vector2(
+                        BitHelper.getBit(meta, 6) ? 0 : 14,
+                        BitHelper.getBit(meta, 4) ? 0 : 14),
+                    new Vector2(
+                        BitHelper.getBit(meta, 2) ? 31 : 17,
+                        BitHelper.getBit(meta, 0) ? 31 : 17));
+            }
         }
 
         public override string getAsDebugText(int meta) {
             return this.name + ":" + meta + "\n" +
-                "  N: " + (BitHelper.getBit(meta, 0) == 1 ? "true" : "false") + "\n" +
-                "  N UP: " + (BitHelper.getBit(meta, 1) == 1 ? "true" : "false") + "\n" +
-                "  E: " + (BitHelper.getBit(meta, 2) == 1 ? "true" : "false") + "\n" +
-                "  E UP: " + (BitHelper.getBit(meta, 3) == 1 ? "true" : "false") + "\n" +
-                "  S: " + (BitHelper.getBit(meta, 4) == 1 ? "true" : "false") + "\n" +
-                "  S UP: " + (BitHelper.getBit(meta, 5) == 1 ? "true" : "false") + "\n" +
-                "  W: " + (BitHelper.getBit(meta, 6) == 1 ? "true" : "false") + "\n" +
-                "  W UP: " + (BitHelper.getBit(meta, 7) == 1 ? "true" : "false") + "\n" +
+                "  N: " + (BitHelper.getBit(meta, 0) ? "true" : "false") + "\n" +
+                "  N UP: " + (BitHelper.getBit(meta, 1) ? "true" : "false") + "\n" +
+                "  E: " + (BitHelper.getBit(meta, 2) ? "true" : "false") + "\n" +
+                "  E UP: " + (BitHelper.getBit(meta, 3) ? "true" : "false") + "\n" +
+                "  S: " + (BitHelper.getBit(meta, 4) ? "true" : "false") + "\n" +
+                "  S UP: " + (BitHelper.getBit(meta, 5) ? "true" : "false") + "\n" +
+                "  W: " + (BitHelper.getBit(meta, 6) ? "true" : "false") + "\n" +
+                "  W UP: " + (BitHelper.getBit(meta, 7) ? "true" : "false") + "\n" +
                 "  POWER: " + BlockWire.getPowerLevel(meta);
         }
 

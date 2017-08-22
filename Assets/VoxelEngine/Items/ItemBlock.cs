@@ -28,7 +28,7 @@ namespace VoxelEngine.Items {
                 BlockPos newPos = pos.move(clickedDirNormal);
                 int meta = stack.meta;
 
-                if (!Physics.CheckBox(newPos.toVector(), new Vector3(0.4f, 0.4f, 0.4f)) && world.getBlock(newPos).replaceable && this.block.isValidPlaceLocation(world, newPos, meta, clickedDirNormal)) {
+                if (!Physics.CheckBox(newPos.toVector(), new Vector3(0.4f, 0.4f, 0.4f)) && world.getBlock(newPos).replaceable && this.block.isValidPlaceLocation(world, newPos, meta, clickedDirNormal, hit.hitState)) {
                     Vector3 angle = new Vector3(player.transform.position.x, 0, player.transform.position.z) - new Vector3(hit.unityRaycastHit.point.x, 0, hit.unityRaycastHit.point.z);
                     world.setBlock(newPos, this.block, this.block.adjustMetaOnPlace(world, newPos, meta, clickedDirNormal, angle));
                     stack = stack.safeDeduction();

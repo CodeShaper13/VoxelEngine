@@ -1,4 +1,4 @@
-﻿#define MAX_LIGHT
+﻿//#define MAX_LIGHT
 
 using Assets.VoxelEngine.Render;
 using fNbt;
@@ -38,8 +38,10 @@ namespace VoxelEngine.Level {
         public bool isDirty;
         /// <summary> If true, the population world gen phase and lighting has been done. </summary>
         public bool hasDoneGen2;
-        /// <summary> If true, the chunk should not be rendered and is meant to read from only.  Gen Phase 2 will still edit theses? </summary>
+        /// <summary> If true, the chunk should not be rendered and is ment to read from only.  Gen Phase 2 will still edit theses? </summary>
         public bool isReadOnly;
+        [HideInInspector]
+        public List<ScheduledTick> scheduledTicks;
 
         private void Awake() {
             this.filter = this.GetComponent<MeshFilter>();
@@ -51,6 +53,7 @@ namespace VoxelEngine.Level {
             this.metaData = new byte[Chunk.BLOCK_COUNT];
             this.lightLevel = new byte[Chunk.BLOCK_COUNT];
             this.tileEntityDict = new Dictionary<BlockPos, TileEntityBase>();
+            this.scheduledTicks = new List<ScheduledTick>();
         }
 
         /// <summary>
@@ -73,6 +76,19 @@ namespace VoxelEngine.Level {
 
             if(Main.isDeveloperMode) {
                 DebugDrawer.bounds(new Bounds(this.chunkBounds.center, this.chunkBounds.size * 0.9f), this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
+            }
+        }
+
+        private void LateUpdate() {
+            ScheduledTick tick;
+            for (int i = this.scheduledTicks.Count - 1; i >= 0; i--) {
+                tick = this.scheduledTicks[i];
+                tick.timeUntil -= Time.deltaTime;
+                if(tick.timeUntil <= 0) {
+                    BlockPos pos = tick.pos - this.worldPos;
+                    this.getBlock(pos.x, pos.y, pos.z).applyScheduledTick(this.world, tick.pos);
+                    this.scheduledTicks.RemoveAt(i);
+                }
             }
         }
 
@@ -114,6 +130,7 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void resetChunk() {
             this.tileEntityDict.Clear();
+            this.scheduledTicks.Clear();
             this.isDirty = false;
             this.hasDoneGen2 = false;
             this.isReadOnly = false;
@@ -284,27 +301,39 @@ namespace VoxelEngine.Level {
         public NbtCompound writeToNbt(NbtCompound tag, bool deleteEntities) {
             tag.Add(new NbtByte("hasDoneGen2", this.hasDoneGen2 ? (byte)1 : (byte)0));
             byte[] blockBytes = new byte[Chunk.BLOCK_COUNT];
-            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+            int i, x, y, z;
+            for (i = 0; i < Chunk.BLOCK_COUNT; i++) {
                 blockBytes[i] = (byte)this.blocks[i].id;
             }
             tag.Add(new NbtByteArray("blocks", blockBytes));
             tag.Add(new NbtByteArray("meta", this.metaData));
             tag.Add(new NbtByteArray("light", this.lightLevel));
 
+            // Tile Entites.
             NbtList list = new NbtList("tileEntities", NbtTagType.Compound);
             foreach(TileEntityBase te in this.tileEntityDict.Values) {
                 list.Add(te.writeToNbt(new NbtCompound()));
             }
             tag.Add(list);
 
+            // Scheduled ticks.
+            list = new NbtList("scheduledTicks", NbtTagType.Compound);
+            ScheduledTick tick;
+            for(i = 0; i < this.scheduledTicks.Count; i++) {
+                tick = this.scheduledTicks[i];
+                list.Add(this.scheduledTicks[i].writeToNbt());
+            }
+            tag.Add(list);
+
+            // Entites.
             Entity entity;
             List<Entity> entitiesInChunk = new List<Entity>();
-            for (int i = this.world.entityList.Count - 1; i >= 0; i--) {
+            for (i = this.world.entityList.Count - 1; i >= 0; i--) {
                 entity = this.world.entityList[i];
                 if(!(entity is EntityPlayer)) {
-                    int x = Mathf.FloorToInt((int)entity.transform.position.x / (float)Chunk.SIZE);
-                    int y = Mathf.FloorToInt((int)entity.transform.position.y / (float)Chunk.SIZE);
-                    int z = Mathf.FloorToInt((int)entity.transform.position.z / (float)Chunk.SIZE);
+                    x = MathHelper.floor((int)entity.transform.position.x / (float)Chunk.SIZE);
+                    y = MathHelper.floor((int)entity.transform.position.y / (float)Chunk.SIZE);
+                    z = MathHelper.floor((int)entity.transform.position.z / (float)Chunk.SIZE);
 
                     if (x == this.chunkPos.x && y == this.chunkPos.y && z == this.chunkPos.z) {
                         world.entityList.Remove(entity);
@@ -313,7 +342,7 @@ namespace VoxelEngine.Level {
                 }
             }
             NbtList list1 = new NbtList("entities", NbtTagType.Compound);
-            for (int i = 0; i < entitiesInChunk.Count; i++) {
+            for (i = 0; i < entitiesInChunk.Count; i++) {
                 entity = entitiesInChunk[i];
                 list1.Add(entity.writeToNbt(new NbtCompound()));
                 if (deleteEntities) {
@@ -336,15 +365,20 @@ namespace VoxelEngine.Level {
 
             // Populate the tile entity dictionary.
             foreach(NbtCompound compound in tag.Get<NbtList>("tileEntities")) {
-                BlockPos pos = new BlockPos(compound.Get<NbtInt>("x").IntValue, compound.Get<NbtInt>("y").IntValue, compound.Get<NbtInt>("z").IntValue);
+                BlockPos pos = new BlockPos(compound.Get<NbtInt>("x").Value, compound.Get<NbtInt>("y").Value, compound.Get<NbtInt>("z").Value);
                 TileEntityBase te = TileEntityBase.getTileEntityFromId(this.world, pos, compound);
                 te.readFromNbt(compound);
                 this.world.addTileEntity(pos, te);
             }
-            
+
+            // Populate the tile entity dictionary.
+            foreach (NbtCompound compound in tag.Get<NbtList>("scheduledTicks")) {
+                this.scheduledTicks.Add(new ScheduledTick(compound));
+            }
+
             // Spawn the entities that were saved in the chunk back into the world.
-            foreach(NbtCompound compound in tag.Get<NbtList>("entities")) {
-                int id = compound.Get<NbtInt>("id").IntValue;
+            foreach (NbtCompound compound in tag.Get<NbtList>("entities")) {
+                int id = compound.Get<NbtInt>("id").Value;
                 RegisteredEntity re = EntityRegistry.getRegisteredEntityFromId(id);
                 if (re != null) {
                     this.world.spawnEntity(re, compound);

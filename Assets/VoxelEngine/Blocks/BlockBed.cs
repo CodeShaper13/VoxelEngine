@@ -34,9 +34,5 @@ namespace VoxelEngine.Blocks {
         public override TexturePos getTexturePos(Direction direction, int meta) {
             return new TexturePos();
         }
-
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
-            return base.isValidPlaceLocation(world, pos, meta, clickedDirNormal);
-        }
     }
 }

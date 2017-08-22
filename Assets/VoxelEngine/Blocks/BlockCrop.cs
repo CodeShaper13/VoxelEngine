@@ -44,7 +44,7 @@ namespace VoxelEngine.Blocks {
             return drops;
         }
 
-        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
+        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
             if(heldStack != null && heldStack.item == Item.rawFish && meta < finishedMeta) {
                 this.tryGrow(world, pos.x, pos.y, pos.z, meta);
                 player.reduceHeldStackByOne();

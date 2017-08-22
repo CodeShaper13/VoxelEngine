@@ -63,7 +63,7 @@ namespace VoxelEngine.Blocks {
         public static Block piston;
         public static Block pistonHead;
         public static Block lever;
-        public static Block button;
+        public static BlockButton button = (BlockButton)new BlockButton(47).setName("Button");
         public static Block dial;
         public static Block gauge;
         public static Block lanternOn = new BlockLantern(50).setName("Lanturn").setTexture(5, 4).setEmittedLight(15);
@@ -71,7 +71,7 @@ namespace VoxelEngine.Blocks {
         public static Block logicAnd;
         public static Block logicOr;
         public static Block logicNot = new BlockLogicNot(54).setName("Logic NOT");
-        public static Block diode;
+        public static Block delayer = new BlockLogicDelayer(55).setName("Delayer");
         public static Block looker;
         public static Block updateChecker;
         public static Block blockPlacer;
@@ -131,7 +131,7 @@ namespace VoxelEngine.Blocks {
         /// Called when the player clicks a block.  Return true to stop further prossessing,
         /// eg. the held ItemBlock being placed.
         /// </summary>
-        public virtual bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
+        public virtual bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
             return false;
         }
 
@@ -180,9 +180,14 @@ namespace VoxelEngine.Blocks {
             return this.getName(meta) + ":" + meta;
         }
 
+        /// <summary>
+        /// If the methods returns true, wires will connect in this direction,
+        /// </summary>
         public virtual bool acceptsWire(Direction directionOfWire, int meta) {
             return false;
         }
+
+        public virtual void applyScheduledTick(World world, BlockPos pos) { }
 
         /// <summary>
         /// Called by ItemBlock when a block is placed.  By default the held meta is used, but this method can change it to a different meta to be used.
@@ -195,7 +200,7 @@ namespace VoxelEngine.Blocks {
         /// Called by item block to determin if the block trying to be placed is in a vlid spot,
         /// stops torches from going on non solid blocks, like fences, etc...
         /// </summary>
-        public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
+        public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
             return true;
         }
 

@@ -153,7 +153,15 @@ namespace VoxelEngine.Entities {
                         this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
                     }
                     if (Input.GetMouseButtonDown(1)) {
-                        if (!playerHit.hitState.block.onRightClick(this.world, this, heldStack, this.posLookingAt, playerHit.hitState.meta, playerHit.getClickedBlockFace())) {
+                        bool flag = playerHit.hitState.block.onRightClick(
+                            this.world,
+                            this,
+                            heldStack,
+                            this.posLookingAt,
+                            playerHit.hitState.meta,
+                            playerHit.getClickedBlockFace(),
+                            playerHit.unityRaycastHit.point - this.posLookingAt.toVector());
+                        if (!flag) {
                             if (heldStack != null) {
                                 ItemStack clickResult = heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
                                 this.containerHotbar.setHeldItem(clickResult);
@@ -266,8 +274,8 @@ namespace VoxelEngine.Entities {
                 this.dataHotbar.items[4] = new ItemStack(Block.wood, 0, 32);
                 this.dataHotbar.items[5] = new ItemStack(Block.ladder, 0, 25);
                 this.dataHotbar.items[6] = new ItemStack(Block.logicNot, 0, 32);
-                this.dataHotbar.items[7] = new ItemStack(Item.carrot, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Item.coal, 0, 32);
+                this.dataHotbar.items[7] = new ItemStack(Block.button, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.lanternOff, 0, 32);
             } else {
                 this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
                 this.dataHotbar.items[1] = new ItemStack(Item.shovel);

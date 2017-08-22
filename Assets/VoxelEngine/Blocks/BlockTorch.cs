@@ -26,9 +26,8 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
-            Block clickedBlock = world.getBlock(pos.move(clickedDirNormal.getOpposite()));
-            return ((clickedDirNormal != Direction.DOWN) && clickedBlock.isSolid) ||(clickedDirNormal == Direction.UP && (clickedBlock == Block.fence || clickedBlock == Block.ironFence));
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+            return ((clickedDirNormal != Direction.DOWN) && clickedBlock.block.isSolid) ||(clickedDirNormal == Direction.UP && (clickedBlock.block == Block.fence || clickedBlock.block == Block.ironFence));
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {

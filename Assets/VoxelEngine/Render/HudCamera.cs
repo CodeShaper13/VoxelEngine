@@ -17,6 +17,9 @@ namespace VoxelEngine.Render {
             }
         }
 
+        /// <summary>
+        /// Makes the passed Canvas a child of the hud camera.
+        /// </summary>
         public void bindToHudCamera(Canvas canvas) {
             canvas.transform.SetParent(this.orthoCamera.transform);
             canvas.worldCamera = this.orthoCamera;

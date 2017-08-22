@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Containers;
+﻿using UnityEngine;
+using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
@@ -22,7 +23,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
+        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
             if(heldStack != null) {
                 Item item = heldStack.item;
                 if(item is ItemTool && ((ItemTool)item).toolType == EnumToolType.SHOVEL) {

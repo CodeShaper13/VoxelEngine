@@ -44,7 +44,7 @@ namespace VoxelEngine.Util {
         }
 
         /// <summary>
-        /// Converts the block pos to a chunk pos, multiplying everything by Chunk.SIZE.
+        /// Converts the block pos to a chunk pos, dividing everything by Chunk.SIZE.
         /// </summary>
         public ChunkPos toChunkPos() {
             return new ChunkPos(this.x / Chunk.SIZE, this.y / Chunk.SIZE, this.z / Chunk.SIZE);

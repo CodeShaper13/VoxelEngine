@@ -25,7 +25,7 @@ namespace VoxelEngine.Containers {
             this.count = this.count == -1 ? this.item.maxStackSize : MathHelper.clamp(count, 0, this.item.maxStackSize);
         }
 
-        public ItemStack(Block block, int meta = 0, int count = 1) : this(block.asItem(), meta, count) { }
+        public ItemStack(Block block, int meta = 0, int count = 1) : this(block != null ? block.asItem() : null, meta, count) { }
 
         /// <summary>
         /// Creates a copy of the passed stack.

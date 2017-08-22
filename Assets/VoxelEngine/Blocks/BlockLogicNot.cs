@@ -8,8 +8,12 @@ namespace VoxelEngine.Blocks {
             
         }
 
-        public override TexturePos getTopTexture() {
-            return new TexturePos(9, 4);
+        public override bool acceptsWire(Direction directionOfWire, int meta) {
+            return directionOfWire.axis == Direction.horizontal[meta].axis;
+        }
+
+        public override TexturePos getTopTexture(int rotation) {
+            return new TexturePos(9, 4, rotation);
         }
     }
 }

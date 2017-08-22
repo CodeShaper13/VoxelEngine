@@ -14,6 +14,7 @@ namespace VoxelEngine.Render {
         public static Block[] AIR_ARRAY = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
 
         public static BlockRenderer BED = new BlockRendererBed();
+        public static BlockRenderer BUTTON = new BlockRendererButton();
         public static BlockRenderer CHEST = new BlockRendererChest();
         public static BlockRenderer CROSS = new BlockRendererCorn();
         public static BlockRenderer CUBE = new BlockRendererCube();
@@ -21,6 +22,7 @@ namespace VoxelEngine.Render {
         public static BlockRenderer FLUID = new BlockRendererFluid();
         public static BlockRenderer LADDER = new BlockRendererLadder();
         public static BlockRenderer LOGIC_PLATE = new BlockRendererLogicPlate();
+        public static BlockRenderer LOGIC_DELAYER = new BlockRendererLogicDelayer();
         public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static BlockRenderer RAIL = new BlockRendererRail();
         public static BlockRenderer ROOF = new BlockRendererRoof();

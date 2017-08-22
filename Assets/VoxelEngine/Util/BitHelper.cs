@@ -8,15 +8,19 @@
         /// <summary>
         /// Returns bit from integer at position bitNumber.
         /// </summary>
-        public static int getBit(int integer, int bitNumber) {
-            return ((integer >> bitNumber) & 1);
+        public static bool getBit(int integer, int bitNumber) {
+            return ((integer >> bitNumber) & 1) == 1;
         }
 
         /// <summary>
-        /// Sets bit at position bitNumber to value (defaults to 1/true).
+        /// Sets bit at position bitNumber to value, defaulting to 1.
         /// </summary>
-        public static int setBit(int integer, int bitNumber, int value = 1) {
-            return (integer |= value << bitNumber);
+        public static int setBit(int integer, int bitPosition, bool value) {
+            if(value) {
+                return (integer |= (value ? 1 : 0) << bitPosition);
+            } else {
+                return integer &= ~(1 << bitPosition);
+            }
         }
     }
 }

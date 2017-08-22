@@ -23,8 +23,8 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal) {
-            return (clickedDirNormal.axis == EnumAxis.X || clickedDirNormal.axis == EnumAxis.Z) && (world.getBlock(pos.move(clickedDirNormal.getOpposite())).isSolid);
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+            return (clickedDirNormal.axis == EnumAxis.X || clickedDirNormal.axis == EnumAxis.Z) && clickedBlock.block.isSolid;
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {

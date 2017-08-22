@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
-using VoxelEngine.Render.NewSys;
+﻿using VoxelEngine.Blocks;
 
 namespace VoxelEngine.Render.BlockRender {
 

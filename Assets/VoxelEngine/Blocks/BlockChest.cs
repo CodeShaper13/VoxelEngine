@@ -19,7 +19,7 @@ namespace VoxelEngine.Blocks {
             this.setType(EnumBlockType.WOOD);
         }
 
-        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace) {
+        public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
             if(!world.getBlock(pos.move(Direction.UP)).isSolid) {
                 TileEntityChest chest = ((TileEntityChest)world.getTileEntity(pos));
                 player.contManager.openContainer(player, ContainerManager.containerChest, chest.chestData);

@@ -195,14 +195,14 @@ namespace VoxelEngine.Level {
         /// <summary>
         /// Sets a block.  Using a meta of -1 will not change the meta.
         /// </summary>
-        public void setBlock(BlockPos pos, Block newblock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true, bool dirtyNeighbors = true) {
-            this.setBlock(pos.x, pos.y, pos.z, newblock, newMeta, updateNeighbors, updateLighting, dirtyNeighbors);
+        public void setBlock(BlockPos pos, Block newblock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true) {
+            this.setBlock(pos.x, pos.y, pos.z, newblock, newMeta, updateNeighbors, updateLighting);
         }
 
         /// <summary>
         /// Sets a block.  Passing null for new block will not change the block.  Using a meta of -1 will not change the meta.
         /// </summary>
-        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true, bool dirtyNeighbors = true) {
+        public void setBlock(int x, int y, int z, Block newBlock, int newMeta = -1, bool updateNeighbors = true, bool updateLighting = true) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 // Position of the setBlock event within the chunk.
@@ -246,7 +246,7 @@ namespace VoxelEngine.Level {
                 }
 
                 // Update lighting.
-                if(updateLighting) {
+                if (newBlock != null && updateLighting) {
                     this.updateLighting(newBlock.emittedLight, x, y, z);
                 }
             }
@@ -339,6 +339,15 @@ namespace VoxelEngine.Level {
 
             foreach (Chunk chunk in this.loadedChunks.Values) {
                 this.saveChunk(chunk, deleteEntities);
+            }
+        }
+
+        public void scheduleFutureTick(BlockPos pos, float secondsUntil) {
+            Chunk c = this.getChunk(pos);
+            if(c != null) {
+                c.scheduledTicks.Add(new ScheduledTick(pos, secondsUntil));
+            } else {
+                Debug.LogWarning("A Block tried to schedule a tick at " + pos.ToString() + "!  This is out of the world!  Ignoring!");
             }
         }
 
