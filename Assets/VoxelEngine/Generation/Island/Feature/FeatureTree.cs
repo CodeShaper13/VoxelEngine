@@ -10,7 +10,7 @@ namespace VoxelEngine.Generation.Island.Feature {
         public void generate(Chunk chunk, Random rnd) {
             int x, z;
             Block groundBlock;
-            for(int i = 0; i < 3; i++) {
+            for(int i = 0; i < 1; i++) {
                 for(int j =  0; j < 4; j++) {
                     x = i * 4 + rnd.Next(0, 4);
                     z = j * 4 + rnd.Next(0, 4);
@@ -27,7 +27,7 @@ namespace VoxelEngine.Generation.Island.Feature {
             }
         }
 
-        protected bool func(Block block) {
+        protected bool isReplacable(Block block) {
             return block == Block.air || block == Block.wood || block == Block.leaves;
         }
 

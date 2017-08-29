@@ -10,35 +10,37 @@ namespace VoxelEngine.Render {
         
         public static RenderManager instance;
 
-        public static bool[] TRUE_ARRAY = new bool[6] { true, true, true, true, true, true };
-        public static Block[] AIR_ARRAY = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
+        public static readonly bool[] TRUE_ARRAY = new bool[6] { true, true, true, true, true, true };
+        public static readonly Block[] AIR_ARRAY = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
 
-        public static BlockRenderer BED = new BlockRendererBed();
-        public static BlockRenderer BUTTON = new BlockRendererButton();
-        public static BlockRenderer CHEST = new BlockRendererChest();
-        public static BlockRenderer CROSS = new BlockRendererCorn();
-        public static BlockRenderer CUBE = new BlockRendererCube();
-        public static BlockRenderer FENCE = new BlockRendererFence();
-        public static BlockRenderer FLUID = new BlockRendererFluid();
-        public static BlockRenderer LADDER = new BlockRendererLadder();
-        public static BlockRenderer LOGIC_PLATE = new BlockRendererLogicPlate();
-        public static BlockRenderer LOGIC_DELAYER = new BlockRendererLogicDelayer();
-        public static BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
-        public static BlockRenderer RAIL = new BlockRendererRail();
-        public static BlockRenderer ROOF = new BlockRendererRoof();
-        public static BlockRenderer SLAB = new BlockRendererSlab();
-        public static BlockRenderer STAIR = new BlockRendererStairs();
-        public static BlockRenderer TORCH = new BlockRendererTorch();
-        public static BlockRenderer WIRE = new BlockRendererWire();
+        public static readonly BlockRenderer BED = new BlockRendererBed();
+        public static readonly BlockRenderer BUTTON = new BlockRendererButton();
+        public static readonly BlockRenderer CHEST = new BlockRendererChest();
+        public static readonly BlockRenderer COBWEB = new BlockRendererCobweb();
+        public static readonly BlockRenderer CROSS = new BlockRendererCorn();
+        public static readonly BlockRenderer CUBE = new BlockRendererCube();
+        public static readonly BlockRenderer FENCE = new BlockRendererFence();
+        public static readonly BlockRenderer FLUID = new BlockRendererFluid();
+        public static readonly BlockRenderer LADDER = new BlockRendererLadder();
+        public static readonly BlockRenderer LOGIC_PLATE = new BlockRendererLogicPlate();
+        public static readonly BlockRenderer LOGIC_DELAYER = new BlockRendererLogicDelayer();
+        public static readonly BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
+        public static readonly BlockRenderer RAIL = new BlockRendererRail();
+        public static readonly BlockRenderer ROOF = new BlockRendererRoof();
+        public static readonly BlockRenderer SLAB = new BlockRendererSlab();
+        public static readonly BlockRenderer STAIR = new BlockRendererStairs();
+        public static readonly BlockRenderer TORCH = new BlockRendererTorch();
+        public static readonly BlockRenderer WIRE = new BlockRendererWire();
 
         // Used for dev debugging.
-        public static BlockRenderer MIRROR_TEST = new BlockRendererMesh(References.list.mirrorTestPrefab);
+        public static readonly BlockRenderer MIRROR_TEST = new BlockRendererMesh(References.list.mirrorTestPrefab);
 
-        public static IRenderItem ITEM_RENDERER_BILLBOARD = new RenderItemBillboard();
+        public static readonly IRenderItem ITEM_RENDERER_BILLBOARD = new RenderItemBillboard();
 
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
         public LightHelper lightHelper;
+        public bool useSmoothLighting;
 
         private MeshBuilder reusableMeshBuilder;
         private PreBakedItem[] preBakedItemMeshes;
@@ -46,10 +48,12 @@ namespace VoxelEngine.Render {
         public RenderManager() {
             RenderManager.instance = this;
 
-            this.lightHelper = new LightHelper(References.list.lightColorSheet);
+            this.lightHelper = new LightHelper();
             this.reusableMeshBuilder = new MeshBuilder();
 
             this.preRenderItems();
+
+            this.useSmoothLighting = true;
         }
 
         /// <summary>

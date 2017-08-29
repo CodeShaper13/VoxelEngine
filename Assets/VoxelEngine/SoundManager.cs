@@ -8,9 +8,11 @@ namespace VoxelEngine {
 
         public AudioClip footstep;
         public AudioClip uiButtonClick;
+        public AudioClip caveAmbience;
 
         private AudioListener listenerUi;
         private AudioListener listenerPlayer;
+        /// <summary> Used to play ui sounds. </summary>
         private AudioSource uiSource;
 
         private void Awake() {

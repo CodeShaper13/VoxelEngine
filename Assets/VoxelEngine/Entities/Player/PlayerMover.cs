@@ -29,7 +29,7 @@ namespace VoxelEngine.Entities.Player {
             this.player = player;
             this.characterController = this.player.GetComponent<CharacterController>();
 
-            this.soundSource = this.player.GetComponent<AudioSource>();
+            this.soundSource = this.player.GetComponents<AudioSource>()[0];
         }
 
         public void updateMover() {            

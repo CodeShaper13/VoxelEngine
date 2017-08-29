@@ -35,7 +35,7 @@ namespace VoxelEngine.Level {
         public ChunkPos chunkPos;
         public Bounds chunkBounds;
         /// <summary> If true, the chunk has been changed and needs it's mesh to be rebaked. </summary>
-        public bool isDirty;
+        private bool isDirty;
         /// <summary> If true, the population world gen phase and lighting has been done. </summary>
         public bool hasDoneGen2;
         /// <summary> If true, the chunk should not be rendered and is ment to read from only.  Gen Phase 2 will still edit theses? </summary>
@@ -64,8 +64,8 @@ namespace VoxelEngine.Level {
             this.worldPos = instructions.chunkPos.toBlockPos();
             this.chunkPos = instructions.chunkPos;
             this.isReadOnly = instructions.isReadOnly;
-            float radius = (float)Chunk.SIZE / 2;
-            this.chunkBounds = new Bounds(new Vector3(this.worldPos.x + radius, this.worldPos.y + radius, this.worldPos.z + radius), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
+            float radius = 7f;
+            this.chunkBounds = new Bounds(new Vector3(radius + this.worldPos.x, radius + this.worldPos.y, radius + this.worldPos.z), new Vector3(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE));
             this.name = "Chunk" + this.chunkPos.ToString();
         }
 
@@ -75,7 +75,7 @@ namespace VoxelEngine.Level {
             }
 
             if(Main.isDeveloperMode) {
-                DebugDrawer.bounds(new Bounds(this.chunkBounds.center, this.chunkBounds.size * 0.9f), this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
+                DebugDrawer.bounds(this.chunkBounds, this.isReadOnly ? new Color(1, 0, 0, 0.25f) : this.hasDoneGen2 ? Color.blue : new Color(0, 1, 0, 0.25f));
             }
         }
 
@@ -94,12 +94,14 @@ namespace VoxelEngine.Level {
 
         private void FixedUpdate() {
             if(!this.isReadOnly) {
+                return;
+
                 // Randomly tick blocks.
                 int x, y, z;
                 for (int i = 0; i < 3; i++) {
-                    x = UnityEngine.Random.Range(0, Chunk.SIZE);
-                    y = UnityEngine.Random.Range(0, Chunk.SIZE);
-                    z = UnityEngine.Random.Range(0, Chunk.SIZE);
+                    x = UnityEngine.Random.Range(0, Chunk.SIZE - 1);
+                    y = UnityEngine.Random.Range(0, Chunk.SIZE - 1);
+                    z = UnityEngine.Random.Range(0, Chunk.SIZE - 1);
                     this.getBlock(x, y, z).onRandomTick(this.world, x + this.worldPos.x, y + this.worldPos.y, z + this.worldPos.z, this.getMeta(x, y, z), i);
                 }
                 /*
@@ -192,7 +194,7 @@ namespace VoxelEngine.Level {
         /// Bakes the block meshes and light levels into the chunk.
         /// </summary>
         public void renderChunk() {
-            CachedRegion cachedRegion = new CachedRegion(this.world, this);
+            CachedChunk3x3 cachedRegion = CachedChunk3x3.getNewRegion(this.world, this);
             if(!cachedRegion.allChunksLoaded()) {
                 // Waiting for the lazy chunk loading to finish...
                 return;
@@ -207,7 +209,7 @@ namespace VoxelEngine.Level {
             bool cachedIsSolid;
             Block[] surroundingBlocks = new Block[6];
             BlockPos dirPos;
-            int x, y, z, i, facesCulled, x1, y1, z1, renderFace;
+            int x, y, z, i, facesCulled, x1, y1, z1, renderFace, x2, y2, z2;
             Direction direction;
 
             // Bake blocks into mesh.
@@ -252,21 +254,24 @@ namespace VoxelEngine.Level {
                             // If at least one face is visible, render the block.
                             if(facesCulled != 6) {
                                 // Populate the meshData with light levels.
-                                meshBuilder.lightLevels[0] = this.getLight(x, y, z);
+                                meshBuilder.setLightLevel(0, 0, 0, this.getLight(x, y, z));
                                 
                                 // If the renderer requests it, pass the light levels into the meshBuilder
                                 if(currentBlock.renderer.lookupAdjacentLight == true) {
-                                    for (i = 0; i < 6; i++) {
-                                        dirPos = Direction.all[i].blockPos;
-                                        x1 = x + dirPos.x;
-                                        y1 = y + dirPos.y;
-                                        z1 = z + dirPos.z;
-
-                                        // Get the surrounding light levels.
-                                        if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
-                                            meshBuilder.lightLevels[i + 1] = cachedRegion.getLight(x1, y1, z1);
-                                        } else {
-                                            meshBuilder.lightLevels[i + 1] = this.getLight(x1, y1, z1);
+                                    for(x2 = -1; x2 <= 1; x2++) {
+                                        for (y2 = -1; y2 <= 1; y2++) {
+                                            for (z2 = -1; z2 <= 1; z2++) {
+                                                x1 = x + x2;
+                                                y1 = y + y2;
+                                                z1 = z + z2;
+                                                if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
+                                                    i = cachedRegion.getLight(x1, y1, z1);
+                                                    //this.world.getLight(this.worldPos.x + x1, this.worldPos.y + y1, this.worldPos.z + z1); // cachedRegion.getLight(x1, y1, z1);
+                                                } else {
+                                                    i = this.getLight(x1, y1, z1);
+                                                }
+                                                meshBuilder.setLightLevel(x2, y2, z2, i);
+                                            }
                                         }
                                     }
                                 }
@@ -385,6 +390,12 @@ namespace VoxelEngine.Level {
                 } else {
                     print("Error!  Entity with an unknown ID of " + id + " was found!  Ignoring!");
                 }
+            }
+        }
+
+        public void setDirty() {
+            if(!this.isReadOnly) {
+                this.isDirty = true;
             }
         }
     }

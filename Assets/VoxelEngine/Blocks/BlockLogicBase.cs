@@ -3,7 +3,6 @@ using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -14,16 +13,6 @@ namespace VoxelEngine.Blocks {
             this.setTransparent();
             this.setMineTime(0.5f);
             this.setRenderer(RenderManager.LOGIC_PLATE);
-        }
-
-        public override UvPlane getUvPlane(int meta, Direction direction) {
-            if(direction.axis == EnumAxis.X || direction.axis == EnumAxis.Z) {
-                return new UvPlane(new TexturePos(9, 1), 0, 0, 32, 4);
-            } else if(direction == Direction.DOWN) {
-                return new UvPlane(new TexturePos(9, 0), 0, 0, 32, 32); // Bottom
-            } else {
-                return new UvPlane(this.getTopTexture(meta * 90), 0, 0, 32, 32); // Top
-            }
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDir, Vector3 angle) {

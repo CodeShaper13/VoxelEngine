@@ -58,17 +58,13 @@ namespace VoxelEngine.Entities {
             this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
 
             this.setMaxHealth(100);
-            this.setShadow(0.75f, 0.6f);
-        
-            this.chunkLoader = this.world.generator.getChunkLoader(this);
+            this.setShadow(0.75f, 0.6f);    
+        }
 
-            /*
-            RenderCube cube = new RenderCube(new BlockPos(0, 0, 0), new BlockPos(32, 32, 32));
-            BlockPos npn = new BlockPos(cube.to.x, cube.from.y, cube.to.z);
-            print(npn);
-            print(npn.func());
-            print(npn.func() + new Vector3(2, 4, 8));
-            */    
+        private void Start() {
+            // Move to the end of onConstruct.  Moved here for faster look at world gen in the profiler.
+            // DO NOT do this anywhere else for any reason.
+            this.chunkLoader = this.world.generator.getChunkLoader(this);
         }
 
         protected override void onEntityUpdate() {
@@ -268,18 +264,36 @@ namespace VoxelEngine.Entities {
         public void setupFirstTimePlayer() {
             if(true) {
                 this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 32);
-                this.dataHotbar.items[1] = new ItemStack(Block.cobblestone, 0, 32);
-                this.dataHotbar.items[2] = new ItemStack(Block.wire, 0, 32);
+                this.dataHotbar.items[1] = new ItemStack(Block.brick, 0, 32);
+                this.dataHotbar.items[2] = new ItemStack(Block.brickSlab, 0, 32);
                 this.dataHotbar.items[3] = new ItemStack(Item.axe, 0, 1);
                 this.dataHotbar.items[4] = new ItemStack(Block.wood, 0, 32);
-                this.dataHotbar.items[5] = new ItemStack(Block.ladder, 0, 25);
+                this.dataHotbar.items[5] = new ItemStack(Item.dynamite, 0, 25);
                 this.dataHotbar.items[6] = new ItemStack(Block.logicNot, 0, 32);
                 this.dataHotbar.items[7] = new ItemStack(Block.button, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Block.lanternOff, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.delayer, 0, 32);
+
+                this.dataInventory.items[0] = new ItemStack(Item.pebble);
+                this.dataInventory.items[1] = new ItemStack(Item.coal);
+                this.dataInventory.items[2] = new ItemStack(Item.ruby);
+                this.dataInventory.items[3] = new ItemStack(Item.pickaxe);
+                this.dataInventory.items[4] = new ItemStack(Item.shovel);
+                this.dataInventory.items[5] = new ItemStack(Item.axe);
+                this.dataInventory.items[6] = new ItemStack(Item.bone);
+                this.dataInventory.items[7] = new ItemStack(Item.skull);
+                this.dataInventory.items[8] = new ItemStack(Item.rawFish);
+                this.dataInventory.items[9] = new ItemStack(Item.corn);
+                this.dataInventory.items[10] = new ItemStack(Item.carrot);
+                this.dataInventory.items[11] = new ItemStack(Item.bucket);
+                this.dataInventory.items[12] = new ItemStack(Item.fishingRod);
+                this.dataInventory.items[13] = new ItemStack(Item.magnifyingGlass);
+                this.dataInventory.items[14] = new ItemStack(Item.arrowhead);
+                this.dataInventory.items[15] = new ItemStack(Item.dynamite);
             } else {
                 this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
                 this.dataHotbar.items[1] = new ItemStack(Item.shovel);
                 this.dataHotbar.items[2] = new ItemStack(Item.axe);
+                this.dataHotbar.items[2] = new ItemStack(Block.torch, 0, 12);
             }
 
             this.health = 100;
@@ -292,7 +306,7 @@ namespace VoxelEngine.Entities {
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
             // Ignore IslandMesh, layer 11.
-            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach(), ~((1 << 2) | (1 << 11)));
+            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach(), ~(Layers.IGNORE_RAYCAST | Layers.ISLAND_MESH | Layers.ENTITY_PLAYER));
 
             if(rayHit) {
                 // We are looking at something
@@ -304,9 +318,9 @@ namespace VoxelEngine.Entities {
                 }
                 this.posLookingAt = newLookPos;
 
-                if (hit.transform.CompareTag("Chunk") || hit.transform.CompareTag("Block")) {
+                if (hit.transform.CompareTag(Tags.CHUNK) || hit.transform.CompareTag(Tags.BLOCK)) {
                     return new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
-                } else if (hit.transform.CompareTag("Entity")) {
+                } else if (hit.transform.CompareTag(Tags.ENTITY)) {
                     return new PlayerRayHit(hit.transform.GetComponent<Entity>(), hit);
                 } else {
                     Debug.Log("Player is looking at an object with an unknown tag, " + hit.transform.tag);

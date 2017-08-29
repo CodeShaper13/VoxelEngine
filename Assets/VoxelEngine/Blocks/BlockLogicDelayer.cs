@@ -23,7 +23,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTopTexture(int rotation) {
-            return new TexturePos(9, 6);
+            return new TexturePos(9, 5);
         }
     }
 }

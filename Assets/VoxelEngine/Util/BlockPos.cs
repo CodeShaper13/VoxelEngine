@@ -134,7 +134,7 @@ namespace VoxelEngine.Util {
 
         public static BlockPos fromRaycastHit(RaycastHit hit) {
             Vector3 vec = hit.point + ((hit.normal * -1f) / 100);
-            return BlockPos.fromVector3(vec);
+            return new BlockPos(vec);
             /*
             float f = adjacent ? 1f : -1f;
             BlockPos pos = BlockPos.fromVec(new Vector3(
@@ -150,17 +150,6 @@ namespace VoxelEngine.Util {
         /// </summary>
         public static BlockPos rndInChunk(System.Random rnd) {
             return new BlockPos(rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE), rnd.Next(0, Chunk.SIZE));
-        }
-
-        public static BlockPos fromVector3(Vector3 vec) {
-            int x = Mathf.RoundToInt(vec.x);
-            int y = Mathf.RoundToInt(vec.y);
-            int z = Mathf.RoundToInt(vec.z);
-            return new BlockPos(x, y, z);
-        }
-
-        public Vector3 func() {
-            return new Vector3((this.x / 32f) - 0.5f, (this.y / 32f) - 0.5f, (this.z / 32f) - 0.5f);
         }
 
         public bool isZero() {

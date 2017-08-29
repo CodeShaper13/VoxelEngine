@@ -1,0 +1,15 @@
+Controls:
+
+Move- WASD
+Mine Block- Left Mouse
+Place Block/Use Item- Right Mouse
+Jump- Space
+Select Item- Scroll/1-9
+Drop Item- Q
+Open Inventory- E
+/- Open Command Prompt
+
+F1- Toggle Developer Mode
+F2- Take Screenshot
+F3- Toggle Debug Info
+F4- Rebake Chunks

@@ -4,6 +4,7 @@ using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Generation.Island {
 
@@ -12,7 +13,7 @@ namespace VoxelEngine.Generation.Island {
         private Collider heightmapCollider;
 
         public WorldGeneratorIsland(World world, int seed) : base(world, seed) {
-            this.heightmapCollider = GameObject.Find("heightMesh").GetComponent<Collider>();
+            this.heightmapCollider = GameObject.Find("DebugHeightMesh").GetComponent<Collider>();
         }
 
         public override void generateChunk(Chunk chunk) {
@@ -53,7 +54,9 @@ namespace VoxelEngine.Generation.Island {
         }
 
         public override Vector3 getSpawnPoint(World world) {
-            return new Vector3(0, 50, 0);
+            RaycastHit hit;
+            Physics.Raycast(new Ray(new Vector3(0, 100000, 0), Vector3.down), out hit, 1000000, Layers.BLOCKS);
+            return hit.point + Vector3.up * 10;
         }
     }
 }

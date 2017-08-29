@@ -35,7 +35,7 @@ namespace VoxelEngine.Blocks {
         public static Block cobblestoneStairs = new BlockStairs(14, Block.cobblestone);
         public static Block mushroom = new BlockMushroom(15, 4).setName("Mushroom");
         public static Block chest = new BlockChest(16).setName("Chest").setMineTime(2f);
-        // 17
+        public static Block cobweb = new BlockCobweb(17).setName("Cobweb");
         public static Block torch = new BlockTorch(18).setName("Torch").setMineTime(0.5f);
         public static Block ladder = new BlockLadder(19).setName("Ladder").setMineTime(0.5f).setType(EnumBlockType.WOOD);
         public static Block fence = new BlockFence(20).setName("Fence").setMineTime(1.25f).setType(EnumBlockType.WOOD);
@@ -66,8 +66,8 @@ namespace VoxelEngine.Blocks {
         public static BlockButton button = (BlockButton)new BlockButton(47).setName("Button");
         public static Block dial;
         public static Block gauge;
-        public static Block lanternOn = new BlockLantern(50).setName("Lanturn").setTexture(5, 4).setEmittedLight(15);
-        public static Block lanternOff = new BlockLantern(51).setName("Lanturn").setTexture(5, 5);
+        public static Block lanternOn = new BlockLantern(50).setName("Lantern").setTexture(5, 4).setEmittedLight(15);
+        public static Block lanternOff = new BlockLantern(51).setName("Lantern").setTexture(5, 5);
         public static Block logicAnd;
         public static Block logicOr;
         public static Block logicNot = new BlockLogicNot(54).setName("Logic NOT");
@@ -153,7 +153,7 @@ namespace VoxelEngine.Blocks {
         }
 
         /// <summary>
-        /// Returns an array of ItemStacks that this block should drop.
+        /// Returns an array of ItemStacks that this block should drop, or null if it should drop nothing.
         /// </summary>
         public virtual ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return new ItemStack[] { new ItemStack(this.asItem(), (byte)meta) };
@@ -169,11 +169,6 @@ namespace VoxelEngine.Blocks {
         [Obsolete("Use getUvPlane() instead!")]
         public virtual Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
             return uvs;
-        }
-
-        public virtual UvPlane getUvPlane(int meta, Direction direction) {
-            TexturePos pos = this.getTexturePos(direction, meta);
-            return new UvPlane(pos, 0, 0, 32, 32);
         }
 
         public virtual string getAsDebugText(int meta) {
@@ -197,7 +192,7 @@ namespace VoxelEngine.Blocks {
         }
 
         /// <summary>
-        /// Called by item block to determin if the block trying to be placed is in a vlid spot,
+        /// Called by item block to determin if the block trying to be placed is in a valid spot,
         /// stops torches from going on non solid blocks, like fences, etc...
         /// </summary>
         public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {

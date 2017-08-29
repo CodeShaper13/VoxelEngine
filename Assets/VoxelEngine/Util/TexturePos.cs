@@ -17,6 +17,9 @@
             this.rotation = 0;
         }
 
+        /// <summary>
+        /// Rotation is in amounts of 90 degrees.
+        /// </summary>
         public TexturePos(int x, int y, int rotation) {
             this.x = x;
             this.y = y;

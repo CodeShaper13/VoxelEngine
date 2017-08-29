@@ -4,7 +4,6 @@ using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -30,17 +29,13 @@ namespace VoxelEngine.Blocks {
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
-            if (neighborDir == Direction.horizontal[meta >> 2] && !world.getBlock(pos.move(neighborDir)).isSolid) {
+            if (neighborDir == Direction.horizontal[meta &= ~(1 << 2)] && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 0, brokenWith);
-        }
-
-        public override UvPlane getUvPlane(int meta, Direction direction) {
-            return new UvPlane(this.texturePos, 2, 22, 8, 8);
         }
 
         public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {

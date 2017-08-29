@@ -9,18 +9,23 @@ namespace VoxelEngine.Items {
 
     public class ItemThrowable : Item {
 
-        public ItemThrowable(int id) : base(id) { }
+        private RegisteredEntity registeredEntity;
+
+        public ItemThrowable(int id, RegisteredEntity entity) : base(id) {
+            this.registeredEntity = entity;
+        }
 
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
-            stack.count -= 1;
-            if (stack.count <= 0) {
-                stack = null;
-            }
+            Transform camera = player.mainCamera;
 
-            Entity entity = world.spawnEntity(EntityRegistry.throwable, player.mainCamera.position + player.mainCamera.forward, player.mainCamera.rotation);
-            entity.gameObject.GetComponent<Rigidbody>().AddForce(player.mainCamera.forward * 20, ForceMode.Impulse);
+            Entity entity = world.spawnEntity(this.registeredEntity, camera.position + camera.forward, camera.rotation);
+            entity.gameObject.GetComponent<Rigidbody>().AddForce(camera.forward * this.getThrowSpeed(), ForceMode.Impulse);
 
-            return stack;
+            return stack.safeDeduction();
+        }
+
+        protected virtual float getThrowSpeed() {
+            return 20f;
         }
     }
 }

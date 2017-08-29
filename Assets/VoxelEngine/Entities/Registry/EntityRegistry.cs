@@ -9,6 +9,7 @@ namespace VoxelEngine.Entities.Registry {
         public static RegisteredEntity item;
         public static RegisteredEntity throwable;
         public static RegisteredEntity dynamicBlock;
+        public static RegisteredEntity thrownDynamite;
 
         private static RegisteredEntity[] registry;
 
@@ -24,6 +25,7 @@ namespace VoxelEngine.Entities.Registry {
             EntityRegistry.item = new RegisteredEntity(2, "EntityItemPrefab");
             EntityRegistry.throwable = new RegisteredEntity(3, "EntityThrowablePrefab");
             EntityRegistry.dynamicBlock = new RegisteredEntity(4, "EntityDynamicBlockPrefab");
+            EntityRegistry.thrownDynamite = new RegisteredEntity(5, "EntityThrownDynamitePrefab");
         }
 
         /// <summary>

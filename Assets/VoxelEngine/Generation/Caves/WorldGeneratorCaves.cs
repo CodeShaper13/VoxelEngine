@@ -7,8 +7,7 @@ using fNbt;
 using VoxelEngine.Generation.Caves.Structure.Mineshaft;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
-using System;
-using UnityEngine.Profiling;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Generation.Caves {
 
@@ -29,7 +28,7 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public override bool generateLevelData() {
-            this.mineshaftList.Add(new StructureMineshaft(Vector3.zero, this.seed));
+            this.mineshaftList.Add(new StructureMineshaft(BlockPos.zero, this.seed));
 
             return true;
         }
@@ -76,7 +75,7 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public override void generateChunk(Chunk chunk) {
-            this.rnd = new System.Random(this.seed + chunk.chunkPos.GetHashCode());
+            this.rnd = new System.Random(this.seed & chunk.chunkPos.GetHashCode());
 
             /*
             bool inCrackChunk = chunk.chunkPos.y % 2 != 0;
@@ -132,12 +131,11 @@ namespace VoxelEngine.Generation.Caves {
                 for(int j = 0; j < shaft.pieces.Count; j++) {
                     piece = shaft.pieces[j];
                     if(chunk.chunkBounds.Intersects(piece.pieceBounds)) {
+                        rnd = new System.Random(piece.orgin.GetHashCode());
                         piece.carvePiece(chunk, rnd);
                     }
                 }
             }
-
-            chunk.isDirty = true;
         }
 
         /// <summary>

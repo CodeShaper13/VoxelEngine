@@ -97,23 +97,6 @@ namespace VoxelEngine.Blocks {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 
-        public override UvPlane getUvPlane(int meta, Direction direction) {
-            TexturePos pos = this.getTexturePos(direction, meta);
-            if(direction.axis == EnumAxis.X || direction.axis == EnumAxis.Z) {
-                return new UvPlane(pos, 14, 0, 4, 32);
-            } else {
-                // This must be the top face.
-                return new UvPlane(
-                    pos,
-                    new Vector2(
-                        BitHelper.getBit(meta, 6) ? 0 : 14,
-                        BitHelper.getBit(meta, 4) ? 0 : 14),
-                    new Vector2(
-                        BitHelper.getBit(meta, 2) ? 31 : 17,
-                        BitHelper.getBit(meta, 0) ? 31 : 17));
-            }
-        }
-
         public override string getAsDebugText(int meta) {
             return this.name + ":" + meta + "\n" +
                 "  N: " + (BitHelper.getBit(meta, 0) ? "true" : "false") + "\n" +

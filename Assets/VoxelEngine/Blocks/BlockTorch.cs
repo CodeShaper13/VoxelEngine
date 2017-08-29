@@ -42,16 +42,6 @@ namespace VoxelEngine.Blocks {
             return new TileEntityTorch(world, x, y, z, meta);
         }
 
-        public override UvPlane getUvPlane(int meta, Direction direction) {
-            if(direction == Direction.UP) {
-                return new UvPlane(this.texturePos, 2, 2, 8, 8);
-            } else if(direction == Direction.DOWN) {
-                return new UvPlane(this.texturePos, 2, 12, 8, 8);
-            } else {
-                return new UvPlane(this.texturePos, 12, 2, 8, 28);
-            }
-        }
-
         public static int getMetaFromDirection(Direction dir) {
             if(dir.axis == EnumAxis.X || dir.axis == EnumAxis.Z) {
                 return dir.index;

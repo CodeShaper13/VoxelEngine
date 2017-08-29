@@ -64,7 +64,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                                 b = Block.ladder;
                                 meta = 0;
                             }
-                            // Side logs
+                            // Floor
                             else if (!this.isBottom && offsetY == 0) {
                                 int absX = Mathf.Abs(offsetX);
                                 int absZ = Mathf.Abs(offsetZ);

@@ -39,6 +39,7 @@ namespace VoxelEngine {
         private FpsCounter fpsCounter;
 
         private void Awake() {
+            Debug.Log("AWAKE!");
             Main.singleton = this;
 
             // Make sure the singleton reference is set.
@@ -83,7 +84,19 @@ namespace VoxelEngine {
                         this.textDebug.text = string.Empty;
                     }
                 }
-                if(Input.GetKeyDown(KeyCode.Slash)) {
+                if(Input.GetKeyDown(KeyCode.F4)) {
+                    this.worldObj.rebakeWorld();
+                }
+                if (Input.GetKeyDown(KeyCode.F5)) {
+                    RenderManager.instance.lightHelper.toggleUseDebug();
+                    this.worldObj.rebakeWorld();
+                }
+                if (Input.GetKeyDown(KeyCode.F6)) {
+                    RenderManager.instance.useSmoothLighting = !RenderManager.instance.useSmoothLighting;
+                    this.worldObj.rebakeWorld();
+                }
+
+                if (Input.GetKeyDown(KeyCode.Slash)) {
                     if(!this.containerManager.isContainerOpen() && GuiManager.currentGui == null && !this.textWindow.isOpen) {
                         this.textWindow.openWindow();
                     }
@@ -134,7 +147,7 @@ namespace VoxelEngine {
 
         public void createNewWorld(bool flag = true) {
             string name = "World_1";
-            Main.singleton.generateWorld(new WorldData(name, 2346347 /*new System.Random().Next()*/, WorldType.CAVE.id, flag));
+            Main.singleton.generateWorld(new WorldData(name, 2346347, WorldType.CAVE.id, flag));
         }
 
         /// <summary>
@@ -209,7 +222,9 @@ namespace VoxelEngine {
         // TODO fix bug:
         // This is called whenever the test field loses focus, like when escape is pressed.
         public void callbackTextWindowEnter(string text) {
-            this.textWindow.onEnter(text);
+            if(!string.IsNullOrEmpty(text)) {
+                this.textWindow.onEnter(text);
+            }
         }
     }
 }

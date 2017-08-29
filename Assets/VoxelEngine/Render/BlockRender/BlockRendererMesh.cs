@@ -54,36 +54,38 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshData, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block b, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             int i;
-            Vector3 vertice;
+            Vector3 vertex;
+            Color color = RenderManager.instance.lightHelper.getColorFromBrightness(meshBuilder.getLightLevel(0, 0, 0));
 
             // Add the colliders
-            if(meshData.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
+            if(meshBuilder.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
                 for(i = 0; i < this.colliderArray.Length; i++) {
-                    meshData.useRenderDataForCol = false;
-                    meshData.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
+                    meshBuilder.useRenderDataForCol = false;
+                    meshBuilder.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
                 }
             }
 
             // Add vertices
-            int vertStart = meshData.getVerticeCount();
+            int vertStart = meshBuilder.getVerticeCount();
             for(i = 0; i < this.cachedMeshVerts.Length; i++) {
-                vertice = this.cachedMeshVerts[i];
-                meshData.addVertex(new Vector3(vertice.x + x + this.offsetVector.x, vertice.y + y + this.offsetVector.y, vertice.z + z + this.offsetVector.z));
+                vertex = this.cachedMeshVerts[i];
+                meshBuilder.addVertex(new Vector3(vertex.x + x + this.offsetVector.x, vertex.y + y + this.offsetVector.y, vertex.z + z + this.offsetVector.z));
+                meshBuilder.addVertexColor(color);
             }
 
             // Add triangles
             for (i = 0; i < this.cachedMeshTris.Length; i++) {
-                meshData.addTriangle(vertStart + this.cachedMeshTris[i]);
+                meshBuilder.addTriangle(vertStart + this.cachedMeshTris[i]);
             }
 
             // Add UVs
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
-                meshData.addUv(this.cachedMeshUVs[i], LightHelper.SELF);
+                meshBuilder.addUv(this.cachedMeshUVs[i]);
             }            
 
-            meshData.useRenderDataForCol = true;
+            meshBuilder.useRenderDataForCol = true;
         }
 
         private void extractMesh(Transform t, List<Mesh> meshes, List<Vector3> offsets) {

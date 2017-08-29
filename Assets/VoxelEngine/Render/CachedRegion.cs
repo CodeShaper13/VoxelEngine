@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
@@ -8,6 +8,7 @@ namespace Assets.VoxelEngine.Render {
     /// <summary>
     /// Used in Chunk mesh baking for faster block, meta and light lookup.
     /// </summary>
+    [Obsolete("Use CachedChunk3x3 instead!")]
     public class CachedRegion {
 
         private Chunk up;

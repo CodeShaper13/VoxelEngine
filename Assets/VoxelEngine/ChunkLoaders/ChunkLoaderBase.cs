@@ -134,7 +134,7 @@ namespace VoxelEngine.ChunkLoaders {
                 }
 
                 chunk.transform.position = instructions.toChunkVector();
-                chunk.isDirty = true;
+                chunk.setDirty();
 
                 this.world.loadChunk(chunk, instructions);
 

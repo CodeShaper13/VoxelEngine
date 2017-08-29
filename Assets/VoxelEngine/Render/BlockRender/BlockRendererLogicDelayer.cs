@@ -24,11 +24,11 @@ namespace VoxelEngine.Render.BlockRender {
         private void addButton(int meta, MeshBuilder meshBuilder, int x, int y, int z, int index, int xShift, int zShift) {
             int i = BitHelper.getBit(meta, index) ? -2 : 0;
             meshBuilder.addCube(
-                Block.delayer, meta,
+                this, Block.delayer, meta,
                 new CubeComponent(
                     14 + xShift, 3 + i, 14 + zShift,
                     18 + xShift, 7 + i, 18 + zShift),
-                x, y, z, RenderFace.YU);
+                x, y, z, RenderFace.ALL);
         }
     }
 }

@@ -20,9 +20,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.pieces = new List<PieceBase>();
         }
 
-        public StructureMineshaft(Vector3 shaftOrgin, int seed) : this() {
-            this.shaftOrgin = new BlockPos((int)shaftOrgin.x, (int)shaftOrgin.y, (int)shaftOrgin.z);
-            this.rnd = new System.Random(seed);
+        public StructureMineshaft(BlockPos shaftOrgin, int seed) : this() {
+            this.shaftOrgin = shaftOrgin;
+            this.rnd = new System.Random(seed | this.shaftOrgin.GetHashCode());
 
             // Make the starting piece
             new PieceCenter(this, this.shaftOrgin);

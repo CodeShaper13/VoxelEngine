@@ -7,8 +7,11 @@ using VoxelEngine.Level;
 namespace VoxelEngine.Generation {
 
     public abstract class WorldGeneratorBase {
+
         public World world;
         public int seed;
+
+        private AudioClip ambienceClip;
 
         public WorldGeneratorBase(World world, int seed) {
             this.world = world;

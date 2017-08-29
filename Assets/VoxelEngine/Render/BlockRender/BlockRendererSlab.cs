@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
+﻿using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
@@ -9,17 +9,38 @@ namespace VoxelEngine.Render.BlockRender {
             this.lookupAdjacentLight = true;
         }
 
-        public override void renderBlock(Block b, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
+        public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             if(BlockSlab.isFull(meta)) {
-                RenderManager.CUBE.renderBlock(b, meta, meshBuilder, x, y, z, renderFace, surroundingBlocks);
+                RenderManager.CUBE.renderBlock(block, meta, meshBuilder, x, y, z, renderFace, surroundingBlocks);
             } else {
-                Vector3 v = BlockSlab.getDirectionFromMeta(meta).vector;
-                Vector3 size = new Vector3(
-                    v.x == 0 ? 0.5f : 0.25f,
-                    v.y == 0 ? 0.5f : 0.25f,
-                    v.z == 0 ? 0.5f : 0.25f);
+                Direction dir = BlockSlab.getDirectionFromMeta(meta);
+                BlockPos v = dir.blockPos;
+                BlockPos size = new BlockPos(
+                    v.x == 0 ? 16 : 8,
+                    v.y == 0 ? 16 : 8,
+                    v.z == 0 ? 16 : 8);
 
-                meshBuilder.addBox(new Vector3(x + (v.x / 4), y + (v.y / 4), z + (v.z / 4)), size, b, meta, RenderManager.TRUE_ARRAY);
+                meshBuilder.addCube(
+                    this, block, meta,
+                    new CubeComponent(
+                        new BlockPos(16, 16, 16) + v * 8,
+                        size.x, size.y, size.z),
+                    RenderFace.ALL, x, y, z);
+            }
+        }
+
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+            Direction slabDir = BlockSlab.getDirectionFromMeta(meta);
+            if (faceDirection.axis == slabDir.axis) { // Full face
+                return base.getUvPlane(block, meta, faceDirection, cubeIndex);
+            } else {
+                if(slabDir.axis == EnumAxis.X) {
+                    return new UvPlane(block.getTexturePos(faceDirection, meta), slabDir == Direction.EAST ? 0 : 16, 0, 16, 32);
+                } else if (slabDir.axis == EnumAxis.Y) {
+                    return new UvPlane(block.getTexturePos(faceDirection, meta), 0, slabDir == Direction.DOWN ? 0 : 16, 32, 16); // GOOD!
+                } else { // Z
+                    return new UvPlane(block.getTexturePos(faceDirection, meta), slabDir == Direction.SOUTH ? 0 : 16, 0, 16, 32);
+                }
             }
         }
     }

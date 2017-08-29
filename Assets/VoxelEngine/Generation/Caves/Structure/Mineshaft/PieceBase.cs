@@ -14,7 +14,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public StructureMineshaft shaft;
 
         public Bounds pieceBounds;
-        protected BlockPos orgin;
+        public BlockPos orgin;
 
         /// <summary>
         /// Ctor when loading a piece from the save.

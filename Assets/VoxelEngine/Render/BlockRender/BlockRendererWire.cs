@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Blocks;
+﻿using UnityEngine;
+using VoxelEngine.Blocks;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
@@ -16,7 +17,7 @@ namespace VoxelEngine.Render.BlockRender {
             bool connectSouth = BitHelper.getBit(meta, 4);
             bool connectWest =  BitHelper.getBit(meta, 6);
 
-            meshBuilder.addCube(block, meta,
+            meshBuilder.addCube(this, block, meta,
                 new CubeComponent(
                     connectWest ? 0 : 14, 1, connectSouth ? 0 : 14,
                     connectEast ? 32 : 18, 1, connectNorth ? 32 : 18),
@@ -25,16 +26,36 @@ namespace VoxelEngine.Render.BlockRender {
             // Up Sides
             meshBuilder.useRenderDataForCol = false;
 
-            BlockPos to = new BlockPos(14, 0, 31);
-            BlockPos from = new BlockPos(18, 32, 31);
-
             for (int i = 0; i < 4; i++) {
                 if(BitHelper.getBit(meta, (i * 2) + 1)) {
-                    meshBuilder.addCube(block, meta, new CubeComponent(to, from, new ComponentRotation(0, i * 90, 0)), RenderFace.ALL, x, y, z);
+                    meshBuilder.addCube(
+                        this, block, meta,
+                        new CubeComponent(
+                            14, 0, 31,
+                            18, 32, 31,
+                            0, i * 90, 0),
+                        RenderFace.ALL, x, y, z);
                 }
             }
 
             meshBuilder.useRenderDataForCol = true;            
+        }
+
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+            TexturePos pos = block.getTexturePos(faceDirection, meta);
+            if (faceDirection.axis == EnumAxis.X || faceDirection.axis == EnumAxis.Z) {
+                return new UvPlane(pos, 14, 0, 4, 32);
+            } else {
+                // This must be the top face.
+                return new UvPlane(
+                    pos,
+                    new Vector2(
+                        BitHelper.getBit(meta, 6) ? 0 : 14,
+                        BitHelper.getBit(meta, 4) ? 0 : 14),
+                    new Vector2(
+                        BitHelper.getBit(meta, 2) ? 31 : 17,
+                        BitHelper.getBit(meta, 0) ? 31 : 17));
+            }
         }
     }
 }

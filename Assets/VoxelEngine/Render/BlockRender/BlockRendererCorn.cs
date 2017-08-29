@@ -16,7 +16,7 @@ namespace VoxelEngine.Render.BlockRender {
         // Adds a face to the model
         private void addFace(Block block, int meta, MeshBuilder meshBuilder, Vector3 p1, Vector3 p2) {
             meshBuilder.addPlane(
-                block, meta,
+                this, block, meta,
                 p1,
                 new Vector3(p1.x, p2.y, p1.z),
                 p2,

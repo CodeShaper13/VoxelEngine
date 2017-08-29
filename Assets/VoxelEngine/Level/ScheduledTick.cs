@@ -16,7 +16,7 @@ namespace VoxelEngine.Level {
         }
 
         public ScheduledTick(NbtCompound tag) {
-            this.timeUntil = tag.Get<NbtFloat>("tileUntil").Value;
+            this.timeUntil = tag.Get<NbtFloat>("timeUntil").Value;
             this.pos = NbtHelper.readDirectBlockPos(tag, "pos");
         }
 

@@ -7,9 +7,7 @@ namespace VoxelEngine.Blocks {
 
     public class BlockLantern : Block {
 
-        public BlockLantern(int id) : base(id) {
-            this.setEmittedLight(12);
-        }
+        public BlockLantern(int id) : base(id) { }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return new ItemStack[] { new ItemStack(Block.lanternOff) };

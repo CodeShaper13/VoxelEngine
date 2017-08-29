@@ -13,6 +13,7 @@ namespace VoxelEngine {
         // Textures.
         public Texture2D textureAtlas;
         public Texture2D lightColorSheet;
+        public Texture2D debugLightColorSheet;
 
         // Other prefabs.
         public GameObject blockBreakEffect;
@@ -48,6 +49,7 @@ namespace VoxelEngine {
 
             this.textureAtlas = Resources.Load<Texture2D>("Images/textureAtlas");
             this.lightColorSheet = Resources.Load<Texture2D>("Images/light_colors");
+            this.debugLightColorSheet = Resources.Load<Texture2D>("Images/light_colors_debug");
 
             this.blockBreakEffect = Resources.Load<GameObject>("Prefabs/BreakBlockEffect");
             this.worldPrefab = Resources.Load<GameObject>("Prefabs/World");

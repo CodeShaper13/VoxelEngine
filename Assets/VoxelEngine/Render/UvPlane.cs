@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using VoxelEngine.Util;
 
-namespace VoxelEngine.Render.NewSys {
+namespace VoxelEngine.Render {
 
     /// <summary>
     /// Represents the uvs for a single 4 sided plane.
@@ -20,14 +20,17 @@ namespace VoxelEngine.Render.NewSys {
         /// <summary> Uv on the bottom right side. </summary>
         private Vector2 uv3;
 
-        public UvPlane(TexturePos texturePos, int xStart, int yStart, int xSize, int ySize) {
+        /// <summary>
+        /// Start is 0 based, with 0,0 being on texture.  0, 0, 32, 32 is an entire tile.
+        /// </summary>
+        public UvPlane(TexturePos texturePos, int xStart, int yStart, int pixelCountX, int pixelCountY) {
             this.texturePos = texturePos;
-            xSize -= 1;
-            ySize -= 1;
+            pixelCountX -= 1;
+            pixelCountY -= 1;
             this.uv0 = new Vector2(xStart, yStart);
-            this.uv1 = new Vector2(xStart, yStart + ySize);
-            this.uv2 = new Vector2(xStart + xSize, yStart + ySize);
-            this.uv3 = new Vector2(xStart + xSize, yStart);
+            this.uv1 = new Vector2(xStart, yStart + pixelCountY);
+            this.uv2 = new Vector2(xStart + pixelCountX, yStart + pixelCountY);
+            this.uv3 = new Vector2(xStart + pixelCountX, yStart);
         }
 
         public UvPlane(TexturePos texturePos, Vector2 pos1, Vector2 pos2) {

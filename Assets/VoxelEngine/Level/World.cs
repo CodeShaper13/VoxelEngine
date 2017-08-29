@@ -143,8 +143,6 @@ namespace VoxelEngine.Level {
 
                 // It's possible that this chunk itself needs phase 2.
                 this.tryPhase2OnChunk(chunk);
-
-                chunk.isDirty = true;
             }
             return chunk;
         }
@@ -218,6 +216,10 @@ namespace VoxelEngine.Level {
                     oldBlock.onDestroy(this, newBlockWorldPos, oldBlockMeta);
 
                     chunk.setBlock(localChunkX, localChunkY, localChunkZ, newBlock);
+
+                    if(newMeta == -1) {
+                        newMeta = 0; // If the block is being changed, assume it should be 0... ?
+                    }
                 }
 
                 // Set meta if it's specified.  -1 means don't change.
@@ -351,6 +353,42 @@ namespace VoxelEngine.Level {
             }
         }
 
+        public void makeExplosion(IExplosiveObject obj, Vector3 point) {
+            // Lerp quaternion and call func?
+        }
+
+        public void rebakeWorld() {
+            foreach (Chunk chunk in this.loadedChunks.Values) {
+                chunk.setDirty();
+            }
+        }
+
+        private void makeExplosionRay(Vector3 orgin, Vector3 direction, float distance) {
+            float traveled = 0f;
+
+            BlockPos lastPos = new BlockPos(orgin);
+            BlockPos pos;
+            direction /= 2;
+
+            while (traveled <= distance) {
+                orgin += direction;
+                pos = new BlockPos(orgin);
+                if (!(pos.Equals(lastPos))) {
+                    // Got to a new block.
+                    if (this.getBlock(pos) == Block.air) {
+                        if (UnityEngine.Random.Range(0, 3) == 0) {
+                            this.breakBlock(pos, null);
+                        }
+                        else {
+                            this.setBlock(pos, Block.air);
+                        }
+                    }
+                    lastPos = pos;
+                }
+                traveled += 0.5f;
+            }
+        }
+
         /// <summary>
         /// Returns true if all the adjacent chunks are loaded.
         /// </summary>
@@ -390,7 +428,7 @@ namespace VoxelEngine.Level {
             if (value1 == value2) {
                 Chunk chunk = getChunk(x, y, z);
                 if (chunk != null) {
-                    chunk.isDirty = true;
+                    chunk.setDirty();
                 }
             }
         }

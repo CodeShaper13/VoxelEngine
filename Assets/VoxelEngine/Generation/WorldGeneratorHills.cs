@@ -5,6 +5,7 @@ using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Generation {
 
@@ -29,7 +30,7 @@ namespace VoxelEngine.Generation {
         }
 
         public override Vector3 getSpawnPoint(World world) {
-            return new Vector3(0, 70, 0);
+            return new Vector3(0, 100, 0);
         }
 
         public override void generateChunk(Chunk chunk) {
@@ -41,7 +42,7 @@ namespace VoxelEngine.Generation {
         }
 
         public override ChunkLoaderBase getChunkLoader(EntityPlayer player) {
-            return new ChunkLoaderLockedY(player.world, player);
+            return new ChunkLoaderInfinite(player.world, player);
         }
 
         public override void populateChunk(Chunk chunk) {
@@ -77,17 +78,17 @@ namespace VoxelEngine.Generation {
         }
 
         public Chunk generateColumn(Chunk chunk, int x, int z) {
-            int stoneHeight = Mathf.FloorToInt(stoneBaseHeight);
-            stoneHeight += this.getNoise(x, 0, z, stoneMountainFrequency, Mathf.FloorToInt(stoneMountainHeight));
+            int stoneHeight = MathHelper.floor(stoneBaseHeight);
+            stoneHeight += this.getNoise(x, 0, z, stoneMountainFrequency, MathHelper.floor(stoneMountainHeight));
 
             if (stoneHeight < stoneMinHeight) {
-                stoneHeight = Mathf.FloorToInt(stoneMinHeight);
+                stoneHeight = MathHelper.floor(stoneMinHeight);
             }
 
-            stoneHeight += this.getNoise(x, 0, z, stoneBaseNoise, Mathf.FloorToInt(stoneBaseNoiseHeight));
+            stoneHeight += this.getNoise(x, 0, z, stoneBaseNoise, MathHelper.floor(stoneBaseNoiseHeight));
 
-            int dirtHeight = stoneHeight + Mathf.FloorToInt(dirtBaseHeight);
-            dirtHeight += this.getNoise(x, 100, z, dirtNoise, Mathf.FloorToInt(dirtNoiseHeight));
+            int dirtHeight = stoneHeight + MathHelper.floor(dirtBaseHeight);
+            dirtHeight += this.getNoise(x, 100, z, dirtNoise, MathHelper.floor(dirtNoiseHeight));
 
             for (int y = chunk.worldPos.y; y < (chunk.worldPos.y + Chunk.SIZE); y++) {
                 Block b = Block.air;
@@ -120,7 +121,7 @@ namespace VoxelEngine.Generation {
         }
 
         public int getNoise(int x, int y, int z, float scale, int max) {
-            return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
+            return MathHelper.floor((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
         }
     }
 }

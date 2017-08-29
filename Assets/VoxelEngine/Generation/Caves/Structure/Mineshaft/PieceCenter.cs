@@ -13,11 +13,13 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         private int topFloor;
         private int bottomFloor;
         private bool useFartherEntrance;
+        private bool isTall;
 
         public PieceCenter(NbtCompound tag) : base(tag) {
             this.topFloor = tag.Get<NbtInt>("topFloor").IntValue;
             this.bottomFloor = tag.Get<NbtInt>("bottomFloor").IntValue;
             this.useFartherEntrance = tag.Get<NbtByte>("useFarEntrance").ByteValue == 1;
+            this.isTall = tag.Get<NbtByte>("isTall").ByteValue == 1;
         }
 
         public PieceCenter(StructureMineshaft shaft, BlockPos center) : base(shaft, center) {                  
@@ -32,6 +34,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
             // Pick entrance to use.
             this.useFartherEntrance = this.shaft.rnd.Next(2) == 0;
+            this.isTall = false; // this.shaft.rnd.Next(2) == 0;
 
             this.calculateBounds();
             this.shaft.pieces.Add(this);
@@ -43,8 +46,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, 9, 0), 6, false));
             this.shaft.pieces.Add(new PieceSmallShaft(this.shaft, shaftOrgin + new BlockPos(0, -6, 0), 6, true));
 
-            this.func(shaftOrgin + new BlockPos(0, 9, 0));
-            this.func(shaftOrgin + new BlockPos(0, -6, 0));
+            this.pickRndRoom(shaftOrgin + new BlockPos(0, 9, 0));
+            this.pickRndRoom(shaftOrgin + new BlockPos(0, -6, 0));
 
             // Add hallways.
             new PieceHallway(this.shaft, this.orgin + new BlockPos(-5, 1, -8), Direction.WEST, 0);
@@ -59,6 +62,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             int offsetX, offsetY, offsetZ;
             Block block;
             byte meta;
+            int i = this.isTall ? 5 : 4;
             for (int x = p1.x; x <= p2.x; x++) {
                 for (int y = p1.y; y <= p2.y; y++) {
                     for (int z = p1.z; z <= p2.z; z++) {
@@ -86,14 +90,14 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                     block = Block.wood;
                                     meta = 1;
                             }
-                            // Crosspiece lower
-                            else if(offsetY == 5 && Mathf.Abs(offsetX) < 5 && (
+                            // Crosspiece lower beam
+                            else if(offsetY == i && Mathf.Abs(offsetX) < 5 && (
                                 offsetZ == 3 || offsetZ == -4 || offsetZ == -11 || offsetZ ==-13)) {
                                     block = Block.wood;
                                     meta = 0;
                             }
-                            // Higher
-                            else if (offsetY == 6 && Mathf.Abs(offsetX) == 3) {
+                            // Higher beam
+                            else if (offsetY == i + 1 && Mathf.Abs(offsetX) == 3) {
                                 block = Block.wood;
                                 meta = 2;
                             }
@@ -113,7 +117,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void calculateBounds() {
-            this.setPieceSize(0, 6, 4, 4, 4, 14);
+            this.setPieceSize(0, this.isTall ? 6 : 5, 4, 4, 4, 14);
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
@@ -122,6 +126,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             tag.Add(new NbtInt("topFloor", this.topFloor));
             tag.Add(new NbtInt("bottomFloor", this.bottomFloor));
             tag.Add(new NbtByte("useFarEntrance", this.useFartherEntrance ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("isTall", this.isTall ? (byte)1 : (byte)0));
             return tag;
         }
 
@@ -133,7 +138,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return Color.white;
         }
 
-        private void func(BlockPos pos) {
+        private void pickRndRoom(BlockPos pos) {
             if(this.shaft.rnd.Next(0, 2) == 0) {
                 this.shaft.pieces.Add(new PieceOrginStorage(this.shaft, pos));
             } else {

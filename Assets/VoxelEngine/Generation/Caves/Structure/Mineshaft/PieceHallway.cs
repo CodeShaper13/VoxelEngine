@@ -6,6 +6,7 @@ using VoxelEngine.Blocks;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
+    // TODO bounds is not smaller when shaft is 3 high.  Only a minor optimization.
     public class PieceHallway : PieceBase {
 
         private const int minLength = 3;
@@ -13,17 +14,20 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         private BlockPos end;
         private Direction pointing;
+        private bool is3High;
 
         public bool successfullyGenerated;
 
         public PieceHallway(NbtCompound tag) : base(tag) {
             this.end = NbtHelper.readDirectBlockPos(tag, "end");
             this.pointing = Direction.all[tag.Get<NbtInt>("pointing").IntValue];
+            this.is3High = tag.Get<NbtByte>("3High").Value == 1;
         }
 
         public PieceHallway(StructureMineshaft shaft, BlockPos start, Direction hallwayDirection, int piecesFromCenter) : base(shaft, start) {
             this.end = this.orgin + (hallwayDirection.blockPos * this.shaft.rnd.Next(PieceHallway.minLength, PieceHallway.minLength + 1) * 8);
             this.pointing = hallwayDirection;
+            this.is3High = this.shaft.rnd.Next(0, 2) == 0;
 
             this.calculateBounds();
 
@@ -89,8 +93,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void carvePiece(Chunk chunk, System.Random rnd) {
-            BlockPos pos1 = this.getPosMin() + new BlockPos(0, 1, 0);
-            BlockPos pos2 = this.getPosMax();
+            BlockPos pos1 = this.getPosMin() + BlockPos.up;
+            BlockPos pos2 = this.getPosMax() - (this.is3High ? BlockPos.up : BlockPos.zero);
             int i, j, k, x, y, z;
             int i1 = Mathf.Max(pos1.x, pos2.x);
             int j1 = Mathf.Max(pos1.y, pos2.y);
@@ -109,32 +113,34 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
 
             // Add the supports, torch and rails.
-            BlockPos pos = this.orgin; // this.start;
+            BlockPos pos = this.orgin;
             BlockPos endPoint = this.end + this.pointing.blockPos;
             int axis = (int)(this.pointing.axis);
             int perpAxis = (int)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X); // Perpendicular to axis
             int distanceToSupport = 0;
             BlockPos rightDir = this.pointing.getClockwise().blockPos;
             BlockPos leftDir = this.pointing.getCounterClockwise().blockPos;
+            i = (this.is3High ? 3 : 4);
+            k = i - 1;
             do {
                 distanceToSupport++;
                 if (distanceToSupport == 3) {
                     if(chunk.isInChunk(pos.x, pos.y + 3, pos.z) && rnd.Next(0, 3) == 0) {
-                        this.addTorch(chunk, pos.x, pos.y + 3, pos.z, this.pointing);
+                        this.addTorch(chunk, pos.x, pos.y + k, pos.z, this.pointing);
                     }
                 } else if (distanceToSupport == 4) {
                     // Top middle
-                    this.setStateIfInChunk(chunk, pos.x, pos.y + 3, pos.z, Block.wood, perpAxis);
+                    this.setStateIfInChunk(chunk, pos.x, pos.y + k, pos.z, Block.wood, perpAxis);
 
                     // Column
-                    for (j = 0; j < 4; j++) {
+                    for (j = 0; j < i; j++) {
                         this.setStateIfInChunk(chunk, pos.x + rightDir.x * 2, pos.y + j, pos.z + rightDir.z * 2, Block.wood, j == 3 ? perpAxis : 1);
                         this.setStateIfInChunk(chunk, pos.x + leftDir.x * 2, pos.y + j, pos.z + leftDir.z * 2, Block.wood, j == 3 ? perpAxis : 1);
                     }
 
                     // Top beam, one away from middle
-                    this.setStateIfInChunk(chunk, pos.x + rightDir.x, pos.y + 3, pos.z + rightDir.z, Block.wood, perpAxis);
-                    this.setStateIfInChunk(chunk, pos.x + leftDir.x, pos.y + 3, pos.z + leftDir.z, Block.wood, perpAxis);
+                    this.setStateIfInChunk(chunk, pos.x + rightDir.x, pos.y + k, pos.z + rightDir.z, Block.wood, perpAxis);
+                    this.setStateIfInChunk(chunk, pos.x + leftDir.x, pos.y + k, pos.z + leftDir.z, Block.wood, perpAxis);
 
                     distanceToSupport = -4;
                 }
@@ -144,9 +150,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 }
 
                 // Gravel
-                this.func02(pos, chunk);
-                this.func02(pos + rightDir, chunk);
-                this.func02(pos + leftDir, chunk);
+                this.placeRndGravel(pos, chunk);
+                this.placeRndGravel(pos + rightDir, chunk);
+                this.placeRndGravel(pos + leftDir, chunk);
 
                 pos += this.pointing.blockPos;
 
@@ -164,6 +170,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             base.writeToNbt(tag);
             NbtHelper.writeDirectBlockPos(tag, this.end, "end");
             tag.Add(new NbtInt("pointing", this.pointing.index - 1));
+            tag.Add(new NbtByte("3High", (byte)(this.is3High ? 1 : 0)));
             return tag;
         }
 
@@ -172,10 +179,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override Color getPieceColor() {
-            return Color.blue;
+            return new Color(0, 100, 0);
         }
 
-        private void func02(BlockPos pos, Chunk chunk) {
+        private void placeRndGravel(BlockPos pos, Chunk chunk) {
             if(this.rndGravel() != null) {
                 this.setStateIfInChunk(chunk, pos.x, pos.y - 1, pos.z, Block.gravel, 0);
             }

@@ -1,4 +1,5 @@
 ﻿using VoxelEngine.Blocks;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
@@ -28,14 +29,26 @@ namespace VoxelEngine.Render.BlockRender {
                 rotZ = -ROTATION;
             }
 
+            int i = meta != 0 ? 0 : 4;
+
             meshBuilder.addCube(
-                block, meta,
+                this, block, meta,
                 new CubeComponent(
                     12, 0, 12,
                     20, 28, 20,
                     rotX, rotY, rotZ,
                     offsetX, 0, offsetZ),
-                renderFace | RenderFace.YU, x, y, z);
+                RenderFace.ALL, x, y, z);
+        }
+
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+            if (faceDirection == Direction.UP) {
+                return new UvPlane(block.texturePos, 2, 2, 8, 8);
+            } else if (faceDirection == Direction.DOWN) {
+                return new UvPlane(block.texturePos, 2, 12, 8, 8);
+            } else {
+                return new UvPlane(block.texturePos, 12, 2, 8, 28);
+            }
         }
     }
 }

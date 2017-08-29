@@ -72,6 +72,7 @@ namespace VoxelEngine.Blocks {
             return uvArray;
         */
 
+        /*
         public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
             if(!BlockSlab.isFull(meta)) {
                 UvHelper.cropUVs(uvs, faceRadius);
@@ -79,6 +80,7 @@ namespace VoxelEngine.Blocks {
             }
             return uvs;
         }
+        */
 
         public static bool isFull(int meta) {
             return meta >= 6;

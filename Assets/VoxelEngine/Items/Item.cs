@@ -3,6 +3,7 @@ using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
+using VoxelEngine.Entities.Registry;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Render.Items;
@@ -14,15 +15,15 @@ namespace VoxelEngine.Items {
 
         public static Item[] ITEM_LIST = new Item[512];
 
-        public static Item pebble = new ItemThrowable(256).setName("Rock").setTexture(11, 2);
+        public static Item pebble = new ItemThrowable(256, EntityRegistry.throwable).setName("Rock").setTexture(11, 2);
         public static Item coal = new Item(257).setName("Coal Lump").setTexture(12, 0);
         public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 0);
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 0);
         public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 0);
-        public static Item ruby = new Item(261).setName("Ruby").setTexture(0, 1);
-        public static Item pickaxe = new ItemTool(262, 2f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(13, 0);
-        public static Item shovel = new ItemTool(263, 2f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(14, 0);
-        public static Item axe = new ItemTool(264, 2f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(15, 0);
+        public static Item ruby = new Item(261).setName("Ruby").setTexture(11, 1);
+        public static Item pickaxe = new ItemTool(262, 4f, EnumToolType.PICKAXE, EnumBlockType.STONE).setName("Pickaxe").setTexture(13, 0);
+        public static Item shovel = new ItemTool(263, 4f, EnumToolType.SHOVEL, EnumBlockType.DIRT).setName("Shovel").setTexture(14, 0);
+        public static Item axe = new ItemTool(264, 4f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(15, 0);
         public static Item knife = new ItemSword(265, 2).setName("Knife").setTexture(0, 0);
         public static Item pistol; // 266
         public static Item shotgun; // 267
@@ -41,6 +42,8 @@ namespace VoxelEngine.Items {
         public static Item bucket = new Item(280).setName("Bucket").setTexture(12, 2);
         public static Item fishingRod = new Item(281).setName("Fishing Pole").setTexture(12, 5);
         public static Item magnifyingGlass = new ItemMagnifyingGlass(282).setName("Magnifying Glass").setTexture(12, 4);
+        public static Item arrowhead = new Item(283).setName("Arrowhead").setTexture(15, 2);
+        public static Item dynamite = new ItemDynamite(284).setName("Dynamite").setTexture(15, 4);
         public static Item minecart;
         public static Item topHat;
         public static Item goggles;

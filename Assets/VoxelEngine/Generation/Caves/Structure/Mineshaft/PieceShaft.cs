@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
@@ -14,16 +13,20 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         /// <summary> -1 = bottom piece of stack, 1 = top of stack. </summary>
         private int specialFlag = 0;
         /// <summary> 0 = NE, 1 = SE, 2 = SW, 3 = NW. </summary>
-        private int floor1Ladder;
-        private int floor2Ladder;
+        private byte floor1Ladder;
+        private byte floor2Ladder;
         /// <summary> -1 if there is not a ladder above/below. </summary>
         private int floorBelowLadderFlag = -1;
+        private bool closeColumns;
+        private byte floorType;
 
         public PieceShaft(NbtCompound tag) : base(tag) {
-            this.specialFlag = tag.Get<NbtInt>("flag").IntValue;
-            this.floor1Ladder = tag.Get<NbtInt>("f1l").IntValue;
-            this.floor2Ladder = tag.Get<NbtInt>("f2l").IntValue;
-            this.floorBelowLadderFlag = tag.Get<NbtInt>("fbl").IntValue;
+            this.specialFlag = tag.Get<NbtByte>("flag").Value;
+            this.floor1Ladder = tag.Get<NbtByte>("f1l").Value;
+            this.floor2Ladder = tag.Get<NbtByte>("f2l").Value;
+            this.floorBelowLadderFlag = tag.Get<NbtByte>("fbl").Value;
+            this.closeColumns = tag.Get<NbtByte>("closeColumns").Value == 1;
+            this.floorType = tag.Get<NbtByte>("floorType").Value;
         }
 
         public PieceShaft(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter, int flag)
@@ -43,15 +46,21 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
 
             this.specialFlag = flag;
-            this.floor1Ladder = this.shaft.rnd.Next(4);
-            this.floor2Ladder = this.shaft.rnd.Next(4);
+            this.floor1Ladder = (byte)this.shaft.rnd.Next(4);
+            this.floor2Ladder = (byte)this.shaft.rnd.Next(4);
+
+            // Only pick a random floor block and column mode if this is the root piece (middle).
+            if (this.specialFlag != 0) {
+                this.closeColumns = this.shaft.rnd.Next(4) == 0;
+                this.floorType = (byte)this.shaft.rnd.Next(2);
+            }
 
             if(this.specialFlag == 0) {
                 //This is the middle/first piece
                 PieceShaft up = new PieceShaft(this.shaft, new BlockPos(hallwayPoint.x, hallwayPoint.y + 14, hallwayPoint.z), hallwayDir, piecesFromCenter, this.specialFlag + 1);
                 PieceShaft down = new PieceShaft(this.shaft, new BlockPos(hallwayPoint.x, hallwayPoint.y - 14, hallwayPoint.z), hallwayDir, piecesFromCenter, this.specialFlag - 1);
                 if (!up.addedToList && !down.addedToList) {
-                    //Both pieces failed, remove this piece. The whole stack failed, so nothing should be here
+                    //Both pieces failed, remove this piece. The whole stack failed, so nothing should be here.
                     this.shaft.pieces.RemoveAt(this.shaft.pieces.Count - 1);
                 } else {
                     // We added at least one piece, up or down or both
@@ -66,6 +75,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                         this.specialFlag = -1;
                     }
                 }
+                up.floorType = this.floorType;
+                down.floorType = this.floorType;
+                up.closeColumns = this.closeColumns;
+                down.closeColumns = this.closeColumns;
             } else if(this.specialFlag == -1) {
                 //TODO chance for water filled bottom piece
             }
@@ -89,6 +102,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             int offsetX, offsetY, offsetZ;
             Block block;
             int meta = 0;
+            int i = closeColumns ? 2 : 3;
             for (int x = p1.x; x <= p2.x; x++) {
                 for (int y = p1.y; y <= p2.y; y++) {
                     for (int z = p1.z; z <= p2.z; z++) {
@@ -138,7 +152,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                     } else if(offsetY == 7) {
                                         if(xAbs == 3 && zAbs <= 2 && rnd.Next(10) != 0) {
                                             block = Block.fence;
-                                        } else if(xAbs == 3 && zAbs == 4 && rnd.Next(25) == 0) {
+                                        } else if(xAbs == 3 && zAbs == 4 && rnd.Next(15) == 0) {
                                             RandomChest.MINESHAFT_SHAFT.makeChest(chunk.world, x, y, z, z > this.orgin.z ? Direction.SOUTH : Direction.NORTH, rnd);
                                             block = null;
                                         }
@@ -149,6 +163,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             else if (x == torchPos.x && z == torchPos.z && offsetY == 9) {
                                 this.addTorch(chunk, x, y, z, torchDir);
                                 block = null;
+                            }
+                            // Columns
+                            else if (Mathf.Abs(offsetX) == i && Mathf.Abs(offsetZ) == i) {
+                                block = Block.wood;
+                                meta = 1;
                             }
                             // Railing
                             else if (offsetY == 7 || (offsetY == 0 && this.specialFlag != -1)) {
@@ -163,6 +182,27 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                                 if(Mathf.Abs(offsetX) > 2 || Mathf.Abs(offsetZ) > 2) {
                                     block = Block.wood;
                                     meta = 1;
+                                }
+                            }
+                            // Side logs
+                            else if (offsetY == -1 || offsetY == 6) {
+                                int absX = Mathf.Abs(offsetX);
+                                int absZ = Mathf.Abs(offsetZ);
+                                if (this.floorType == 0) {
+                                    if (absX > 2 || absZ > 2) {
+                                        block = Block.wood;
+                                        meta = 1;
+                                    }
+                                } else {
+                                    if (absX == 3 || absZ == 3) {
+                                        block = Block.plank;
+                                    } else if (absX == 2 && absZ < 2) {
+                                        block = Block.wood;
+                                        meta = 2;
+                                    } else if (absZ == 2 && absX < 2) {
+                                        block = Block.wood;
+                                        meta = 0;
+                                    }
                                 }
                             }
 
@@ -217,10 +257,12 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
-            tag.Add(new NbtInt("flag", this.specialFlag));
-            tag.Add(new NbtInt("f1l", this.floor1Ladder));
-            tag.Add(new NbtInt("f2l", this.floor2Ladder));
-            tag.Add(new NbtInt("fbl", this.floorBelowLadderFlag));
+            tag.Add(new NbtByte("flag", (byte)this.specialFlag));
+            tag.Add(new NbtByte("f1l", this.floor1Ladder));
+            tag.Add(new NbtByte("f2l", this.floor2Ladder));
+            tag.Add(new NbtByte("fbl", (byte)this.floorBelowLadderFlag));
+            tag.Add(new NbtByte("closeColumns", (byte)(this.closeColumns ? 1 : 0)));
+            tag.Add(new NbtByte("floorType", this.floorType));
             return tag;
         }
 

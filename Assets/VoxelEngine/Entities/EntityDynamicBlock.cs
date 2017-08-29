@@ -20,7 +20,7 @@ namespace VoxelEngine.Entities {
         public override void onConstruct() {
             this.rBody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            this.startPos = BlockPos.fromVector3(this.transform.position);
+            this.startPos = new BlockPos(this.transform.position);
         }
 
         protected override void onEntityUpdate() {
@@ -32,7 +32,7 @@ namespace VoxelEngine.Entities {
             }
 
             if(this.timeSinceMovement > 0.1f) {
-                this.world.setBlock(BlockPos.fromVector3(this.transform.position), this.block, this.meta);
+                this.world.setBlock(new BlockPos(this.transform.position), this.block, this.meta);
                 this.world.killEntity(this);
             }
         }

@@ -82,9 +82,5 @@ namespace VoxelEngine.Blocks {
                 return new TexturePos(8, 4);
             }
         }
-
-        public override UvPlane getUvPlane(int meta, Direction direction) {
-            return new UvPlane(this.getTexturePos(direction, meta), 2, 2, 28, 28);
-        }
     }
 }

@@ -23,7 +23,9 @@ namespace VoxelEngine.Entities {
 
         // Don't override!!!  Use Entity.onConstruct().
         private void Awake() {
-            this.tag = "Entity";
+            if(!this.CompareTag(Tags.ENTITY)) {
+                print("Entity found without tag \"Entity\"!  Is that normal?");
+            }
             this.rBody = this.GetComponent<Rigidbody>();
         }
 
@@ -75,7 +77,7 @@ namespace VoxelEngine.Entities {
                 if(this.shadowTransform != null) {
                     RaycastHit hit;
                     // Ignore Entities, EntityItems and IslandMesh, layers 9, 10 and 11.
-                    if (Physics.Raycast(this.transform.position, Vector3.down, out hit, 20, ~((1 << 9) | (1 << 10) | (1 << 11)))) {
+                    if (Physics.Raycast(this.transform.position, Vector3.down, out hit, 20, ~(Layers.ENTITY | Layers.ENTITY_ITEM | Layers.ISLAND_MESH))) {
                         this.shadowTransform.position = hit.point + new Vector3(0, 0.0001f, 0);
                         this.shadowMaterial.SetColor(Shader.PropertyToID("_LightColor"), lightColor);
                         if(!this.shadowTransform.gameObject.activeSelf) {
@@ -96,7 +98,7 @@ namespace VoxelEngine.Entities {
         protected virtual void onEntityUpdate() { }
 
         /// <summary>
-        /// Called when another Entity collides with this one.
+        /// Called when another Entity collides with this one.  Entity may be null if this hit the world.
         /// </summary>
         public virtual void onEntityCollision(Entity otherEntity) { }
 

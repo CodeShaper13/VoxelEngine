@@ -8,7 +8,7 @@ namespace VoxelEngine.Render.Items {
 
         public Mesh renderItemFlat(Item item, int meta) {
             MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
-            meshBuilder.lightLevels[0] = 15;
+            meshBuilder.setMaxLight();
 
             meshBuilder.addQuad(
                 new Vector3(-0.5f, -0.5f, 0),
@@ -23,7 +23,7 @@ namespace VoxelEngine.Render.Items {
 
         public Mesh renderItem3d(Item item, int meta) {
             MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
-            meshBuilder.lightLevels[0] = 15;
+            meshBuilder.setMaxLight();
             TexturePos textPos = item.getItemTexturePos(meta);
             float halfPixelSize = 0.015625f;
 

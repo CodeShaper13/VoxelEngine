@@ -10,8 +10,6 @@ namespace VoxelEngine.Generation.Caves.Structure {
             return tag;
         }
 
-        public virtual void readFromNbt(NbtCompound tag) {
-
-        }
+        public virtual void readFromNbt(NbtCompound tag) { }
     }
 }

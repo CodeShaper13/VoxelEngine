@@ -13,7 +13,7 @@ namespace VoxelEngine.Render.BlockRender {
             float f = MathHelper.pixelToWorld(14);
 
             meshData.addCube(
-                block, meta,
+                this, block, meta,
                 new CubeComponent(
                     2, 0, 2,
                     30, 28, 30),
@@ -28,6 +28,10 @@ namespace VoxelEngine.Render.BlockRender {
                 meta,
                 RenderManager.TRUE_ARRAY);
                 */
+        }
+
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+            return new UvPlane(block.getTexturePos(faceDirection, meta), 2, 2, 28, 28);
         }
     }
 }

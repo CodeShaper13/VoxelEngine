@@ -4,7 +4,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
 
-    public class BlockRendererRoof : BlockRenderer {
+    public class BlockRendererRoof : BlockRendererPrimitive {
 
         public BlockRendererRoof() {
             this.lookupAdjacentBlocks = true;
@@ -14,7 +14,7 @@ namespace VoxelEngine.Render.BlockRender {
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // Bottom.
             if(((renderFace >> 5) & 1) == 1) {
-                meshBuilder.addPlane(block, meta,
+                meshBuilder.addPlane(this, block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
@@ -81,6 +81,10 @@ namespace VoxelEngine.Render.BlockRender {
             meshBuilder.addVertex(middleVert);
             meshBuilder.addVertex(highVert);
 
+            meshBuilder.addVertexColor(Color.black);
+            meshBuilder.addVertexColor(Color.black);
+            meshBuilder.addVertexColor(Color.black);
+
             // Tris
             int i = meshBuilder.getVerticeCount();
             if (isRight) {
@@ -99,9 +103,9 @@ namespace VoxelEngine.Render.BlockRender {
             float y1 = TexturePos.BLOCK_SIZE * tilePos.y;
 
             int sampleDir = direction.index;
-            meshBuilder.addUv(new Vector2(x1 + TexturePos.BLOCK_SIZE, y1), sampleDir);
-            meshBuilder.addUv(new Vector2(x1, y1), sampleDir);
-            meshBuilder.addUv(new Vector2(x1, y1 + TexturePos.BLOCK_SIZE), sampleDir);
+            meshBuilder.addUv(new Vector2(x1 + TexturePos.BLOCK_SIZE, y1));
+            meshBuilder.addUv(new Vector2(x1, y1));
+            meshBuilder.addUv(new Vector2(x1, y1 + TexturePos.BLOCK_SIZE));
         }
     }
 }

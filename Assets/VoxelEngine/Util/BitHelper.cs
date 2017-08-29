@@ -17,7 +17,7 @@
         /// </summary>
         public static int setBit(int integer, int bitPosition, bool value) {
             if(value) {
-                return (integer |= (value ? 1 : 0) << bitPosition);
+                return (integer |= 1 << bitPosition);
             } else {
                 return integer &= ~(1 << bitPosition);
             }

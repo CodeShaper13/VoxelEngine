@@ -19,17 +19,24 @@ namespace VoxelEngine.Render {
         /// <summary> 36 is the serialized form of _LightColor </summary>
         public const int COLOR_ID = 36;
 
-        private Color[] cachedColors;
+        private Color[] normalCachedColors;
+        private Color[] debugCachedColors;
+        private bool useDebugColor;
 
-        public LightHelper(Texture2D lightColorSheet) {
-            this.cachedColors = lightColorSheet.GetPixels();
+        public LightHelper() {
+            this.normalCachedColors = References.list.lightColorSheet.GetPixels();
+            this.debugCachedColors = References.list.debugLightColorSheet.GetPixels();
+        }
+
+        public void toggleUseDebug() {
+            this.useDebugColor = !this.useDebugColor;
         }
 
         /// <summary>
         /// Returns the color coresponding to a brightness
         /// </summary>
         public Color getColorFromBrightness(int lightLevel) {
-            return this.cachedColors[lightLevel];
+            return this.useDebugColor ? this.debugCachedColors[lightLevel] : this.normalCachedColors[lightLevel];
         }
     }
 }

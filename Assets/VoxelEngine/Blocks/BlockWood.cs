@@ -2,13 +2,11 @@
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.Render;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockWood : Block, IHasBlockRotation {
+    public class BlockWood : Block {
 
         public BlockWood(int id) : base(id) {
             this.setStatesUsed(3);
@@ -16,47 +14,28 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
-            /*
-            TexturePos pos = new TexturePos(1, 1);
+            TexturePos core = new TexturePos(2, 1);
+
             if(meta == 0) { // X
-                if (direction == Direction.EAST || direction == Direction.WEST) {
-                    pos.x = 2;
+                if (direction.axis == EnumAxis.X) {
+                    return core;
+                } else {
+                    return new TexturePos(1, 1, 90);
                 }
             } else if(meta == 1) { // Y
-                if (direction == Direction.UP || direction == Direction.DOWN) {
-                    pos.x = 2;
+                if (direction.axis == EnumAxis.Y) {
+                    return core;
                 }
             } else if(meta == 2) { // Z
-                if (direction == Direction.NORTH || direction == Direction.SOUTH) {
-                    pos.x = 2;
+                if (direction.axis == EnumAxis.Z) {
+                    return core;
+                } else if(direction.axis == EnumAxis.X) {
+                    return new TexturePos(1, 1, 90);
                 }
-            } else if(meta == 3) {
-                pos = new TexturePos(2, 1);
+            } else if(meta == 3) { // All core.
+                return core;
             }
-            return pos;
-            */
-            if(direction.axis == EnumAxis.Y) {
-                return new TexturePos(2, 1);
-            } else {
-                return new TexturePos(1, 1);
-            }
-        }
-
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            /*
-            // Correct the texture rotation.
-            if (meta == 0 && direction.axis == EnumAxis.Z) {
-                UvHelper.rotateUVs(uvs, 90);
-            } else if (meta == 2) {
-                if(direction.axis == EnumAxis.X) {
-                    UvHelper.rotateUVs(uvs, 90);
-                } else if(direction.axis == EnumAxis.Y) {
-                    UvHelper.rotateUVs(uvs, 90);
-                }
-            }
-            */
-                       
-            return uvs;
+            return new TexturePos(1, 1);
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
@@ -65,18 +44,6 @@ namespace VoxelEngine.Blocks {
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 1, brokenWith);
-        }
-
-        public ComponentRotation getRotation(int meta) {
-            if(meta == 0) { // X
-                return new ComponentRotation(0, 0, 90);
-            }
-            else if(meta == 1) { // Y
-                return new ComponentRotation(0, 0, 0);
-            }
-            else { // Z
-                return new ComponentRotation(90, 0, 0);
-            }
         }
     }
 }

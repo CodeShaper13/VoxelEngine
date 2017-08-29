@@ -6,7 +6,7 @@ namespace VoxelEngine.Render.BlockRender {
 
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             meshBuilder.addCube(
-                block, meta,
+                this, block, meta,
                 new CubeComponent(
                     0, 0, 31,
                     32, 32, 31,

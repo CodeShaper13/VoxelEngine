@@ -20,8 +20,8 @@ TagManager:
   - Entity
   - EntityItem
   - IslandMesh
-  - 
-  - 
+  - EntityPlayer
+  - Blocks
   - 
   - 
   - 
