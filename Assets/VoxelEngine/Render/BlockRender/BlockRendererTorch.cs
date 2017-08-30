@@ -8,6 +8,10 @@ namespace VoxelEngine.Render.BlockRender {
         private const int ROTATION = 15;
         public const int OFFSET = 12;
 
+        public BlockRendererTorch() {
+            this.demandLocalLight = true;
+        }
+
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             int offsetX = 0;
             int offsetZ = 0;

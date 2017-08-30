@@ -66,7 +66,7 @@ namespace VoxelEngine.Items {
 
             this.id = id;
             Item.ITEM_LIST[this.id] = this;
-            this.setRenderer(RenderManager.ITEM_RENDERER_BILLBOARD);
+            this.setRenderer(RenderManager.ITEM_RENDERER_FLAT);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace VoxelEngine.Items {
                 handTransfrom.position + mt.position + new Vector3(),
                 handTransfrom.rotation * mt.rotation,
                 mt.scale);
-            Graphics.DrawMesh(RenderManager.getItemMesh(this, meta, true), matrix, RenderManager.getMaterial(this.id), 0, null, 0, null, false, false);
+            Graphics.DrawMesh(RenderManager.getItemMesh(this, meta, true), matrix, References.list.blockMaterial, 0, null, 0, null, false, false);
         }
 
         /// <summary>

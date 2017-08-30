@@ -57,7 +57,7 @@ namespace VoxelEngine.Render.BlockRender {
         public override void renderBlock(Block b, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             int i;
             Vector3 vertex;
-            Color color = RenderManager.instance.lightHelper.getColorFromBrightness(meshBuilder.getLightLevel(0, 0, 0));
+            Color color = RenderManager.instance.lightColors.getColorFromBrightness(meshBuilder.getLightLevel(0, 0, 0));
 
             // Add the colliders
             if(meshBuilder.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item

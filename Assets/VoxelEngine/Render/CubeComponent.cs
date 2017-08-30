@@ -4,7 +4,7 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Render {
 
     /// <summary>
-    /// NOTE:  CubeComponent's position's are not 0 based.
+    /// NOTE:  CubeComponent's position's are not 0 based. <- whats this mesh, clarify
     /// </summary>
     public struct CubeComponent {
 

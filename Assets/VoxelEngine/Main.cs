@@ -88,7 +88,7 @@ namespace VoxelEngine {
                     this.worldObj.rebakeWorld();
                 }
                 if (Input.GetKeyDown(KeyCode.F5)) {
-                    RenderManager.instance.lightHelper.toggleUseDebug();
+                    RenderManager.instance.lightColors.toggleUseDebugColors();
                     this.worldObj.rebakeWorld();
                 }
                 if (Input.GetKeyDown(KeyCode.F6)) {

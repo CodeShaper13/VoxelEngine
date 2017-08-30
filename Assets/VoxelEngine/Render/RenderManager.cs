@@ -10,7 +10,6 @@ namespace VoxelEngine.Render {
         
         public static RenderManager instance;
 
-        public static readonly bool[] TRUE_ARRAY = new bool[6] { true, true, true, true, true, true };
         public static readonly Block[] AIR_ARRAY = new Block[6] { Block.air, Block.air, Block.air, Block.air, Block.air, Block.air };
 
         public static readonly BlockRenderer BED = new BlockRendererBed();
@@ -33,13 +32,15 @@ namespace VoxelEngine.Render {
         public static readonly BlockRenderer WIRE = new BlockRendererWire();
 
         // Used for dev debugging.
+        public static readonly BlockRenderer TEST = new BlockRendererTest();
         public static readonly BlockRenderer MIRROR_TEST = new BlockRendererMesh(References.list.mirrorTestPrefab);
 
-        public static readonly IRenderItem ITEM_RENDERER_BILLBOARD = new RenderItemBillboard();
+        /// <summary> Flat item renderer. </summary>
+        public static readonly IRenderItem ITEM_RENDERER_FLAT = new RenderItemBillboard();
 
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
-        public LightHelper lightHelper;
+        public LightColors lightColors;
         public bool useSmoothLighting;
 
         private MeshBuilder reusableMeshBuilder;
@@ -48,7 +49,7 @@ namespace VoxelEngine.Render {
         public RenderManager() {
             RenderManager.instance = this;
 
-            this.lightHelper = new LightHelper();
+            this.lightColors = new LightColors();
             this.reusableMeshBuilder = new MeshBuilder();
 
             this.preRenderItems();
@@ -60,22 +61,15 @@ namespace VoxelEngine.Render {
         /// Returns a ready to use meshBuilder.
         /// </summary>
         public static MeshBuilder getMeshBuilder() {
-            RenderManager.instance.reusableMeshBuilder.cleanup();
+            RenderManager.instance.reusableMeshBuilder.prepareForReuse();
             return RenderManager.instance.reusableMeshBuilder;
-        }
-
-        /// <summary>
-        /// Returns the correct material that corresponds with the block/item id
-        /// </summary>
-        public static Material getMaterial(int id) {
-            return References.list.blockMaterial;
         }
 
         public static Mesh getItemMesh(Item item, int meta, bool is3d) {
             int id = item.id;
 
             if (id < 0 || id >= RenderManager.instance.preBakedItemMeshes.Length) {
-                Debug.LogWarning("Could not find prerendered mesh for " + item.getName(meta) + ":" + meta + "  Using placeholder mesh!");
+                Debug.LogWarning("Could not find prerendered mesh for " + item.getName(meta) + ":" + meta + "  The Item was never baked on startup!  Using placeholder mesh!");
                 return RenderManager.getItemMesh(Block.placeholder.asItem(), 0, is3d);
             } else {
                 return RenderManager.instance.preBakedItemMeshes[id].getMesh(meta, is3d);

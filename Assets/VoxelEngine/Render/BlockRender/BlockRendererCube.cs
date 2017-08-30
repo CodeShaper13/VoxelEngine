@@ -13,7 +13,8 @@ namespace VoxelEngine.Render.BlockRender {
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // North.
             if ((renderFace & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
@@ -22,7 +23,8 @@ namespace VoxelEngine.Render.BlockRender {
             }
             // East.
             if (((renderFace >> 1) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
@@ -31,7 +33,8 @@ namespace VoxelEngine.Render.BlockRender {
             }
             // South.
             if (((renderFace >> 2) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
@@ -40,7 +43,8 @@ namespace VoxelEngine.Render.BlockRender {
             }
             // West
             if (((renderFace >> 3) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -49,7 +53,8 @@ namespace VoxelEngine.Render.BlockRender {
             }
             // Up.
             if (((renderFace >> 4) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,                    
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,                    
                     new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                     new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
@@ -58,7 +63,8 @@ namespace VoxelEngine.Render.BlockRender {
             }
             // Down.
             if (((renderFace >> 5) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(
+                    this, block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),

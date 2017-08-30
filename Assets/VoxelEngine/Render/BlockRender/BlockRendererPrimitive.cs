@@ -4,7 +4,13 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Render.BlockRender {
 
     public abstract class BlockRendererPrimitive : BlockRenderer {
-        
+
+        /// <summary>
+        /// This makes the block use its own cells light even if it crosses into other cells.
+        /// Set this value in the constructor.
+        /// </summary>
+        public bool demandLocalLight = false;
+
         public BlockRendererPrimitive() {
             this.setRenderInWorld(true);
         }

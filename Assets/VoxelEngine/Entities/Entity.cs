@@ -66,7 +66,7 @@ namespace VoxelEngine.Entities {
                     Mathf.RoundToInt(this.transform.position.x),
                     Mathf.RoundToInt(this.transform.position.y),
                     Mathf.RoundToInt(this.transform.position.z));
-                Color lightColor = RenderManager.instance.lightHelper.getColorFromBrightness(lightLevel);
+                Color lightColor = RenderManager.instance.lightColors.getColorFromBrightness(lightLevel);
 
                 // Update the lighting on the entity's model.
                 if (this.entityMaterial != null) { // Player's don't need renderering and don't have their material set.

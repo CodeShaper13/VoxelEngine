@@ -271,7 +271,7 @@ namespace VoxelEngine.Entities {
                 this.dataHotbar.items[5] = new ItemStack(Item.dynamite, 0, 25);
                 this.dataHotbar.items[6] = new ItemStack(Block.logicNot, 0, 32);
                 this.dataHotbar.items[7] = new ItemStack(Block.button, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Block.delayer, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.test, 0, 32);
 
                 this.dataInventory.items[0] = new ItemStack(Item.pebble);
                 this.dataInventory.items[1] = new ItemStack(Item.coal);

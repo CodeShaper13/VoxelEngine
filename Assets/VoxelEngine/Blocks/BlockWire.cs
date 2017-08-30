@@ -1,9 +1,7 @@
-﻿using UnityEngine;
-using VoxelEngine.Containers;
+﻿using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {

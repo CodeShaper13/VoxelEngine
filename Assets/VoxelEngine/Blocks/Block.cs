@@ -6,7 +6,6 @@ using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
 using VoxelEngine.Render.BlockRender;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -80,6 +79,7 @@ namespace VoxelEngine.Blocks {
 
 
         [Obsolete("Remember to update the placeholder with the correct block!")]
+        public static Block test = new BlockTest(254).setName("TEST");
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(31, 31);
 
         /// <summary> The blocks id, there will never be duplicate. </summary>

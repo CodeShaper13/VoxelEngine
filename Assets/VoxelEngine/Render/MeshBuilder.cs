@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using VoxelEngine.Blocks;
 using VoxelEngine.Util;
 using VoxelEngine.Render.BlockRender;
+using System;
 
 namespace VoxelEngine.Render {
 
@@ -56,10 +57,10 @@ namespace VoxelEngine.Render {
         /// <summary>
         /// Adds a single geometry triangle and the collider triangle if useRenderDataForCol is enabled.
         /// </summary>
-        public void addTriangle(int triangle) {
-            this.triangles.Add(triangle);
+        public void addTriangle(int triIndex) {
+            this.triangles.Add(triIndex);
             if (this.useRenderDataForCol) {
-                this.colTriangles.Add(triangle - (this.vertices.Count - this.colVertices.Count));
+                this.colTriangles.Add(triIndex - (this.vertices.Count - this.colVertices.Count));
             }
         }
 
@@ -68,50 +69,27 @@ namespace VoxelEngine.Render {
         /// </summary>
         public void addUv(Vector2 uv) {
             this.uv.Add(uv);
-
-            /*
-            Old light uv code.
-            
-            float i = LightHelper.PIXEL_SIZE * this.getLightLevel(0, 0, 0);
-            Vector2 v;
-            switch (this.internalLightUvCount) {
-                case 0: v = new Vector2(i, i); break;
-                case 1: v = new Vector2(i, i + LightHelper.PIXEL_SIZE); break;
-                default: v = new Vector2(i + LightHelper.PIXEL_SIZE, i); break;
-            }
-            this.lightUvs.Add(v);
-
-            // Cycle through the internal counter.
-            this.internalLightUvCount += 1;
-            if (this.internalLightUvCount == 3) {
-                this.internalLightUvCount = 0;
-            }
-            */
         }
 
         /// <summary>
-        /// Adds a quad to the mesh using the passed light sample direction.
+        /// Adds a basic quad to the mesh with texture uvs.  If lightSampleDirection != null, light will be looked up from
+        /// the legacy light sample direction system (0- 6).  If vertex colors are not added here, the calling method must
+        /// add them in another way.
         /// </summary>
-        public void addQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector2[] uvs, int lightSampleDirection, bool flag = true) {
-            // Add the 4 corner vertices.
+        public void addQuad(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Vector2[] uvs, int lightSampleDirection = -1) {
+            // Add the 4 vertices.
+            this.vertices.Add(v0);
             this.vertices.Add(v1);
             this.vertices.Add(v2);
             this.vertices.Add(v3);
-            this.vertices.Add(v4);
 
-            if(flag) {
-                Color c = RenderManager.instance.lightHelper.getColorFromBrightness(this.getLightFromLegacySampleDir(lightSampleDirection));
+            // Add vertex colors.
+            if (lightSampleDirection != -1) {
+                Color c = RenderManager.instance.lightColors.getColorFromBrightness(this.getLightFromLegacySampleDir(lightSampleDirection));
                 this.vertexColors.Add(c);
                 this.vertexColors.Add(c);
                 this.vertexColors.Add(c);
                 this.vertexColors.Add(c);
-            }
-
-            if (this.useRenderDataForCol) {
-                this.colVertices.Add(v1);
-                this.colVertices.Add(v2);
-                this.colVertices.Add(v3);
-                this.colVertices.Add(v4);
             }
 
             int i = this.vertices.Count;
@@ -124,7 +102,13 @@ namespace VoxelEngine.Render {
             this.triangles.Add(i - 3);
             this.triangles.Add(i - 2);
 
+            // Add collider vericies and triangles.
             if (this.useRenderDataForCol) {
+                this.colVertices.Add(v0);
+                this.colVertices.Add(v1);
+                this.colVertices.Add(v2);
+                this.colVertices.Add(v3);
+
                 i = this.colVertices.Count;
                 this.colTriangles.Add(i - 4);
                 this.colTriangles.Add(i - 3);
@@ -138,99 +122,82 @@ namespace VoxelEngine.Render {
             for (i = 0; i < uvs.Length; i++) {
                 this.uv.Add(uvs[i]);
             }
-
-            /*
-            Old light uv code.
-            // Add light mapping.
-            i = this.getLightFromLegacySampleDir(lightSampleDirection);
-            float f = LightHelper.PIXEL_SIZE * i;
-            this.lightUvs.Add(new Vector2(f, f)); // Bottom left
-            this.lightUvs.Add(new Vector2(f, f + LightHelper.PIXEL_SIZE)); // Upper left
-            this.lightUvs.Add(new Vector2(f + LightHelper.PIXEL_SIZE, f + LightHelper.PIXEL_SIZE)); // Upper right
-            this.lightUvs.Add(new Vector2(f + LightHelper.PIXEL_SIZE, f)); // Bottom right
-            */
         }
 
         /// <summary>
-        /// Adds a one sided plane.
+        /// Adds a plane.  Optimized for use in BlockRendererCube and this shouldn't be used for anything else.
         /// </summary>
-        public void addPlane(BlockRendererPrimitive renderer, Block block, int meta, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Direction direction, bool forceHardLighting = true) {
+        public void addOptimized1x1Plane(BlockRendererPrimitive renderer, Block block, int meta, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Direction direction) {
             this.addQuad(
-                v0, v1, v2, v3,
-                renderer.getUvPlane(block, meta, direction, 0).getMeshUvs(this.allocatedUvArray),
-                direction.index,
-                false);
-
+                v0,v1, v2, v3,
+                renderer.getUvPlane(block, meta, direction, 0).getMeshUvs(this.allocatedUvArray));
 
             // Set vertex colors.
-            bool useSmooth = !forceHardLighting | RenderManager.instance.useSmoothLighting;
+            bool useSmooth = RenderManager.instance.useSmoothLighting;
 
             // Note! sampleAndSetVertexColor is called in the standard lower left clockwise order.  
             if (direction == Direction.NORTH) {
                 if(useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.DOWN);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.DOWN);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.NORTH);
+                    this.color4Vertices(LightSampleDirection.NORTH);
                 }
             } else if (direction == Direction.EAST) {
                 if (useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.SOUTH, Direction.DOWN);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.SOUTH, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.NORTH, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.NORTH, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.SOUTH, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.SOUTH, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.NORTH, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.NORTH, Direction.DOWN);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.EAST);
+                    this.color4Vertices(LightSampleDirection.EAST);
                 }
             } else if(direction == Direction.SOUTH) {
                 if (useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.DOWN);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.DOWN);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.SOUTH);
+                    this.color4Vertices(LightSampleDirection.SOUTH);
                 }
             } else if (direction == Direction.WEST) {
                 if (useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.NORTH, Direction.DOWN);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.NORTH, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.SOUTH, Direction.UP);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.SOUTH, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.NORTH, Direction.DOWN);
+                    this.sampleFor1x1Plane(direction, Direction.NORTH, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.SOUTH, Direction.UP);
+                    this.sampleFor1x1Plane(direction, Direction.SOUTH, Direction.DOWN);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.WEST);
+                    this.color4Vertices(LightSampleDirection.WEST);
                 }
             } else if(direction == Direction.UP) {
                 if (useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.SOUTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.NORTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.NORTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.SOUTH);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.SOUTH);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.NORTH);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.NORTH);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.SOUTH);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.UP);
+                    this.color4Vertices(LightSampleDirection.UP);
                 }
             } else if(direction == Direction.DOWN) {
                 if (useSmooth) {
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.NORTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.WEST, Direction.SOUTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.SOUTH);
-                    this.sampleAndSetSmoothVertexColor(direction, Direction.EAST, Direction.NORTH);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.NORTH);
+                    this.sampleFor1x1Plane(direction, Direction.WEST, Direction.SOUTH);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.SOUTH);
+                    this.sampleFor1x1Plane(direction, Direction.EAST, Direction.NORTH);
                 } else {
-                    this.sampleAndSetHardVertexColor(LightHelper.DOWN);
+                    this.color4Vertices(LightSampleDirection.DOWN);
                 }
             }
-        }
-
-        public void addBox(Vector3 pos, Vector3 boxRadius, Block block, int meta, bool[] renderFace) {
-            this.addBox(pos, boxRadius, Quaternion.identity, block, meta, renderFace);
         }
 
         /// <summary>
         /// Adds a rotated box of quads.  Warning, rotated boxes that extend to the edge of their voxel or past may have lighting errors!
         /// </summary>
-        public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, bool[] renderFace) {
+        [Obsolete("Use MeshBuilder.addCube() instead")]
+        public void addBox(Vector3 pos, Vector3 boxRadius, Quaternion rotation, Block block, int meta, int renderFace) {
             // Top points.
             Vector3 ppp = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, boxRadius.z), Vector3.zero, rotation);
             Vector3 ppn = pos + MathHelper.rotateVecAround(new Vector3(boxRadius.x, boxRadius.y, -boxRadius.z), Vector3.zero, rotation);
@@ -245,7 +212,7 @@ namespace VoxelEngine.Render {
             Vector3 boxOffset = pos - MathHelper.roundVector3(pos);
 
             // +Z/North face.
-            if (renderFace[0]) {
+            if ((renderFace & 1) == 1) {
                 this.addQuad(pnp, ppp, npp, nnp,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.NORTH, meta)),
@@ -253,10 +220,10 @@ namespace VoxelEngine.Render {
                         Direction.NORTH,
                         new Vector2(boxRadius.x, boxRadius.y),
                         new Vector2(boxOffset.x, boxOffset.y)),
-                    boxRadius.z >= 0.5f ? LightHelper.NORTH : LightHelper.SELF);
+                    boxRadius.z >= 0.5f ? LightSampleDirection.NORTH : LightSampleDirection.SELF);
             }
             // +X/East face.
-            if (renderFace[1]) {
+            if (((renderFace >> 1) & 1) == 1) {
                 this.addQuad(pnn, ppn, ppp, pnp,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.EAST, meta)),
@@ -264,10 +231,10 @@ namespace VoxelEngine.Render {
                         Direction.EAST,
                         new Vector2(boxRadius.z, boxRadius.y),
                         new Vector2(boxOffset.z, boxOffset.y)),
-                    boxRadius.x >= 0.5f ? LightHelper.EAST : LightHelper.SELF);
+                    boxRadius.x >= 0.5f ? LightSampleDirection.EAST : LightSampleDirection.SELF);
             }
             // -Z/South face.
-            if (renderFace[2]) {
+            if (((renderFace >> 2) & 1) == 1) {
                 this.addQuad(nnn, npn, ppn, pnn,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.SOUTH, meta)),
@@ -275,10 +242,10 @@ namespace VoxelEngine.Render {
                         Direction.SOUTH,
                         new Vector2(boxRadius.x, boxRadius.y),
                         new Vector2(boxOffset.x, boxOffset.y)),
-                    boxRadius.z <= -0.5f ? LightHelper.SOUTH : LightHelper.SELF);
+                    boxRadius.z <= -0.5f ? LightSampleDirection.SOUTH : LightSampleDirection.SELF);
             }
             // -X/West face.
-            if (renderFace[3]) {
+            if (((renderFace >> 3) & 1) == 1) {
                 this.addQuad(nnp, npp, npn, nnn,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.WEST, meta)),
@@ -286,10 +253,10 @@ namespace VoxelEngine.Render {
                         Direction.WEST,
                         new Vector2(boxRadius.z, boxRadius.y),
                         new Vector2(boxOffset.z, boxOffset.y)),
-                    boxRadius.x <= -0.5f ? LightHelper.WEST : LightHelper.SELF);
+                    boxRadius.x <= -0.5f ? LightSampleDirection.WEST : LightSampleDirection.SELF);
             }
             // +Y/Up face.
-            if (renderFace[4]) {
+            if (((renderFace >> 4) & 1) == 1) {
                 this.addQuad(npn, npp, ppp, ppn,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.UP, meta)),
@@ -297,10 +264,10 @@ namespace VoxelEngine.Render {
                         Direction.UP,
                         new Vector2(boxRadius.z, boxRadius.x),
                         new Vector2(boxOffset.z, boxOffset.x)),
-                    boxRadius.y >= 0.5f ? LightHelper.UP : LightHelper.SELF);
+                    boxRadius.y >= 0.5f ? LightSampleDirection.UP : LightSampleDirection.SELF);
             }
             // -Y/Down face.
-            if (renderFace[5]) {
+            if (((renderFace >> 5) & 1) == 1) {
                 this.addQuad(nnn, pnn, pnp, nnp,
                     block.applyUvAlterations(
                         this.generateUVsFromTP(block.getTexturePos(Direction.DOWN, meta)),
@@ -308,12 +275,12 @@ namespace VoxelEngine.Render {
                         Direction.DOWN,
                         new Vector2(boxRadius.x, boxRadius.z),
                         new Vector2(boxOffset.x, boxOffset.z)),
-                    boxRadius.y <= -0.5f ? LightHelper.DOWN : LightHelper.SELF);
+                    boxRadius.y <= -0.5f ? LightSampleDirection.DOWN : LightSampleDirection.SELF);
             }
         }
 
         /// <summary>
-        /// Adds a collider to the mesh in the form of a Bounds.  X, Y and Z are the block's orgin.
+        /// Adds a collider geometry to a mesh based on a Bounds.  X, Y and Z are the block's orgin.
         /// </summary>
         public void addColliderBox(Bounds b, float x, float y, float z) {
             int i = this.colVertices.Count - 1;
@@ -379,7 +346,7 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Converts the MeshData to a Mesh for rendering
+        /// Creates a geometry mesh for rendering.
         /// </summary>
         public Mesh getGraphicMesh() {
             Mesh mesh = new Mesh();
@@ -392,20 +359,21 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Creates a collider mesh for chunk collision
+        /// Creates a collider mesh for chunk collision.
         /// </summary>
         public Mesh getColliderMesh() {
             Mesh colMesh = new Mesh();
             colMesh.SetVertices(this.colVertices);
             colMesh.SetTriangles(this.colTriangles, 0);
             colMesh.RecalculateNormals();
+
             return colMesh;
         }
 
         /// <summary>
         /// Cleans up the meshData object, getting it ready to be used again
         /// </summary>
-        public void cleanup() {
+        public void prepareForReuse() {
             this.vertices.Clear();
             this.vertexColors.Clear();
             this.triangles.Clear();
@@ -422,7 +390,7 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Fills the light lookup table with max light of 15.  Used by blocks and items in the hud.
+        /// Fills the light lookup table with max light of 15.  Used by blocks and items in the hud when prerendering.
         /// </summary>
         public void setMaxLight() {
             for(int i = 0; i < this.lightLevels.Length; i++) {
@@ -444,19 +412,17 @@ namespace VoxelEngine.Render {
         }
 
         public void addCube(BlockRendererPrimitive renderer, Block block, int meta, CubeComponent cube, int renderFace, int worldX, int worldY, int worldZ) {
-            // Lower, uv order
+            // Define the points.
             Vector3 ppp = cube.from.toVector();
             Vector3 ppn = new Vector3(cube.from.x, cube.from.y, cube.to.z);
             Vector3 npn = new Vector3(cube.to.x, cube.from.y, cube.to.z);
             Vector3 npp = new Vector3(cube.to.x, cube.from.y, cube.from.z);
-
-            // Upper
             Vector3 pnp = new Vector3(cube.from.x, cube.to.y, cube.from.z);
             Vector3 pnn = new Vector3(cube.from.x, cube.to.y, cube.to.z);
             Vector3 nnn = cube.to.toVector();
             Vector3 nnp = new Vector3(cube.to.x, cube.to.y, cube.from.z);
 
-            // Rotate the cube.
+            // Rotate the cube if needed.
             if (!cube.rotation.isZero()) {
                 Vector3 pivot = new Vector3(16, 16, 16);
                 Quaternion angle = cube.rotation.getAngle();
@@ -470,7 +436,7 @@ namespace VoxelEngine.Render {
                 nnp = MathHelper.rotateVecAround(nnp, pivot, angle);
             }
 
-            // Offset the cube.
+            // Offset the cube if needed.
             if(cube.offset != Vector3.zero) {
                 ppp += cube.offset;
                 ppn += cube.offset;
@@ -482,7 +448,7 @@ namespace VoxelEngine.Render {
                 nnp += cube.offset;
             }
 
-            // Convert the pixel units to world units.
+            // Convert the pixel units to world units before rendering.
             ppp = this.pixelToWorld(ppp);
             ppn = this.pixelToWorld(ppn);
             npn = this.pixelToWorld(npn);
@@ -494,72 +460,214 @@ namespace VoxelEngine.Render {
 
             Vector3 worldPos = new Vector3(worldX, worldY, worldZ);
 
-            if(block == Block.button && Main.singleton.worldObj != null) {
-                int j;
-            }
-
-            // Note: The vertices that check if the face is out of the cell, meaning it need adjacent light is arbitrary,
+            // Note: The vertices that check if the face is out of the cell, meaning it need adjacent light, is arbitrary,
             // the same effect should be given requardless of the vertex.
 
-            // North +X
+            // North +Z
             if ((renderFace & 1) == 1) {
-                this.addQuad(
-                    pnp + worldPos,
-                    ppp + worldPos,
-                    npp + worldPos,
-                    nnp + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    pnp,
+                    ppp,
+                    npp,
+                    nnp,
                     renderer.getUvPlane(block, meta, Direction.NORTH, cube.index).getMeshUvs(this.allocatedUvArray),
-                    pnp.x >= 0.5f ? LightHelper.NORTH : LightHelper.SELF);
+                    pnp.z >= 0.5f ? BlockPos.north : BlockPos.zero);
             }
-            // East +Z
+            // East +X
             if (((renderFace >> 1) & 1) == 1) {
-                this.addQuad(
-                    pnn + worldPos,
-                    ppn + worldPos,
-                    ppp + worldPos,
-                    pnp + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    pnn,
+                    ppn,
+                    ppp,
+                    pnp,
                     renderer.getUvPlane(block, meta, Direction.EAST, cube.index).getMeshUvs(this.allocatedUvArray),
-                    pnn.z >= 0.5f ? LightHelper.EAST : LightHelper.SELF);
+                    pnn.x >= 0.5f ? BlockPos.east : BlockPos.zero);
             }
             // South -Z
             if (((renderFace >> 2) & 1) == 1) {
-                this.addQuad(
-                    nnn + worldPos,
-                    npn + worldPos,
-                    ppn + worldPos,
-                    pnn + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    nnn,
+                    npn,
+                    ppn,
+                    pnn,
                     renderer.getUvPlane(block, meta, Direction.SOUTH, cube.index).getMeshUvs(this.allocatedUvArray),
-                    nnn.z <= -0.5f ? LightHelper.SOUTH : LightHelper.SELF);
+                    nnn.z <= -0.5f ? BlockPos.south : BlockPos.zero);
             }
             // West -X
             if (((renderFace >> 3) & 1) == 1) {
-                this.addQuad(
-                    nnp + worldPos,
-                    npp + worldPos,
-                    npn + worldPos,
-                    nnn + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    nnp,
+                    npp,
+                    npn,
+                    nnn,
                     renderer.getUvPlane(block, meta, Direction.WEST, cube.index).getMeshUvs(this.allocatedUvArray),
-                    nnp.x <= -0.5f ? LightHelper.WEST : LightHelper.SELF);
+                    nnp.x <= -0.5f ? BlockPos.west : BlockPos.zero);
             }
             // Up +Y
             if (((renderFace >> 4) & 1) == 1) {
-                this.addQuad(
-                    npn + worldPos,
-                    npp + worldPos,
-                    ppp + worldPos,
-                    ppn + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    npn,
+                    npp,
+                    ppp,
+                    ppn,
                     renderer.getUvPlane(block, meta, Direction.UP, cube.index).getMeshUvs(this.allocatedUvArray),
-                    npn.y >= 0.5f ? LightHelper.UP : LightHelper.SELF);
+                    npn.y >= 0.5f ? BlockPos.west : BlockPos.zero);
             }
             // Down -Y
             if (((renderFace >> 5) & 1) == 1) {
-                this.addQuad(
-                    nnn + worldPos,
-                    pnn + worldPos,
-                    pnp + worldPos,
-                    nnp + worldPos,
+                this.func01(
+                    renderer, worldPos,
+                    nnn,
+                    pnn,
+                    pnp,
+                    nnp,
                     renderer.getUvPlane(block, meta, Direction.DOWN, cube.index).getMeshUvs(this.allocatedUvArray),
-                    nnn.y <= -0.5f ? LightHelper.DOWN : LightHelper.SELF);
+                    nnn.y <= -0.5f ? BlockPos.down : BlockPos.zero);
+            }
+        }
+
+        /// <summary>
+        /// Calculates the light color for a single vertex.  Vertex should be a Vector with its offset from
+        /// it's cell orgin.  Normal can point away from the cell, if the plane borders the edge of the cell,
+        /// or be (0, 0, 0) if the face is inside of the cell.
+        /// </summary>
+        private Color calculateLightForVertex(Vector3 vertex, BlockPos normal) {
+            int level;
+            if (RenderManager.instance.useSmoothLighting) {
+                List<int> sampledLevels = new List<int>();
+
+                int x = normal.x;
+                int y = normal.y;
+                int z = normal.z;
+
+                // Sample light on X axis.
+                if (normal.x == 0) {
+                    if (vertex.x >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x + 1, y, z));
+                    }
+                    else if (vertex.x <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x - 1, y, z));
+                    }
+                }
+
+                // Sample light in front/in of cell.
+                sampledLevels.Add(this.getLightLevel(x, y, z));
+
+                // Sample light on Y axis.
+                if (normal.y == 0) {
+                    if (vertex.y >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y + 1, z));
+                    }
+                    else if (vertex.y <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y - 1, z));
+                    }
+                }
+
+                // Sample light on Z axis.
+                if (normal.z == 0) {
+                    if (vertex.z >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y, z + 1));
+                    }
+                    else if (vertex.z <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y, z - 1));
+                    }
+                }
+
+                // Sample light diagonal of cell.
+                if (normal.x != 0) {
+                    if (vertex.z >= 0.5f && vertex.y >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y + 1, z + 1));
+                    }
+                    else if (vertex.z >= 0.5f && vertex.y <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y - 1, z + 1));
+                    }
+                    else if (vertex.z <= -0.5f && vertex.y >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y + 1, z - 1));
+                    }
+                    else if (vertex.z <= -0.5f && vertex.y <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x, y - 1, z - 1));
+                    }
+                }
+                else if (normal.y != 0) {
+                    if (vertex.x >= 0.5f && vertex.z >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x + 1, y, z + 1));
+                    }
+                    else if (vertex.x >= 0.5f && vertex.z <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x + 1, y, z - 1));
+                    }
+                    else if (vertex.x <= -0.5f && vertex.z >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x - 1, y, z + 1));
+                    }
+                    else if (vertex.x <= -0.5f && vertex.z <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x - 1, y, z - 1));
+                    }
+                }
+                else if (normal.z != 0) {
+                    if (vertex.x >= 0.5f && vertex.y >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x + 1, y + 1, z));
+                    }
+                    else if (vertex.x >= 0.5f && vertex.y <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x + 1, y - 1, z));
+                    }
+                    else if (vertex.x <= -0.5f && vertex.y >= 0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x - 1, y + 1, z));
+                    }
+                    else if (vertex.x <= -0.5f && vertex.y <= -0.5f) {
+                        sampledLevels.Add(this.getLightLevel(x - 1, y - 1, z));
+                    }
+                }
+
+                // Average levels.
+                if (sampledLevels.Count == 0) {
+                    level = this.getLightLevel(0, 0, 0);
+                } else {
+                    float lightTotal = 0;
+                    for (int i = 0; i < sampledLevels.Count; i++) {
+                        lightTotal += sampledLevels[i];
+                    }
+                    level = (int)(lightTotal / sampledLevels.Count);
+                }
+            } else {
+                level = this.getLightLevel(0, 0, 0);
+            }
+
+            // Return color.
+            return RenderManager.instance.lightColors.getColorFromBrightness(level);
+        }
+
+        /// <summary>
+        /// Adds and computes the lighting for a quad from a ComponentCube.
+        /// </summary>
+        private void func01(BlockRendererPrimitive renderer, Vector3 worldPos, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Vector2[] uvs, BlockPos shift) {
+            // Arg shift is sort of like a normal, but can be (0, 0, 0).
+
+            if (renderer.demandLocalLight) {
+                // No need to lookup fancy lighting, render a quad.
+                this.addQuad(
+                    v0 + worldPos,
+                    v1 + worldPos,
+                    v2 + worldPos,
+                    v3 + worldPos,
+                    uvs,
+                    LightSampleDirection.SELF);
+            } else {
+                // Add vertex colors for lighting.
+                this.vertexColors.Add(this.calculateLightForVertex(v0, shift));
+                this.vertexColors.Add(this.calculateLightForVertex(v1, shift));
+                this.vertexColors.Add(this.calculateLightForVertex(v2, shift));
+                this.vertexColors.Add(this.calculateLightForVertex(v3, shift));
+
+                this.addQuad(
+                    v0 + worldPos,
+                    v1 + worldPos,
+                    v2 + worldPos,
+                    v3 + worldPos,
+                    uvs);
             }
         }
 
@@ -591,22 +699,28 @@ namespace VoxelEngine.Render {
             return this.getLightLevel(0, 0, 0);
         }
 
-        private void sampleAndSetHardVertexColor(int lightSampleDir) {
-            Color c = RenderManager.instance.lightHelper.getColorFromBrightness(this.getLightFromLegacySampleDir(lightSampleDir));
+        /// <summary>
+        /// Adds lighting color to the 4 most recent vertices.  Color is looked up from the legacy light sample constants.
+        /// </summary>
+        private void color4Vertices(int lightSampleDir) {
+            Color c = RenderManager.instance.lightColors.getColorFromBrightness(this.getLightFromLegacySampleDir(lightSampleDir));
             this.vertexColors.Add(c);
             this.vertexColors.Add(c);
             this.vertexColors.Add(c);
             this.vertexColors.Add(c);
         }
 
-        private void sampleAndSetSmoothVertexColor(Direction facing, Direction d1, Direction d2) {
+        /// <summary>
+        /// Make sure to call in the standard clockwise order!
+        /// </summary>
+        private void sampleFor1x1Plane(Direction facing, Direction d1, Direction d2) {
             BlockPos orgin = facing.blockPos;
-            float j = (
+            float totaledLightLevel = (
                 this.getLightLevel(orgin) +
                 this.getLightLevel(orgin + d1.blockPos) +
                 this.getLightLevel(orgin + d1.blockPos + d2.blockPos) +
                 this.getLightLevel(orgin + d2.blockPos)) / 4;
-            this.vertexColors.Add(RenderManager.instance.lightHelper.getColorFromBrightness((int)j));
+            this.vertexColors.Add(RenderManager.instance.lightColors.getColorFromBrightness((int)totaledLightLevel));
         }
 
         /// <summary>
@@ -616,7 +730,6 @@ namespace VoxelEngine.Render {
             v.x = (v.x / 32) - 0.5f;
             v.y = (v.y / 32) - 0.5f;
             v.z = (v.z / 32) - 0.5f;
-
             return v;
         }
     }

@@ -14,7 +14,7 @@ namespace VoxelEngine.Render.BlockRender {
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // Bottom.
             if(((renderFace >> 5) & 1) == 1) {
-                meshBuilder.addPlane(this, block, meta,
+                meshBuilder.addOptimized1x1Plane(this, block, meta,
                     new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                     new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
@@ -67,7 +67,7 @@ namespace VoxelEngine.Render.BlockRender {
                 pos + MathHelper.rotateVecAround(new Vector3(-rightSize, 0.5f, 0.5f), Vector3.zero, angle),
                 pos + MathHelper.rotateVecAround(new Vector3(leftSize,  0.5f, 0.5f), Vector3.zero, angle),
                 pos + MathHelper.rotateVecAround(new Vector3(leftSize, -0.5f, -0.5f), Vector3.zero, angle),
-                uvs, LightHelper.SELF);
+                uvs, LightSampleDirection.SELF);
         }
 
         private void addSide(Block block, int meta, Vector3 pos, MeshBuilder meshBuilder, Direction direction, bool isRight) {

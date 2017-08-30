@@ -5,7 +5,6 @@ using VoxelEngine.Entities;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
-using VoxelEngine.Render.NewSys;
 using VoxelEngine.TileEntity;
 using VoxelEngine.Util;
 

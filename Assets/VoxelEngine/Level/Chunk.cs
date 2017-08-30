@@ -1,6 +1,5 @@
 ﻿//#define MAX_LIGHT
 
-using Assets.VoxelEngine.Render;
 using fNbt;
 using System;
 using System.Collections.Generic;
@@ -292,9 +291,9 @@ namespace VoxelEngine.Level {
                     y = te.posY - this.worldPos.y;
                     z = te.posZ - this.worldPos.z;
                     materials = ((TileEntityGameObject)te).modelMaterials;
-                    lightColor = RenderManager.instance.lightHelper.getColorFromBrightness(this.getLight(x, y, z));
+                    lightColor = RenderManager.instance.lightColors.getColorFromBrightness(this.getLight(x, y, z));
                     for (i = 0; i < materials.Length; i++) {
-                        materials[i].SetColor(LightHelper.COLOR_ID, lightColor);
+                        materials[i].SetColor(LightColors.SERIALIZED_LightColor, lightColor);
                     }
                 }
             }
