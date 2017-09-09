@@ -18,35 +18,37 @@ namespace VoxelEngine.GUI {
 
         private GameObject worldTilePrefab;
         private List<WorldData> cachedWorlds;
-        private string[] worldFolderNames;
         private PlayWorldButton selectedWorld;
 
         public GameObject test; 
 
         private void Awake() {
-            this.cachedWorlds = new List<WorldData>();
-
             this.worldTilePrefab = Resources.Load<GameObject>("Prefabs/GUI/Panel_WorldTile");
+        }
+
+        public static List<WorldData> getSavedWorldData() {
+            List<WorldData> worlds = new List<WorldData>();
+
+            string[] names = Directory.GetDirectories("saves/");
+            foreach (string folderName in names) {
+                string dataFile = folderName + "/world.nbt";
+                if (File.Exists(dataFile)) {
+                    NbtFile file = new NbtFile();
+                    file.LoadFromFile(dataFile);
+                    WorldData data = new WorldData(folderName.Substring(folderName.LastIndexOf('/') + 1, folderName.Length - 1 - folderName.LastIndexOf('/')));
+                    data.readFromNbt(file.RootTag);
+                    worlds.Add(data);
+                }
+            }
+
+            worlds.Sort((i2, i1) => DateTime.Compare(i1.lastLoaded, i2.lastLoaded));
+
+            return worlds;
         }
 
         public override void onGuiOpen() {
             this.selectedWorld = null;
-            this.cachedWorlds.Clear();
-
-            this.worldFolderNames = Directory.GetDirectories("saves/");
-            foreach (string f in this.worldFolderNames) {
-                string name = f + "/world.nbt";
-                if (File.Exists(name)) {
-                    int index = f.LastIndexOf('/');
-                    NbtFile file = new NbtFile();
-                    file.LoadFromFile(name);
-                    WorldData data = new WorldData(f.Substring(f.LastIndexOf('/') + 1, f.Length - 1 - index));
-                    data.readFromNbt(file.RootTag);
-                    this.cachedWorlds.Add(data);
-                }
-            }
-
-            this.cachedWorlds.Sort((i2, i1) => DateTime.Compare(i1.lastLoaded, i2.lastLoaded));
+            this.cachedWorlds = GuiScreenWorldSelect.getSavedWorldData();
 
             int y = -70;
             int i;
@@ -71,12 +73,13 @@ namespace VoxelEngine.GUI {
             this.toggleButtons(false);
         }
 
+        /*
         public void CALLBACK_newWorld() {
             GuiManager.createWorld.open();
-            GuiManager.createWorld.cachedWorlds = this.cachedWorlds;
 
             this.playClickSound();
         }
+        */
 
         public void CALLBACK_loadWorld() {
             WorldData data = this.cachedWorlds[this.selectedWorld.index];
@@ -94,7 +97,7 @@ namespace VoxelEngine.GUI {
 
         public void CALLBACK_renameWorld() {
             GuiManager.renameWorld.open();
-            GuiManager.renameWorld.init(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
+            GuiManager.renameWorld.set(this.cachedWorlds[this.selectedWorld.index], this.cachedWorlds);
 
             this.playClickSound();
         }

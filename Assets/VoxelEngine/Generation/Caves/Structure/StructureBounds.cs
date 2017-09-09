@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.VoxelEngine.Generation.Caves.Structure {
+namespace VoxelEngine.Generation.Caves.Structure {
 
     /// <summary>
     /// Faster intersection testing replacement for UnityEngine.Bounds.  Not yet implemented.

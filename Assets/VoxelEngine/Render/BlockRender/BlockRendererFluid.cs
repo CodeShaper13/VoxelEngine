@@ -12,7 +12,7 @@ namespace VoxelEngine.Render.BlockRender {
         }
 
         public override void renderBlock(Block block, int meta, MeshBuilder meshData, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
-            meshData.useRenderDataForCol = false;
+            meshData.autoGenerateColliders = false;
 
             /*
             // Adjust the renderFace array.
@@ -87,7 +87,7 @@ namespace VoxelEngine.Render.BlockRender {
             }
             */
 
-            meshData.useRenderDataForCol = true;
+            meshData.autoGenerateColliders = true;
         }
     }
 }

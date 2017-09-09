@@ -17,15 +17,15 @@ namespace VoxelEngine.Render.BlockRender {
                 x, y, z);
         }
 
-        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
             if (faceDirection.axis == EnumAxis.X || faceDirection.axis == EnumAxis.Z) {
-                return new UvPlane(new TexturePos(9, 1), 0, 0, 32, 4);
+                return new UvPlane(new TexturePos(9, 1), 1, 1, 32, 4);
             }
             else if (faceDirection == Direction.DOWN) {
-                return new UvPlane(new TexturePos(9, 0), 0, 0, 32, 32); // Bottom
+                return new UvPlane(new TexturePos(9, 0), 1, 1, 32, 32); // Bottom
             }
             else {
-                return new UvPlane(((BlockLogicBase)block).getTopTexture(meta * 90), 0, 0, 32, 32); // Top
+                return new UvPlane(((BlockLogicBase)block).getTopTexture(meta * 90), 1, 1, 32, 32); // Top
             }
         }
     }

@@ -18,8 +18,8 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             : base(shaft, hallwayPoint + (hallwayDir.blockPos * 8)) {
 
             piecesFromCenter += 1;
-            if (this.func(piecesFromCenter)) {
-                this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 5, piecesFromCenter);
+            if (this.addToShaftIfValid(piecesFromCenter)) {
+                this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 8, piecesFromCenter);
             }
         }
 

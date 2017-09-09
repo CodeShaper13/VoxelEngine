@@ -7,6 +7,7 @@
 
         public const string ENTITY = "Entity";
         public const string CHUNK = "Chunk";
+        /// <summary> Used on tile entities that have collider components that are not baked into chunks. </summary>
         public const string BLOCK = "Block";
     }
 }

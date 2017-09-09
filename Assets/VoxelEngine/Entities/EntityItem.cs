@@ -8,14 +8,16 @@ namespace VoxelEngine.Entities {
 
     public class EntityItem : Entity, ICollecting {
 
+        public const float START_TIME = -0.75f;
+
         private ItemStack stack;
         /// <summary> How long the stack has been around.  Used to determine if it can be picked up or should dewpawn. </summary>
-        private float timeAlive;
+        public float timeAlive;
         private MeshFilter filter;
 
         public override void onConstruct() {
             this.filter = this.GetComponent<MeshFilter>();
-            this.timeAlive = -2f;
+            this.timeAlive = EntityItem.START_TIME;
 
             this.setShadow(0.6f, 0.75f);
         }

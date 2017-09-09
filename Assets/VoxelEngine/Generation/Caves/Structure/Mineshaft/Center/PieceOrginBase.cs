@@ -1,5 +1,4 @@
-﻿using System;
-using fNbt;
+﻿using fNbt;
 using UnityEngine;
 using VoxelEngine.Util;
 

@@ -20,20 +20,21 @@ namespace VoxelEngine.Render {
         public static readonly BlockRenderer CUBE = new BlockRendererCube();
         public static readonly BlockRenderer FENCE = new BlockRendererFence();
         public static readonly BlockRenderer FLUID = new BlockRendererFluid();
+        public static readonly BlockRenderer GRASS = new BlockRendererGrass();
         public static readonly BlockRenderer LADDER = new BlockRendererLadder();
         public static readonly BlockRenderer LOGIC_PLATE = new BlockRendererLogicPlate();
         public static readonly BlockRenderer LOGIC_DELAYER = new BlockRendererLogicDelayer();
-        public static readonly BlockRenderer MUSHROOM = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
+        public static readonly BlockRenderer MUSHROOM; // = new BlockRendererMesh(References.list.mushroomPrefab).setOffsetVector(new Vector3(0, -0.5f, 0)).useColliderComponent();
         public static readonly BlockRenderer RAIL = new BlockRendererRail();
         public static readonly BlockRenderer ROOF = new BlockRendererRoof();
         public static readonly BlockRenderer SLAB = new BlockRendererSlab();
         public static readonly BlockRenderer STAIR = new BlockRendererStairs();
+        public static readonly BlockRenderer TNT = new BlockRendererTnt();
         public static readonly BlockRenderer TORCH = new BlockRendererTorch();
         public static readonly BlockRenderer WIRE = new BlockRendererWire();
 
         // Used for dev debugging.
         public static readonly BlockRenderer TEST = new BlockRendererTest();
-        public static readonly BlockRenderer MIRROR_TEST = new BlockRendererMesh(References.list.mirrorTestPrefab);
 
         /// <summary> Flat item renderer. </summary>
         public static readonly IRenderItem ITEM_RENDERER_FLAT = new RenderItemBillboard();
@@ -41,7 +42,9 @@ namespace VoxelEngine.Render {
         /// <summary> This is set in the Awake method of HudCamera.cs </summary>
         public HudCamera hudCamera;
         public LightColors lightColors;
+
         public bool useSmoothLighting;
+        public bool useFancyMeshes;
 
         private MeshBuilder reusableMeshBuilder;
         private PreBakedItem[] preBakedItemMeshes;
@@ -55,6 +58,7 @@ namespace VoxelEngine.Render {
             this.preRenderItems();
 
             this.useSmoothLighting = true;
+            this.useFancyMeshes = true;
         }
 
         /// <summary>
@@ -79,7 +83,7 @@ namespace VoxelEngine.Render {
         /// <summary>
         /// Prerenders all the items.
         /// </summary>
-        private void preRenderItems() {
+        public void preRenderItems() {
             this.preBakedItemMeshes = new PreBakedItem[Item.ITEM_LIST.Length];
 
             for (int i = 0; i < Item.ITEM_LIST.Length; i++) {

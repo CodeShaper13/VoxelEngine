@@ -17,6 +17,7 @@ namespace VoxelEngine.GUI {
 
             World world = Main.singleton.worldObj;
             world.saveEntireWorld(exitWorld);
+
             if (exitWorld) {
                 this.deleteWorldObjects();
                 GuiManager.title.open();

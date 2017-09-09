@@ -17,6 +17,8 @@ namespace VoxelEngine {
 
     public class Main : MonoBehaviour {
 
+        public const string VERSION = "Pre-Alpha";
+
         public static Main singleton;
         public static bool isDeveloperMode = false;
 
@@ -39,11 +41,12 @@ namespace VoxelEngine {
         private FpsCounter fpsCounter;
 
         private void Awake() {
-            Debug.Log("AWAKE!");
             Main.singleton = this;
 
             // Make sure the singleton reference is set.
             this.GetComponent<References>().loadResources();
+
+            Options.loadInitialOptions();
 
             this.textWindow = new TextWindow(this.textWindowRoot);
             new EntityRegistry().registerEntities();
@@ -52,13 +55,11 @@ namespace VoxelEngine {
             //new ObjectData();
 
             this.commandManager = new CommandManager();
-
             this.fpsCounter = new FpsCounter();
         }
 
         private void Start() {
             this.containerManager = new ContainerManager();
-
             if(1 == 1) { // Debug instant load
                 this.createNewWorld(false); // When false, the world is not saved.
             } else {
@@ -70,6 +71,7 @@ namespace VoxelEngine {
             if (this.worldObj != null && this.player != null) {
                 // Playing the game.
 
+                // Debug keys.
                 if (Input.GetKeyDown(KeyCode.F1)) {
                     Main.isDeveloperMode = !Main.isDeveloperMode;
                     this.textWindow.logMessage("Developer Mode is now " + (Main.isDeveloperMode ? "ON" : "OFF"));
@@ -95,12 +97,18 @@ namespace VoxelEngine {
                     RenderManager.instance.useSmoothLighting = !RenderManager.instance.useSmoothLighting;
                     this.worldObj.rebakeWorld();
                 }
+                if (Input.GetKeyDown(KeyCode.F7)) {
+                    RenderManager.instance.preRenderItems();
+                }
 
+                // Command key.
                 if (Input.GetKeyDown(KeyCode.Slash)) {
                     if(!this.containerManager.isContainerOpen() && GuiManager.currentGui == null && !this.textWindow.isOpen) {
                         this.textWindow.openWindow();
                     }
                 }
+
+                // Handle use of escape.
                 if (Input.GetKeyDown(KeyCode.Escape)) {
                     if (this.textWindow.isOpen) {
                         this.textWindow.closeWindow();
@@ -116,8 +124,22 @@ namespace VoxelEngine {
                     }
                 }
 
+                 // 'e'.
+                if(Input.GetKeyDown(KeyCode.E)) {
+                    if(this.containerManager.isContainerOpen()) {
+                        this.containerManager.closeContainer(this.player);
+                    } else {
+                        this.containerManager.openContainer(this.player, ContainerManager.containerInventory, this.player.dataInventory);
+                    }
+                }
+
+                // Player input.
                 if (!this.isPaused && player.health > 0 && !this.containerManager.isContainerOpen() && !this.textWindow.isOpen) {
                     this.player.handleInput();
+
+#if UNITY_EDITOR
+                    Cursor.lockState = CursorLockMode.Locked;
+#endif
                 }
 
                 this.containerManager.drawContainerContents();
@@ -132,7 +154,7 @@ namespace VoxelEngine {
                 // Draw held item.
                 ItemStack stack = this.player.containerHotbar.getHeldItem();
                 if (stack != null) {
-                    stack.item.renderAsHeldItem(stack.meta, stack.count, this.player.handTransfrom);
+                    stack.item.renderAsHeldItem(this.player, stack.meta, stack.count, this.player.handTransfrom);
                 }
             } else {
                 // Menu screens.
@@ -180,11 +202,13 @@ namespace VoxelEngine {
             s.Append("FPS: " + this.fpsCounter.currentFps);
             s.Append("\nPlayer Position: " + this.player.transform.position.ToString());
             s.Append("\nPlayer Rotation: " + this.player.transform.eulerAngles.ToString());
-            BlockPos p = this.player.posLookingAt;
-            int meta = this.worldObj.getMeta(p);
-            s.Append("\nLooking At Light: " + this.worldObj.getLight(p.x, p.y, p.z));
-            s.Append("\nLooking At Pos:   " + p.ToString());
-            s.Append("\nLooking At State: " + this.worldObj.getBlock(p).getAsDebugText(meta));
+            if(this.player.posLookingAt != null) {
+                BlockPos p = (BlockPos)this.player.posLookingAt;
+                int meta = this.worldObj.getMeta(p);
+                s.Append("\nLooking At Light: " + this.worldObj.getLight(p.x, p.y, p.z));
+                s.Append("\nLooking At Pos:   " + p.ToString());
+                s.Append("\nLooking At State: " + this.worldObj.getBlock(p).getAsDebugText(meta));
+            }
             s.Append("\nPress F3 to toggle debug info");
             return s.ToString();
         }

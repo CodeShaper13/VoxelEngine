@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEngine;
 using UnityEngine.UI;
 using VoxelEngine.Generation;
 using VoxelEngine.Level;
@@ -17,11 +18,12 @@ namespace VoxelEngine.GUI {
         public Button buttonCreate;
         public Text buttonToggleTypeText;
         private int typeIndex;
-        public List<WorldData> cachedWorlds;
+        private List<WorldData> cachedWorlds;
 
         public override void onGuiOpen() {
             this.buttonCreate.interactable = false;
-            this.func_01();
+            this.setWorldTypeBtnText();
+            this.cachedWorlds = GuiScreenWorldSelect.getSavedWorldData();
         }
 
         public override void onGuiClose() {
@@ -37,18 +39,21 @@ namespace VoxelEngine.GUI {
         }
 
         public void CALLBACK_toggleWorldType() {
-            this.typeIndex += 1;
-            if(this.typeIndex >= WorldType.typeList.Count) {
-                this.typeIndex = 0;
-            }
-            this.func_01();
+            do {
+                this.typeIndex += 1;
+                if (this.typeIndex >= WorldType.typeList.Count) {
+                    this.typeIndex = 0;
+                }
+            } while (WorldType.typeList[this.typeIndex].isHidden == true);
+
+            this.setWorldTypeBtnText();
 
             this.playClickSound();
         }
 
         public void CALLBACK_characterChange() {
             this.fieldName.text = Regex.Replace(this.fieldName.text, GuiScreenCreateWorld.regexWorldName, "");
-            bool validName = true;
+            bool validName = this.fieldName.text != string.Empty;
             foreach (WorldData d in this.cachedWorlds) {
                 if (d.worldName == this.fieldName.text) {
                     validName = false;
@@ -61,12 +66,12 @@ namespace VoxelEngine.GUI {
             this.playClickSound();
         }
 
-        private void func_01() {
+        private void setWorldTypeBtnText() {
             this.buttonToggleTypeText.text = "Type: " + WorldType.typeList[this.typeIndex].name;
         }
 
         public override GuiScreen getEscapeCallback() {
-            return GuiManager.worldSelect;
+            return GuiManager.title;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using VoxelEngine.Level;
+using VoxelEngine.Render;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
@@ -6,8 +7,8 @@ namespace VoxelEngine.Blocks {
     public class BlockGrass : Block {
 
         public BlockGrass(byte id) : base(id) {
-            this.setMineTime(0.15f);
             this.setType(EnumBlockType.DIRT);
+            this.setRenderer(RenderManager.GRASS);
         }
 
         public override void onRandomTick(World world, int x, int y, int z, int meta, int tickSeed) {
@@ -19,17 +20,13 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
-            TexturePos tile = new TexturePos(0, 0);
             if (direction == Direction.UP) {
-                tile.x = 2;
+                return new TexturePos(2, 0);
+            } else if (direction == Direction.DOWN) {
+                return new TexturePos(1, 0);
+            } else {
+                return new TexturePos(3, 0);
             }
-            else if (direction == Direction.DOWN) {
-                tile.x = 1;
-            }
-            else {
-                tile.x = 3;
-            }
-            return tile;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace VoxelEngine.Items {
         }
 
         public float getExplosionSize() {
-            return 4f;
+            return 2.35f;
         }
     }
 }

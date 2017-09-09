@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
+﻿using VoxelEngine.Blocks;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
@@ -12,16 +11,34 @@ namespace VoxelEngine.Render.BlockRender {
 
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             // Bottom.
-            meshBuilder.addBox(new Vector3(x, y - 0.25f, z), new Vector3(0.5f, 0.25f, 0.5f), Quaternion.identity, block, meta, RenderFace.ALL);
+            meshBuilder.addCube(
+                this, block, meta,
+                new CubeComponent(
+                    0, 0, 0,
+                    32, 16, 32,
+                    0),
+                renderFace | RenderFace.U, x, y, z);
+
+            Direction facing = BlockStairs.getDirectionFromMeta(meta);
+            BlockPos v = facing.blockPos;
+            BlockPos size = new BlockPos(
+                v.x == 0 ? 16 : 8,
+                8,
+                v.z == 0 ? 16 : 8);
 
             // Top.
-            Direction dir = BlockStairs.getDirectionFromMeta(meta);
+            meshBuilder.addCube(
+                this, block, meta,
+                new CubeComponent(
+                    new BlockPos(16, 24, 16) + v * 8,
+                        size.x, size.y, size.z,
+                        1),
+                renderFace | facing.renderMask,
+                x, y, z);
+        }
 
-            meshBuilder.addBox(
-                new Vector3(x, y + 0.25f, z) + dir.vector * 0.25f,
-                new Vector3(dir.axis == EnumAxis.X ? 0.25f : 0.5f, 0.25f, dir.axis == EnumAxis.Z ? 0.25f : 0.5f),
-                Quaternion.identity,
-                block, meta, RenderFace.ALL);
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
+            return new UvPlane(block.getTexturePos(faceDirection, meta), cubeComponent, faceDirection);
         }
     }
 }

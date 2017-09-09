@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Containers;
+﻿using UnityEngine;
+using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
@@ -8,9 +9,11 @@ namespace VoxelEngine.Blocks {
 
     public class BlockCobweb : Block {
 
-        // Bits 0 and 1 are direction, 2 is up/down.
+        // Bits 0 and 1 are the direction the web is attached to, 2 is up/down.
         public BlockCobweb(int id) : base(id) {
-            this.setTexture(8, 3);
+            this.setTexture(8, 2);
+            this.setTransparent();
+            this.setReplaceable();
             this.setRenderer(RenderManager.COBWEB);
         }
 
@@ -23,8 +26,26 @@ namespace VoxelEngine.Blocks {
             base.onNeighborChange(world, pos, meta, neighborDir);
         }
 
-        public static int getMetaForState(Direction dir, bool top) {
-            return (dir.index - 1) | (top ? 1 : 0) << 2;
+        public override TexturePos getTexturePos(Direction direction, int meta) {
+            int mask = BlockCobweb.isHangingFromAbove(meta) ? TexturePos.MIRROR_Y : 0;
+
+            if (direction == Direction.EAST) {
+                return new TexturePos(8, 2, 0, mask);
+            } else {
+                return new TexturePos(8, 2, 0, mask | TexturePos.MIRROR_X);
+            }
+        }
+
+        public static int getMetaForState(Direction dir, bool hangingFromAbove) {
+            return BitHelper.setBit((dir.index - 1), 2, hangingFromAbove);
+        }
+
+        public static bool isHangingFromAbove(int meta) {
+            return BitHelper.getBit(meta, 2);
+        }
+
+        public static Direction getYPlaneDirection(int meta) {
+            return Direction.horizontal[meta & ~(1 << 2)];
         }
     }
 }

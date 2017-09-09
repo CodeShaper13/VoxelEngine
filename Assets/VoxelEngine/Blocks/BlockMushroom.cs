@@ -13,7 +13,7 @@ namespace VoxelEngine.Blocks {
             this.textureY = textureY;
             this.setTransparent();
             this.setMineTime(0.1f);
-            this.setRenderer(RenderManager.MUSHROOM);
+            //this.setRenderer(RenderManager.MUSHROOM);
             this.setStatesUsed(4);
         }
 

@@ -16,14 +16,13 @@ namespace VoxelEngine.Entities {
 
     public class EntityPlayer : EntityLiving, ICollecting {
 
-        // References
         public FadeText magnifyingText;
         public HeartTremble heartEffect;
         public DamageFlash damageEffect;
         public Slider hungerSlider;
         public Transform handTransfrom;
 
-        public BlockPos posLookingAt;
+        public BlockPos? posLookingAt;
         public ContainerHotbar containerHotbar;
         public Transform mainCamera;
 
@@ -33,12 +32,13 @@ namespace VoxelEngine.Entities {
         private bool onGroundLastUpdate;
         private float lastGroundedY;
 
-        // State
         public float hunger;
         private float hungerDamageTimer;
         public ContainerData dataHotbar;
         public ContainerData dataInventory;
+        public WorldSpaceToolTip wsTooltip;
 
+        // Speedy lookup reference
         public ContainerManager contManager;
 
         public override void onConstruct() {
@@ -56,6 +56,7 @@ namespace VoxelEngine.Entities {
 
             this.playerMover = new PlayerMover(this);
             this.blockBreakEffect = GameObject.Instantiate(References.list.blockBreakEffect).GetComponent<BreakBlockEffect>();
+            this.wsTooltip = GameObject.Instantiate(References.list.worldSpaceTooltipPrefab).GetComponent<WorldSpaceToolTip>().setPlayer(this);
 
             this.setMaxHealth(100);
             this.setShadow(0.75f, 0.6f);    
@@ -146,17 +147,17 @@ namespace VoxelEngine.Entities {
                 // We are looking at something
                 if (playerHit.hitBlock()) {
                     if (Input.GetMouseButton(0)) {
-                        this.blockBreakEffect.update(this, this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
+                        this.blockBreakEffect.update(this, (BlockPos)this.posLookingAt, playerHit.hitState.block, playerHit.hitState.meta);
                     }
                     if (Input.GetMouseButtonDown(1)) {
                         bool flag = playerHit.hitState.block.onRightClick(
                             this.world,
                             this,
                             heldStack,
-                            this.posLookingAt,
+                            (BlockPos)this.posLookingAt,
                             playerHit.hitState.meta,
                             playerHit.getClickedBlockFace(),
-                            playerHit.unityRaycastHit.point - this.posLookingAt.toVector());
+                            playerHit.unityRaycastHit.point - ((BlockPos)this.posLookingAt).toVector());
                         if (!flag) {
                             if (heldStack != null) {
                                 ItemStack clickResult = heldStack.item.onRightClick(this.world, this, heldStack, playerHit);
@@ -202,10 +203,6 @@ namespace VoxelEngine.Entities {
                 }
             }
 
-            if(Input.GetKeyDown(KeyCode.Y)) {
-                this.damage(30, "Debug Y");
-            }
-
             if (Input.GetKeyDown(KeyCode.Q)) {
                 ItemStack toDrop = null;
                 ItemStack stack = this.containerHotbar.getHeldItem();
@@ -222,10 +219,6 @@ namespace VoxelEngine.Entities {
             float f = Input.GetAxis("Mouse ScrollWheel");
             if (f != 0) {
                 this.containerHotbar.scroll(f > 0 ? -1 : (f < 0 ? 1 : 0));
-            }
-
-            if (Input.GetKeyDown(KeyCode.E) && !this.contManager.isContainerOpen()) {
-                this.contManager.openContainer(this, ContainerManager.containerInventory, this.dataInventory);
             }
         }
 
@@ -255,6 +248,7 @@ namespace VoxelEngine.Entities {
         public void cleanupPlayerObj() {
             this.containerHotbar.gameObject.SetActive(false);
             GameObject.Destroy(this.blockBreakEffect.gameObject);
+            GameObject.Destroy(this.wsTooltip.gameObject);
             this.heartEffect.enabled = false;
         }
 
@@ -264,14 +258,14 @@ namespace VoxelEngine.Entities {
         public void setupFirstTimePlayer() {
             if(true) {
                 this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 32);
-                this.dataHotbar.items[1] = new ItemStack(Block.brick, 0, 32);
-                this.dataHotbar.items[2] = new ItemStack(Block.brickSlab, 0, 32);
+                this.dataHotbar.items[1] = new ItemStack(Item.pickaxe, 0, 32);
+                this.dataHotbar.items[2] = new ItemStack(Item.shovel, 0, 32);
                 this.dataHotbar.items[3] = new ItemStack(Item.axe, 0, 1);
-                this.dataHotbar.items[4] = new ItemStack(Block.wood, 0, 32);
+                this.dataHotbar.items[4] = new ItemStack(Block.plank, 0, 32);
                 this.dataHotbar.items[5] = new ItemStack(Item.dynamite, 0, 25);
-                this.dataHotbar.items[6] = new ItemStack(Block.logicNot, 0, 32);
-                this.dataHotbar.items[7] = new ItemStack(Block.button, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Block.test, 0, 32);
+                this.dataHotbar.items[6] = new ItemStack(Block.tnt, 0, 32);
+                this.dataHotbar.items[7] = new ItemStack(Block.cobweb, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.plankStairs, 0, 32);
 
                 this.dataInventory.items[0] = new ItemStack(Item.pebble);
                 this.dataInventory.items[1] = new ItemStack(Item.coal);
@@ -289,6 +283,7 @@ namespace VoxelEngine.Entities {
                 this.dataInventory.items[13] = new ItemStack(Item.magnifyingGlass);
                 this.dataInventory.items[14] = new ItemStack(Item.arrowhead);
                 this.dataInventory.items[15] = new ItemStack(Item.dynamite);
+                this.dataInventory.items[16] = new ItemStack(Item.crystal);
             } else {
                 this.dataHotbar.items[0] = new ItemStack(Item.pickaxe);
                 this.dataHotbar.items[1] = new ItemStack(Item.shovel);
@@ -305,30 +300,30 @@ namespace VoxelEngine.Entities {
         /// </summary>
         private PlayerRayHit getPlayerRayHit() {
             RaycastHit hit;
-            // Ignore IslandMesh, layer 11.
-            bool rayHit = Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach(), ~(Layers.IGNORE_RAYCAST | Layers.ISLAND_MESH | Layers.ENTITY_PLAYER));
-
-            if(rayHit) {
-                // We are looking at something
+            if(Physics.Raycast(new Ray(this.mainCamera.position, this.mainCamera.forward), out hit, this.getReach(), ~(Layers.IGNORE_RAYCAST | Layers.ISLAND_MESH | Layers.ENTITY_PLAYER))) {
+                // We hit something.
                 BlockPos newLookPos = BlockPos.fromRaycastHit(hit);
 
-                if (!(newLookPos.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
+                if (this.posLookingAt == null || !(newLookPos.Equals(this.posLookingAt)) || !Input.GetMouseButton(0)) {
                     //We are either looking at a new thing or no longer holding the mouse button down
                     this.blockBreakEffect.terminate();
                 }
                 this.posLookingAt = newLookPos;
 
                 if (hit.transform.CompareTag(Tags.CHUNK) || hit.transform.CompareTag(Tags.BLOCK)) {
-                    return new PlayerRayHit(this.world.getBlock(this.posLookingAt), this.world.getMeta(this.posLookingAt), this.posLookingAt, hit);
-                } else if (hit.transform.CompareTag(Tags.ENTITY)) {
+                    return new PlayerRayHit(this.world.getBlock(newLookPos), this.world.getMeta(newLookPos), newLookPos, hit);
+                }
+                else if (hit.transform.CompareTag(Tags.ENTITY)) {
                     return new PlayerRayHit(hit.transform.GetComponent<Entity>(), hit);
-                } else {
-                    Debug.Log("Player is looking at an object with an unknown tag, " + hit.transform.tag);
+                }
+                else {
+                    Debug.Log("Player is looking at an object with an unknown tag, " + hit.transform.tag + "!");
                     return null;
                 }
             } else {
                 // We're not looking at anything
                 this.blockBreakEffect.terminate();
+                this.posLookingAt = null;
             }
 
             return null;

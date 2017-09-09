@@ -24,7 +24,7 @@ namespace VoxelEngine.Render.BlockRender {
                 RenderFace.U, x, y, z);
 
             // Up Sides
-            meshBuilder.useRenderDataForCol = false;
+            meshBuilder.autoGenerateColliders = false;
 
             for (int i = 0; i < 4; i++) {
                 if(BitHelper.getBit(meta, (i * 2) + 1)) {
@@ -38,13 +38,13 @@ namespace VoxelEngine.Render.BlockRender {
                 }
             }
 
-            meshBuilder.useRenderDataForCol = true;            
+            meshBuilder.autoGenerateColliders = true;            
         }
 
-        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
             TexturePos pos = block.getTexturePos(faceDirection, meta);
             if (faceDirection.axis == EnumAxis.X || faceDirection.axis == EnumAxis.Z) {
-                return new UvPlane(pos, 14, 0, 4, 32);
+                return new UvPlane(pos, 15, 1, 4, 32);
             } else {
                 // This must be the top face.
                 return new UvPlane(

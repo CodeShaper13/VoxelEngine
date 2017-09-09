@@ -60,9 +60,9 @@ namespace VoxelEngine.Render.BlockRender {
             Color color = RenderManager.instance.lightColors.getColorFromBrightness(meshBuilder.getLightLevel(0, 0, 0));
 
             // Add the colliders
-            if(meshBuilder.useRenderDataForCol && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
+            if(meshBuilder.autoGenerateColliders && !this.useMeshForCollision) { // Check useRenderDataForCol because it is false if we are rendering an item
                 for(i = 0; i < this.colliderArray.Length; i++) {
-                    meshBuilder.useRenderDataForCol = false;
+                    meshBuilder.autoGenerateColliders = false;
                     meshBuilder.addColliderBox(this.colliderArray[i], x + this.offsetVector.x, y + this.offsetVector.y, z + this.offsetVector.z);
                 }
             }
@@ -71,21 +71,21 @@ namespace VoxelEngine.Render.BlockRender {
             int vertStart = meshBuilder.getVerticeCount();
             for(i = 0; i < this.cachedMeshVerts.Length; i++) {
                 vertex = this.cachedMeshVerts[i];
-                meshBuilder.addVertex(new Vector3(vertex.x + x + this.offsetVector.x, vertex.y + y + this.offsetVector.y, vertex.z + z + this.offsetVector.z));
-                meshBuilder.addVertexColor(color);
+                meshBuilder.addRawVertex(new Vector3(vertex.x + x + this.offsetVector.x, vertex.y + y + this.offsetVector.y, vertex.z + z + this.offsetVector.z));
+                meshBuilder.addRawVertexColor(color);
             }
 
             // Add triangles
             for (i = 0; i < this.cachedMeshTris.Length; i++) {
-                meshBuilder.addTriangle(vertStart + this.cachedMeshTris[i]);
+                meshBuilder.addRawTriangle(vertStart + this.cachedMeshTris[i]);
             }
 
             // Add UVs
             for(i = 0; i < this.cachedMeshUVs.Length; i++) {
-                meshBuilder.addUv(this.cachedMeshUVs[i]);
+                meshBuilder.addRawUv(this.cachedMeshUVs[i]);
             }            
 
-            meshBuilder.useRenderDataForCol = true;
+            meshBuilder.autoGenerateColliders = true;
         }
 
         private void extractMesh(Transform t, List<Mesh> meshes, List<Vector3> offsets) {

@@ -18,15 +18,15 @@ namespace VoxelEngine.Blocks {
         public static Block[] BLOCK_LIST = new Block[256];
 
         public static Block air = new BlockAir(0);
-        public static Block stone = new BlockStone(1).setMineTime(3f);
-        public static Block dirt = new Block(2).setName("Dirt").setMineTime(1.5f).setTexture(1, 0).setType(EnumBlockType.DIRT);
-        public static Block grass = new BlockGrass(3).setName("grass");
-        public static Block gravel = new BlockFalling(4).setName("Gravel").setMineTime(1.5f).setTexture(0, 11).setType(EnumBlockType.DIRT);
+        public static Block stone = new BlockStone(1).setName("Stone").setMineTime(3f);
+        public static Block dirt = new Block(2).setName("Dirt").setTexture(1, 0).setType(EnumBlockType.DIRT).setMineTime(0.5f);
+        public static Block grass = new BlockGrass(3).setName("grass").setMineTime(0.5f);
+        public static Block gravel = new BlockFalling(4).setName("Gravel").setMineTime(0.5f).setTexture(0, 11).setType(EnumBlockType.DIRT);
         public static Block coalOre = new BlockOre(5, Item.coal, 5).setName("Coal Ore").setMineTime(3f);
-        public static Block bronzeOre = new BlockOre(6, null, 6).setName("Bronze Ore").setMineTime(3f);
-        public static Block ironOre = new BlockOre(7, null, 6).setName("Iron Ore").setMineTime(3f);
-        public static Block goldOre = new BlockOre(8, null, 9).setName("Gold Ore").setMineTime(3f);
-        public static Block rubyOre = new BlockOre(9, Item.ruby, 8).setName("Ruby Ore").setMineTime(3f);
+        public static Block ironOre = new BlockOre(6, null, 9).setName("Iron Ore").setMineTime(3f);
+        public static Block goldOre = new BlockOre(7, null, 6).setName("Gold Ore").setMineTime(3f);
+        public static Block rubyOre = new BlockOre(8, Item.ruby, 8).setName("Ruby Ore").setMineTime(3f);
+        public static Block crystalOre = new BlockOre(9, Item.crystal, 7).setName("Crystal Ore").setMineTime(3f);
         public static Block water = new BlockFluid(10).setName("Water").setTexture(0, 12);
         public static Block lava = new BlockFluid(11).setName("Lava").setTexture(1, 12).setEmittedLight(5);
         public static Block cobblestone = new Block(12).setName("Cobblestone").setTexture(5, 2).setType(EnumBlockType.STONE).setMineTime(4);
@@ -34,30 +34,30 @@ namespace VoxelEngine.Blocks {
         public static Block cobblestoneStairs = new BlockStairs(14, Block.cobblestone);
         public static Block mushroom = new BlockMushroom(15, 4).setName("Mushroom");
         public static Block chest = new BlockChest(16).setName("Chest").setMineTime(2f);
-        public static Block cobweb = new BlockCobweb(17).setName("Cobweb");
-        public static Block torch = new BlockTorch(18).setName("Torch").setMineTime(0.5f);
+        public static Block cobweb = new BlockCobweb(17).setName("Cobweb").setMineTime(0.15f);
+        public static Block wood = new BlockWood(18).setName("Log").setMineTime(2);
         public static Block ladder = new BlockLadder(19).setName("Ladder").setMineTime(0.5f).setType(EnumBlockType.WOOD);
         public static Block fence = new BlockFence(20).setName("Fence").setMineTime(1.25f).setType(EnumBlockType.WOOD);
-        public static Block ironFence = new Block(21).setName("Iron Fence").setType(EnumBlockType.STONE);
+        public static Block glass = new Block(21).setName("Glass").setTransparent().setTexture(3, 2);
         public static Block plank = new Block(22).setName("Wood Plank").setTexture(5, 0).setType(EnumBlockType.WOOD).setMineTime(0.75f);
         public static Block plankSlab = new BlockSlab(23, Block.plank);
         public static Block plankStairs = new BlockStairs(24, Block.plank);
         public static Block brick = new Block(25).setName("Brick").setTexture(5, 1).setType(EnumBlockType.STONE).setMineTime(3f);
         public static Block brickSlab = new BlockSlab(26, Block.brick);
         public static Block brickStair = new BlockStairs(27, Block.brick);
-        public static Block wood = new BlockWood(28).setName("Log").setMineTime(2);
-        public static Block leaves = new Block(29).setName("Leaves").setTexture(0, 1).setTransparent();
-        // 30
-        public static Block roofWooden = new BlockRoof(31, Block.plank);
-        //public static Block roofSlab = new BlockSlab(32, Block.roof);
+        public static Block tnt = new BlockTnt(28).setName("TNT").setMineTime(0.15f);
+        public static Block leaves = new BlockLeaves(29).setName("Leaves");
+        public static Block torch = new BlockTorch(30).setName("Torch").setEmittedLight(15).setMineTime(0.5f);
+        public static Block unlitTorch = new BlockTorch(31).setName("Unlit Torch").setMineTime(0.5f);
+        public static Block roofWooden = new BlockRoof(32, Block.plank);
         public static Block bookcase = new BlockBookcase(33).setName("Bookcase");
-        public static Block glass = new Block(34).setName("Glass").setTransparent().setTexture(3, 1);
+            //public static Block glass = new Block(34).setName("Glass").setTransparent().setTexture(3, 1);
         public static Block rail = new BlockRail(35).setName("Rail").setMineTime(0.15f);
-        public static Block door; // 36
-        public static Block farmland = new BlockFarmland(37).setName("Farmland");
-        public static Block bed = new BlockBed(38).setName("Bed");
-        public static Block cornCrop = new BlockCrop(39, Item.corn, 3, 5, 7).setName("Corn");
-        public static Block carrotCrop = new BlockCrop(40, Item.carrot, 2, 4, 3).setName("Carrots");
+            public static Block door; // 36
+            public static Block farmland = new BlockFarmland(37).setName("Farmland");
+            public static Block bed = new BlockBed(38).setName("Bed");
+            public static Block cornCrop = new BlockCrop(39, Item.corn, 3, 5, 7).setName("Corn");
+            public static Block carrotCrop = new BlockCrop(40, Item.carrot, 2, 4, 3).setName("Carrots");
         public static Block wire = new BlockWire(43).setName("Wire");
         public static Block piston;
         public static Block pistonHead;
@@ -77,9 +77,8 @@ namespace VoxelEngine.Blocks {
         public static Block blockBreaker;
         public static Block memorySwitch;
 
-
-        [Obsolete("Remember to update the placeholder with the correct block!")]
         public static Block test = new BlockTest(254).setName("TEST");
+        [Obsolete("Remember to update the placeholder with the correct block!")]
         public static Block placeholder = new Block(255).setName("PLACEHOLDER").setTexture(31, 31);
 
         /// <summary> The blocks id, there will never be duplicate. </summary>
@@ -162,13 +161,8 @@ namespace VoxelEngine.Blocks {
         /// <summary>
         /// Returns the correct TexturePos for a block.
         /// </summary>
-        public virtual TexturePos getTexturePos(Direction direction, int meta) {
+        public virtual TexturePos getTexturePos(Direction faceDirection, int meta) {
             return this.texturePos;
-        }
-
-        [Obsolete("Use getUvPlane() instead!")]
-        public virtual Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            return uvs;
         }
 
         public virtual string getAsDebugText(int meta) {

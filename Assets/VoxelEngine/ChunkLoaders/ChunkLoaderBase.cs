@@ -39,6 +39,8 @@ namespace VoxelEngine.ChunkLoaders {
                     c.renderChunk();
                 }
             }
+
+//            Chunk.FLAG = true;
         }
 
         /// <summary>
@@ -134,7 +136,6 @@ namespace VoxelEngine.ChunkLoaders {
                 }
 
                 chunk.transform.position = instructions.toChunkVector();
-                chunk.setDirty();
 
                 this.world.loadChunk(chunk, instructions);
 

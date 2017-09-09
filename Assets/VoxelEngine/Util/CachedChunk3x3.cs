@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
+﻿using VoxelEngine.Blocks;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
@@ -9,6 +8,10 @@ namespace VoxelEngine.Util {
         private static CachedChunk3x3 region;
 
         private Chunk[] chunks;
+
+        private CachedChunk3x3() {
+            this.chunks = new Chunk[27];
+        }
 
         public static CachedChunk3x3 getNewRegion(World world, Chunk chunk) {
             if(region == null) {
@@ -33,10 +36,6 @@ namespace VoxelEngine.Util {
             return region;
         }
 
-        private CachedChunk3x3() {
-            this.chunks = new Chunk[27];
-        }
-
         /// <summary>
         /// Returns true is all the adjacent chunks are loaded.
         /// </summary>
@@ -51,11 +50,29 @@ namespace VoxelEngine.Util {
             return true;
         }
         
+        /// <summary>
+        /// Gets a block from the region.  NOTE!  Coords are 0-15 to use the middle chunk,
+        /// with negative and position to get the surrounding ones.  0, -2, 0 would get the
+        /// chunk down from the middle/orgin chunk.
+        /// </summary>
         public Block getBlock(int x, int y, int z) {
             int localX = x + (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
             int localY = y + (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
             int localZ = z + (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
             return this.getChunk(x, y, z).getBlock(localX, localY, localZ);
+        }
+
+        private Chunk c;
+
+        public void setBlock(int x, int y, int z, Block block, int meta = -1) {
+            int localX = x + (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int localY = y + (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int localZ = z + (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            c = this.getChunk(x, y, z);
+            c.setBlock(localX, localY, localZ, block);
+            if(meta != -1) {
+                c.setMeta(localX, localY, localZ, meta);
+            }
         }
 
         public int getLight(int x, int y, int z) {
@@ -68,7 +85,7 @@ namespace VoxelEngine.Util {
         /// <summary>
         /// Returns the correct chunk from local chunk coords.  If the coords are out of the orgin chunk, this returns an adjacent chunk.
         /// </summary>
-        private Chunk getChunk(int x, int y, int z) {
+        public Chunk getChunk(int x, int y, int z) {
             int xOffset = x >= Chunk.SIZE ? 1 : (x < 0 ? -1 : 0);
             int yOffset = y >= Chunk.SIZE ? 1 : (y < 0 ? -1 : 0);
             int zOffset = z >= Chunk.SIZE ? 1 : (z < 0 ? -1 : 0);

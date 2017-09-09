@@ -1,77 +1,51 @@
 ﻿using System.Collections.Generic;
 using fNbt;
-using UnityEngine;
 using VoxelEngine.Util;
 using VoxelEngine.Generation.Caves.Structure.Mineshaft.Center;
+using UnityEngine;
 
 namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
     public class StructureMineshaft : StructureBase, IDebugDisplayable {
 
-        public const int SIZE_CAP = 20;
+        public const int SIZE_CAP = 15;
 
         public List<PieceBase> pieces;
-        public System.Random rnd;
-
-        private BlockPos shaftOrgin;
-        
+        private BlockPos shaftOrgin;        
 
         public StructureMineshaft() {
             this.pieces = new List<PieceBase>();
         }
 
-        public StructureMineshaft(BlockPos shaftOrgin, int seed) : this() {
+        public StructureMineshaft(BlockPos shaftOrgin, System.Random rnd) : base(rnd) {
+            this.pieces = new List<PieceBase>();
+
             this.shaftOrgin = shaftOrgin;
-            this.rnd = new System.Random(seed | this.shaftOrgin.GetHashCode());
 
             // Make the starting piece
             new PieceCenter(this, this.shaftOrgin);
+
+            this.calculateStructureBounds();
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {
-            NbtHelper.writeDirectBlockPos(tag, this.shaftOrgin, "shaftOrgin");
+            NbtHelper.writeDirectBlockPos(tag, this.shaftOrgin, "orgin");
 
-            NbtList list = new NbtList("pieces", NbtTagType.Compound);
+            NbtList nbtList = new NbtList("pieces", NbtTagType.Compound);
             foreach(PieceBase p in this.pieces) {
-                list.Add(p.writeToNbt(new NbtCompound()));
+                nbtList.Add(p.writeToNbt(new NbtCompound()));
             }
-            tag.Add(list);
+            tag.Add(nbtList);
 
             return base.writeToNbt(tag);
         }
 
         public override void readFromNbt(NbtCompound tag) {
-            this.shaftOrgin = NbtHelper.readDirectBlockPos(tag, "shaftOrgin");
+            this.shaftOrgin = NbtHelper.readDirectBlockPos(tag, "orgin");
 
             foreach (NbtCompound compound in tag.Get<NbtList>("pieces")) {
                 byte id = compound.Get<NbtByte>("id").ByteValue;
-                PieceBase p = null;
-                switch(id) {
-                    case 0:
-                        p = new PieceCenter(compound);
-                        break;
-                    case 1:
-                        p = new PieceCrossing(compound);
-                        break;
-                    case 2:
-                        p = new PieceHallway(compound);
-                        break;
-                    case 3:
-                        p = new PieceRoom(compound);
-                        break;
-                    case 4:
-                        p = new PieceShaft(compound);
-                        break;
-                    case 7:
-                        p = new PieceSmallShaft(compound);
-                        break;
-                    case 8:
-                        p = new PieceOrginBedroom(compound);
-                        break;
-                    case 9:
-                        p = new PieceOrginStorage(compound);
-                        break;
-                }
+                PieceBase p = this.getPieceFromId(id, compound);
 
                 if(p != null) {
                     p.shaft = this;
@@ -81,13 +55,45 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             }
         }
 
-        public override string getStructureName() {
-            return "mineshaft";
+        public override void calculateStructureBounds() {
+            this.structureBoundingBox = new Bounds(
+                this.pieces[0].pieceBounds.center,
+                this.pieces[0].pieceBounds.size);
+
+            for (int i = 1; i < this.pieces.Count; i++) {
+                this.structureBoundingBox.Encapsulate(this.pieces[i].pieceBounds);                
+            }
         }
 
-        public void debugDisplay() {
-            for(int i = 0; i < this.pieces.Count; i++) {
+        public new void debugDisplay() {
+            base.debugDisplay();
+            for (int i = 0; i < this.pieces.Count; i++) {
                 this.pieces[i].debugDisplay();
+            }
+        }
+
+        private PieceBase getPieceFromId(int id, NbtCompound compound) {
+            switch (id) {
+                case 0:
+                    return new PieceCenter(compound);
+                case 1:
+                    return new PieceCrossing(compound);
+                case 2:
+                    return new PieceHallway(compound);
+                case 3:
+                    return new PieceRoom(compound);
+                case 4:
+                    return new PieceShaft(compound);
+                case 5:
+                    return new PieceMobSpawner(compound);
+                case 7:
+                    return new PieceSmallShaft(compound);
+                case 8:
+                    return new PieceOrginBedroom(compound);
+                case 9:
+                    return new PieceOrginStorage(compound);
+                default:
+                    return null;
             }
         }
     }

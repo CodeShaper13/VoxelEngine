@@ -28,6 +28,8 @@ namespace VoxelEngine.Level {
         private Transform entityWrapper;
         public Transform tileEntityWrapper;
 
+        private WorldLighter lighter;
+
         // Acts like a constructor.
         public void initWorld(WorldData data) {
             this.worldData = data;
@@ -35,6 +37,8 @@ namespace VoxelEngine.Level {
             this.entityList = new List<Entity>();
             this.nbtIOHelper = new NbtIOHelper(this.worldData);
             this.generator = WorldType.getFromId(this.worldData.worldType).getGenerator(this, this.worldData.seed);
+
+            this.lighter = new WorldLighter(this);
 
             if (!this.nbtIOHelper.readGenerationData(this.generator)) {
                 // Generate the generation data, and save it if there was any.
@@ -172,9 +176,9 @@ namespace VoxelEngine.Level {
 
         public Chunk getChunk(int worldX, int worldY, int worldZ) {
             return this.getChunk(new ChunkPos(
-                MathHelper.floor(worldX / (float)Chunk.SIZE),
-                MathHelper.floor(worldY / (float)Chunk.SIZE),
-                MathHelper.floor(worldZ / (float)Chunk.SIZE)));
+                MathHelper.floor(worldX / Chunk.SIZEf),
+                MathHelper.floor(worldY / Chunk.SIZEf),
+                MathHelper.floor(worldZ / Chunk.SIZEf)));
         }
 
         public Block getBlock(BlockPos pos) {
@@ -249,7 +253,7 @@ namespace VoxelEngine.Level {
 
                 // Update lighting.
                 if (newBlock != null && updateLighting) {
-                    this.updateLighting(newBlock.emittedLight, x, y, z);
+                    this.lighter.updateLighting(newBlock.emittedLight, x, y, z);
                 }
             }
         }
@@ -316,14 +320,21 @@ namespace VoxelEngine.Level {
 
         /// <summary>
         /// Like set block, but makes a dropped item appear.  Note, this calls World.setBlock to actually set the block to air.
+        /// DropChance is 0 1, with high values making drops more likely.
         /// </summary>
-        public void breakBlock(BlockPos pos, ItemTool brokenWith) {
-            ItemStack[] dropList = this.getBlock(pos).getDrops(this, pos, this.getMeta(pos), brokenWith);
-            if(dropList != null) {
+        public void breakBlock(BlockPos pos, ItemTool brokenWith, float dropChance = 1) {
+            Block block = this.getBlock(pos);
+            ItemStack[] dropList = block.getDrops(this, pos, this.getMeta(pos), brokenWith);
+            float f = 0.5f;
+            if (dropList != null) {
                 for(int i = 0; i < dropList.Length; i++) {
-                    float f = 0.5f;
+                    if(dropChance != 1 || !(block is BlockTileEntity)) {
+                        if(UnityEngine.Random.Range(0f, 1f) > dropChance) {
+                            continue;
+                        }
+                    }
                     Vector3 offset = new Vector3(UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f), UnityEngine.Random.Range(-f, f));
-                    this.spawnItem(dropList[i], pos.toVector() + offset, EntityItem.randomRotation(), Vector3.zero);
+                    this.spawnItem(dropList[i], pos.toVector() + offset, EntityItem.randomRotation(), new Vector3(0, 0, 0));
                 }
             }
             this.setBlock(pos, Block.air);
@@ -334,7 +345,7 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void saveEntireWorld(bool deleteEntities) {
             //TODO http://answers.unity3d.com/questions/850451/capturescreenshot-without-ui.html To hide UI
-            this.nbtIOHelper.writeWorldImageToDisk();
+            //this.nbtIOHelper.writeWorldImageToDisk();
 
             this.nbtIOHelper.writeWorldDataToDisk(this.worldData);
             this.nbtIOHelper.writePlayerToDisk(Main.singleton.player);
@@ -354,15 +365,58 @@ namespace VoxelEngine.Level {
         }
 
         public void makeExplosion(IExplosiveObject obj, Vector3 point) {
-            // Lerp quaternion and call func?
+            BlockPos explosionOrgin = new BlockPos(point);
+            BlockPos pos;
+            int x, y, z;
+            float size = obj.getExplosionSize();
+            int radius = Mathf.CeilToInt(size);
+            Block block;
+
+            // Break Blocks.
+            for(x = -radius; x <= radius; x++) {
+                for (y = -radius; y <= radius; y++) {
+                    for (z = -radius; z <= radius; z++) {
+                        if(Vector3.Distance(new Vector3(x, y, z), Vector3.zero) <= size) {
+                            pos = explosionOrgin + new BlockPos(x, y, z);
+                            block = this.getBlock(pos);
+                            if (block is IExplosiveObject) {
+                                this.setBlock(pos, Block.air);
+                                this.makeExplosion((IExplosiveObject)block, pos.toVector());
+                            } else {
+                                this.breakBlock(pos, null, 0.75f);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Damage Entites.
+            Entity entity;
+            Collider[] colliders = Physics.OverlapSphere(point, size, (Layers.ENTITY | Layers.ENTITY_ITEM | Layers.ENTITY_PLAYER));
+            for(int i = 0; i < colliders.Length; i++) {
+                entity = colliders[i].GetComponent<Entity>();
+                if(entity != null) {
+                    if(entity is EntityLiving) {
+                        ((EntityLiving)entity).damage((int)(size * 4), "TNT.ERROR");
+                    } else if(entity is EntityItem && ((EntityItem)entity).timeAlive == EntityItem.START_TIME) {
+                        continue;
+                    } else {
+                        this.killEntity(entity);
+                    }
+                }
+            }
         }
 
+        /// <summary>
+        /// Dirties every loaded Chunk so they are rebaked at the end of the frame.
+        /// </summary>
         public void rebakeWorld() {
             foreach (Chunk chunk in this.loadedChunks.Values) {
                 chunk.setDirty();
             }
         }
 
+        // Unused and untested.
         private void makeExplosionRay(Vector3 orgin, Vector3 direction, float distance) {
             float traveled = 0f;
 
@@ -417,7 +471,7 @@ namespace VoxelEngine.Level {
                     for (int z = 0; z < Chunk.SIZE; z++) {
                         emittedLight = chunk.getBlock(x, y, z).emittedLight;
                         if (emittedLight > 0) {
-                            this.updateLighting(emittedLight, chunk.worldPos.x + x, chunk.worldPos.y + y, chunk.worldPos.z + z);
+                            this.lighter.updateLighting(emittedLight, chunk.worldPos.x + x, chunk.worldPos.y + y, chunk.worldPos.z + z);
                         }
                     }
                 }
@@ -453,117 +507,6 @@ namespace VoxelEngine.Level {
             }
         }
 
-        private void updateLighting(int newLight, int startX, int startY, int startZ) {
-            Queue<LightRemovalNode> removalQueue = new Queue<LightRemovalNode>();
-            Queue<BlockPos> queue = new Queue<BlockPos>();
-            int x, y, z, neighborLevel, lightLevel;
-            LightRemovalNode node;
-
-            removalQueue.Enqueue(new LightRemovalNode(startX, startY, startZ, this.getLight(startX, startY, startZ)));
-            this.setLight(startX, startY, startZ, 0);
-
-            while (removalQueue.Count > 0) {
-                node = removalQueue.Dequeue();
-                x = node.x;
-                y = node.y;
-                z = node.z;
-                lightLevel = node.lightLevel;
-
-                // -X
-                neighborLevel = this.getLight(x - 1, y, z);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x - 1, y, z, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x - 1, y, z, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x - 1, y, z));
-                }
-
-                // +X
-                neighborLevel = this.getLight(x + 1, y, z);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x + 1, y, z, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x + 1, y, z, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x + 1, y, z));
-                }
-
-                // -Y
-                neighborLevel = this.getLight(x, y - 1, z);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x, y - 1, z, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x, y - 1, z, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x, y - 1, z));
-                }
-
-                // +Y
-                neighborLevel = this.getLight(x, y + 1, z);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x, y + 1, z, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x, y + 1, z, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x, y + 1, z));
-                }
-
-                // -Z
-                neighborLevel = this.getLight(x, y, z - 1);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x, y, z - 1, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x, y, z - 1, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x, y, z - 1));
-                }
-
-                // +Z
-                neighborLevel = this.getLight(x, y, z + 1);
-                if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.setLight(x, y, z + 1, 0);
-                    removalQueue.Enqueue(new LightRemovalNode(x, y, z + 1, neighborLevel));
-                } else if (neighborLevel >= lightLevel) {
-                    queue.Enqueue(new BlockPos(x, y, z + 1));
-                }
-            }
-
-            this.setLight(startX, startY, startZ, newLight);
-
-            queue.Enqueue(new BlockPos(startX, startY, startZ));
-
-            BlockPos pos;
-            while (queue.Count > 0) {
-                pos = queue.Dequeue();
-                x = pos.x;
-                y = pos.y;
-                z = pos.z;
-
-                lightLevel = this.getLight(x, y, z);
-
-                if (!this.getBlock(x - 1, y, z).isSolid && this.getLight(x - 1, y, z) + 2 <= lightLevel) {
-                    this.setLight(x - 1, y, z, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x - 1, y, z));
-                }
-                if (!this.getBlock(x + 1, y, z).isSolid && this.getLight(x + 1, y, z) + 2 <= lightLevel) {
-                    this.setLight(x + 1, y, z, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x + 1, y, z));
-                }
-                if (!this.getBlock(x, y - 1, z).isSolid && this.getLight(x, y - 1, z) + 2 <= lightLevel) {
-                    this.setLight(x, y - 1, z, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x, y - 1, z));
-                }
-                if (!this.getBlock(x, y + 1, z).isSolid && this.getLight(x, y + 1, z) + 2 <= lightLevel) {
-                    this.setLight(x, y + 1, z, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x, y + 1, z));
-                }
-                if (!this.getBlock(x, y, z - 1).isSolid && this.getLight(x, y, z - 1) + 2 <= lightLevel) {
-                    this.setLight(x, y, z - 1, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x, y, z - 1));
-                }
-                if (!this.getBlock(x, y, z + 1).isSolid && this.getLight(x, y, z + 1) + 2 <= lightLevel) {
-                    this.setLight(x, y, z + 1, lightLevel - 1);
-                    queue.Enqueue(new BlockPos(x, y, z + 1));
-                }
-            }
-        }
-
         private Transform createWrapper(string name) {
             Transform trans = new GameObject(name).transform;
             trans.parent = this.transform;
@@ -582,7 +525,7 @@ namespace VoxelEngine.Level {
             return entity;
         }
 
-        private void setLight(int x, int y, int z, int level) {
+        public void setLight(int x, int y, int z, int level) {
             Chunk chunk = this.getChunk(x, y, z);
             if (chunk != null) {
                 chunk.setLight(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z, level);

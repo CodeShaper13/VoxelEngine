@@ -1,4 +1,9 @@
-﻿namespace VoxelEngine.Blocks {
+﻿using VoxelEngine.Containers;
+using VoxelEngine.Items;
+using VoxelEngine.Level;
+using VoxelEngine.Util;
+
+namespace VoxelEngine.Blocks {
 
     public class BlockAir : Block {
 
@@ -10,9 +15,8 @@
             this.setRenderer(null);
         }
 
-        //public override void onDestroy(World world, BlockPos pos, byte meta) {
-        //    base.onDestroy(world, pos, meta);
-        //    Debug.Log("Error!  Air is being broken, this shouldn't happen!");
-        //}
+        public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
+            return null;
+        }
     }
 }

@@ -14,7 +14,6 @@ namespace VoxelEngine.Blocks {
             this.droppedItem = drop;
             this.textureY = textureY;
             this.setType(EnumBlockType.STONE);
-            this.setStatesUsed(3);
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {

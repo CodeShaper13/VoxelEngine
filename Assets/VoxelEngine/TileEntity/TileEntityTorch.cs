@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using VoxelEngine.Level;
-using VoxelEngine.Render.BlockRender;
 
 namespace VoxelEngine.TileEntity {
 
@@ -9,7 +8,7 @@ namespace VoxelEngine.TileEntity {
         public TileEntityTorch(World world, int x, int y, int z, int meta) :
             base(world, x, y, z, References.list.torchPrefab) {
             float f = 0.25f;
-            Vector3 pos = new Vector3(x, y + BlockRendererTorch.OFFSET - 0.1f, z);
+            Vector3 pos = new Vector3(x, y + 0.3f, z);
             if (meta == 1) { // North
                 pos.z += f;
             } else if (meta == 2) { // East

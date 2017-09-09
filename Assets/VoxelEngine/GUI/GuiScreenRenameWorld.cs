@@ -11,25 +11,24 @@ namespace VoxelEngine.GUI {
         public InputField field;
         public Button button;
         public Text textErrorMsg;
-        private WorldData worldData;
+        private WorldData targetWorldData;
         private List<WorldData> cachedWorlds;
 
-        public void OnDisable() {
-            this.field.text = string.Empty;
-        }
-
-        public void init(WorldData data, List<WorldData> cached) {
-            this.worldData = data;
+        public void set(WorldData data, List<WorldData> cached) {
+            this.targetWorldData = data;
             this.cachedWorlds = cached;
-            this.field.text = this.worldData.worldName;
+            this.field.text = this.targetWorldData.worldName;
         }
 
         public void CALLBACK_renameWorld() {
             string newName = this.field.text;
-            Directory.Move("saves/" + this.worldData.worldName, "saves/" + newName);
-            this.worldData.worldName = newName;
-            GuiManager.worldSelect.open();
+            string oldName = this.targetWorldData.worldName;
+            if (newName != oldName) {
+                Directory.Move("saves/" + oldName, "saves/" + newName);
+                this.targetWorldData.worldName = newName;
+            }
 
+            GuiManager.worldSelect.open();
             this.playClickSound();
         }
 
@@ -42,7 +41,7 @@ namespace VoxelEngine.GUI {
                     break;
                 }
             }
-            bool flag = validName || this.field.text == this.worldData.worldName;
+            bool flag = validName || this.field.text == this.targetWorldData.worldName;
             this.button.interactable = flag;
             this.textErrorMsg.text = flag ? string.Empty : "You may not have duplicate world names, pick a different one";
         }

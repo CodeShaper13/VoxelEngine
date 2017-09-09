@@ -1,9 +1,11 @@
-﻿using VoxelEngine.Entities;
+﻿using System;
+using VoxelEngine.Entities;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.ChunkLoaders {
 
+    [Obsolete("May contain bugs!", true)]
     public class ChunkLoaderLockedY : ChunkLoaderBase {
 
         private int worldHeight = 4;

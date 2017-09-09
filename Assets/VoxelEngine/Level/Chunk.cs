@@ -17,6 +17,8 @@ namespace VoxelEngine.Level {
     public class Chunk : MonoBehaviour {
 
         public const int SIZE = 15;
+        /// <summary> Chunk.SIZE but a float so we don't have to cast, for convenience. </summary>
+        public const float SIZEf = 15f;
         public const int BLOCK_COUNT = Chunk.SIZE * Chunk.SIZE * Chunk.SIZE;
 
         public MeshFilter filter;
@@ -34,7 +36,7 @@ namespace VoxelEngine.Level {
         public ChunkPos chunkPos;
         public Bounds chunkBounds;
         /// <summary> If true, the chunk has been changed and needs it's mesh to be rebaked. </summary>
-        private bool isDirty;
+        public bool isDirty;
         /// <summary> If true, the population world gen phase and lighting has been done. </summary>
         public bool hasDoneGen2;
         /// <summary> If true, the chunk should not be rendered and is ment to read from only.  Gen Phase 2 will still edit theses? </summary>
@@ -202,13 +204,12 @@ namespace VoxelEngine.Level {
             this.isDirty = false;
 
             MeshBuilder meshBuilder = RenderManager.getMeshBuilder();
-            meshBuilder.useRenderDataForCol = true;
 
             Block currentBlock, neighborBlock;
-            bool cachedIsSolid;
+            bool isSolid;
             Block[] surroundingBlocks = new Block[6];
             BlockPos dirPos;
-            int x, y, z, i, facesCulled, x1, y1, z1, renderFace, x2, y2, z2;
+            int x, y, z, i, facesCulled, x1, y1, z1, renderFaceMask, x2, y2, z2;
             Direction direction;
 
             // Bake blocks into mesh.
@@ -217,8 +218,7 @@ namespace VoxelEngine.Level {
                     for (z = 0; z < Chunk.SIZE; z++) {
                         currentBlock = this.getBlock(x, y, z);
                         if(currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
-
-                            renderFace = 0;
+                            renderFaceMask = 0;
 
                             // Find the surrounding blocks and faces to cull.
                             facesCulled = 0;
@@ -236,46 +236,39 @@ namespace VoxelEngine.Level {
                                     neighborBlock = this.getBlock(x1, y1, z1);
                                 }
 
-                                cachedIsSolid = neighborBlock.isSolid;
-                                if(!cachedIsSolid) {
-                                    renderFace |= direction.renderMask;
+                                isSolid = neighborBlock.isSolid;
+                                if(!isSolid) {
+                                    renderFaceMask |= direction.renderMask;
                                 }
 
                                 if (currentBlock.renderer.lookupAdjacentBlocks) {
                                     surroundingBlocks[i] = neighborBlock;
                                 }
 
-                                if (cachedIsSolid) {
+                                if (isSolid) {
                                     facesCulled++;
                                 }                                
                             }
 
                             // If at least one face is visible, render the block.
                             if(facesCulled != 6) {
-                                // Populate the meshData with light levels.
-                                meshBuilder.setLightLevel(0, 0, 0, this.getLight(x, y, z));
-                                
-                                // If the renderer requests it, pass the light levels into the meshBuilder
-                                if(currentBlock.renderer.lookupAdjacentLight == true) {
-                                    for(x2 = -1; x2 <= 1; x2++) {
+                                // Populate the meshData with light levels.                                
+                                if(currentBlock.renderer.lookupAdjacentLight) {
+                                    for (x2 = -1; x2 <= 1; x2++) {
                                         for (y2 = -1; y2 <= 1; y2++) {
                                             for (z2 = -1; z2 <= 1; z2++) {
                                                 x1 = x + x2;
                                                 y1 = y + y2;
                                                 z1 = z + z2;
-                                                if (x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE) {
-                                                    i = cachedRegion.getLight(x1, y1, z1);
-                                                    //this.world.getLight(this.worldPos.x + x1, this.worldPos.y + y1, this.worldPos.z + z1); // cachedRegion.getLight(x1, y1, z1);
-                                                } else {
-                                                    i = this.getLight(x1, y1, z1);
-                                                }
-                                                meshBuilder.setLightLevel(x2, y2, z2, i);
+                                                meshBuilder.setLightLevel(x2, y2, z2, x1 < 0 || y1 < 0 || z1 < 0 || x1 >= Chunk.SIZE || y1 >= Chunk.SIZE || z1 >= Chunk.SIZE ? cachedRegion.getLight(x1, y1, z1) : this.getLight(x1, y1, z1));
                                             }
                                         }
                                     }
+                                } else {
+                                    meshBuilder.setLightLevel(0, 0, 0, this.getLight(x, y, z));
                                 }
                                 // Render the block.
-                                currentBlock.renderer.renderBlock(currentBlock, this.getMeta(x, y, z), meshBuilder, x, y, z, renderFace, surroundingBlocks);
+                                currentBlock.renderer.renderBlock(currentBlock, this.getMeta(x, y, z), meshBuilder, x, y, z, renderFaceMask, surroundingBlocks);
                             }
                         }
                     }

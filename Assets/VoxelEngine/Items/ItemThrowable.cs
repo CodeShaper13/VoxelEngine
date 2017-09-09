@@ -18,7 +18,7 @@ namespace VoxelEngine.Items {
         public override ItemStack onRightClick(World world, EntityPlayer player, ItemStack stack, PlayerRayHit hit) {
             Transform camera = player.mainCamera;
 
-            Entity entity = world.spawnEntity(this.registeredEntity, camera.position + camera.forward, camera.rotation);
+            Entity entity = world.spawnEntity(this.registeredEntity, camera.position + camera.forward * 1.5f, camera.rotation);
             entity.gameObject.GetComponent<Rigidbody>().AddForce(camera.forward * this.getThrowSpeed(), ForceMode.Impulse);
 
             return stack.safeDeduction();

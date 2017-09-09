@@ -15,9 +15,9 @@ namespace VoxelEngine.Render.BlockRender {
             if ((renderFace & 1) == 1) {
                 meshBuilder.addOptimized1x1Plane(
                     this, block, meta,
-                    new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                    new Vector3(x + 0.5f, y - 0.5f, z + 0.5f), //
                     new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
-                    new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                    new Vector3(x - 0.5f, y + 0.5f, z + 0.5f), //
                     new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                     Direction.NORTH);
             }

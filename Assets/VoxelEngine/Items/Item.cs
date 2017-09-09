@@ -17,7 +17,7 @@ namespace VoxelEngine.Items {
 
         public static Item pebble = new ItemThrowable(256, EntityRegistry.throwable).setName("Rock").setTexture(11, 2);
         public static Item coal = new Item(257).setName("Coal Lump").setTexture(12, 0);
-        public static Item bronzeBar; // = new Item(258).setName("Bronze Bar").setTexture(0, 0);
+        public static Item crystal = new Item(258).setName("Crystal").setTexture(14, 5);
         public static Item ironBar = new Item(259).setName("Iron Bar").setTexture(0, 0);
         public static Item goldBar; // = new Item(260).setName("Gold Bar").setTexture(0, 0);
         public static Item ruby = new Item(261).setName("Ruby").setTexture(11, 1);
@@ -26,8 +26,8 @@ namespace VoxelEngine.Items {
         public static Item axe = new ItemTool(264, 4f, EnumToolType.AXE, EnumBlockType.WOOD).setName("Axe").setTexture(15, 0);
         public static Item knife = new ItemSword(265, 2).setName("Knife").setTexture(0, 0);
         public static Item pistol; // 266
-        public static Item shotgun; // 267
-        public static Item rifle; // 268
+        public static Item apple = new Item(267).setName("Apple").setTexture(14, 4);
+        public static Item stick = new Item(268).setName("Stick").setTexture(15, 5);
         public static Item glassShard = new Item(269).setName("Glass Shard").setTexture(12, 1);
         public static Item flowerItem = new Item(270).setName("Flower").setTexture(12, 3);
         public static Item bone = new Item(271).setName("Bone").setTexture(11, 6);
@@ -97,13 +97,25 @@ namespace VoxelEngine.Items {
         /// <summary>
         /// Renders the item in the players hand.  Override for special held renderings.
         /// </summary>
-        public virtual void renderAsHeldItem(int meta, int count, Transform handTransfrom) {
+        public virtual void renderAsHeldItem(EntityPlayer player, int meta, int count, Transform handTransfrom) {
             MutableTransform mt = this.getHandTransform();
             Matrix4x4 matrix = Matrix4x4.TRS(
                 handTransfrom.position + mt.position + new Vector3(),
                 handTransfrom.rotation * mt.rotation,
                 mt.scale);
-            Graphics.DrawMesh(RenderManager.getItemMesh(this, meta, true), matrix, References.list.blockMaterial, 0, null, 0, null, false, false);
+            MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+            BlockPos playerPos = new BlockPos(player.transform.position);
+            materialPropertyBlock.SetColor(36, RenderManager.instance.lightColors.getColorFromBrightness(player.world.getLight(playerPos.x, playerPos.y + 1, playerPos.z)));
+            Graphics.DrawMesh(
+                RenderManager.getItemMesh(this, meta, true),
+                matrix,
+                References.list.blockMaterial,
+                0,
+                null,
+                0,
+                materialPropertyBlock,
+                false,
+                false);
         }
 
         /// <summary>

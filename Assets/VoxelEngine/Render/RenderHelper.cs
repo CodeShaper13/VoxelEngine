@@ -8,7 +8,7 @@ namespace VoxelEngine.Render {
     public static class RenderHelper {
 
         /// <summary>
-        /// Renders an ItemStack on the screen.
+        /// Renders an ItemStack on the screen.  Used by containers.
         /// </summary>
         public static void renderStack(ItemStack stack, Vector3 position, Quaternion rotation) {
             Item item = stack.item;

@@ -32,7 +32,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             this.calculateBounds();
 
             piecesFromCenter++;
-            if(this.func(piecesFromCenter)) {
+            if(this.addToShaftIfValid(piecesFromCenter)) {
                 this.successfullyGenerated = true;
 
                 if (piecesFromCenter <= 1) {
@@ -118,8 +118,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             int axis = (int)(this.pointing.axis);
             int perpAxis = (int)(this.pointing.axis == EnumAxis.X ? EnumAxis.Z : EnumAxis.X); // Perpendicular to axis
             int distanceToSupport = 0;
-            BlockPos rightDir = this.pointing.getClockwise().blockPos;
-            BlockPos leftDir = this.pointing.getCounterClockwise().blockPos;
+            Direction right = this.pointing.getClockwise();
+            Direction left = this.pointing.getCounterClockwise();
+            BlockPos rightDir = right.blockPos;
+            BlockPos leftDir = left.blockPos;
             i = (this.is3High ? 3 : 4);
             k = i - 1;
             do {
@@ -132,15 +134,23 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                     // Top middle
                     this.setStateIfInChunk(chunk, pos.x, pos.y + k, pos.z, Block.wood, perpAxis);
 
-                    // Column
+                    // Column.
                     for (j = 0; j < i; j++) {
                         this.setStateIfInChunk(chunk, pos.x + rightDir.x * 2, pos.y + j, pos.z + rightDir.z * 2, Block.wood, j == 3 ? perpAxis : 1);
                         this.setStateIfInChunk(chunk, pos.x + leftDir.x * 2, pos.y + j, pos.z + leftDir.z * 2, Block.wood, j == 3 ? perpAxis : 1);
                     }
 
-                    // Top beam, one away from middle
+                    // Top beam, one away from middle.
                     this.setStateIfInChunk(chunk, pos.x + rightDir.x, pos.y + k, pos.z + rightDir.z, Block.wood, perpAxis);
                     this.setStateIfInChunk(chunk, pos.x + leftDir.x, pos.y + k, pos.z + leftDir.z, Block.wood, perpAxis);
+
+                    // Web.
+                    j = rnd.Next(0, 100);
+                    if (j < 10) {
+                        this.setStateIfInChunk(chunk, pos.x + rightDir.x, pos.y + k - 1, pos.z + rightDir.z, Block.cobweb, BlockCobweb.getMetaForState(right, true));
+                    } else if(j < 20) {
+                        this.setStateIfInChunk(chunk, pos.x + leftDir.x, pos.y + k - 1, pos.z + leftDir.z, Block.cobweb, BlockCobweb.getMetaForState(left, true));
+                    }
 
                     distanceToSupport = -4;
                 }

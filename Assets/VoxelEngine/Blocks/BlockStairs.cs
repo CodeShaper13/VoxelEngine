@@ -19,7 +19,6 @@ namespace VoxelEngine.Blocks {
             this.setRenderer(RenderManager.STAIR);
             this.setMineTime(this.baseBlock.mineTime);
             this.setType(this.baseBlock.blockType);
-            this.setStatesUsed(4);
             this.setTransparent();
         }
 
@@ -35,19 +34,13 @@ namespace VoxelEngine.Blocks {
             clickedDirNormal = clickedDirNormal.getOpposite();
             if(clickedDirNormal == Direction.DOWN || clickedDirNormal == Direction.UP) {
                 if (Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
-                    return (angle.x > 0) ? 3: 1;
+                    return (angle.x > 0) ? 3 : 1;
                 } else { // Z axis
                     return (angle.z > 0) ? 2 : 0;
                 }
             } else {
                 return BlockStairs.getMetaFromDirection(clickedDirNormal);
             }
-        }
-
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            UvHelper.cropUVs(uvs, faceRadius);
-            UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
-            return uvs;
         }
 
         public static int getMetaFromDirection(Direction direction) {

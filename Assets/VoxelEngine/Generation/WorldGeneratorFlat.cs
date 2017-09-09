@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
@@ -10,14 +9,14 @@ namespace VoxelEngine.Generation {
 
     public class WorldGeneratorFlat : WorldGeneratorBase {
 
-        private FeatureTreeBasic ftb;
+        private FeatureTreeBasic tree;
 
         public WorldGeneratorFlat(World world, int seed) : base(world, seed) {
-            this.ftb = new FeatureTreeBasic();
+            this.tree = new FeatureTreeBasic();
         }
 
         public override Vector3 getSpawnPoint(World world) {
-            return new Vector3(0, 30, 0);
+            return new Vector3(7.5f, 25, 7.5f);
         }
 
         public override void generateChunk(Chunk chunk) {
@@ -35,7 +34,21 @@ namespace VoxelEngine.Generation {
         }
 
         public override void populateChunk(Chunk chunk) {
-            ftb.generate(chunk, new System.Random(seed & chunk.chunkPos.GetHashCode()));
+            if(chunk.chunkPos.x == 0 && chunk.chunkPos.z == 0 && chunk.chunkPos.y == 1) {
+                this.column(chunk, 2, 2);
+                this.column(chunk, 2, 13);
+                this.column(chunk, 13, 2);
+                this.column(chunk, 13, 13);
+            } else {
+                this.tree.generate(chunk, new System.Random(seed ^ chunk.chunkPos.GetHashCode()));
+            }
+        }
+
+        private void column(Chunk chunk, int x, int z) {
+            chunk.setBlock(x, 4, z, Block.cobblestone);
+            chunk.setBlock(x, 5, z, Block.lanternOn);
+            chunk.setBlock(x, 6, z, Block.cobblestoneSlab);
+            chunk.setMeta(x, 6, z, 5);
         }
 
         private Block getBlockForHeight(int y) {

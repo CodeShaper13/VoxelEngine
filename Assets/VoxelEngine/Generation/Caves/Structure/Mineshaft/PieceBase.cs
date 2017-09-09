@@ -1,6 +1,5 @@
 ﻿using fNbt;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using VoxelEngine.Blocks;
 using VoxelEngine.Level;
@@ -12,19 +11,18 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
         /// <summary> References to the mineshaft that this belongs too. </summary>
         public StructureMineshaft shaft;
-
         public Bounds pieceBounds;
         public BlockPos orgin;
 
         /// <summary>
-        /// Ctor when loading a piece from the save.
+        /// Constrcutor when loading a piece from the save.
         /// </summary>
         public PieceBase(NbtCompound tag) {
             this.orgin = NbtHelper.readDirectBlockPos(tag, "orgin");
         }
 
         /// <summary>
-        /// Ctor when the piece is added from the generation classes.
+        /// Constructor when the piece is added from the generation classes.
         /// </summary>
         public PieceBase(StructureMineshaft shaft, BlockPos orgin) {
             this.shaft = shaft;
@@ -61,11 +59,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         /// <summary>
-        /// Checks if this piece intersects with any others.
+        /// Checks if this piece intersects with any pieces in the shaft.
         /// </summary>
-        public bool isIntersecting(List<PieceBase> pieces) {
-            for(int i = 0; i < pieces.Count; i++) {
-                if (this.pieceBounds.Intersects(pieces[i].pieceBounds)) {
+        public bool isIntersecting() {
+            for(int i = 0; i < this.shaft.pieces.Count; i++) {
+                if (this.pieceBounds.Intersects(this.shaft.pieces[i].pieceBounds)) {
                     return true;
                 }
             }
@@ -98,20 +96,24 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             return this.shaft.rnd.Next(0, 3) == 0 ? Block.gravel : null;
         }
 
-        public bool func(int piecesFromCenter) {
+        /// <summary>
+        /// Adds this piece to the piece list if it is valid of the first piece, return true if it was added and more pieces should be generated.
+        /// </summary>
+        public bool addToShaftIfValid(int piecesFromCenter) {
             this.calculateBounds();
 
-            // The first piece coming out should never fail.
-            if (piecesFromCenter == 1 || !this.isIntersecting(this.shaft.pieces)) {
+            // The first piece coming out from the center should never fail.
+            if (piecesFromCenter == 1 || !this.isIntersecting()) {
                 this.shaft.pieces.Add(this);
-                if (piecesFromCenter > StructureMineshaft.SIZE_CAP) {
-                    return false;
-                }
             } else {
                 return false;
             }
 
-            return true;
+            if (piecesFromCenter > StructureMineshaft.SIZE_CAP) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         public void debugDisplay() {
@@ -143,17 +145,6 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                 chunk.setMeta(localX, localY, localZ, meta);
             }
         }
-        
-        /// <summary>
-        /// Generates a hallway with a chance to fail, returning true if one was made.
-        /// </summary>
-        protected bool generateSingleHallway(BlockPos pos, Direction direction, int piecesFromCenter) {
-            if (this.shaft.rnd.Next(0, 6) > 1) { // 2 in 5 fail.
-                return (new PieceHallway(this.shaft, pos, direction, piecesFromCenter)).successfullyGenerated;
-            } else {
-                return false;
-            }
-        }
 
         protected int generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos orgin, int offsetRadius, int piecesFromCenter) {
             return this.generateHallwaysAroundPoint(ignoreDirection, orgin, offsetRadius, offsetRadius, offsetRadius, offsetRadius, piecesFromCenter);
@@ -163,24 +154,38 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         /// Generates hallways around a centeral point, returning the directions that hallways generated in the form of a bit mask where 1 = generated in order of NESW.
         /// </summary>
         protected int generateHallwaysAroundPoint(Direction ignoreDirection, BlockPos floorPoint, int posX, int posZ, int negX, int negZ, int piecesFromCenter) {
-            int bits = 0;
+            int mask = 0;
             if (ignoreDirection != Direction.EAST && this.generateSingleHallway(new BlockPos(floorPoint.x + posX, floorPoint.y, floorPoint.z), Direction.EAST, piecesFromCenter)) {
-                bits |= 1;
+                mask |= 1;
             }
             if (ignoreDirection != Direction.WEST && this.generateSingleHallway(new BlockPos(floorPoint.x - negX, floorPoint.y, floorPoint.z), Direction.WEST, piecesFromCenter)) {
-                bits |= 2;
+                mask |= 2;
             }
             if (ignoreDirection != Direction.NORTH && this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z + posZ), Direction.NORTH, piecesFromCenter)) {
-                bits |= 4;
+                mask |= 4;
             }
             if (ignoreDirection != Direction.SOUTH && this.generateSingleHallway(new BlockPos(floorPoint.x, floorPoint.y, floorPoint.z - negZ), Direction.SOUTH, piecesFromCenter)) {
-                bits |= 8;
+                mask |= 8;
             }
-            return bits;
+            return mask;
         }
 
+        /// <summary>
+        /// Adds a torch, making sure to add the tile entity as well.
+        /// </summary>
         protected void addTorch(Chunk chunk, int worldX, int worldY, int worldZ, Direction direction) {
             chunk.world.setBlock(worldX, worldY, worldZ, Block.torch, BlockTorch.getMetaFromDirection(direction), false, false);
+        }
+
+        /// <summary>
+        /// Generates a hallway with a chance to fail, returning true if one was made.
+        /// </summary>
+        private bool generateSingleHallway(BlockPos pos, Direction direction, int piecesFromCenter) {
+            if (this.shaft.rnd.Next(0, 6) > 1) { // 2 in 5 fail.
+                return (new PieceHallway(this.shaft, pos, direction, piecesFromCenter)).successfullyGenerated;
+            } else {
+                return false;
+            }
         }
     }
 }

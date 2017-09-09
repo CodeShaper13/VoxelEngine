@@ -47,7 +47,24 @@ namespace VoxelEngine.Util {
         }
 
         /// <summary>
-        /// Makes the faces uvs align with pixel, cropping to the middle.
+        /// Mirrors uvs on the y axis.
+        /// </summary>
+        public static Vector2[] mirrorUvsY(Vector2[] uvs) {
+            // Left
+            Vector2 temp = uvs[0];
+            uvs[0] = uvs[1];
+            uvs[1] = temp;
+
+            // Right
+            temp = uvs[2];
+            uvs[2] = uvs[3];
+            uvs[3] = temp;
+
+            return uvs;
+        }
+
+        /// <summary>
+        /// WARNING!  Some UVs will be mirrored!  Makes the faces uvs align with pixel, cropping to the middle.
         /// </summary>
         public static Vector2[] cropUVs(Vector2[] uvs, Vector2 faceRadius) {
             if(faceRadius.x < 0.5f || faceRadius.y < 0.5f) { // Only crop if the face is less than a full 1x1 plane.

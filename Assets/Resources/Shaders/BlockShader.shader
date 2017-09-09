@@ -1,7 +1,5 @@
-﻿Shader "VoxelEngine/Block"
-{
-	Properties
-	{
+﻿Shader "VoxelEngine/Block" {
+	Properties {
 		_MainTex("Base (RGB) Trans (A)", 2D) = "white" {}
 		
 		// Added:
@@ -10,22 +8,20 @@
 		_Cutoff("Alpha cutoff", Range(0,1)) = 0.5
 	}
 	
-	SubShader
-	{
-		Tags { "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" }
+	SubShader {
+		Tags { "Queue" = "Transparent" }
 		LOD 100
 
 		Lighting Off
 
-		Pass
-		{
-			ZWrite On
+		Pass {
 			Blend SrcAlpha OneMinusSrcAlpha
 
 			CGPROGRAM
 			#pragma vertex vert
+
 			#pragma fragment frag
-			#pragma target 2.0
+			#pragma target 3.0
 			#pragma multi_compile_fog
 
 			#include "UnityCG.cginc"
@@ -88,7 +84,9 @@
 					col = tex2D(_MainTex, i.texcoord) * i.color;
 				};
 				
-				clip(col.a - 0.5); // _Cutoff);
+				// Discard pixel if less than 0
+				clip(col.a - 0.1); // _Cutoff);
+
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}

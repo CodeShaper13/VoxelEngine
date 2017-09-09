@@ -20,6 +20,7 @@ namespace VoxelEngine {
         public GameObject worldPrefab;
         public GameObject chunkPrefab;
         public GameObject shadowPrefab;
+        public GameObject worldSpaceTooltipPrefab;
 
         // Containers gui prefabs.
         public GameObject containerHotbar;
@@ -39,7 +40,6 @@ namespace VoxelEngine {
         public GameObject lanternPrefab;
         public GameObject torchPrefab;
         public GameObject mushroomPrefab;
-        public GameObject mirrorTestPrefab;
 
         /// <summary>
         /// Called from Main.Awake().
@@ -55,12 +55,12 @@ namespace VoxelEngine {
             this.worldPrefab = Resources.Load<GameObject>("Prefabs/World");
             this.chunkPrefab = Resources.Load<GameObject>("Prefabs/Chunk");
             this.shadowPrefab = Resources.Load<GameObject>("Prefabs/EntityShadow");
+            this.worldSpaceTooltipPrefab = Resources.Load<GameObject>("Prefabs/WorldSpaceTooltip");
 
             this.chestPrefab = Resources.Load<GameObject>("Prefabs/Blocks/ChestPrefab");
             this.lanternPrefab = Resources.Load<GameObject>("Prefabs/Blocks/LanternPrefab");
             this.torchPrefab = Resources.Load<GameObject>("Prefabs/Blocks/TorchPrefab");
             this.mushroomPrefab = Resources.Load<GameObject>("Prefabs/Blocks/MushroomPrefab");
-            this.mirrorTestPrefab = Resources.Load<GameObject>("Prefabs/Blocks/MirrorTestPrefab");
 
             References.list = this;
         }

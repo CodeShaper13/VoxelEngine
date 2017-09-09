@@ -77,35 +77,35 @@ namespace VoxelEngine.Render.BlockRender {
             Vector3 highVert = pos + new Vector3(x, 0.5f, 0.5f);
 
             // Verts
-            meshBuilder.addVertex(lowVert);
-            meshBuilder.addVertex(middleVert);
-            meshBuilder.addVertex(highVert);
+            meshBuilder.addRawVertex(lowVert);
+            meshBuilder.addRawVertex(middleVert);
+            meshBuilder.addRawVertex(highVert);
 
-            meshBuilder.addVertexColor(Color.black);
-            meshBuilder.addVertexColor(Color.black);
-            meshBuilder.addVertexColor(Color.black);
+            meshBuilder.addRawVertexColor(Color.black);
+            meshBuilder.addRawVertexColor(Color.black);
+            meshBuilder.addRawVertexColor(Color.black);
 
             // Tris
             int i = meshBuilder.getVerticeCount();
             if (isRight) {
-                meshBuilder.addTriangle(i - 3);
-                meshBuilder.addTriangle(i - 2);
-                meshBuilder.addTriangle(i - 1);
+                meshBuilder.addRawTriangle(i - 3);
+                meshBuilder.addRawTriangle(i - 2);
+                meshBuilder.addRawTriangle(i - 1);
             } else {
-                meshBuilder.addTriangle(i - 1);
-                meshBuilder.addTriangle(i - 2);
-                meshBuilder.addTriangle(i - 3);
+                meshBuilder.addRawTriangle(i - 1);
+                meshBuilder.addRawTriangle(i - 2);
+                meshBuilder.addRawTriangle(i - 3);
             }
 
             // UVs
             TexturePos tilePos = block.getTexturePos(direction, meta);
-            float x1 = TexturePos.BLOCK_SIZE * tilePos.x;
-            float y1 = TexturePos.BLOCK_SIZE * tilePos.y;
+            float x1 = TexturePos.ATLAS_TILE_SIZE * tilePos.x;
+            float y1 = TexturePos.ATLAS_TILE_SIZE * tilePos.y;
 
             int sampleDir = direction.index;
-            meshBuilder.addUv(new Vector2(x1 + TexturePos.BLOCK_SIZE, y1));
-            meshBuilder.addUv(new Vector2(x1, y1));
-            meshBuilder.addUv(new Vector2(x1, y1 + TexturePos.BLOCK_SIZE));
+            meshBuilder.addRawUv(new Vector2(x1 + TexturePos.ATLAS_TILE_SIZE, y1));
+            meshBuilder.addRawUv(new Vector2(x1, y1));
+            meshBuilder.addRawUv(new Vector2(x1, y1 + TexturePos.ATLAS_TILE_SIZE));
         }
     }
 }

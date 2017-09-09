@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using VoxelEngine.Blocks;
+﻿using VoxelEngine.Blocks;
 using VoxelEngine.Util;
 
 namespace VoxelEngine.Render.BlockRender {
@@ -42,18 +41,18 @@ namespace VoxelEngine.Render.BlockRender {
             }
         }
 
-        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
-            if(cubeIndex == 0) { // Post
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
+            if(cubeComponent.index == 0) { // Post
                 if(faceDirection.axis == EnumAxis.Y) {
-                    return new UvPlane(block.texturePos, 0, 0, 8, 8);
+                    return new UvPlane(block.texturePos, 1, 1, 8, 8);
                 } else {
-                    return new UvPlane(block.texturePos, 12, 0, 8, 32);
+                    return new UvPlane(block.texturePos, 13, 1, 8, 32);
                 }
             } else { // Beam
                 if(faceDirection.axis == EnumAxis.Y) {
-                    return new UvPlane(block.texturePos, 22, 0, 4, 12);
+                    return new UvPlane(block.texturePos, 23, 1, 4, 12);
                 } else {
-                    return new UvPlane(block.texturePos, 0, 18, 12, 8);
+                    return new UvPlane(block.texturePos, 1, 19, 12, 8);
                 }
             }
         }

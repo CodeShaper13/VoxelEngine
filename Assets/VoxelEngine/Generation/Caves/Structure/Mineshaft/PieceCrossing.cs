@@ -14,7 +14,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
             : base(shaft, hallwayPoint + (hallwayDir.blockPos * 4)) {
             
             piecesFromCenter += 1;
-            if (this.func(piecesFromCenter)) {
+            if (this.addToShaftIfValid(piecesFromCenter)) {
                 this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 6, piecesFromCenter);
             }
         }
@@ -90,7 +90,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override Color getPieceColor() {
-            return Color.green;
+            return Color.red;
         }
     }
 }

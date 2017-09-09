@@ -21,10 +21,10 @@ GameObject:
   - component: {fileID: 4252379786683644}
   - component: {fileID: 33548948551562910}
   - component: {fileID: 23938292967218372}
-  - component: {fileID: 65623556226430590}
   - component: {fileID: 54414465290286392}
   - component: {fileID: 114084226252151658}
-  m_Layer: 0
+  - component: {fileID: 135212040094720356}
+  m_Layer: 9
   m_Name: EntityThrownDynamitePrefab
   m_TagString: Entity
   m_Icon: {fileID: 0}
@@ -97,19 +97,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!65 &65623556226430590
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1114790568683274}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_CollisionDetection: 1
 --- !u!114 &114084226252151658
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -123,3 +111,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 0}
   rBody: {fileID: 0}
+--- !u!135 &135212040094720356
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1114790568683274}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.25
+  m_Center: {x: 0, y: 0, z: 0}

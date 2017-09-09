@@ -54,7 +54,9 @@ namespace VoxelEngine.Entities.Player {
         public void terminate() {
             this.mineTimer = 0.0f;
             this.meshRenderer.enabled = false;
-            this.ps.Stop();
+            if(!this.ps.isStopped) {
+                this.ps.Stop();
+            }
             this.isTerminated = true;
         }
 

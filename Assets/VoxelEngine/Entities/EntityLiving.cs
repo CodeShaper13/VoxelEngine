@@ -1,4 +1,5 @@
 ﻿using fNbt;
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities {
 
@@ -8,22 +9,16 @@ namespace VoxelEngine.Entities {
         private int maxHealth;
 
         protected new void Start() {
-            this.setHealth(this.maxHealth);
-
             base.Start();
+
+            this.setHealth(this.maxHealth);
         }
 
         /// <summary>
         /// Sets an entities held, clamping it between 0 and their max.
         /// </summary>
         public virtual void setHealth(int amount) {
-            if (amount > this.maxHealth) {
-                amount = this.maxHealth;
-            }
-            else if (amount < 0) {
-                amount = 0;
-            }
-            this.health = amount;
+            this.health = MathHelper.clamp(amount, 0, this.maxHealth);
         }
 
         /// <summary>

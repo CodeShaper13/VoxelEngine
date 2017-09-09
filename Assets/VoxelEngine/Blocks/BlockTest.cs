@@ -10,7 +10,11 @@ namespace VoxelEngine.Blocks {
         }
 
         public override TexturePos getTexturePos(Direction direction, int meta) {
-            return new TexturePos(10, direction.index - 1);
+            if(direction == Direction.NORTH) {
+                return new TexturePos(10, 1);
+            } else {
+                return new TexturePos(10, 0);
+            }
         }
     }
 }

@@ -6,18 +6,18 @@ namespace VoxelEngine.Render.BlockRender {
     public abstract class BlockRendererPrimitive : BlockRenderer {
 
         /// <summary>
-        /// This makes the block use its own cells light even if it crosses into other cells.
-        /// Set this value in the constructor.
+        /// 0 = Normal vertex light lookup
+        /// 1 = Use the blocks cell lighting for all verts.
+        /// 2 = Use the above blocks lighting for all verts.
         /// </summary>
-        public bool demandLocalLight = false;
+        public int forcedLightMode = 0;
 
         public BlockRendererPrimitive() {
             this.setRenderInWorld(true);
         }
 
-        public virtual UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
-            TexturePos pos = block.getTexturePos(faceDirection, meta);
-            return new UvPlane(pos, 0, 0, 32, 32);
+        public virtual UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
+            return new UvPlane(block.getTexturePos(faceDirection, meta), 1, 1, 32, 32);
         }
     }
 }

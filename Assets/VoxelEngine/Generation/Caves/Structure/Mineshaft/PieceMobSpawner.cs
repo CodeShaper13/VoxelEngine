@@ -14,18 +14,18 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public bool westGate;
 
         public PieceMobSpawner(NbtCompound tag) : base(tag) {
-            this.northGate = tag.Get<NbtByte>("nGateg").ByteValue == 1;
-            this.eastGate = tag.Get<NbtByte>("eGateg").ByteValue == 1;
-            this.southGate = tag.Get<NbtByte>("sGateg").ByteValue == 1;
-            this.westGate = tag.Get<NbtByte>("wGateg").ByteValue == 1;
+            this.northGate = tag.Get<NbtByte>("nGateg").Value == 1;
+            this.eastGate = tag.Get<NbtByte>("eGateg").Value == 1;
+            this.southGate = tag.Get<NbtByte>("sGateg").Value == 1;
+            this.westGate = tag.Get<NbtByte>("wGateg").Value == 1;
         }
 
         public PieceMobSpawner(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
             : base(shaft, hallwayPoint + (hallwayDir.blockPos * 4)) {
 
             piecesFromCenter += 1;
-            if (this.func(piecesFromCenter)) {
-                int i = this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 4, piecesFromCenter);
+            if (this.addToShaftIfValid(piecesFromCenter)) {
+                int i = this.generateHallwaysAroundPoint(hallwayDir.getOpposite(), this.orgin, 6, piecesFromCenter);
                 this.northGate = this.func02(i, hallwayDir, Direction.NORTH);
                 this.eastGate = this.func02(i, hallwayDir, Direction.EAST);
                 this.southGate = this.func02(i, hallwayDir, Direction.SOUTH);
@@ -55,33 +55,17 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
                             // Gates
                             if(offsetY <= 3) {
-                                if (offsetZ == 4 && absX <= 2) {
-                                    if(this.northGate) {
-                                        block = this.randomGateBlock(rnd);
-                                    } else {
-                                        block = Block.air;
-                                    }
+                                if (offsetZ == 4 && absX <= 2 && this.northGate) {
+                                    block = this.randomGateBlock(rnd);
                                 }
-                                if(offsetX == 4 && absZ <= 2) {
-                                    if (this.eastGate) {
-                                        block = this.randomGateBlock(rnd);
-                                    } else {
-                                        block = Block.air;
-                                    }
+                                if(offsetX == 4 && absZ <= 2 && this.eastGate) {
+                                    block = this.randomGateBlock(rnd);
                                 }
-                                if (offsetZ == -4 && absX <= 2) {
-                                    if (this.southGate) {
-                                        block = this.randomGateBlock(rnd);
-                                    } else {
-                                        block = Block.air;
-                                    }
+                                if (offsetZ == -4 && absX <= 2 && this.southGate) {
+                                    block = this.randomGateBlock(rnd);
                                 }
-                                if (offsetX == -4 && absZ <= 2) {
-                                    if (this.westGate) {
-                                        block = this.randomGateBlock(rnd);
-                                    } else {
-                                        block = Block.air;
-                                    }
+                                if (offsetX == -4 && absZ <= 2 && this.westGate) {
+                                    block = this.randomGateBlock(rnd);
                                 }
                             }
 
@@ -110,7 +94,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         }
 
         public override void calculateBounds() {
-            this.setPieceSize(1, 6, 4);
+            this.setPieceSize(1, 4, 4);
         }
 
         public override NbtCompound writeToNbt(NbtCompound tag) {

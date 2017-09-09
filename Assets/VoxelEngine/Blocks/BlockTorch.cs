@@ -12,7 +12,6 @@ namespace VoxelEngine.Blocks {
 
         public BlockTorch(int id) : base(id) {
             this.setRenderer(RenderManager.TORCH);
-            this.setEmittedLight(15);
             this.setTransparent();
             this.setType(EnumBlockType.WOOD);
             this.setTexture(8, 0);
@@ -26,7 +25,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
-            return ((clickedDirNormal != Direction.DOWN) && clickedBlock.block.isSolid) ||(clickedDirNormal == Direction.UP && (clickedBlock.block == Block.fence || clickedBlock.block == Block.ironFence));
+            return ((clickedDirNormal != Direction.DOWN) && clickedBlock.block.isSolid) ||(clickedDirNormal == Direction.UP && clickedBlock.block is BlockFence);
         }
 
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {

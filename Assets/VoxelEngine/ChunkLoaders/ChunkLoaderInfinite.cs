@@ -7,7 +7,7 @@ namespace VoxelEngine.ChunkLoaders {
 
     public class ChunkLoaderInfinite : ChunkLoaderBase {
 
-        public ChunkLoaderInfinite(World world, EntityPlayer player) : base(world, player, 3) {}
+        public ChunkLoaderInfinite(World world, EntityPlayer player) : base(world, player, 4) { }
 
         protected override bool isOutOfBounds(ChunkPos occupiedChunkPos, Chunk chunk) {
             if (this.toFar(occupiedChunkPos.x, chunk.chunkPos.x) ||
@@ -27,19 +27,18 @@ namespace VoxelEngine.ChunkLoaders {
                         flagX = Math.Abs(x) == loadRadius;
                         flagY = Math.Abs(y) == loadRadius;
                         flagZ = Math.Abs(z) == loadRadius;
-                        //if (!(flagX && flagY && flagZ)) { // Cuts out corners
-                            isReadOnly = flagX || flagY || flagZ;
-                            NewChunkInstructions instructions = new NewChunkInstructions(x + occupiedChunkPos.x, y + occupiedChunkPos.y, z + occupiedChunkPos.z, isReadOnly);
-                            Chunk chunk = world.getChunk(instructions.chunkPos);
 
-                            if (chunk == null) {
-                                if (!this.buildQueue.Contains(instructions)) {
-                                    this.buildQueue.Enqueue(instructions);
-                                }
-                            } else {
-                                chunk.isReadOnly = isReadOnly;
+                        isReadOnly = flagX || flagY || flagZ;
+                        NewChunkInstructions instructions = new NewChunkInstructions(x + occupiedChunkPos.x, y + occupiedChunkPos.y, z + occupiedChunkPos.z, isReadOnly);
+                        Chunk chunk = world.getChunk(instructions.chunkPos);
+
+                        if (chunk == null) {
+                            if (!this.buildQueue.Contains(instructions)) {
+                                this.buildQueue.Enqueue(instructions);
                             }
-                        //}
+                        } else {
+                            chunk.isReadOnly = isReadOnly;
+                        }
                     }
                 }
             }

@@ -34,7 +34,7 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
 
             this.calculateBounds();
 
-            if (this.isIntersecting(this.shaft.pieces)) {
+            if (this.isIntersecting()) {
                 return;
             }
             this.shaft.pieces.Add(this);
@@ -188,12 +188,16 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
                             else if (offsetY == -1 || offsetY == 6) {
                                 int absX = Mathf.Abs(offsetX);
                                 int absZ = Mathf.Abs(offsetZ);
-                                if (this.floorType == 0) {
+                                if (this.floorType < 2) {
                                     if (absX > 2 || absZ > 2) {
-                                        block = Block.wood;
-                                        meta = 1;
+                                        if(floorType == 0) {
+                                            block = Block.wood;
+                                            meta = 1;
+                                        } else {
+                                            block = Block.cobblestone;
+                                        }
                                     }
-                                } else {
+                                } else if(floorType == 2) {
                                     if (absX == 3 || absZ == 3) {
                                         block = Block.plank;
                                     } else if (absX == 2 && absZ < 2) {

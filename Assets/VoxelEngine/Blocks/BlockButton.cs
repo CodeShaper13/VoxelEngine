@@ -29,7 +29,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
-            if (neighborDir == Direction.horizontal[meta &= ~(1 << 2)] && !world.getBlock(pos.move(neighborDir)).isSolid) {
+            if (neighborDir == Direction.horizontal[meta & ~(1 >> 2)] && !world.getBlock(pos.move(neighborDir)).isSolid) {
                 world.breakBlock(pos, null);
             }
         }

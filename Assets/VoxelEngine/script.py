@@ -25,7 +25,9 @@ def LOC(root='.', recurse=True):
         By default recurses through subfolders.
     """
     count_mini, count_maxi = 0, 0
+    totalFiles = 0
     for fspec in Walk(root, recurse, '*.cs'):
+        totalFiles += 1
         i = 0
         skip = False
         for line in open(fspec).readlines():
@@ -42,7 +44,8 @@ def LOC(root='.', recurse=True):
                     count_mini += 1
         print(str(i) + "\t" + fspec)
 
-    return count_mini, count_maxi
+    return count_mini, count_maxi, totalFiles
 
 lines = LOC()
 print("LOC: \n\tReal Lines: " + str(lines[0]) + "\n\tTotal Lines: " + str(lines[1]))
+print("Files: " + str(lines[2]))

@@ -24,7 +24,7 @@ namespace VoxelEngine.Entities {
         // Don't override!!!  Use Entity.onConstruct().
         private void Awake() {
             if(!this.CompareTag(Tags.ENTITY)) {
-                print("Entity found without tag \"Entity\"!  Is that normal?");
+                print("Entity found without tag \"Entity\"!  Is that normal?" + this.ToString());
             }
             this.rBody = this.GetComponent<Rigidbody>();
         }
@@ -127,6 +127,13 @@ namespace VoxelEngine.Entities {
             this.transform.eulerAngles = NbtHelper.readVector3(tag.Get<NbtCompound>("rotation"));
             this.rBody.velocity = NbtHelper.readVector3(tag.Get<NbtCompound>("velocity"));
             this.rBody.angularVelocity = NbtHelper.readVector3(tag.Get<NbtCompound>("angularVelocity"));
+        }
+
+        /// <summary>
+        /// Makes the Entity dead, removing them from the world.
+        /// </summary>
+        public virtual void setDead() {
+
         }
 
         /// <summary>

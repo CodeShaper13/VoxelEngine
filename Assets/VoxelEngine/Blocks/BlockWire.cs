@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Containers;
+﻿using System;
+using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
@@ -6,7 +7,7 @@ using VoxelEngine.Util;
 
 namespace VoxelEngine.Blocks {
 
-    public class BlockWire : Block {
+    public class BlockWire : Block, IGoggleData {
 
         public BlockWire(int id) : base(id) {
             this.setTransparent();
@@ -114,6 +115,11 @@ namespace VoxelEngine.Blocks {
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 0, brokenWith);
+        }
+
+
+        public string getData(int meta) {
+            return "WIRE";
         }
 
         /*

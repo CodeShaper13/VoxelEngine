@@ -33,9 +33,7 @@ namespace VoxelEngine.Generation {
             return false;
         }
 
-        public virtual void populateChunk(Chunk chunk) {
-
-        }
+        public virtual void populateChunk(Chunk chunk) { }
 
         public virtual NbtCompound writeToNbt(NbtCompound tag) {
             return tag;

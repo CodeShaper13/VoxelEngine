@@ -15,12 +15,11 @@ namespace VoxelEngine.Generation.Caves {
 
         private System.Random rnd;
 
-        private StoneLayers stoneLayers;
+        //private StoneLayers stoneLayers;
         private List<StructureMineshaft> mineshaftList;
 
-
         public WorldGeneratorCaves(World world, int seed) : base(world, seed) {
-            this.stoneLayers = new StoneLayers(seed);
+            //this.stoneLayers = new StoneLayers(seed);
 
             this.mineshaftList = new List<StructureMineshaft>();
 
@@ -28,7 +27,9 @@ namespace VoxelEngine.Generation.Caves {
         }
 
         public override bool generateLevelData() {
-            this.mineshaftList.Add(new StructureMineshaft(BlockPos.zero, this.seed));
+            this.rnd = new System.Random(this.seed);
+
+            this.mineshaftList.Add(new StructureMineshaft(BlockPos.zero, rnd));
 
             return true;
         }
@@ -44,13 +45,12 @@ namespace VoxelEngine.Generation.Caves {
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
 
-            tag.Add(this.stoneLayers.writeToNbt(new NbtCompound("stoneLayers")));
+            //tag.Add(this.stoneLayers.writeToNbt(new NbtCompound("stoneLayers")));
 
             NbtList tag1 = new NbtList("mineshafts", NbtTagType.Compound);
             foreach (StructureMineshaft m in this.mineshaftList) {
                 tag1.Add(m.writeToNbt(new NbtCompound()));
             }
-
             tag.Add(tag1);
 
             return tag;
@@ -59,7 +59,7 @@ namespace VoxelEngine.Generation.Caves {
         public override void readFromNbt(NbtCompound tag) {
             base.readFromNbt(tag);
 
-            this.stoneLayers.readFromNbt(tag.Get<NbtCompound>("stoneLayers"));
+            //this.stoneLayers.readFromNbt(tag.Get<NbtCompound>("stoneLayers"));
 
             foreach (NbtCompound compound in tag.Get<NbtList>("mineshafts")) {
                 StructureMineshaft s = new StructureMineshaft();
@@ -76,6 +76,7 @@ namespace VoxelEngine.Generation.Caves {
 
         public override void generateChunk(Chunk chunk) {
             this.rnd = new System.Random(this.seed & chunk.chunkPos.GetHashCode());
+            int i;
 
             /*
             bool inCrackChunk = chunk.chunkPos.y % 2 != 0;
@@ -109,30 +110,38 @@ namespace VoxelEngine.Generation.Caves {
             }
             */
 
-            for (int i = 0; i < Chunk.BLOCK_COUNT; i++) {
+            for (i = 0; i < Chunk.BLOCK_COUNT; i++) {
                 chunk.blocks[i] = Block.stone;
             }
 
             // Ores.
             this.generateOrePatch(chunk, 2, Block.gravel, 7, rnd);
 
-            for (int i = 0; i < 3; i++) {
+            for (i = 0; i < 3; i++) {
                 this.generateOrePatch(chunk, 2, Block.coalOre, 6, rnd);
                 this.generateOrePatch(chunk, 2, Block.dirt, 7, rnd);
+
+                if(i != 2) {
+                    this.generateOrePatch(chunk, 1, Block.ironOre, 4, rnd);
+                }
             }
 
-            this.generateOrePatch(chunk, 2, Block.ironOre, 4, rnd);
+            this.generateOrePatch(chunk, 1, Block.crystalOre, 6, rnd);
+            this.generateOrePatch(chunk, 2, Block.goldOre, 6, rnd);
             this.generateOrePatch(chunk, 1, Block.rubyOre, 3, rnd);
 
             StructureMineshaft shaft;
             PieceBase piece;
-            for(int i = 0; i < this.mineshaftList.Count; i++) {
+            int j;
+            for(i = 0; i < this.mineshaftList.Count; i++) {
                 shaft = this.mineshaftList[i];
-                for(int j = 0; j < shaft.pieces.Count; j++) {
-                    piece = shaft.pieces[j];
-                    if(chunk.chunkBounds.Intersects(piece.pieceBounds)) {
-                        rnd = new System.Random(piece.orgin.GetHashCode());
-                        piece.carvePiece(chunk, rnd);
+                if(chunk.chunkBounds.Intersects(shaft.structureBoundingBox)) {
+                    for (j = 0; j < shaft.pieces.Count; j++) {
+                        piece = shaft.pieces[j];
+                        if (chunk.chunkBounds.Intersects(piece.pieceBounds)) {
+                            rnd = new System.Random(piece.orgin.GetHashCode());
+                            piece.carvePiece(chunk, rnd);
+                        }
                     }
                 }
             }

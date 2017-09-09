@@ -21,8 +21,8 @@ namespace VoxelEngine.Render.BlockRender {
                 x, y, z);
         }
 
-        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, int cubeIndex) {
-            return new UvPlane(block.texturePos, 2, 22, 8, 8);
+        public override UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
+            return new UvPlane(block.texturePos, 3, 23, 8, 8);
         }
     }
 }

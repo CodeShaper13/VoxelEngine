@@ -127,14 +127,14 @@ namespace VoxelEngine.Render.Items {
         /// Returns the uvs for an item's front and back.
         /// </summary>
         private Vector2[] getUvs(TexturePos textPos) {
-            float x = TexturePos.ITEM_SIZE * textPos.x;
-            float y = TexturePos.ITEM_SIZE * textPos.y;
+            float x = TexturePos.ATLAS_TILE_SIZE * textPos.x;
+            float y = TexturePos.ATLAS_TILE_SIZE * textPos.y;
 
             Vector2[] uvArray = new Vector2[4];
             uvArray[0] = new Vector2(x, y);
-            uvArray[1] = new Vector2(x, y + TexturePos.ITEM_SIZE);
-            uvArray[2] = new Vector2(x + TexturePos.ITEM_SIZE, y + TexturePos.ITEM_SIZE);
-            uvArray[3] = new Vector2(x + TexturePos.ITEM_SIZE, y);
+            uvArray[1] = new Vector2(x, y + TexturePos.ATLAS_TILE_SIZE);
+            uvArray[2] = new Vector2(x + TexturePos.ATLAS_TILE_SIZE, y + TexturePos.ATLAS_TILE_SIZE);
+            uvArray[3] = new Vector2(x + TexturePos.ATLAS_TILE_SIZE, y);
 
             return uvArray;
         }

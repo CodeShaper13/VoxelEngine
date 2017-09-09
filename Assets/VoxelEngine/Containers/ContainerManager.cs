@@ -26,7 +26,8 @@ namespace VoxelEngine.Containers {
             this.hudCamera = RenderManager.instance.hudCamera;
 
             // Setup hotbar
-            ContainerManager.containerHotbar = GameObject.Find("ContainerHotbar").GetComponent<ContainerHotbar>(); // GameObject.Instantiate(References.list.containerHotbar).GetComponent<ContainerHotbar>();
+            ContainerManager.containerHotbar = GameObject.Find("ContainerHotbar").GetComponent<ContainerHotbar>();
+            ContainerManager.containerHotbar.gameObject.SetActive(true);
             for (int i = 0; i < ContainerManager.containerHotbar.slots.Length; i++) {
                 ContainerManager.containerHotbar.slots[i].container = ContainerManager.containerHotbar;
                 ContainerManager.containerHotbar.slots[i].index = i;

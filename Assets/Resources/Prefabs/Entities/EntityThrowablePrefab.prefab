@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 11463352}
   - component: {fileID: 6508734}
   - component: {fileID: 5444534}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: EntityThrowablePrefab
   m_TagString: Entity
   m_Icon: {fileID: 0}

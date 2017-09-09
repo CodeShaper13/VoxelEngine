@@ -16,22 +16,6 @@ namespace VoxelEngine.Blocks {
             return new TexturePos(meta, 4);
         }
 
-        public override string getName(int meta) {
-            switch (meta) {
-                case 0:
-                    return "Stone";
-                case 1:
-                    return "Stone 1";
-                case 2:
-                    return "Stone 2";
-                case 3:
-                    return "Stone 3";
-                case 4:
-                    return "Stone 4";
-            }
-            return base.getName(meta);
-        }
-
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             if (brokenWith != null && brokenWith.toolType == EnumToolType.PICKAXE) {
                 return new ItemStack[] { new ItemStack(this.asItem(), meta) };

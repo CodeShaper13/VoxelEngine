@@ -44,44 +44,6 @@ namespace VoxelEngine.Blocks {
             return this.baseBlock.getTexturePos(direction, 0);
         }
 
-        /*
-          // Adjust the uvs for the not full side of a slab.
-            if(!BlockSlab.isFull(meta)) {
-                if(direction.axis != BlockSlab.getDirectionFromMeta(meta).axis) {
-                    if(meta == 0) { // North.
-                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
-                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
-                    } else if(meta == 1) { // East.
-                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
-                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
-                    } else if(meta == 2) { // South.
-                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
-                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
-                    } else if(meta == 3) { // West.
-                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
-                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
-                    } else if(meta == 4) { // Down.
-                        uvArray[0].y += TexturePos.BLOCK_SIZE / 2;
-                        uvArray[3].y += TexturePos.BLOCK_SIZE / 2;
-                    } else if(meta == 5) { //Up.
-                        uvArray[1].y -= TexturePos.BLOCK_SIZE / 2;
-                        uvArray[2].y -= TexturePos.BLOCK_SIZE / 2;
-                    }
-                }                
-            }
-            return uvArray;
-        */
-
-        /*
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            if(!BlockSlab.isFull(meta)) {
-                UvHelper.cropUVs(uvs, faceRadius);
-                UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
-            }
-            return uvs;
-        }
-        */
-
         public static bool isFull(int meta) {
             return meta >= 6;
         }

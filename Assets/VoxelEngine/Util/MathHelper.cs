@@ -18,7 +18,7 @@ namespace VoxelEngine.Util {
         /// Rotates a vector around a pivot and returns it.
         /// </summary>
         public static Vector3 rotateVecAround(Vector3 point, Vector3 pivot, Quaternion angle) {
-            if(angle == Quaternion.identity) {
+            if(angle == new Quaternion(0, 0, 0, 1)) {
                 return point;
             }
             return angle * (point - pivot) + pivot;

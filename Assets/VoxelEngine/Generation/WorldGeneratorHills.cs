@@ -6,6 +6,7 @@ using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
 using VoxelEngine.Level;
 using VoxelEngine.Util;
+using VoxelEngine.Generation.Island.Feature;
 
 namespace VoxelEngine.Generation {
 
@@ -22,21 +23,20 @@ namespace VoxelEngine.Generation {
         float dirtNoise = 0.04f;
         float dirtNoiseHeight = 3;
 
-        float treeFrequency = 0.2f;
-        int treeDensity = 3;
+        private FeatureTreeBasic tree;
 
         public WorldGeneratorHills(World world, int seed) : base(world, seed) {
-
+            this.tree = new FeatureTreeBasic();
         }
 
         public override Vector3 getSpawnPoint(World world) {
-            return new Vector3(0, 100, 0);
+            return new Vector3(0, 20, 0);
         }
 
         public override void generateChunk(Chunk chunk) {
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
-                    chunk = generateColumn(chunk, x + chunk.worldPos.x, z + chunk.worldPos.z);
+                    chunk = makeColumn(chunk, x + chunk.worldPos.x, z + chunk.worldPos.z);
                 }
             }
         }
@@ -46,7 +46,8 @@ namespace VoxelEngine.Generation {
         }
 
         public override void populateChunk(Chunk chunk) {
-            base.populateChunk(chunk);
+            this.tree.generate(chunk, new System.Random(seed ^ chunk.chunkPos.GetHashCode()));
+
             /*
             chunk.setBlock(15, 15, 15, Block.wood);
             return;
@@ -75,6 +76,44 @@ namespace VoxelEngine.Generation {
                 }
             }
             */
+        }
+
+        private Chunk makeColumn(Chunk chunk, int x, int z) {
+            int stoneHeight = 0;
+            stoneHeight += MathHelper.floor(this.getNoise(x, 0, z, 0.015f) * 10);
+
+            //stoneHeight += this.getNoise(x, 0, z, stoneMountainFrequency, MathHelper.floor(stoneMountainHeight));
+
+            //if (stoneHeight < stoneMinHeight) {
+            //    stoneHeight = MathHelper.floor(stoneMinHeight);
+            //}
+
+            //stoneHeight += this.getNoise(x, 0, z, stoneBaseNoise, MathHelper.floor(stoneBaseNoiseHeight));
+
+            int dirtHeight = stoneHeight + MathHelper.floor(dirtBaseHeight);
+            dirtHeight += this.getNoise(x, 100, z, dirtNoise, MathHelper.floor(dirtNoiseHeight));
+
+            for (int y = chunk.worldPos.y; y < (chunk.worldPos.y + Chunk.SIZE); y++) {
+                Block b = Block.air;
+                //int caveChance = GetNoise(x, y, z, caveFrequency, 100);
+                if (y <= stoneHeight) {
+                    b = Block.stone;
+                }
+                else if (y < dirtHeight) {// && caveSize < caveChance) {
+                    b = Block.dirt;
+                    //if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity) {
+                    //    CreateTree(x, y + 1, z, chunk);
+                    //}
+                }
+                else if (y == dirtHeight) {
+                    b = Block.grass;
+                }
+                else {
+                    b = Block.air;
+                }
+                chunk.setBlock(x - chunk.worldPos.x, y - chunk.worldPos.y, z - chunk.worldPos.z, b);
+            }
+            return chunk;
         }
 
         public Chunk generateColumn(Chunk chunk, int x, int z) {
@@ -118,6 +157,10 @@ namespace VoxelEngine.Generation {
             y -= chunk.worldPos.y;
             z -= chunk.worldPos.z;
             chunk.setBlock(x, y, z, block);
+        }
+
+        public float getNoise(int x, int y, int z, float scale) {
+            return Noise.Generate(x * scale, y * scale, z * scale);
         }
 
         public int getNoise(int x, int y, int z, float scale, int max) {

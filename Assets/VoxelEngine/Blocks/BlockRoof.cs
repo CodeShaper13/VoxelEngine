@@ -48,15 +48,6 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override Vector2[] applyUvAlterations(Vector2[] uvs, int meta, Direction direction, Vector2 faceRadius, Vector2 faceOffset) {
-            if(direction == Direction.UP) {
-
-            }
-            //UvHelper.cropUVs(uvs, faceRadius);
-            //UvHelper.smartShiftUVs(uvs, faceRadius, faceOffset);
-            return uvs;
-        }
-
         public static int getMetaFromDirection(Direction direction) {
             if (direction.axis == EnumAxis.X || direction.axis == EnumAxis.Z) {
                 return direction.index - 1;

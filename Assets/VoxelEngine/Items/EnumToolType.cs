@@ -1,8 +1,10 @@
 ﻿namespace VoxelEngine.Items {
 
     public enum EnumToolType {
-        PICKAXE = 0,
-        SHOVEL = 1,
-        AXE = 2
+        DEFAULT = 0,
+        PICKAXE = 1,
+        SHOVEL = 2,
+        AXE = 3,
+        EXPLOSION = 4,
     }
 }
