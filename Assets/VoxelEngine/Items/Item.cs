@@ -36,7 +36,7 @@ namespace VoxelEngine.Items {
         public static Item cookedFish = new ItemFood(274, 10, 1).setName("Cooked Fish").setTexture(0, 0);
         public static Item corn = new ItemFood(275, 25, 5).setName("Corn").setTexture(13, 3);
         public static Item flesh = new ItemFood(276, 25, 5).setName("Flesh").setTexture(0, 0);
-        public static Item mushroom = new ItemFood(277, 25, 5).setName("Mushroom").setTexture(0, 0);
+        //public static Item mushroom = new ItemFood(277, 25, 5).setName("Mushroom").setTexture(0, 0);
         public static Item stew = new ItemFood(278, 25, 5).setName("Stew").setTexture(0, 0);
         public static Item carrot = new ItemFood(279, 25, 5).setName("Carrot").setTexture(13, 1);
         public static Item bucket = new Item(280).setName("Bucket").setTexture(12, 2);

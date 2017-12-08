@@ -6,10 +6,10 @@
     public static class BitHelper {
 
         /// <summary>
-        /// Returns bit from integer at position bitNumber.
+        /// Returns bit from integer at position bitPosition.
         /// </summary>
-        public static bool getBit(int integer, int bitNumber) {
-            return ((integer >> bitNumber) & 1) == 1;
+        public static bool getBit(int integer, int bitPosition) {
+            return ((integer >> bitPosition) & 1) == 1;
         }
 
         /// <summary>
@@ -21,6 +21,13 @@
             } else {
                 return integer &= ~(1 << bitPosition);
             }
+        }
+
+        /// <summary>
+        /// Inverts the bit at position bitNumber in integer.
+        /// </summary>
+        public static int invertBit(int integer, int bitPosition) {
+            return BitHelper.setBit(integer, bitPosition, !BitHelper.getBit(integer, bitPosition));
         }
     }
 }

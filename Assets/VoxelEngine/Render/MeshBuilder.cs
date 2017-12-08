@@ -72,7 +72,7 @@ namespace VoxelEngine.Render {
         }
 
         /// <summary>
-        /// Adds a basic quad to the mesh with texture uvs.  If lightSampleDirection != null, light will be looked up from
+        /// Adds a basic quad to the mesh with texture uvs.  If lightSampleDirection != -1, light will be looked up from
         /// the legacy light sample direction system (0- 6).  If vertex colors are not added here, the calling method must
         /// add them in another way.
         /// </summary>
@@ -428,7 +428,7 @@ namespace VoxelEngine.Render {
                     ppp,
                     ppn,
                     renderer.getUvPlane(block, meta, Direction.UP, cube).getMeshUvs(this.allocatedUvArray),
-                    npn.y >= 0.5f ? BlockPos.west : BlockPos.zero);
+                    npn.y >= 0.5f ? BlockPos.up : BlockPos.zero);
             }
             // Down -Y
             if (((renderFace >> 5) & 1) == 1) {
@@ -449,7 +449,9 @@ namespace VoxelEngine.Render {
         /// or be (0, 0, 0) if the face is inside of the cell.
         /// </summary>
         private Color calculateLightForVertex(Vector3 vertex, BlockPos normal) {
-            int level;
+            //TODO if vertex is a corner one, sample diagonal light.
+
+            float level;
             if (RenderManager.instance.useSmoothLighting) {
                 List<int> sampledLevels = new List<int>();
 
@@ -457,25 +459,23 @@ namespace VoxelEngine.Render {
                 int y = normal.y;
                 int z = normal.z;
 
+                // Sample light in front/in of cell.
+                sampledLevels.Add(this.getLightLevel(x, y, z));
+
                 // Sample light on X axis.
                 if (normal.x == 0) {
                     if (vertex.x >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x + 1, y, z));
-                    }
-                    else if (vertex.x <= -0.5f) {
+                    } else if (vertex.x <= -0.5f) {
                         sampledLevels.Add(this.getLightLevel(x - 1, y, z));
                     }
                 }
-
-                // Sample light in front/in of cell.
-                sampledLevels.Add(this.getLightLevel(x, y, z));
 
                 // Sample light on Y axis.
                 if (normal.y == 0) {
                     if (vertex.y >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x, y + 1, z));
-                    }
-                    else if (vertex.y <= -0.5f) {
+                    } else if (vertex.y <= -0.5f) {
                         sampledLevels.Add(this.getLightLevel(x, y - 1, z));
                     }
                 }
@@ -484,14 +484,13 @@ namespace VoxelEngine.Render {
                 if (normal.z == 0) {
                     if (vertex.z >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x, y, z + 1));
-                    }
-                    else if (vertex.z <= -0.5f) {
+                    } else if (vertex.z <= -0.5f) {
                         sampledLevels.Add(this.getLightLevel(x, y, z - 1));
                     }
                 }
 
                 // Sample light diagonal of cell.
-                if (normal.x != 0) {
+                if (normal.x == 1) {
                     if (vertex.z >= 0.5f && vertex.y >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x, y + 1, z + 1));
                     }
@@ -505,7 +504,7 @@ namespace VoxelEngine.Render {
                         sampledLevels.Add(this.getLightLevel(x, y - 1, z - 1));
                     }
                 }
-                else if (normal.y != 0) {
+                else if (normal.y == 1) {
                     if (vertex.x >= 0.5f && vertex.z >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x + 1, y, z + 1));
                     }
@@ -519,7 +518,7 @@ namespace VoxelEngine.Render {
                         sampledLevels.Add(this.getLightLevel(x - 1, y, z - 1));
                     }
                 }
-                else if (normal.z != 0) {
+                else if (normal.z == 1) {
                     if (vertex.x >= 0.5f && vertex.y >= 0.5f) {
                         sampledLevels.Add(this.getLightLevel(x + 1, y + 1, z));
                     }
@@ -535,21 +534,18 @@ namespace VoxelEngine.Render {
                 }
 
                 // Average levels.
-                if (sampledLevels.Count == 0) {
-                    level = this.getLightLevel(0, 0, 0);
-                } else {
-                    float lightTotal = 0;
-                    for (int i = 0; i < sampledLevels.Count; i++) {
-                        lightTotal += sampledLevels[i];
-                    }
-                    level = (int)(lightTotal / sampledLevels.Count);
+                float lightTotal = 0;
+                for (int i = 0; i < sampledLevels.Count; i++) {
+                    lightTotal += sampledLevels[i];
                 }
+                level = lightTotal / sampledLevels.Count;
+
             } else {
                 level = this.getLightLevel(0, 0, 0);
             }
 
             // Return color.
-            return RenderManager.instance.lightColors.getColorFromBrightness(level);
+            return RenderManager.instance.lightColors.getSmoothColorFromBrightness(level);
         }
 
         /// <summary>
@@ -573,6 +569,7 @@ namespace VoxelEngine.Render {
                 this.vertexColors.Add(this.calculateLightForVertex(v1, shift));
                 this.vertexColors.Add(this.calculateLightForVertex(v2, shift));
                 this.vertexColors.Add(this.calculateLightForVertex(v3, shift));
+                
 
                 this.addQuad(
                     v0 + worldPos,
@@ -587,7 +584,7 @@ namespace VoxelEngine.Render {
             return this.getLightLevel(pos.x, pos.y, pos.z);
         }
 
-        public int getLightLevel(int xOffset, int yOffset, int zOffset) {
+        public int getLightLevel(int xOffset = 0, int yOffset = 0, int zOffset = 0) {
             return this.lightLevels[((yOffset + 1) * 3 * 3) + ((zOffset + 1) * 3) + (xOffset + 1)];
         }
 
@@ -647,4 +644,3 @@ namespace VoxelEngine.Render {
         }
     }
 }
- 

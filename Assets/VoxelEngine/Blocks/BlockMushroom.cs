@@ -1,4 +1,5 @@
-﻿using VoxelEngine.Containers;
+﻿using UnityEngine;
+using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
 using VoxelEngine.Render;
@@ -7,18 +8,21 @@ using VoxelEngine.Util;
 namespace VoxelEngine.Blocks {
 
     public class BlockMushroom : Block {
-        private int textureY;
 
-        public BlockMushroom(int id, int textureY) : base(id) {
-            this.textureY = textureY;
+        public BlockMushroom(int id) : base(id) {
             this.setTransparent();
             this.setMineTime(0.1f);
-            //this.setRenderer(RenderManager.MUSHROOM);
-            this.setStatesUsed(4);
+            this.setRenderer(RenderManager.MUSHROOM);
+            this.setStatesUsed(2);
+            this.setTexture(4, 5);
+        }
+
+        public override string getName(int meta) {
+            return meta == 0 ? "Brown Mushroom" : "Purple Mushroom";
         }
 
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
-            return new ItemStack[] { new ItemStack(Item.mushroom, 0, 1) };
+            return new ItemStack[] { new ItemStack(Block.mushroom, meta, 1) };
         }
 
         public override void onNeighborChange(World world, BlockPos pos, int meta, Direction neighborDir) {
@@ -27,16 +31,14 @@ namespace VoxelEngine.Blocks {
             }
         }
 
+        /*
         public override void onRandomTick(World world, int x, int y, int z, int meta, int tickSeed) {
             base.onRandomTick(world, x, y, z, meta, tickSeed);
             //TODO
         }
+        */
 
-        public override TexturePos getTexturePos(Direction direction, int meta) {
-            return new TexturePos(5 + meta, textureY);
-        }
-
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
     }

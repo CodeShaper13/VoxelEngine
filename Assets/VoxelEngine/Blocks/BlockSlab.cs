@@ -28,7 +28,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
-            if(heldStack.item.id == this.id && !BlockSlab.isFull(meta) && BlockSlab.getDirectionFromMeta(meta) == clickedFace.getOpposite()) {
+            if(heldStack != null && heldStack.item.id == this.id && !BlockSlab.isFull(meta) && BlockSlab.getDirectionFromMeta(meta) == clickedFace.getOpposite()) {
                 world.setBlock(pos, this, 6);
                 player.reduceHeldStackByOne();
                 return true;

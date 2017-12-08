@@ -78,7 +78,8 @@ namespace VoxelEngine.Entities {
                     RaycastHit hit;
                     // Ignore Entities, EntityItems and IslandMesh, layers 9, 10 and 11.
                     if (Physics.Raycast(this.transform.position, Vector3.down, out hit, 20, ~(Layers.ENTITY | Layers.ENTITY_ITEM | Layers.ISLAND_MESH))) {
-                        this.shadowTransform.position = hit.point + new Vector3(0, 0.0001f, 0);
+                        //this.shadowTransform.position = hit.point + new Vector3(0, 0.0001f, 0);
+                        this.shadowTransform.SetPositionAndRotation(hit.point + new Vector3(0, 0.0001f, 0), Quaternion.Euler(90, 0, 0));
                         this.shadowMaterial.SetColor(Shader.PropertyToID("_LightColor"), lightColor);
                         if(!this.shadowTransform.gameObject.activeSelf) {
                             this.shadowTransform.gameObject.SetActive(true);

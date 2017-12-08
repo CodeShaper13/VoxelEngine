@@ -5,6 +5,10 @@ namespace VoxelEngine.Render.BlockRender {
 
     public class BlockRendererTnt : BlockRendererPrimitive {
 
+        public BlockRendererTnt() {
+            this.lookupAdjacentLight = true;
+        }
+
         public override void renderBlock(Block block, int meta, MeshBuilder meshBuilder, int x, int y, int z, int renderFace, Block[] surroundingBlocks) {
             meshBuilder.addCube(
                 this, block, meta,

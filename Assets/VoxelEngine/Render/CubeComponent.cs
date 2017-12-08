@@ -49,7 +49,7 @@ namespace VoxelEngine.Render {
             this.index = 0;
         }
 
-        public CubeComponent(int toX, int toY, int toZ, int fromX, int fromY, int fromZ, int rotX, int rotY, int rotZ, int index) {
+        public CubeComponent(float toX, float toY, float toZ, float fromX, float fromY, float fromZ, int rotX, int rotY, int rotZ, int index) {
             this.neg = new Vector3(toX, toY, toZ);
             this.pos = new Vector3(fromX, fromY, fromZ);
             this.rotation = new ComponentRotation(rotX, rotY, rotZ);

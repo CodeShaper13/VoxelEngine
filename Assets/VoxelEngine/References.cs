@@ -36,7 +36,6 @@ namespace VoxelEngine {
 
         // TileEntity prefabs.
         public GameObject chestPrefab;
-        public GameObject glorbPrefab;
         public GameObject lanternPrefab;
         public GameObject torchPrefab;
         public GameObject mushroomPrefab;

@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
@@ -92,7 +93,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 

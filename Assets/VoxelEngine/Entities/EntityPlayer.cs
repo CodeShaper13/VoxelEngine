@@ -260,12 +260,12 @@ namespace VoxelEngine.Entities {
                 this.dataHotbar.items[0] = new ItemStack(Block.torch, 0, 32);
                 this.dataHotbar.items[1] = new ItemStack(Item.pickaxe, 0, 32);
                 this.dataHotbar.items[2] = new ItemStack(Item.shovel, 0, 32);
-                this.dataHotbar.items[3] = new ItemStack(Item.axe, 0, 1);
+                this.dataHotbar.items[3] = new ItemStack(Block.fence, 0, 32);
                 this.dataHotbar.items[4] = new ItemStack(Block.plank, 0, 32);
-                this.dataHotbar.items[5] = new ItemStack(Item.dynamite, 0, 25);
-                this.dataHotbar.items[6] = new ItemStack(Block.tnt, 0, 32);
-                this.dataHotbar.items[7] = new ItemStack(Block.cobweb, 0, 32);
-                this.dataHotbar.items[8] = new ItemStack(Block.plankStairs, 0, 32);
+                this.dataHotbar.items[5] = new ItemStack(Block.bed, 0, 25);
+                this.dataHotbar.items[6] = new ItemStack(Block.plankStairs, 0, 32);
+                this.dataHotbar.items[7] = new ItemStack(Block.plankSlab, 0, 32);
+                this.dataHotbar.items[8] = new ItemStack(Block.delayer, 0, 32);
 
                 this.dataInventory.items[0] = new ItemStack(Item.pebble);
                 this.dataInventory.items[1] = new ItemStack(Item.coal);

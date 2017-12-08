@@ -5,7 +5,7 @@ namespace VoxelEngine.Render {
 
     /// <summary>
     /// Represents the uvs for a single 4 sided plane.
-    /// Used for working with pixel coords (0-31 inclusive) and then generating uvs.
+    /// NOT CORRECT? ->Used for working with pixel coords (0-31 inclusive) and then generating uvs.
     /// </summary>
     public struct UvPlane {
 
@@ -21,7 +21,7 @@ namespace VoxelEngine.Render {
         private Vector2 uv3;
 
         /// <summary>
-        /// Start is 0 based, with 0,0 being on texture.  0, 0, 32, 32 is an entire tile.
+        /// Start is 0 based, with 0,0 being on texture.  1, 1, 32, 32 is an entire tile.
         /// </summary>
         public UvPlane(TexturePos texturePos, int xStart, int yStart, int pixelCountX, int pixelCountY) {
             this.texturePos = texturePos;

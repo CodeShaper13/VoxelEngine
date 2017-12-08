@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace VoxelEngine.Render {
 
@@ -24,7 +25,18 @@ namespace VoxelEngine.Render {
         /// Returns the color corresponding to a brightness
         /// </summary>
         public Color getColorFromBrightness(int lightLevel) {
+            if(lightLevel < 0 || lightLevel > 15) {
+                throw new Exception("Light level is invalid, " + lightLevel);
+            }
             return this.useDebugColor ? this.debugLightColors[lightLevel] : this.normalLightColors[lightLevel];
+        }
+
+        public Color getSmoothColorFromBrightness(float lightLevel) {
+            int i = (int)lightLevel;
+            int j = i + 1;
+            Color light1 = this.getColorFromBrightness(j > 15 ? 15 : j);
+            Color light2 = this.getColorFromBrightness(i);
+            return Color.Lerp(light1, light2, lightLevel - i);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VoxelEngine.Level;
 
 namespace VoxelEngine.Util {
@@ -154,6 +155,28 @@ namespace VoxelEngine.Util {
 
         public bool isZero() {
             return this.x == 0 && this.y == 0 && this.z == 0;
+        }
+
+        public Direction toDirection() {
+            if(this.Equals(BlockPos.north)) {
+                return Direction.NORTH;
+            }
+            else if (this.Equals(BlockPos.east)) {
+                return Direction.EAST;
+            }
+            else if (this.Equals(BlockPos.west)) {
+                return Direction.WEST;
+            }
+            else if (this.Equals(BlockPos.south)) {
+                return Direction.SOUTH;
+            }
+            else if (this.Equals(BlockPos.up)) {
+                return Direction.UP;
+            }
+            else if (this.Equals(BlockPos.down)) {
+                return Direction.DOWN;
+            }
+            return Direction.NONE;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace VoxelEngine {
 
         private void Start() {
             this.containerManager = new ContainerManager();
-            if(1 == 1) { // Debug instant load
+            if(0 == 1) { // Debug instant load
                 this.createNewWorld(false); // When false, the world is not saved.
             } else {
                 GuiManager.title.open();
@@ -169,7 +169,7 @@ namespace VoxelEngine {
 
         public void createNewWorld(bool flag = true) {
             string name = "World_1";
-            Main.singleton.generateWorld(new WorldData(name, 2346347, WorldType.CAVE.id, flag));
+            Main.singleton.generateWorld(new WorldData(name, 2346347, WorldType.FLAT.id, flag));
         }
 
         /// <summary>

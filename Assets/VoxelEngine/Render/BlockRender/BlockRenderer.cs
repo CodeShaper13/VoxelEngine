@@ -7,7 +7,7 @@ namespace VoxelEngine.Render.BlockRender {
         /// <summary> False will make blocks not be baked into the world. </summary>
         public bool bakeIntoChunks = true;
         /// <summary> If true, the adjacent light levels will be looked up. </summary>
-        public bool lookupAdjacentLight = false;
+        public bool lookupAdjacentLight = true; // TODO was false;
         /// <summary>
         /// If true, the adjacent blocks will be looked up.
         /// Set if the block is rendered differently based on its neighbors.

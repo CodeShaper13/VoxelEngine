@@ -24,7 +24,7 @@ namespace VoxelEngine.Blocks {
             }
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
             return ((clickedDirNormal != Direction.DOWN) && clickedBlock.block.isSolid) ||(clickedDirNormal == Direction.UP && clickedBlock.block is BlockFence);
         }
 

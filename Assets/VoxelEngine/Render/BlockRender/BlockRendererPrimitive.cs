@@ -12,10 +12,6 @@ namespace VoxelEngine.Render.BlockRender {
         /// </summary>
         public int forcedLightMode = 0;
 
-        public BlockRendererPrimitive() {
-            this.setRenderInWorld(true);
-        }
-
         public virtual UvPlane getUvPlane(Block block, int meta, Direction faceDirection, CubeComponent cubeComponent) {
             return new UvPlane(block.getTexturePos(faceDirection, meta), 1, 1, 32, 32);
         }

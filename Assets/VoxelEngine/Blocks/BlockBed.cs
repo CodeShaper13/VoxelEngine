@@ -15,6 +15,13 @@ namespace VoxelEngine.Blocks {
             this.setType(EnumBlockType.WOOD);
         }
 
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
+            Direction d = MathHelper.angleToDirection(angle).getOpposite();
+            BlockPos pos1 = pos.move(d);
+
+            return world.getBlock(pos.move(Direction.DOWN)).isSolid && world.getBlock(pos1).isReplaceable && world.getBlock(pos1.move(Direction.DOWN)).isSolid;
+        }
+
         public override ItemStack[] getDrops(World world, BlockPos pos, int meta, ItemTool brokenWith) {
             return base.getDrops(world, pos, 0, brokenWith);
         }
@@ -23,16 +30,14 @@ namespace VoxelEngine.Blocks {
             base.onNeighborChange(world, pos, meta, neighborDir);
         }
 
-        public override void onPlace(World world, BlockPos pos, int meta) {
-            base.onPlace(world, pos, meta);
-        }
-
         public override int adjustMetaOnPlace(World world, BlockPos pos, int meta, Direction clickedDirNormal, Vector3 angle) {
-            return base.adjustMetaOnPlace(world, pos, meta, clickedDirNormal, angle);
+            //world.setBlock(pos.move(MathHelper.angleToDirection(angle).getOpposite()), Block.bed, 4);
+            return MathHelper.angleToDirection(angle).getOpposite().index - 1;
+            //return base.adjustMetaOnPlace(world, pos, meta, clickedDirNormal, angle);
         }
 
-        public override TexturePos getTexturePos(Direction direction, int meta) {
-            return new TexturePos();
+        public static Direction getBedDirection(int meta) {
+            return Direction.horizontal[meta & ~(1 << 2)];
         }
     }
 }

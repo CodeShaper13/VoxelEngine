@@ -15,6 +15,32 @@ namespace VoxelEngine.Blocks {
         }
 
         public override bool onRightClick(World world, EntityPlayer player, ItemStack heldStack, BlockPos pos, int meta, Direction clickedFace, Vector3 clickedPos) {
+            float x = clickedPos.x;
+            float z = clickedPos.z;
+
+            int newMeta = -1;
+
+            if(x >= 0 && z >= 0) {
+                // top right
+                newMeta = BitHelper.invertBit(meta, 2);
+            }
+            else if(x >= 0 && z < 0) {
+                // top left
+                newMeta = BitHelper.invertBit(meta, 3);
+            }
+            else if(x < 0 && z >= 0) {
+                // bottom left
+                newMeta = BitHelper.invertBit(meta, 4);
+            }
+            else {
+                // bottom right
+                newMeta = BitHelper.invertBit(meta, 5);
+            }
+
+            if (newMeta != -1) {
+                world.setBlock(pos, null, newMeta);
+            }
+
             return true;
         }
 

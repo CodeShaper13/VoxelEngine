@@ -60,12 +60,11 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft.Center {
                                             meta = 1;
                                         }
                                     }
-                                    else {
-                                        block = Block.bed;
-                                    }
-                                }
-                                else if (((this.left && offsetZ == 2) || (this.right && offsetZ == -2)) && offsetX % 2 == 0) {
+                                } else if (((this.left && offsetZ == 2) || (this.right && offsetZ == -2)) && offsetX % 2 == 0) {
                                     block = Block.bed;
+                                    if(offsetZ < 0) {
+                                        meta = 2;
+                                    }
                                 }
                             }                 
                             // Torch

@@ -18,7 +18,7 @@ namespace VoxelEngine.Render.BlockRender {
                     12, 0, 12,
                     20, 32, 20,
                     0),
-                renderFace | RenderFace.Y,
+                RenderFace.ALL,
                 x, y, z);
 
             // Cross pieces

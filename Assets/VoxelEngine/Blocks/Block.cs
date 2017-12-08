@@ -32,7 +32,7 @@ namespace VoxelEngine.Blocks {
         public static Block cobblestone = new Block(12).setName("Cobblestone").setTexture(5, 2).setType(EnumBlockType.STONE).setMineTime(4);
         public static Block cobblestoneSlab = new BlockSlab(13, Block.cobblestone);
         public static Block cobblestoneStairs = new BlockStairs(14, Block.cobblestone);
-        public static Block mushroom = new BlockMushroom(15, 4).setName("Mushroom");
+        public static Block mushroom = new BlockMushroom(15).setName("Mushroom");
         public static Block chest = new BlockChest(16).setName("Chest").setMineTime(2f);
         public static Block cobweb = new BlockCobweb(17).setName("Cobweb").setMineTime(0.15f);
         public static Block wood = new BlockWood(18).setName("Log").setMineTime(2);
@@ -55,7 +55,7 @@ namespace VoxelEngine.Blocks {
         public static Block rail = new BlockRail(35).setName("Rail").setMineTime(0.15f);
             public static Block door; // 36
             public static Block farmland = new BlockFarmland(37).setName("Farmland");
-            public static Block bed = new BlockBed(38).setName("Bed");
+        public static Block bed = new BlockBed(38).setName("Bed");
             public static Block cornCrop = new BlockCrop(39, Item.corn, 3, 5, 7).setName("Corn");
             public static Block carrotCrop = new BlockCrop(40, Item.carrot, 2, 4, 3).setName("Carrots");
         public static Block wire = new BlockWire(43).setName("Wire");
@@ -90,7 +90,7 @@ namespace VoxelEngine.Blocks {
         /// <summary> Is the block a full 1x1x1 cube?  Commonly used to see if it can support other blocks, like ladders.  Also used to cull faces that are against solid blocks </summary>
         public bool isSolid = true;
         /// <summary> Can other blocks replace this one.  Air is replaceable. </summary>
-        public bool replaceable;
+        public bool isReplaceable;
         /// <summary> The blocks type.  Used by tools to increase efficiency. </summary>
         public EnumBlockType blockType;
         public BlockRenderer renderer;
@@ -189,7 +189,7 @@ namespace VoxelEngine.Blocks {
         /// Called by item block to determin if the block trying to be placed is in a valid spot,
         /// stops torches from going on non solid blocks, like fences, etc...
         /// </summary>
-        public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+        public virtual bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
             return true;
         }
 
@@ -217,7 +217,7 @@ namespace VoxelEngine.Blocks {
         }
 
         public Block setReplaceable() {
-            this.replaceable = true;
+            this.isReplaceable = true;
             return this;
         }
 

@@ -2,7 +2,7 @@
 using UnityEngine;
 using VoxelEngine.Containers;
 using VoxelEngine.Render;
-
+using VoxelEngine.Util;
 
 namespace VoxelEngine.Entities {
 
@@ -18,17 +18,20 @@ namespace VoxelEngine.Entities {
         public override void onConstruct() {
             this.filter = this.GetComponent<MeshFilter>();
             this.timeAlive = EntityItem.START_TIME;
+            this.GetComponent<BoxCollider>().size = new Vector3(1 + Random.Range(0.9f, 1.1f), 1 + Random.Range(0.9f, 1.1f), 1 + Random.Range(0.9f, 1.1f));
 
-            this.setShadow(0.6f, 0.75f);
+            this.setShadow(0.8f, 0.75f);
         }
 
         protected override void onPostConstruct() {
             // Needs this.stack to be set, so call it here instead of onConstruct()
             this.calculateMesh();
+
+            this.setConstraints();
         }
 
         protected override void onEntityUpdate() {
-            this.transform.Rotate(0, Time.deltaTime * 25, 0);
+            this.transform.RotateAround(this.transform.position, Vector3.up, Time.deltaTime * 25f);
             this.timeAlive += Time.deltaTime;
 
             if(this.timeAlive >= 300) { // 5 minutes.
@@ -51,6 +54,13 @@ namespace VoxelEngine.Entities {
                         }
                     }
                 }
+            }
+
+            // Stop entity from falling if it's in a block.
+            if(this.world.getBlock(new BlockPos(this.transform.position)).isSolid) {
+                this.rBody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+            } else {
+                this.setConstraints();
             }
         }
 
@@ -128,6 +138,10 @@ namespace VoxelEngine.Entities {
                 this.filter.mesh = RenderManager.getItemMesh(this.stack.item, this.stack.meta, true);
                 this.filter.mesh.RecalculateNormals();
             }
+        }
+
+        private void setConstraints() {
+            this.rBody.constraints = this.stack.item.id <= 255 ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
 
         public static Quaternion randomRotation() {

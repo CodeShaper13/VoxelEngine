@@ -35,7 +35,7 @@ namespace VoxelEngine.Blocks {
             return base.getDrops(world, pos, 0, brokenWith);
         }
 
-        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock) {
+        public override bool isValidPlaceLocation(World world, BlockPos pos, int meta, Direction clickedDirNormal, BlockState clickedBlock, Vector3 angle) {
             return world.getBlock(pos.move(Direction.DOWN)).isSolid;
         }
 

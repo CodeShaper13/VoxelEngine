@@ -51,11 +51,36 @@ namespace VoxelEngine.Util {
         }
 
         /// <summary>
-        /// Faster version of Mathf.floor
+        /// Faster version of Mathf.floor().
         /// </summary>
         public static int floor(float value) {
             int i = (int)value;
             return value < i ? i - 1 : i;
+        }
+
+        /// <summary>
+        /// Takes in the angle passed to Block.isValidPlaceLocation() or Block.adjustMetaOnPlace()
+        /// and returns it as a direction.
+        public static Direction angleToDirection(Vector3 angle) {
+            if (Mathf.Abs(angle.x) > Mathf.Abs(angle.z)) { // X aixs
+                return (angle.x > 0) ? Direction.EAST : Direction.WEST;
+            } else { // Z axis
+                return (angle.z > 0) ? Direction.NORTH : Direction.SOUTH;
+            }
+        }
+
+        /// <summary>
+        /// Increases the passed number and returns it, cycling it back down to the start if it
+        /// passed blockSize.
+        /// Example:
+        /// MathHelper.scrollInt(3, 4) -> 0
+        /// </summary>
+        public static int scrollInt(int number, int blockSize) {
+            number += 1;
+            if(number > blockSize) {
+                number -= blockSize;
+            }
+            return number;
         }
     }
 }
