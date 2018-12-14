@@ -42,6 +42,7 @@ namespace VoxelEngine.Render {
         public LightColors lightColors;
 
         public bool useSmoothLighting;
+        /// <summary> Blocks will use fancy meshes.  Grass blocks have fluffy stuff, etc... </summary>
         public bool useFancyMeshes;
 
         private MeshBuilder reusableMeshBuilder;

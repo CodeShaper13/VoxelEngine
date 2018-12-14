@@ -14,10 +14,10 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public bool westGate;
 
         public PieceMobSpawner(NbtCompound tag) : base(tag) {
-            this.northGate = tag.Get<NbtByte>("nGateg").Value == 1;
-            this.eastGate = tag.Get<NbtByte>("eGateg").Value == 1;
-            this.southGate = tag.Get<NbtByte>("sGateg").Value == 1;
-            this.westGate = tag.Get<NbtByte>("wGateg").Value == 1;
+            this.northGate = tag.Get<NbtByte>("nGate").Value == 1;
+            this.eastGate = tag.Get<NbtByte>("eGate").Value == 1;
+            this.southGate = tag.Get<NbtByte>("sGate").Value == 1;
+            this.westGate = tag.Get<NbtByte>("wGate").Value == 1;
         }
 
         public PieceMobSpawner(StructureMineshaft shaft, BlockPos hallwayPoint, Direction hallwayDir, int piecesFromCenter)
@@ -100,9 +100,9 @@ namespace VoxelEngine.Generation.Caves.Structure.Mineshaft {
         public override NbtCompound writeToNbt(NbtCompound tag) {
             base.writeToNbt(tag);
             tag.Add(new NbtByte("nGate", this.northGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("eGateg", this.eastGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("sGateg", this.southGate ? (byte)1 : (byte)0));
-            tag.Add(new NbtByte("wGateg", this.westGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("eGate", this.eastGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("sGate", this.southGate ? (byte)1 : (byte)0));
+            tag.Add(new NbtByte("wGate", this.westGate ? (byte)1 : (byte)0));
             return tag;
         }
 

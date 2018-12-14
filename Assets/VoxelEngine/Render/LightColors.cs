@@ -32,11 +32,9 @@ namespace VoxelEngine.Render {
         }
 
         public Color getSmoothColorFromBrightness(float lightLevel) {
-            int i = (int)lightLevel;
-            int j = i + 1;
-            Color light1 = this.getColorFromBrightness(j > 15 ? 15 : j);
-            Color light2 = this.getColorFromBrightness(i);
-            return Color.Lerp(light1, light2, lightLevel - i);
+            int lowerLevel = (int)lightLevel;
+            int upperLevel = lowerLevel + 1;
+            return Color.Lerp(this.getColorFromBrightness(lowerLevel), this.getColorFromBrightness(upperLevel > 15 ? 15 : upperLevel), lightLevel - lowerLevel);
         }
     }
 }

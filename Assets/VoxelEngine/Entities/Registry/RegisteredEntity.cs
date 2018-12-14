@@ -16,7 +16,7 @@ namespace VoxelEngine.Entities.Registry {
         private Type type;
 
         public RegisteredEntity(int id, string prefabName) {
-            this.prefab = Resources.Load<GameObject>("Prefabs/Entities/" + prefabName);
+            this.prefab = Resources.Load<GameObject>("Entities/" + prefabName);
             if (this.prefab == null) {
                 throw new Exception("Entity Prefab with name " + prefabName + " could not be found!");
             }

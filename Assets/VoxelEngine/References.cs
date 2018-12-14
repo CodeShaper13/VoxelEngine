@@ -17,7 +17,6 @@ namespace VoxelEngine {
 
         // Other prefabs.
         public GameObject blockBreakEffect;
-        public GameObject worldPrefab;
         public GameObject chunkPrefab;
         public GameObject shadowPrefab;
         public GameObject worldSpaceTooltipPrefab;
@@ -35,33 +34,6 @@ namespace VoxelEngine {
         public Transform containerRightOrgin;
 
         // TileEntity prefabs.
-        public GameObject chestPrefab;
-        public GameObject lanternPrefab;
         public GameObject torchPrefab;
-        public GameObject mushroomPrefab;
-
-        /// <summary>
-        /// Called from Main.Awake().
-        /// </summary>
-        public void loadResources() {
-            this.blockMaterial = Resources.Load<Material>("Materials/BlockMaterial");
-
-            this.textureAtlas = Resources.Load<Texture2D>("Images/textureAtlas");
-            this.lightColorSheet = Resources.Load<Texture2D>("Images/light_colors");
-            this.debugLightColorSheet = Resources.Load<Texture2D>("Images/light_colors_debug");
-
-            this.blockBreakEffect = Resources.Load<GameObject>("Prefabs/BreakBlockEffect");
-            this.worldPrefab = Resources.Load<GameObject>("Prefabs/World");
-            this.chunkPrefab = Resources.Load<GameObject>("Prefabs/Chunk");
-            this.shadowPrefab = Resources.Load<GameObject>("Prefabs/EntityShadow");
-            this.worldSpaceTooltipPrefab = Resources.Load<GameObject>("Prefabs/WorldSpaceTooltip");
-
-            this.chestPrefab = Resources.Load<GameObject>("Prefabs/Blocks/ChestPrefab");
-            this.lanternPrefab = Resources.Load<GameObject>("Prefabs/Blocks/LanternPrefab");
-            this.torchPrefab = Resources.Load<GameObject>("Prefabs/Blocks/TorchPrefab");
-            this.mushroomPrefab = Resources.Load<GameObject>("Prefabs/Blocks/MushroomPrefab");
-
-            References.list = this;
-        }
     }
 }

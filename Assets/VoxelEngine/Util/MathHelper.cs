@@ -82,5 +82,10 @@ namespace VoxelEngine.Util {
             }
             return number;
         }
+
+        ///
+        public static int roundAwayFrom0(float f) {
+            return f < 0 ? MathHelper.floor(f) : Mathf.CeilToInt(f);
+        }
     }
 }

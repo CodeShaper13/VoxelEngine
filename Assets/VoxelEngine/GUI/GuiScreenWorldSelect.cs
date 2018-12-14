@@ -16,15 +16,12 @@ namespace VoxelEngine.GUI {
         public Button renameButton;
         public Button deleteButton;
 
-        private GameObject worldTilePrefab;
+        public GameObject worldTilePrefab;
+
         private List<WorldData> cachedWorlds;
         private PlayWorldButton selectedWorld;
 
-        public GameObject test; 
-
-        private void Awake() {
-            this.worldTilePrefab = Resources.Load<GameObject>("Prefabs/GUI/Panel_WorldTile");
-        }
+        public GameObject test;
 
         public static List<WorldData> getSavedWorldData() {
             List<WorldData> worlds = new List<WorldData>();

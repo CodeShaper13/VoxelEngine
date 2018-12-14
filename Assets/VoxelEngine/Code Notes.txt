@@ -1,0 +1,27 @@
+Order of directions:
+(None is somethimes 0)
+North(0), East(1), South(2), West(3), Up(4), Down(5)
+
+Direction IDs:
+N = 0
+E = 1
+S = 2
+W = 3
+
+UV ORder:
+1 2
+0 3
+
+Mineshaft IDs:
+Center  = 0
+Crossing = 1
+Hallway = 2
+Room = 3
+Shaft = 4
+Spawner = 5
+Hallway Crossing = 6
+Center Shaft = 7
+Center Bedroom = 8
+Center Storage = 9
+
+When added TileEntites update TileEntityBase!!!

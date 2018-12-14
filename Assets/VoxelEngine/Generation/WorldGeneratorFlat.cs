@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Profiling;
 using VoxelEngine.Blocks;
 using VoxelEngine.ChunkLoaders;
 using VoxelEngine.Entities;
@@ -20,6 +21,19 @@ namespace VoxelEngine.Generation {
         }
 
         public override void generateChunk(Chunk chunk) {
+            Profiler.BeginSample("1");
+            int x1;
+            int y1;
+            int z1;
+            for(int index = 0; index < Chunk.BLOCK_COUNT; index++) {
+                x1 = index / (Chunk.SIZE * Chunk.SIZE);
+                y1 = (index / Chunk.SIZE) % Chunk.SIZE;
+                z1 = index % Chunk.SIZE;
+                chunk.setBlock(x1, y1, z1, this.getBlockForHeight(y1 + chunk.worldPos.y));
+            }
+            Profiler.EndSample();
+
+            Profiler.BeginSample("2");
             for (int x = 0; x < Chunk.SIZE; x++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
                     for (int y = 0; y < Chunk.SIZE; y++) {
@@ -27,6 +41,7 @@ namespace VoxelEngine.Generation {
                     }
                 }
             }
+            Profiler.EndSample();
         }
 
         public override ChunkLoaderBase getChunkLoader(EntityPlayer player) {

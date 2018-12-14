@@ -34,8 +34,8 @@ namespace VoxelEngine.Util {
             Schematic s = new Schematic(Chunk.SIZE, Chunk.SIZE, Chunk.SIZE);
 
             for (int i = 0; i < s.totalSize; i++) {
-                Array.Copy(s.blocks, chunk.blocks, s.totalSize);
-                Array.Copy(s.metaData, chunk.metaData, s.totalSize);
+                Array.Copy(s.blocks, chunk.getBlockArray(), s.totalSize);
+                Array.Copy(s.metaData, chunk.getMetArray(), s.totalSize);
             }
 
             return s;

@@ -9,17 +9,17 @@ namespace VoxelEngine.Generation {
 
         public static List<WorldType> typeList = new List<WorldType>();
 
-        public static readonly WorldType CAVE = new WorldType("Caves");
-        public static readonly WorldType FLAT = new WorldType("Flat");
-        public static readonly WorldType HILLS = new WorldType("Hills").setHidden();
-        public static readonly WorldType ISLAND = new WorldType("Island").setHidden();
+        public static readonly WorldType CAVE = new WorldType(0, "Caves");
+        public static readonly WorldType FLAT = new WorldType(1, "Flat");
+        public static readonly WorldType HILLS = new WorldType(2, "Hills").setHidden();
+        public static readonly WorldType ISLAND = new WorldType(3, "Island").setHidden();
 
         public int id;
         public string name;
         public bool isHidden;
 
-        private WorldType(string name) {
-            this.id = WorldType.typeList.Count;
+        private WorldType(int id, string name) {
+            this.id = id;
             this.name = name;
             WorldType.typeList.Add(this);
         }

@@ -54,7 +54,7 @@ namespace VoxelEngine.Entities.Registry {
             }
             return -1;
         }
-
+        
         public static RegisteredEntity getRegisteredEntityFromId(int id) {
             return EntityRegistry.registry[id];
         }

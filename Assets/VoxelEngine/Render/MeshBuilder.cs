@@ -304,12 +304,12 @@ namespace VoxelEngine.Render {
         /// Fills the light lookup table with max light of 15.  Used by blocks and items in the hud when prerendering.
         /// </summary>
         public void setMaxLight() {
-            for(int i = 0; i < this.lightLevels.Length; i++) {
+            for(int i = 0; i < 27; i++) {
                 this.lightLevels[i] = 15;
             }
         }
 
-        [Obsolete("Doesnt handle uv mirroring")]
+        [Obsolete("Doesn't handle uv mirroring")]
         public Vector2[] generateUVsFromTP(TexturePos tilePos) {
             float x = TexturePos.ATLAS_TILE_SIZE * tilePos.x;
             float y = TexturePos.ATLAS_TILE_SIZE * tilePos.y;
@@ -443,16 +443,132 @@ namespace VoxelEngine.Render {
             }
         }
 
+        public static bool FLAG = false;
+
+        // Broken!
+        public float sampleAxis(float offset, EnumAxis axis) {
+            int currentLight = this.getLightLevel(0, 0, 0);
+
+            // Debugging.
+            if(Math.Abs(offset) > 0.5f) { throw new Exception("offset our of range " + offset); }
+
+            // Speedy lookup
+            if(offset == 0) { // Middle of cell.
+                return currentLight;
+            }
+            else if (offset == 0.5 || offset == -0.5f) {
+                BlockPos pos = BlockPos.zero;
+                if (axis == EnumAxis.X) {
+                    pos = new BlockPos(1, 0, 0);
+                }
+                else if (axis == EnumAxis.Y) {
+                    pos = new BlockPos(0, 1, 0);
+                }
+                else if (axis == EnumAxis.Z) {
+                    pos = new BlockPos(0, 0, 1);
+                }
+                return (currentLight + this.getLightLevel(pos)) / 2f; // Average of the two levels.
+            }
+            else {
+                float l1 = currentLight;
+                float l2;
+                if(axis == EnumAxis.X) {
+                    l2 = this.getLightLevel(MathHelper.roundAwayFrom0(offset), 0, 0);
+                } else if(axis == EnumAxis.Y) {
+                    l2 = this.getLightLevel(0, MathHelper.roundAwayFrom0(offset), 0);
+                } else { // EnumAxis.Z
+                    l2 = this.getLightLevel(0, 0, MathHelper.roundAwayFrom0(offset));
+                }
+
+                return Mathf.Lerp(l1, l2, Mathf.Abs(offset));
+            }
+        }
+
+        private void print(object obj) {
+            if(FLAG) {
+                Debug.Log(obj);
+            }
+        }
+
         /// <summary>
         /// Calculates the light color for a single vertex.  Vertex should be a Vector with its offset from
         /// it's cell orgin.  Normal can point away from the cell, if the plane borders the edge of the cell,
         /// or be (0, 0, 0) if the face is inside of the cell.
         /// </summary>
-        private Color calculateLightForVertex(Vector3 vertex, BlockPos normal) {
+        public Color calculateLightForVertex(Vector3 vertex, BlockPos normal) {
             //TODO if vertex is a corner one, sample diagonal light.
 
-            float level;
             if (RenderManager.instance.useSmoothLighting) {
+                float ij = 0;
+                int k = 0;
+                if(normal.x == 0) {
+                    float p = this.sampleAxis(vertex.x, EnumAxis.X);
+                    print("X Sample: " + p);
+                    ij += p;
+                    k++;
+                }
+                if(normal.y == 0) {
+                    float p = this.sampleAxis(vertex.y, EnumAxis.Y);
+                    print("Y Sample: " + p);
+                    ij += p;
+                    k++;
+                }
+                if (normal.z == 0) {
+                    float p = this.sampleAxis(vertex.z, EnumAxis.Z);
+                    print("Z Sample: " + p);
+                    ij += p;
+                    k++;
+                }
+
+                return RenderManager.instance.lightColors.getSmoothColorFromBrightness(ij / k);
+
+                ij = 0;
+                k = 0;
+                float w;
+                if(normal.x == 0) {
+                    //print("X");
+                    ij += this.sampleAxis(vertex.y, EnumAxis.Y);
+                    ij += this.sampleAxis(vertex.z, EnumAxis.Z);
+                    k += 2;
+                }
+                if(normal.y == 0) {
+                    //print("Y");
+                    w = this.sampleAxis(vertex.x, EnumAxis.X);
+                    if(w != 0) {
+                        ij += w;
+                        k++;
+                    }
+
+                    w = this.sampleAxis(vertex.z, EnumAxis.Z);
+                    if (w != 0) {
+                        ij += w;
+                        k++;
+                    }
+                }
+                if(normal.z == 0) {
+                    //print("Z");
+                    w = this.sampleAxis(vertex.x, EnumAxis.X);
+                    if (w != 0) {
+                        ij += w;
+                        k++;
+                    }
+
+                    w = this.sampleAxis(vertex.y, EnumAxis.Y);
+                    if (w != 0) {
+                        ij += w;
+                        k++;
+                    }
+                }
+                if(normal.isZero()) {
+                    ij += this.sampleAxis(vertex.x, EnumAxis.X);
+                    ij += this.sampleAxis(vertex.y, EnumAxis.Y);
+                    ij += this.sampleAxis(vertex.z, EnumAxis.Z);
+                    k += 3;
+                }
+
+                print("LL: " + ij / k);
+                return RenderManager.instance.lightColors.getSmoothColorFromBrightness(ij / k);
+                
                 List<int> sampledLevels = new List<int>();
 
                 int x = normal.x;
@@ -538,14 +654,11 @@ namespace VoxelEngine.Render {
                 for (int i = 0; i < sampledLevels.Count; i++) {
                     lightTotal += sampledLevels[i];
                 }
-                level = lightTotal / sampledLevels.Count;
-
-            } else {
-                level = this.getLightLevel(0, 0, 0);
+                return RenderManager.instance.lightColors.getSmoothColorFromBrightness(lightTotal / sampledLevels.Count);
             }
-
-            // Return color.
-            return RenderManager.instance.lightColors.getSmoothColorFromBrightness(level);
+            else {
+                return RenderManager.instance.lightColors.getColorFromBrightness(13);
+            }
         }
 
         /// <summary>
@@ -569,7 +682,6 @@ namespace VoxelEngine.Render {
                 this.vertexColors.Add(this.calculateLightForVertex(v1, shift));
                 this.vertexColors.Add(this.calculateLightForVertex(v2, shift));
                 this.vertexColors.Add(this.calculateLightForVertex(v3, shift));
-                
 
                 this.addQuad(
                     v0 + worldPos,

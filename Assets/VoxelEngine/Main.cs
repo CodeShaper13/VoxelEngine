@@ -5,11 +5,9 @@ using VoxelEngine.Command;
 using VoxelEngine.Containers;
 using VoxelEngine.Entities;
 using VoxelEngine.Entities.Registry;
-using VoxelEngine.Generation;
 using VoxelEngine.GUI;
 using VoxelEngine.Items;
 using VoxelEngine.Level;
-using VoxelEngine.ObjData;
 using VoxelEngine.Render;
 using VoxelEngine.Util;
 
@@ -32,6 +30,9 @@ namespace VoxelEngine {
         [HideInInspector]
         public EntityPlayer player;
 
+        [Header("0 = Normal, >0 = instant load world, -1 = Init only")]
+        public int launchFlag = 0;
+
         public Text textDebug;
         public Transform textWindowRoot;
 
@@ -43,8 +44,7 @@ namespace VoxelEngine {
         private void Awake() {
             Main.singleton = this;
 
-            // Make sure the singleton reference is set.
-            this.GetComponent<References>().loadResources();
+            References.list = this.GetComponent<References>();
 
             Options.loadInitialOptions();
 
@@ -59,11 +59,57 @@ namespace VoxelEngine {
         }
 
         private void Start() {
-            this.containerManager = new ContainerManager();
-            if(0 == 1) { // Debug instant load
+            if(this.launchFlag != -1) {
+                this.containerManager = new ContainerManager();
+            }
+
+            if(this.launchFlag == 0) {
+                GuiManager.title.open();
+            } else if(this.launchFlag > 0) { // Debug instant load
                 this.createNewWorld(false); // When false, the world is not saved.
             } else {
-                GuiManager.title.open();
+                MeshBuilder.FLAG = true;
+
+                MeshBuilder mb = RenderManager.getMeshBuilder();
+
+                for(int x = -1; x < 2; x++) {
+                    for (int y = -1; y < 2; y++) {
+                        for (int z = -1; z < 2; z++) {
+                            mb.setLightLevel(x, y, z, 5 + 1 + x);
+                        }
+                    }
+                }
+                // print(mb.getLightLevel(-1, 0, 0));
+                // print(mb.getLightLevel(0, 0, 0));
+                // print(mb.getLightLevel(1, 0, 0));
+                // Light levels
+                // +---------> X
+                // | 5, 6, 7
+
+                print(mb.sampleAxis(0, EnumAxis.X));
+                print(mb.sampleAxis(0.5f, EnumAxis.X));
+                print(mb.sampleAxis(-0.5f, EnumAxis.X));
+
+
+                float i = mb.sampleAxis(0.5f, EnumAxis.X);
+                float j = mb.sampleAxis(0.0f, EnumAxis.Y);
+                float k = mb.sampleAxis(0.0f, EnumAxis.Z);
+                print(i);
+                print(j);
+                print(k);
+                print("Result: " + (i + j + k) / 3);
+
+                LightColors lc = RenderManager.instance.lightColors;
+
+                /*
+                Color c = mb.calculateLightForVertex(new Vector3(0.5f, 0, 0), new BlockPos(0, 0, 0));
+                Color l6 = lc.getColorFromBrightness(6);
+                Color l7 = lc.getColorFromBrightness(7);
+                print("6: " + l6);
+                print("/  " + c);
+                print("\\  "+ (l6 + l7) / 2);
+                print("7: " + l7);
+                */
             }
         }
 
@@ -167,9 +213,9 @@ namespace VoxelEngine {
             }
         }
 
-        public void createNewWorld(bool flag = true) {
+        public void createNewWorld(bool worldIsSavable) {
             string name = "World_1";
-            Main.singleton.generateWorld(new WorldData(name, 2346347, WorldType.FLAT.id, flag));
+            Main.singleton.generateWorld(new WorldData(name, 2346347, this.launchFlag, worldIsSavable));
         }
 
         /// <summary>
@@ -217,7 +263,7 @@ namespace VoxelEngine {
         /// Creates a new world and loads it.
         /// </summary>
         public void generateWorld(WorldData data) {
-            this.worldObj = GameObject.Instantiate(References.list.worldPrefab).GetComponent<World>();
+            this.worldObj = new GameObject().AddComponent<World>();
             this.worldObj.initWorld(data);
 
             if(GuiManager.currentGui != null) {

@@ -31,7 +31,7 @@ namespace VoxelEngine.GUI {
 
             this.deleteWorldObjects();
             Directory.Delete("saves/World_1", true);
-            Main.singleton.createNewWorld();
+            Main.singleton.createNewWorld(true);
         }
 
         public override GuiScreen getEscapeCallback() {

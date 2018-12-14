@@ -24,11 +24,15 @@ namespace VoxelEngine.Level.Light {
         }
 
         private int getLight(int worldX, int worldY, int worldZ) {
-            return region.getLight(worldX - this.orginX, worldY - this.orginY, worldZ - this.orginZ);
+            return this.region.getLight(worldX - this.orginX, worldY - this.orginY, worldZ - this.orginZ);
+        }
+
+        private void setLight(int worldX, int worldY, int worldZ, int amount) {
+            this.region.setLight(worldX - this.orginX, worldY - this.orginY, worldZ - this.orginZ, amount);
         }
 
         private Block getBlock(int worldX, int worldY, int worldZ) {
-            return region.getBlock(worldX - this.orginX, worldY - this.orginY, worldZ - this.orginZ);
+            return this.region.getBlock(worldX - this.orginX, worldY - this.orginY, worldZ - this.orginZ);
         }
 
         public void updateLighting(int newLight, int startX, int startY, int startZ) {
@@ -70,10 +74,14 @@ namespace VoxelEngine.Level.Light {
                 z = node.z;
                 lightLevel = node.lightLevel;
 
+                int ox = x - this.orginX;
+                int oy = y - this.orginY;
+                int oz = z - this.orginZ;
+
                 // -X
                 neighborLevel = this.getLight(x - 1, y, z);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x - 1, y, z, 0);
+                    this.region.setLight(ox - 1, oy, oz, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x - 1, y, z, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -83,7 +91,7 @@ namespace VoxelEngine.Level.Light {
                 // +X
                 neighborLevel = this.getLight(x + 1, y, z);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x + 1, y, z, 0);
+                    this.region.setLight(ox + 1, oy, oz, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x + 1, y, z, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -93,7 +101,7 @@ namespace VoxelEngine.Level.Light {
                 // -Y
                 neighborLevel = this.getLight(x, y - 1, z);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x, y - 1, z, 0);
+                    this.region.setLight(ox, oy - 1, oz, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x, y - 1, z, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -103,7 +111,7 @@ namespace VoxelEngine.Level.Light {
                 // +Y
                 neighborLevel = this.getLight(x, y + 1, z);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x, y + 1, z, 0);
+                    this.region.setLight(ox, oy + 1, oz, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x, y + 1, z, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -113,7 +121,7 @@ namespace VoxelEngine.Level.Light {
                 // -Z
                 neighborLevel = this.getLight(x, y, z - 1);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x, y, z - 1, 0);
+                    this.region.setLight(ox, oy, oz - 1, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x, y, z - 1, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -123,7 +131,7 @@ namespace VoxelEngine.Level.Light {
                 // +Z
                 neighborLevel = this.getLight(x, y, z + 1);
                 if (neighborLevel != 0 && neighborLevel < lightLevel) {
-                    this.world.setLight(x, y, z + 1, 0);
+                    this.region.setLight(ox, oy, oz + 1, 0);
                     this.removalQueue.Enqueue(new LightRemovalNode(x, y, z + 1, neighborLevel));
                 }
                 else if (neighborLevel >= lightLevel) {
@@ -131,7 +139,7 @@ namespace VoxelEngine.Level.Light {
                 }
             }
 
-            this.world.setLight(startX, startY, startZ, newLight);
+            this.setLight(startX, startY, startZ, newLight);
 
             this.queue.Enqueue(new BlockPos(startX, startY, startZ));
 
@@ -145,27 +153,27 @@ namespace VoxelEngine.Level.Light {
                 lightLevel = this.getLight(x, y, z);
 
                 if (!this.getBlock(x - 1, y, z).isSolid && this.getLight(x - 1, y, z) + 2 <= lightLevel) {
-                    this.world.setLight(x - 1, y, z, lightLevel - 1);
+                    this.setLight(x - 1, y, z, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x - 1, y, z));
                 }
                 if (!this.getBlock(x + 1, y, z).isSolid && this.getLight(x + 1, y, z) + 2 <= lightLevel) {
-                    this.world.setLight(x + 1, y, z, lightLevel - 1);
+                    this.setLight(x + 1, y, z, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x + 1, y, z));
                 }
                 if (!this.getBlock(x, y - 1, z).isSolid && this.getLight(x, y - 1, z) + 2 <= lightLevel) {
-                    this.world.setLight(x, y - 1, z, lightLevel - 1);
+                    this.setLight(x, y - 1, z, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x, y - 1, z));
                 }
                 if (!this.getBlock(x, y + 1, z).isSolid && this.getLight(x, y + 1, z) + 2 <= lightLevel) {
-                    this.world.setLight(x, y + 1, z, lightLevel - 1);
+                    this.setLight(x, y + 1, z, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x, y + 1, z));
                 }
                 if (!this.getBlock(x, y, z - 1).isSolid && this.getLight(x, y, z - 1) + 2 <= lightLevel) {
-                    this.world.setLight(x, y, z - 1, lightLevel - 1);
+                    this.setLight(x, y, z - 1, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x, y, z - 1));
                 }
                 if (!this.getBlock(x, y, z + 1).isSolid && this.getLight(x, y, z + 1) + 2 <= lightLevel) {
-                    this.world.setLight(x, y, z + 1, lightLevel - 1);
+                    this.setLight(x, y, z + 1, lightLevel - 1);
                     this.queue.Enqueue(new BlockPos(x, y, z + 1));
                 }
             }

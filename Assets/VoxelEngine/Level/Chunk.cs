@@ -27,9 +27,9 @@ namespace VoxelEngine.Level {
         public World world;
 
         public Block[] blocks;
-        public byte[] metaData;
+        private byte[] metaData;
         /// <summary> First 4 bits are block light, last 4 are sky light. </summary>
-        public byte[] lightLevel;
+        private byte[] lightLevel;
         /// <summary> Holds all the TileEntities in the chunk.  BlockPos is in world coordinates. </summary>
         public Dictionary<BlockPos, TileEntityBase> tileEntityDict; //TODO replace with a faster collection type
         public BlockPos worldPos;
@@ -143,16 +143,16 @@ namespace VoxelEngine.Level {
         }
 
         public Block getBlock(int x, int y, int z) {
-            return this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+            return this.blocks[x + Chunk.SIZE * (y + Chunk.SIZE * z)];
         }
 
         public void setBlock(int x, int y, int z, Block block) {
             this.isDirty = true;
-            this.blocks[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = block;
+            this.blocks[x + Chunk.SIZE * (y + Chunk.SIZE * z)] = block;
         }
 
         public int getMeta(int x, int y, int z) {
-            return this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+            return this.metaData[x + Chunk.SIZE * (y + Chunk.SIZE * z)];
         }
 
         /// <summary>
@@ -160,14 +160,14 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void setMeta(int x, int y, int z, int meta) {
             this.isDirty = true;
-            this.metaData[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)meta;
+            this.metaData[x + Chunk.SIZE * (y + Chunk.SIZE * z)] = (byte)meta;
         }
 
         public int getLight(int x, int y, int z) {
             #if (MAX_LIGHT)
                 return 12;
             #endif
-            return this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x];
+            return this.lightLevel[x + Chunk.SIZE * (y + Chunk.SIZE * z)];
         }
 
         /// <summary>
@@ -175,7 +175,8 @@ namespace VoxelEngine.Level {
         /// </summary>
         public void setLight(int x, int y, int z, int amount) {
             this.isDirty = true;
-            this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)amount;
+            this.lightLevel[x + Chunk.SIZE * (y + Chunk.SIZE * z)] = (byte)amount;
+            //this.lightLevel[(y * Chunk.SIZE * Chunk.SIZE) + (z * Chunk.SIZE) + x] = (byte)amount;
         }
 
         /// <summary>
@@ -217,7 +218,7 @@ namespace VoxelEngine.Level {
                 for (y = 0; y < Chunk.SIZE; y++) {
                     for (z = 0; z < Chunk.SIZE; z++) {
                         currentBlock = this.getBlock(x, y, z);
-                        if(currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
+                        if (currentBlock.renderer != null && currentBlock.renderer.bakeIntoChunks) {
                             renderFaceMask = 0;
 
                             // Find the surrounding blocks and faces to cull.
@@ -265,10 +266,10 @@ namespace VoxelEngine.Level {
                                         }
                                     }
                                 } else {
-                                    meshBuilder.setLightLevel(0, 0, 0, this.getLight(x, y, z));
+                            meshBuilder.setLightLevel(0, 0, 0, this.getLight(x, y, z));
                                 }
                                 // Render the block.
-                                currentBlock.renderer.renderBlock(currentBlock, this.getMeta(x, y, z), meshBuilder, x, y, z, renderFaceMask, surroundingBlocks);
+                                currentBlock.renderer.renderBlock(currentBlock,  this.getMeta(x, y, z), meshBuilder, x, y, z, renderFaceMask, surroundingBlocks);
                             }
                         }
                     }
@@ -368,7 +369,6 @@ namespace VoxelEngine.Level {
                 this.world.addTileEntity(pos, te);
             }
 
-            // Populate the tile entity dictionary.
             foreach (NbtCompound compound in tag.Get<NbtList>("scheduledTicks")) {
                 this.scheduledTicks.Add(new ScheduledTick(compound));
             }
@@ -389,6 +389,14 @@ namespace VoxelEngine.Level {
             if(!this.isReadOnly) {
                 this.isDirty = true;
             }
+        }
+
+        public Block[] getBlockArray() {
+            return this.blocks;
+        }
+
+        public byte[] getMetArray() {
+            return this.metaData;
         }
     }
 }

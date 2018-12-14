@@ -82,6 +82,13 @@ namespace VoxelEngine.Util {
             return this.getChunk(x, y, z).getLight(localX, localY, localZ);
         }
 
+        public void setLight(int x, int y, int z, int amount) {
+            int localX = x + (x < 0 ? Chunk.SIZE : x >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int localY = y + (y < 0 ? Chunk.SIZE : y >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            int localZ = z + (z < 0 ? Chunk.SIZE : z >= Chunk.SIZE ? -Chunk.SIZE : 0);
+            this.getChunk(x, y, z).setLight(localX, localY, localZ, amount);
+        }
+
         /// <summary>
         /// Returns the correct chunk from local chunk coords.  If the coords are out of the orgin chunk, this returns an adjacent chunk.
         /// </summary>
